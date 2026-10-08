@@ -223,7 +223,7 @@ const viewer=$("viewer"),home=$("home"),frame=$("frame");let homeScroll=0,cur=-1
 function show(idx){
   const l=FLAT[idx];if(!l)return;
   if(viewer.hidden)homeScroll=window.scrollY;
-  cur=idx;const src="lessons/"+l.s+".html";
+  cur=idx;const src=l.s+".html";
   if(frame.getAttribute("src")!==src)frame.setAttribute("src",src);
   $("vn").textContent=l.n+" / "+FLAT.length;$("vt").textContent=l.t;$("vopen").href=src;
   $("vprev").disabled=idx===0;$("vnext").disabled=idx===FLAT.length-1;
