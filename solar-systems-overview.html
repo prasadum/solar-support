@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">Solar Energy Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Projector Specific Base Styles */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 24px; /* Base projector size */
+            background-color: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* High Contrast Header */
+        header {
+            background-color: #1e293b; /* slate-800 */
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #334155;
+            transition: all 0.2s;
+            border-bottom: 4px solid transparent;
+        }
+
+        .tab-btn.active {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-bottom: 4px solid #3b82f6;
+            font-weight: bold;
+        }
+
+        /* SVG Styles */
+        svg {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-box {
+            background: #ffffff;
+            border-left: 6px solid #3b82f6;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .pros-box { border-left-color: #22c55e; }
+        .cons-box { border-left-color: #ef4444; }
+        
+        table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { border: 2px solid #cbd5e1; padding: 1rem; text-align: left; }
+        th { background: #f1f5f9; font-weight: bold; font-size: 1.2rem; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <header class="flex justify-between items-center p-6 shrink-0">
+        <div>
+            <h1 class="text-4xl font-extrabold tracking-tight" data-i18n="main_heading">Solar Energy Systems</h1>
+            <p class="text-xl text-slate-300 mt-2" data-i18n="sub_heading">Technical Training & Overview</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <label for="lang-select" class="text-xl font-bold">🌐</label>
+            <select id="lang-select" class="text-xl p-2 rounded text-slate-900 border-2 border-blue-500 font-bold focus:outline-none">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="ml">മലയാളം (Malayalam)</option>
+            </select>
+        </div>
+    </header>
+
+    <nav class="flex w-full overflow-x-auto bg-slate-200 shrink-0">
+        <button class="tab-btn active px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-ongrid')" data-i18n="tab_ongrid">On-Grid</button>
+        <button class="tab-btn px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-offgrid')" data-i18n="tab_offgrid">Off-Grid</button>
+        <button class="tab-btn px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-hybrid')" data-i18n="tab_hybrid">Hybrid</button>
+        <button class="tab-btn px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-islanding')" data-i18n="tab_islanding">Islanding</button>
+        <button class="tab-btn px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-bess')" data-i18n="tab_bess">BESS & IEC</button>
+        <button class="tab-btn px-6 py-4 text-xl flex-1 whitespace-nowrap" onclick="openTab('tab-comparison')" data-i18n="tab_compare">Comparison</button>
+    </nav>
+
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+        
+        <!-- ON-GRID TAB -->
+        <div id="tab-ongrid" class="tab-content active h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_ongrid">On-Grid System</h2>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-8">
+                <!-- Diagram Side -->
+                <div class="w-full lg:w-3/5">
+                    <svg viewBox="0 0 800 400" class="w-full h-full border-2 border-slate-200">
+                        <!-- Background Grid for alignment visualization (subtle) -->
+                        <rect width="100%" height="100%" fill="#f8fafc" />
+                        
+                        <!-- Solar Panels -->
+                        <rect x="50" y="150" width="100" height="120" rx="4" fill="#1e40af" stroke="#0f172a" stroke-width="3"/>
+                        <line x1="50" y1="190" x2="150" y2="190" stroke="#60a5fa" stroke-width="2"/>
+                        <line x1="50" y1="230" x2="150" y2="230" stroke="#60a5fa" stroke-width="2"/>
+                        <line x1="100" y1="150" x2="100" y2="270" stroke="#60a5fa" stroke-width="2"/>
+                        <text x="100" y="300" text-anchor="middle" font-weight="bold" font-size="20">PV Array</text>
+                        <circle cx="100" cy="80" r="25" fill="#fbbf24"/>
+                        <path d="M100 35 L100 45 M100 115 L100 125 M55 80 L65 80 M135 80 L145 80" stroke="#fbbf24" stroke-width="4"/>
+
+                        <!-- Wiring DC -->
+                        <path d="M150 210 L250 210" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5"/>
+                        <text x="200" y="195" text-anchor="middle" font-size="16" fill="#ef4444">DC Power</text>
+
+                        <!-- Inverter -->
+                        <rect x="250" y="170" width="120" height="80" rx="8" fill="#e2e8f0" stroke="#475569" stroke-width="4"/>
+                        <text x="310" y="210" text-anchor="middle" font-weight="bold" font-size="24">DC / AC</text>
+                        <text x="310" y="280" text-anchor="middle" font-weight="bold" font-size="20">Grid-Tie Inverter</text>
+
+                        <!-- Wiring AC -->
+                        <path d="M370 210 L470 210" fill="none" stroke="#3b82f6" stroke-width="4"/>
+                        <text x="420" y="195" text-anchor="middle" font-size="16" fill="#3b82f6">AC Power</text>
+
+                        <!-- Bi-directional Meter -->
+                        <circle cx="510" cy="210" r="40" fill="#f1f5f9" stroke="#0f172a" stroke-width="4"/>
+                        <path d="M495 210 L525 210 M510 195 L510 225" stroke="#10b981" stroke-width="3" marker-end="url(#arrow)"/>
+                        <path d="M510 225 L510 195" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>
+                        <text x="510" y="280" text-anchor="middle" font-weight="bold" font-size="20">Bi-Dir. Meter</text>
+
+                        <!-- Wiring to Grid & Load -->
+                        <path d="M550 210 L650 210" fill="none" stroke="#3b82f6" stroke-width="4"/>
+                        <path d="M600 210 L600 100 L680 100" fill="none" stroke="#3b82f6" stroke-width="4"/>
+                        <path d="M600 210 L600 320 L680 320" fill="none" stroke="#3b82f6" stroke-width="4"/>
+
+                        <!-- Grid -->
+                        <path d="M700 130 L690 130 L700 80 L710 130 L700 130 M680 90 L720 90" fill="none" stroke="#64748b" stroke-width="4"/>
+                        <text x="700" y="160" text-anchor="middle" font-weight="bold" font-size="20">Utility Grid</text>
+
+                        <!-- Load -->
+                        <path d="M680 320 L720 320 L720 280 L700 260 L680 280 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="4"/>
+                        <text x="700" y="350" text-anchor="middle" font-weight="bold" font-size="20">Home Load</text>
+                    </svg>
+                </div>
+                
+                <!-- Text Side -->
+                <div class="w-full lg:w-2/5 flex flex-col gap-4 text-2xl">
+                    <div class="feature-box">
+                        <strong data-i18n="features">Features:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="og_f1">Connects directly to utility grid</li>
+                            <li data-i18n="og_f2">No batteries required</li>
+                            <li data-i18n="og_f3">Net metering enabled</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box pros-box">
+                        <strong data-i18n="advantages">Advantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="og_a1">Lowest initial cost</li>
+                            <li data-i18n="og_a2">Highest efficiency</li>
+                            <li data-i18n="og_a3">Earn credit for excess power</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box cons-box">
+                        <strong data-i18n="disadvantages">Disadvantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="og_d1">Shuts down during power cuts</li>
+                            <li data-i18n="og_d2">No backup power</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OFF-GRID TAB -->
+        <div id="tab-offgrid" class="tab-content h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_offgrid">Off-Grid System</h2>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-8">
+                <div class="w-full lg:w-3/5">
+                    <svg viewBox="0 0 800 400" class="w-full h-full border-2 border-slate-200">
+                        <rect width="100%" height="100%" fill="#f8fafc" />
+                        
+                        <!-- Solar Panels -->
+                        <rect x="30" y="150" width="100" height="120" rx="4" fill="#1e40af" stroke="#0f172a" stroke-width="3"/>
+                        <line x1="30" y1="190" x2="130" y2="190" stroke="#60a5fa" stroke-width="2"/>
+                        <line x1="30" y1="230" x2="130" y2="230" stroke="#60a5fa" stroke-width="2"/>
+                        <line x1="80" y1="150" x2="80" y2="270" stroke="#60a5fa" stroke-width="2"/>
+                        <text x="80" y="300" text-anchor="middle" font-weight="bold" font-size="20">PV Array</text>
+
+                        <!-- Charge Controller -->
+                        <path d="M130 210 L190 210" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5"/>
+                        <rect x="190" y="180" width="90" height="60" rx="6" fill="#fcd34d" stroke="#b45309" stroke-width="3"/>
+                        <text x="235" y="205" text-anchor="middle" font-weight="bold" font-size="14">Charge</text>
+                        <text x="235" y="225" text-anchor="middle" font-weight="bold" font-size="14">Controller</text>
+
+                        <!-- Battery Bank -->
+                        <path d="M235 240 L235 290" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5"/>
+                        <rect x="195" y="290" width="80" height="60" rx="4" fill="#10b981" stroke="#047857" stroke-width="3"/>
+                        <rect x="210" y="285" width="15" height="5" fill="#047857"/>
+                        <rect x="245" y="285" width="15" height="5" fill="#047857"/>
+                        <text x="235" y="330" text-anchor="middle" font-weight="bold" font-size="24" fill="#fff">BESS</text>
+
+                        <!-- Inverter -->
+                        <path d="M280 210 L360 210" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5"/>
+                        <rect x="360" y="170" width="120" height="80" rx="8" fill="#e2e8f0" stroke="#475569" stroke-width="4"/>
+                        <text x="420" y="210" text-anchor="middle" font-weight="bold" font-size="24">DC / AC</text>
+                        <text x="420" y="280" text-anchor="middle" font-weight="bold" font-size="20">Off-Grid Inverter</text>
+
+                        <!-- Wiring AC to Load -->
+                        <path d="M480 210 L620 210" fill="none" stroke="#3b82f6" stroke-width="4"/>
+
+                        <!-- Load -->
+                        <path d="M620 210 L670 210 L670 160 L645 130 L620 160 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="4"/>
+                        <text x="645" y="250" text-anchor="middle" font-weight="bold" font-size="20">Home Load</text>
+                    </svg>
+                </div>
+                <div class="w-full lg:w-2/5 flex flex-col gap-4 text-2xl">
+                    <div class="feature-box">
+                        <strong data-i18n="features">Features:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="offg_f1">Independent from utility grid</li>
+                            <li data-i18n="offg_f2">Requires large battery bank</li>
+                            <li data-i18n="offg_f3">Includes charge controller</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box pros-box">
+                        <strong data-i18n="advantages">Advantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="offg_a1">100% self-sufficient</li>
+                            <li data-i18n="offg_a2">Immune to grid blackouts</li>
+                            <li data-i18n="offg_a3">Ideal for remote areas</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box cons-box">
+                        <strong data-i18n="disadvantages">Disadvantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="offg_d1">Highest initial cost (batteries)</li>
+                            <li data-i18n="offg_d2">Batteries need replacement</li>
+                            <li data-i18n="offg_d3">Wasted excess power in summer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HYBRID TAB -->
+        <div id="tab-hybrid" class="tab-content h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_hybrid">Hybrid System</h2>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-8">
+                <div class="w-full lg:w-3/5">
+                    <svg viewBox="0 0 800 400" class="w-full h-full border-2 border-slate-200">
+                        <rect width="100%" height="100%" fill="#f8fafc" />
+                        
+                        <!-- PV -->
+                        <rect x="50" y="80" width="100" height="120" rx="4" fill="#1e40af" stroke="#0f172a" stroke-width="3"/>
+                        <text x="100" y="230" text-anchor="middle" font-weight="bold" font-size="20">PV Array</text>
+
+                        <!-- Hybrid Inverter -->
+                        <rect x="300" y="100" width="160" height="120" rx="8" fill="#e2e8f0" stroke="#8b5cf6" stroke-width="5"/>
+                        <text x="380" y="150" text-anchor="middle" font-weight="bold" font-size="24">DC / AC</text>
+                        <text x="380" y="180" text-anchor="middle" font-weight="bold" font-size="22" fill="#8b5cf6">Hybrid Inverter</text>
+
+                        <path d="M150 140 L300 140" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5"/>
+
+                        <!-- Battery -->
+                        <rect x="340" y="300" width="80" height="60" rx="4" fill="#10b981" stroke="#047857" stroke-width="3"/>
+                        <text x="380" y="340" text-anchor="middle" font-weight="bold" font-size="20" fill="#fff">BESS</text>
+                        <!-- Bi-directional battery connection -->
+                        <path d="M360 220 L360 300 M400 220 L400 300" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="5,5"/>
+                        <polygon points="355,290 365,290 360,300" fill="#ef4444"/>
+                        <polygon points="395,230 405,230 400,220" fill="#ef4444"/>
+
+                        <!-- Grid Connection -->
+                        <path d="M460 140 L650 140" fill="none" stroke="#3b82f6" stroke-width="4"/>
+                        <!-- Bi-directional Meter inline -->
+                        <circle cx="550" cy="140" r="25" fill="#fff" stroke="#0f172a" stroke-width="3"/>
+                        <text x="550" y="145" text-anchor="middle" font-weight="bold" font-size="12">METER</text>
+
+                        <!-- Grid -->
+                        <path d="M680 160 L670 160 L680 110 L690 160 L680 160 M660 120 L700 120" fill="none" stroke="#64748b" stroke-width="4"/>
+                        <text x="680" y="190" text-anchor="middle" font-weight="bold" font-size="20">Grid</text>
+
+                        <!-- Critical Load -->
+                        <path d="M460 180 L650 180 L650 240" fill="none" stroke="#f59e0b" stroke-width="4"/>
+                        <path d="M620 300 L680 300 L680 240 L650 210 L620 240 Z" fill="#fcd34d" stroke="#0f172a" stroke-width="3"/>
+                        <text x="650" y="330" text-anchor="middle" font-weight="bold" font-size="20">Critical Load</text>
+                    </svg>
+                </div>
+                <div class="w-full lg:w-2/5 flex flex-col gap-4 text-2xl">
+                    <div class="feature-box">
+                        <strong data-i18n="features">Features:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="hyb_f1">Combines grid & battery storage</li>
+                            <li data-i18n="hyb_f2">Smart energy management</li>
+                            <li data-i18n="hyb_f3">Dedicated critical load port</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box pros-box">
+                        <strong data-i18n="advantages">Advantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="hyb_a1">Uninterrupted power supply</li>
+                            <li data-i18n="hyb_a2">Export excess to grid</li>
+                            <li data-i18n="hyb_a3">Maximize self-consumption</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box cons-box">
+                        <strong data-i18n="disadvantages">Disadvantages:</strong>
+                        <ul class="list-disc ml-6 mt-2">
+                            <li data-i18n="hyb_d1">Complex installation & wiring</li>
+                            <li data-i18n="hyb_d2">High upfront cost</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ISLANDING TAB -->
+        <div id="tab-islanding" class="tab-content h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_islanding">Islanding & Anti-Islanding</h2>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-8">
+                <!-- Islanding Danger -->
+                <div class="w-full lg:w-1/2 flex flex-col">
+                    <h3 class="text-3xl font-bold text-red-600 mb-2" data-i18n="islanding_danger">DANGER: Islanding</h3>
+                    <svg viewBox="0 0 400 300" class="w-full h-auto border-2 border-red-300 bg-red-50">
+                        <!-- Inverter -->
+                        <rect x="50" y="120" width="80" height="60" rx="4" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+                        <text x="90" y="155" text-anchor="middle" font-weight="bold" font-size="14">Inverter</text>
+                        
+                        <!-- Wires -->
+                        <path d="M130 150 L270 150" fill="none" stroke="#ef4444" stroke-width="5"/>
+                        <!-- Moving Energy Indicator -->
+                        <circle cx="200" cy="150" r="6" fill="#facc15">
+                            <animate attributeName="cx" from="130" to="270" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+
+                        <!-- Transformer/Grid Pole -->
+                        <rect x="270" y="80" width="20" height="140" fill="#94a3b8"/>
+                        <line x1="250" y1="100" x2="310" y2="100" stroke="#64748b" stroke-width="4"/>
+                        <line x1="270" y1="150" x2="330" y2="150" stroke="#ef4444" stroke-width="3"/> <!-- Live wire touching lineman -->
+
+                        <!-- Grid DOWN Cross -->
+                        <line x1="330" y1="40" x2="380" y2="90" stroke="#ef4444" stroke-width="8"/>
+                        <line x1="380" y1="40" x2="330" y2="90" stroke="#ef4444" stroke-width="8"/>
+                        <text x="355" y="115" text-anchor="middle" font-weight="bold" font-size="14" fill="#ef4444">Grid OFF</text>
+
+                        <!-- Lineman (Danger) -->
+                        <circle cx="340" cy="180" r="15" fill="#f97316"/>
+                        <line x1="340" y1="195" x2="340" y2="230" stroke="#f97316" stroke-width="4"/>
+                        <line x1="340" y1="200" x2="320" y2="150" stroke="#f97316" stroke-width="4"/> <!-- Arm touching wire -->
+                        <!-- Shock symbol -->
+                        <path d="M310 140 L320 120 L315 120 L325 100" fill="none" stroke="#eab308" stroke-width="3"/>
+                        <text x="200" y="260" text-anchor="middle" font-weight="bold" font-size="18" fill="#ef4444">Power flows to dead grid. LETHAL!</text>
+                    </svg>
+                    <p class="mt-4 text-xl" data-i18n="islanding_desc">Inverter continues to power the local grid during a blackout. This poses a fatal shock hazard to utility workers fixing the lines.</p>
+                </div>
+
+                <!-- Anti-Islanding Safe -->
+                <div class="w-full lg:w-1/2 flex flex-col">
+                    <h3 class="text-3xl font-bold text-green-600 mb-2" data-i18n="anti_islanding_safe">SAFE: Anti-Islanding</h3>
+                    <svg viewBox="0 0 400 300" class="w-full h-auto border-2 border-green-300 bg-green-50">
+                        <!-- Inverter -->
+                        <rect x="50" y="120" width="80" height="60" rx="4" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+                        <text x="90" y="155" text-anchor="middle" font-weight="bold" font-size="14">Inverter</text>
+                        
+                        <!-- Wires with Disconnect Switch OPEN -->
+                        <path d="M130 150 L180 150" fill="none" stroke="#64748b" stroke-width="5"/>
+                        <path d="M220 150 L270 150" fill="none" stroke="#64748b" stroke-width="5"/>
+                        <!-- Open Switch -->
+                        <line x1="180" y1="150" x2="215" y2="120" stroke="#000" stroke-width="4"/>
+                        <text x="200" y="110" text-anchor="middle" font-weight="bold" font-size="14" fill="#16a34a">AUTO-TRIP</text>
+
+                        <!-- Transformer/Grid Pole -->
+                        <rect x="270" y="80" width="20" height="140" fill="#94a3b8"/>
+                        <line x1="250" y1="100" x2="310" y2="100" stroke="#64748b" stroke-width="4"/>
+                        <line x1="270" y1="150" x2="330" y2="150" stroke="#64748b" stroke-width="3"/> 
+
+                        <!-- Grid DOWN Cross -->
+                        <line x1="330" y1="40" x2="380" y2="90" stroke="#ef4444" stroke-width="8"/>
+                        <line x1="380" y1="40" x2="330" y2="90" stroke="#ef4444" stroke-width="8"/>
+
+                        <!-- Lineman (Safe) -->
+                        <circle cx="340" cy="180" r="15" fill="#22c55e"/>
+                        <line x1="340" y1="195" x2="340" y2="230" stroke="#22c55e" stroke-width="4"/>
+                        <line x1="340" y1="200" x2="320" y2="150" stroke="#22c55e" stroke-width="4"/> 
+                        
+                        <text x="200" y="260" text-anchor="middle" font-weight="bold" font-size="18" fill="#16a34a">Inverter disconnects. SAFE.</text>
+                    </svg>
+                    <p class="mt-4 text-xl" data-i18n="anti_islanding_desc">Mandatory safety feature (IEC 62116). Inverter senses grid failure and automatically cuts off output in milliseconds.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BESS & IEC TAB -->
+        <div id="tab-bess" class="tab-content h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_bess">BESS & IEC Standards</h2>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-8">
+                <!-- BESS Visual -->
+                <div class="w-full lg:w-1/2">
+                    <h3 class="text-2xl font-bold mb-4">Battery Energy Storage System (BESS)</h3>
+                    <svg viewBox="0 0 400 300" class="w-full h-auto border-2 border-slate-200">
+                        <rect width="100%" height="100%" fill="#f8fafc" />
+                        
+                        <!-- Battery Cabinet -->
+                        <rect x="100" y="30" width="200" height="250" rx="8" fill="#cbd5e1" stroke="#334155" stroke-width="4"/>
+                        
+                        <!-- BMS Layer -->
+                        <rect x="110" y="40" width="180" height="40" rx="4" fill="#1e293b"/>
+                        <text x="200" y="65" text-anchor="middle" font-weight="bold" font-size="18" fill="#10b981">BMS Controller</text>
+                        <circle cx="130" cy="60" r="5" fill="#10b981"/>
+                        <circle cx="150" cy="60" r="5" fill="#ef4444"/>
+                        
+                        <!-- Battery Modules -->
+                        <rect x="110" y="90" width="180" height="35" rx="2" fill="#3b82f6"/>
+                        <rect x="110" y="135" width="180" height="35" rx="2" fill="#3b82f6"/>
+                        <rect x="110" y="180" width="180" height="35" rx="2" fill="#3b82f6"/>
+                        <rect x="110" y="225" width="180" height="35" rx="2" fill="#3b82f6"/>
+                        
+                        <text x="200" y="112" text-anchor="middle" font-weight="bold" font-size="14" fill="#fff">Li-ion Module 1</text>
+                        <text x="200" y="157" text-anchor="middle" font-weight="bold" font-size="14" fill="#fff">Li-ion Module 2</text>
+                        <text x="200" y="202" text-anchor="middle" font-weight="bold" font-size="14" fill="#fff">Li-ion Module 3</text>
+                        <text x="200" y="247" text-anchor="middle" font-weight="bold" font-size="14" fill="#fff">Li-ion Module 4</text>
+
+                        <!-- Wiring -->
+                        <path d="M100 60 L60 60 L60 280" fill="none" stroke="#ef4444" stroke-width="4"/>
+                        <path d="M300 60 L340 60 L340 280" fill="none" stroke="#000000" stroke-width="4"/>
+                        <text x="60" y="50" text-anchor="middle" font-weight="bold" font-size="14" fill="#ef4444">DC +</text>
+                        <text x="340" y="50" text-anchor="middle" font-weight="bold" font-size="14">DC -</text>
+                    </svg>
+                </div>
+                
+                <!-- IEC Standards -->
+                <div class="w-full lg:w-1/2 flex flex-col gap-6">
+                    <h3 class="text-3xl font-bold mb-2">Crucial IEC Standards</h3>
+                    <div class="feature-box">
+                        <strong class="text-3xl text-blue-700">IEC 61215 / 61730</strong>
+                        <p class="text-xl mt-2" data-i18n="iec_61215">Design qualification and safety approval for Solar PV Modules.</p>
+                    </div>
+                    <div class="feature-box pros-box">
+                        <strong class="text-3xl text-green-700">IEC 62109 - 1 & 2</strong>
+                        <p class="text-xl mt-2" data-i18n="iec_62109">Safety of power converters (Inverters) for use in PV power systems.</p>
+                    </div>
+                    <div class="feature-box cons-box">
+                        <strong class="text-3xl text-red-700">IEC 61727 & 62116</strong>
+                        <p class="text-xl mt-2" data-i18n="iec_61727">Grid interface requirements and Anti-Islanding testing procedures.</p>
+                    </div>
+                    <div class="feature-box" style="border-color: #8b5cf6;">
+                        <strong class="text-3xl text-purple-700">IEC 62619</strong>
+                        <p class="text-xl mt-2" data-i18n="iec_62619">Safety requirements for secondary lithium cells and batteries (BESS).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARISON TAB -->
+        <div id="tab-comparison" class="tab-content h-full flex flex-col">
+            <h2 class="text-4xl font-bold text-slate-800 mb-6 border-b-4 border-blue-500 inline-block pb-2" data-i18n="tab_compare">System Comparison</h2>
+            
+            <div class="overflow-x-auto w-full mt-4">
+                <table class="w-full text-2xl border-4 border-slate-300 shadow-xl rounded-lg overflow-hidden">
+                    <thead class="bg-slate-200">
+                        <tr>
+                            <th class="py-4 px-6 text-3xl text-slate-800" data-i18n="comp_feature">Feature</th>
+                            <th class="py-4 px-6 text-3xl text-blue-700 text-center" data-i18n="tab_ongrid">On-Grid</th>
+                            <th class="py-4 px-6 text-3xl text-green-700 text-center" data-i18n="tab_offgrid">Off-Grid</th>
+                            <th class="py-4 px-6 text-3xl text-purple-700 text-center" data-i18n="tab_hybrid">Hybrid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-bold border-b border-slate-200" data-i18n="comp_grid_dep">Grid Dependency</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_100">100% Required</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_0">0% (Independent)</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_flexible">Flexible</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-bold border-b border-slate-200" data-i18n="comp_batt">Battery (BESS)</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_none">None</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_large">Large Bank Required</td>
+                            <td class="text-center border-b border-slate-200" data-i18n="comp_med">Medium (Scalable)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-bold border-b border-slate-200" data-i18n="comp_blackout">Power during Blackout</td>
+                            <td class="text-center font-bold text-red-600 border-b border-slate-200">❌ <span data-i18n="comp_no">No</span></td>
+                            <td class="text-center font-bold text-green-600 border-b border-slate-200">✅ <span data-i18n="comp_yes">Yes</span></td>
+                            <td class="text-center font-bold text-green-600 border-b border-slate-200">✅ <span data-i18n="comp_yes">Yes (Critical Loads)</span></td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-bold border-b border-slate-200" data-i18n="comp_cost">Initial Cost</td>
+                            <td class="text-center border-b border-slate-200 text-green-600 font-bold" data-i18n="comp_low">Low</td>
+                            <td class="text-center border-b border-slate-200 text-red-600 font-bold" data-i18n="comp_high">Very High</td>
+                            <td class="text-center border-b border-slate-200 text-yellow-600 font-bold" data-i18n="comp_high">High</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-bold border-b border-slate-200" data-i18n="comp_roi">ROI / Payback Time</td>
+                            <td class="text-center border-b border-slate-200 font-bold" data-i18n="comp_fast">Fastest (3-5 Yrs)</td>
+                            <td class="text-center border-b border-slate-200 font-bold" data-i18n="comp_slow">Slowest (Batteries)</td>
+                            <td class="text-center border-b border-slate-200 font-bold" data-i18n="comp_med_roi">Medium (5-8 Yrs)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Tab switching logic
+        function openTab(tabId) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from buttons
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Highlight selected button
+            event.currentTarget.classList.add('active');
+        }
+
+        // Translation Dictionary
+        const translations = {
+            en: {
+                page_title: "Solar Energy Systems",
+                main_heading: "Solar Energy Systems",
+                sub_heading: "Technical Training & Overview",
+                tab_ongrid: "On-Grid",
+                tab_offgrid: "Off-Grid",
+                tab_hybrid: "Hybrid",
+                tab_islanding: "Islanding",
+                tab_bess: "BESS & IEC",
+                tab_compare: "Comparison",
+                features: "Features:",
+                advantages: "Advantages:",
+                disadvantages: "Disadvantages:",
+                // On-grid
+                og_f1: "Connects directly to utility grid",
+                og_f2: "No batteries required",
+                og_f3: "Net metering enabled",
+                og_a1: "Lowest initial cost",
+                og_a2: "Highest efficiency",
+                og_a3: "Earn credit for excess power",
+                og_d1: "Shuts down during power cuts",
+                og_d2: "No backup power",
+                // Off-grid
+                offg_f1: "Independent from utility grid",
+                offg_f2: "Requires large battery bank",
+                offg_f3: "Includes charge controller",
+                offg_a1: "100% self-sufficient",
+                offg_a2: "Immune to grid blackouts",
+                offg_a3: "Ideal for remote areas",
+                offg_d1: "Highest initial cost (batteries)",
+                offg_d2: "Batteries need replacement",
+                offg_d3: "Wasted excess power in summer",
+                // Hybrid
+                hyb_f1: "Combines grid & battery storage",
+                hyb_f2: "Smart energy management",
+                hyb_f3: "Dedicated critical load port",
+                hyb_a1: "Uninterrupted power supply",
+                hyb_a2: "Export excess to grid",
+                hyb_a3: "Maximize self-consumption",
+                hyb_d1: "Complex installation & wiring",
+                hyb_d2: "High upfront cost",
+                // Islanding
+                islanding_danger: "DANGER: Islanding",
+                islanding_desc: "Inverter continues to power the local grid during a blackout. This poses a fatal shock hazard to utility workers fixing the lines.",
+                anti_islanding_safe: "SAFE: Anti-Islanding",
+                anti_islanding_desc: "Mandatory safety feature (IEC 62116). Inverter senses grid failure and automatically cuts off output in milliseconds.",
+                // IEC
+                iec_61215: "Design qualification and safety approval for Solar PV Modules.",
+                iec_62109: "Safety of power converters (Inverters) for use in PV power systems.",
+                iec_61727: "Grid interface requirements and Anti-Islanding testing procedures.",
+                iec_62619: "Safety requirements for secondary lithium cells and batteries (BESS).",
+                // Compare
+                comp_feature: "Feature",
+                comp_grid_dep: "Grid Dependency",
+                comp_100: "100% Required",
+                comp_0: "0% (Independent)",
+                comp_flexible: "Flexible",
+                comp_batt: "Battery (BESS)",
+                comp_none: "None",
+                comp_large: "Large Bank Required",
+                comp_med: "Medium (Scalable)",
+                comp_blackout: "Power during Blackout",
+                comp_no: "No",
+                comp_yes: "Yes",
+                comp_cost: "Initial Cost",
+                comp_low: "Low",
+                comp_high: "High",
+                comp_roi: "ROI / Payback Time",
+                comp_fast: "Fastest (3-5 Yrs)",
+                comp_slow: "Slowest (Batteries)",
+                comp_med_roi: "Medium (5-8 Yrs)"
+            },
+            hi: {
+                page_title: "सौर ऊर्जा प्रणालियाँ",
+                main_heading: "सौर ऊर्जा प्रणालियाँ (Solar Systems)",
+                sub_heading: "तकनीकी प्रशिक्षण और अवलोकन",
+                tab_ongrid: "ऑन-ग्रिड (On-Grid)",
+                tab_offgrid: "ऑफ-ग्रिड (Off-Grid)",
+                tab_hybrid: "हाइब्रिड (Hybrid)",
+                tab_islanding: "आइलैंडिंग",
+                tab_bess: "BESS और मानक",
+                tab_compare: "तुलना",
+                features: "विशेषताएँ:",
+                advantages: "लाभ:",
+                disadvantages: "हानियाँ:",
+                // On-grid
+                og_f1: "सीधे बिजली ग्रिड से जुड़ता है",
+                og_f2: "बैटरी की आवश्यकता नहीं",
+                og_f3: "नेट मीटरिंग उपलब्ध",
+                og_a1: "सबसे कम प्रारंभिक लागत",
+                og_a2: "उच्चतम दक्षता (Efficiency)",
+                og_a3: "अतिरिक्त बिजली के लिए क्रेडिट",
+                og_d1: "बिजली कटौती के दौरान बंद हो जाता है",
+                og_d2: "कोई बैकअप पावर नहीं",
+                // Off-grid
+                offg_f1: "बिजली ग्रिड से स्वतंत्र",
+                offg_f2: "बड़ी बैटरी बैंक की आवश्यकता",
+                offg_f3: "चार्ज कंट्रोलर शामिल है",
+                offg_a1: "100% आत्मनिर्भर",
+                offg_a2: "ग्रिड ब्लैकआउट से अप्रभावित",
+                offg_a3: "दूरस्थ क्षेत्रों के लिए आदर्श",
+                offg_d1: "उच्चतम प्रारंभिक लागत (बैटरी)",
+                offg_d2: "बैटरियों को बदलने की आवश्यकता",
+                offg_d3: "गर्मियों में अतिरिक्त बिजली बर्बाद",
+                // Hybrid
+                hyb_f1: "ग्रिड और बैटरी स्टोरेज का संयोजन",
+                hyb_f2: "स्मार्ट ऊर्जा प्रबंधन",
+                hyb_f3: "समर्पित क्रिटिकल लोड पोर्ट",
+                hyb_a1: "निर्बाध बिजली आपूर्ति",
+                hyb_a2: "ग्रिड को अतिरिक्त निर्यात करें",
+                hyb_a3: "स्वयं की खपत को अधिकतम करें",
+                hyb_d1: "जटिल स्थापना और वायरिंग",
+                hyb_d2: "उच्च प्रारंभिक लागत",
+                // Islanding
+                islanding_danger: "खतरा: आइलैंडिंग (Islanding)",
+                islanding_desc: "ब्लैकआउट के दौरान इन्वर्टर स्थानीय ग्रिड को बिजली देना जारी रखता है। यह लाइनों को ठीक करने वाले उपयोगिता कर्मचारियों के लिए एक घातक झटके का खतरा पैदा करता है।",
+                anti_islanding_safe: "सुरक्षित: एंटी-आइलैंडिंग",
+                anti_islanding_desc: "अनिवार्य सुरक्षा सुविधा (IEC 62116)। इन्वर्टर ग्रिड विफलता को महसूस करता है और स्वचालित रूप से मिलीसेकंड में आउटपुट काट देता है।",
+                // IEC
+                iec_61215: "सौर पीवी मॉड्यूल के लिए डिजाइन योग्यता और सुरक्षा अनुमोदन।",
+                iec_62109: "पीवी पावर सिस्टम में उपयोग के लिए पावर कन्वर्टर्स (इनवर्टर) की सुरक्षा।",
+                iec_61727: "ग्रिड इंटरफ़ेस आवश्यकताएं और एंटी-आइलैंडिंग परीक्षण प्रक्रियाएं।",
+                iec_62619: "द्वितीयक लिथियम सेल और बैटरी (BESS) के लिए सुरक्षा आवश्यकताएं।",
+                // Compare
+                comp_feature: "विशेषता",
+                comp_grid_dep: "ग्रिड निर्भरता",
+                comp_100: "100% आवश्यक",
+                comp_0: "0% (स्वतंत्र)",
+                comp_flexible: "लचीला (Flexible)",
+                comp_batt: "बैटरी (BESS)",
+                comp_none: "कोई नहीं",
+                comp_large: "बड़ा बैंक आवश्यक",
+                comp_med: "मध्यम",
+                comp_blackout: "ब्लैकआउट के दौरान पावर",
+                comp_no: "नहीं",
+                comp_yes: "हाँ",
+                comp_cost: "प्रारंभिक लागत",
+                comp_low: "कम",
+                comp_high: "उच्च",
+                comp_roi: "आरओआई / पेबैक समय",
+                comp_fast: "सबसे तेज़ (3-5 वर्ष)",
+                comp_slow: "सबसे धीमा (बैटरी)",
+                comp_med_roi: "मध्यम (5-8 वर्ष)"
+            },
+            ml: {
+                page_title: "സോളാർ എനർജി സിസ്റ്റംസ്",
+                main_heading: "സോളാർ എനർജി സിസ്റ്റംസ്",
+                sub_heading: "സാങ്കേതിക പരിശീലനവും അവലോകനവും",
+                tab_ongrid: "ഓൺ-ഗ്രിഡ് (On-Grid)",
+                tab_offgrid: "ഓഫ്-ഗ്രിഡ് (Off-Grid)",
+                tab_hybrid: "ഹൈബ്രിഡ് (Hybrid)",
+                tab_islanding: "ഐലൻഡിംഗ്",
+                tab_bess: "BESS & മാനദണ്ഡങ്ങൾ",
+                tab_compare: "താരതമ്യം",
+                features: "സവിശേഷതകൾ:",
+                advantages: "ഗുണങ്ങൾ:",
+                disadvantages: "ദോഷങ്ങൾ:",
+                // On-grid
+                og_f1: "യൂട്ടിലിറ്റി ഗ്രിഡിലേക്ക് നേരിട്ട് ബന്ധിപ്പിക്കുന്നു",
+                og_f2: "ബാറ്ററികൾ ആവശ്യമില്ല",
+                og_f3: "നെറ്റ് മീറ്ററിംഗ് പ്രവർത്തനക്ഷമമാക്കി",
+                og_a1: "ഏറ്റവും കുറഞ്ഞ പ്രാരംഭ ചെലവ്",
+                og_a2: "ഏറ്റവും ഉയർന്ന കാര്യക്ഷമത",
+                og_a3: "അധിക വൈദ്യുതിക്ക് ക്രെഡിറ്റ് നേടുക",
+                og_d1: "വൈദ്യുതി തടസ്സങ്ങളിൽ ഷട്ട് ഡൗൺ ആകുന്നു",
+                og_d2: "ബാക്കപ്പ് പവർ ഇല്ല",
+                // Off-grid
+                offg_f1: "യൂട്ടിലിറ്റി ഗ്രിഡിൽ നിന്ന് സ്വതന്ത്രം",
+                offg_f2: "വലിയ ബാറ്ററി ബാങ്ക് ആവശ്യമാണ്",
+                offg_f3: "ചാർജ് കൺട്രോളർ ഉൾപ്പെടുന്നു",
+                offg_a1: "100% സ്വയം പര്യാപ്തം",
+                offg_a2: "ഗ്രിഡ് ബ്ലാക്ക്ഔട്ടുകളെ ബാധിക്കില്ല",
+                offg_a3: "വിദൂര പ്രദേശങ്ങൾക്ക് അനുയോജ്യം",
+                offg_d1: "ഏറ്റവും ഉയർന്ന പ്രാരംഭ ചെലവ് (ബാറ്ററികൾ)",
+                offg_d2: "ബാറ്ററികൾ മാറ്റേണ്ടതുണ്ട്",
+                offg_d3: "വേനൽക്കാലത്ത് അധിക വൈദ്യുതി പാഴാകുന്നു",
+                // Hybrid
+                hyb_f1: "ഗ്രിഡും ബാറ്ററി സ്റ്റോറേജും സംയോജിപ്പിക്കുന്നു",
+                hyb_f2: "സ്മാർട്ട് എനർജി മാനേജ്മെന്റ്",
+                hyb_f3: "പ്രത്യേക ക്രിട്ടിക്കൽ ലോഡ് പോർട്ട്",
+                hyb_a1: "തടസ്സമില്ലാത്ത വൈദ്യുതി വിതരണം",
+                hyb_a2: "അധികമുള്ളത് ഗ്രിഡിലേക്ക് നൽകുക",
+                hyb_a3: "സ്വയം ഉപയോഗം പരമാവധിയാക്കുക",
+                hyb_d1: "സങ്കീർണ്ണമായ ഇൻസ്റ്റാളേഷനും വയറിംഗും",
+                hyb_d2: "ഉയർന്ന പ്രാരംഭ ചെലവ്",
+                // Islanding
+                islanding_danger: "അപകടം: ഐലൻഡിംഗ്",
+                islanding_desc: "ബ്ലാക്ക്ഔട്ട് സമയത്ത് ഇൻവെർട്ടർ ലോക്കൽ ഗ്രിഡിന് പവർ നൽകുന്നത് തുടരുന്നു. ലൈനുകൾ നന്നാക്കുന്ന യൂട്ടിലിറ്റി ജീവനക്കാർക്ക് ഇത് മാരകമായ ഷോക്ക് അപകടമുണ്ടാക്കുന്നു.",
+                anti_islanding_safe: "സുരക്ഷിതം: ആന്റി-ഐലൻഡിംഗ്",
+                anti_islanding_desc: "നിർബന്ധിത സുരക്ഷാ സവിശേഷത (IEC 62116). ഇൻവെർട്ടർ ഗ്രിഡ് പരാജയം മനസ്സിലാക്കുകയും മില്ലിസെക്കൻഡിൽ ഔട്ട്‌പുട്ട് യാന്ത്രികമായി വിച്ഛേദിക്കുകയും ചെയ്യുന്നു.",
+                // IEC
+                iec_61215: "സോളാർ പിവി മൊഡ്യൂളുകൾക്കുള്ള ഡിസൈൻ യോഗ്യതയും സുരക്ഷാ അംഗീകാരവും.",
+                iec_62109: "പിവി പവർ സിസ്റ്റങ്ങളിൽ ഉപയോഗിക്കുന്നതിനുള്ള പവർ കൺവെർട്ടറുകളുടെ (ഇൻവെർട്ടറുകൾ) സുരക്ഷ.",
+                iec_61727: "ഗ്രിഡ് ഇന്റർഫേസ് ആവശ്യകതകളും ആന്റി-ഐലൻഡിംഗ് പരിശോധനാ നടപടിക്രമങ്ങളും.",
+                iec_62619: "സെക്കൻഡറി ലിഥിയം സെല്ലുകൾക്കും ബാറ്ററികൾക്കുമുള്ള (BESS) സുരക്ഷാ ആവശ്യകതകൾ.",
+                // Compare
+                comp_feature: "സവിശേഷത",
+                comp_grid_dep: "ഗ്രിഡ് ആശ്രിതത്വം",
+                comp_100: "100% ആവശ്യമാണ്",
+                comp_0: "0% (സ്വതന്ത്രം)",
+                comp_flexible: "വഴക്കമുള്ളത്",
+                comp_batt: "ബാറ്ററി (BESS)",
+                comp_none: "ഇല്ല",
+                comp_large: "വലിയ ബാങ്ക് ആവശ്യമാണ്",
+                comp_med: "ഇടത്തരം",
+                comp_blackout: "ബ്ലാക്ക്ഔട്ട് സമയത്ത് പവർ",
+                comp_no: "ഇല്ല",
+                comp_yes: "ഉണ്ട്",
+                comp_cost: "പ്രാരംഭ ചെലവ്",
+                comp_low: "കുറവ്",
+                comp_high: "ഉയർന്നത്",
+                comp_roi: "ROI / പേബാക്ക് സമയം",
+                comp_fast: "ഏറ്റവും വേഗത്തിൽ (3-5 വർഷം)",
+                comp_slow: "ഏറ്റവും സാവധാനം (ബാറ്ററികൾ)",
+                comp_med_roi: "ഇടത്തരം (5-8 വർഷം)"
+            }
+        };
+
+        const langSelect = document.getElementById('lang-select');
+        
+        langSelect.addEventListener('change', (e) => {
+            const lang = e.target.value;
+            const elements = document.querySelectorAll('[data-i18n]');
+            
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    // Avoid replacing nested HTML elements (like spans in the comparison table)
+                    // If the element contains child nodes that are elements, we need a safer approach.
+                    // However, in our HTML structure, we carefully placed data-i18n on elements that only contain text,
+                    // or we put it on span tags inside the elements.
+                    el.innerText = translations[lang][key];
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

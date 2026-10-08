@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3 Panel Solar Simulation — Tilt Limited</title>
+<style>
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  *{box-sizing:border-box}
+  body { font-family: Arial, sans-serif; margin: 0; padding: 16px clamp(12px,2.5vw,32px) 28px; background: linear-gradient(#cce6ff, #eef); color: #222; }
+  h1 { text-align:center; color:#004080; font-size:clamp(19px,3vw,26px); margin:4px 0 14px; }
+  svg { width:100%; height:auto; aspect-ratio:2/1; border:2px solid #004080; border-radius:8px; background: linear-gradient(to top,#87ceeb,#fff); display:block; }
+  .panel rect { fill:#1d3f72; stroke:#0a1f3d; stroke-width:2; }
+  .below { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap:14px; margin-top:14px; }
+  .box { background:#fff; border:2px solid #004080; border-radius:8px; padding:12px 14px; min-width:0; }
+  #chartContainer { position:relative; height:280px; }
+  label{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0;font-weight:bold;font-size:15px;}
+  input,select{font-size:15px;padding:5px;}
+  input[type=range]{flex:1;min-width:140px}
+  #tiltValue{font-weight:bold;color:#cc0000;}
+  #usedTilt{font-weight:bold;color:#004080;}
+  #meters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  #meters h3{color:#004080;font-size:14px;margin:0}
+  #meters .v{margin-top:4px;font-family:monospace;font-size:22px;font-weight:bold}
+  @media (max-width:820px){ .below{grid-template-columns:1fr} #chartContainer{height:230px} }
+</style>
+</head>
+<body>
+
+<h1>3 Panel Solar Simulation — Tilt Limited</h1>
+
+<svg id="scene" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+  <g id="sunGroup">
+    <circle id="sunGlow" r="25" fill="#ffd166" opacity="0.3"/>
+    <circle id="sunCircle" r="12" fill="#ffd166" stroke="#fff3b0" stroke-width="2"/>
+  </g>
+  <g id="panels" transform="translate(400,500)">
+    <g class="panel" id="panel1"><rect x="0" y="-60" width="100" height="60" rx="6"/></g>
+    <g class="panel" id="panel2" transform="translate(150,0)"><rect x="0" y="-60" width="100" height="60" rx="6"/></g>
+    <g class="panel" id="panel3" transform="translate(300,0)"><rect x="0" y="-60" width="100" height="60" rx="6"/></g>
+  </g>
+</svg>
+
+<div class="below">
+  <div class="box" id="controls">
+    <div id="meters">
+      <div><h3>Current (A)</h3><div class="v" id="totalCurrent">-</div></div>
+      <div><h3>Voltage (V)</h3><div class="v" id="totalVoltage">-</div></div>
+    </div>
+    <label>Connection:
+      <span><input type="radio" name="conn" value="series" checked> Series</span>
+      <span><input type="radio" name="conn" value="parallel"> Parallel</span>
+    </label>
+    <label>Display:
+      <select id="displayMode"><option value="isc">Isc</option><option value="voc">Voc</option></select>
+    </label>
+    <label>Location:
+      <select id="latitudeSelect">
+        <option value="portblair" selected>Port Blair (11.6°N)</option>
+        <option value="kozhikode">Kozhikode (11.25°N)</option>
+      </select>
+    </label>
+    <label>Month:
+      <select id="monthSelect">
+        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+      </select>
+      <span>→ Recommended tilt: <span id="usedTilt">-</span></span>
+    </label>
+    <label>Time of Day: <span id="timeLabel">06:00</span>
+      <input type="range" id="timeRange" min="0" max="1000" value="500">
+    </label>
+    <label>Irradiance (W/m²):
+      <select id="intensitySelect">
+        <option value="250">250</option><option value="500">500</option><option value="750">750</option>
+        <option value="1000" selected>1000</option>
+      </select>
+    </label>
+    <label>Tilt (degrees):
+      <input type="range" id="tilt" min="0" max="37" value="0">
+      <span id="tiltValue">0°</span>
+    </label>
+  </div>
+  <div class="box"><div id="chartContainer"><canvas id="powerChart"></canvas></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const el=id=>document.getElementById(id);
+function deg2rad(d){return d*Math.PI/180;}
+function timeToClock(t){const h=Math.floor(6+(t/1000)*12);const m=Math.round(((6+(t/1000)*12)-h)*60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+
+const monthToDay={1:15,2:45,3:75,4:105,5:135,6:165,7:195,8:225,9:255,10:285,11:315,12:345};
+
+// Location data: latitude + monthly recommended tilt (south-facing, ≈ latitude − declination, 5° floor for rain wash-off)
+const LOCATIONS={
+  portblair:{name:'Port Blair', lat:11.6,
+    tilts:{1:30,2:25,3:15,4:10,5:5,6:5,7:5,8:10,9:15,10:20,11:25,12:30}},
+  kozhikode:{name:'Kozhikode', lat:11.25,
+    tilts:{1:32,2:24,3:14,4:5,5:5,6:5,7:5,8:5,9:9,10:21,11:30,12:35}}
+};
+const MAX_TILT=37;
+
+function solarElevation(normT, latDeg, month){
+  const dayOfYear=monthToDay[month]||80;
+  const dec=23.45*Math.sin((2*Math.PI/365)*(284+dayOfYear));
+  const latRad=deg2rad(latDeg), decRad=deg2rad(dec);
+  const hours=6+normT*12;
+  const H=deg2rad((hours-12)*15);
+  return Math.asin(Math.sin(latRad)*Math.sin(decRad)+Math.cos(latRad)*Math.cos(decRad)*Math.cos(H));
+}
+function computeAtTime(normT, tiltDeg, intensity, conn, latDeg, month){
+  const tiltRad=deg2rad(tiltDeg), elev=solarElevation(normT,latDeg,month);
+  const incidenceAngle=Math.max(0,Math.abs(elev-(Math.PI/2-tiltRad)));
+  const incidenceCos=Math.max(Math.cos(incidenceAngle),0);
+  const Isc=10*intensity*incidenceCos;
+  const Voc=40*(0.95+0.05*incidenceCos);
+  return {I: conn==='series'?Isc:Isc*3, V: conn==='series'?Voc*3:Voc, P: Isc*Voc};
+}
+
+const timeRange=el('timeRange'),intensitySelect=el('intensitySelect'),tiltControl=el('tilt');
+const displayMode=el('displayMode'),timeLabel=el('timeLabel'),tiltValue=el('tiltValue');
+const sunGroup=el('sunGroup'),p1=el('panel1'),p2=el('panel2'),p3=el('panel3');
+const totalCurrent=el('totalCurrent'),totalVoltage=el('totalVoltage');
+const monthSelect=el('monthSelect'),usedTilt=el('usedTilt'),latitudeSelect=el('latitudeSelect');
+
+const currentLoc=()=>LOCATIONS[latitudeSelect.value];
+
+const ctx=el('powerChart').getContext('2d');
+const powerChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Power (W)',data:[],borderColor:'#004080',fill:false,tension:0.2}]},options:{animation:false,responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'Time'}},y:{title:{display:true,text:'Power (W)'}}}}});
+
+function updateChart(tiltDeg,intensity,conn,latDeg,month){
+  const labels=[],data=[];
+  for(let i=0;i<=50;i++){const normT=i/50;labels.push(timeToClock(normT*1000));data.push(computeAtTime(normT,tiltDeg,intensity,conn,latDeg,month).P.toFixed(2));}
+  powerChart.data.labels=labels;powerChart.data.datasets[0].data=data;
+  powerChart.data.datasets[0].label='Power (W) — '+currentLoc().name;
+  powerChart.update();
+}
+
+function updateVisuals(){
+  const t=+timeRange.value, normT=t/1000, intensity=+intensitySelect.value/1000, tiltDeg=+tiltControl.value;
+  tiltValue.textContent=tiltDeg+'°';timeLabel.textContent=timeToClock(t);
+  const conn=document.querySelector('input[name="conn"]:checked').value;
+  const latDeg=currentLoc().lat, month=+monthSelect.value;
+  const elev=solarElevation(normT,latDeg,month);
+  const sx=250+normT*700, sy=450-300*Math.sin(elev);
+  sunGroup.setAttribute('transform',`translate(${sx},${sy})`);
+  const {I,V}=computeAtTime(normT,tiltDeg,intensity,conn,latDeg,month);
+  totalCurrent.textContent=I.toFixed(2)+' A';totalVoltage.textContent=V.toFixed(2)+' V';
+  [p1,p2,p3].forEach((pg,i)=>pg.setAttribute('transform',`translate(${i*150},0) rotate(${-tiltDeg} 50 0)`));
+  updateChart(tiltDeg,intensity,conn,latDeg,month);
+}
+
+// Apply recommended tilt for selected location + month (clamped to 37°)
+function applyRecommendedTilt(){
+  const best=Math.min(currentLoc().tilts[+monthSelect.value]||0, MAX_TILT);
+  tiltControl.value=best;
+  usedTilt.textContent=best+'° ('+currentLoc().name+')';
+  updateVisuals();
+}
+
+monthSelect.addEventListener('change',applyRecommendedTilt);
+latitudeSelect.addEventListener('change',applyRecommendedTilt);
+[timeRange,intensitySelect,tiltControl,displayMode].forEach(e=>e.addEventListener('input',updateVisuals));
+document.querySelectorAll('input[name="conn"]').forEach(r=>r.addEventListener('change',updateVisuals));
+applyRecommendedTilt();
+</script>
+</body>
+</html>

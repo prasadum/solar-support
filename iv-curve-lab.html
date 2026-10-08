@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar Cell I-V Curve Lab</title>
+<style>
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;margin:0;padding:16px clamp(12px,2.5vw,32px) 28px;background:#f4f6f9;color:#1d2530}
+  h1{font-size:clamp(20px,3vw,26px);margin:4px 0 6px;color:#0b4f7a}
+  .lead{margin:0 0 14px;max-width:80ch;line-height:1.5}
+  .hl{color:#c0157a;font-weight:bold}
+  .controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:#fff;border:1px solid #d6dde5;border-radius:10px;padding:12px 14px}
+  .controls label{font-weight:bold;display:flex;gap:6px;align-items:center}
+  select{font-size:15px;padding:5px}
+  button{font:inherit;font-size:15px;font-weight:bold;padding:8px 14px;border-radius:7px;border:1px solid #0b4f7a;background:#fff;color:#0b4f7a;cursor:pointer}
+  button.primary{background:#0b4f7a;color:#fff}
+  .readout{margin:12px 0;font-size:16px}
+  #msg{color:#b45309;font-weight:bold;min-height:1.3em;margin:6px 0}
+  .mainflex{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:16px;align-items:start}
+  .box{background:#fff;border:1px solid #d6dde5;border-radius:10px;padding:12px;min-width:0}
+  canvas{width:100%;height:auto;display:block;background:#fff}
+  table{border-collapse:collapse;width:100%;margin-top:8px;font-variant-numeric:tabular-nums}
+  th,td{border:1px solid #b9c2cc;padding:5px 8px;text-align:right}
+  th{background:#eef3f8}
+  .legend{font-size:14px;margin-top:10px;line-height:1.7}
+  .sw{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+  @media (max-width:760px){.mainflex{grid-template-columns:1fr}.mainflex .plot{order:-1}}
+</style>
+</head>
+<body>
+<h1>Solar Cell I-V Curve Lab</h1>
+<p class="lead">Select irradiance (<b>W/m²</b>) and cell temperature (<b>°C</b>). Click <b>Next</b> to measure one point at each preset load resistance and plot the curve. Earlier curves stay on the graph so you can compare. <span class="hl">Isc</span> and <span class="hl">Voc</span> are shown for each curve. At 45 °C the voltage drops while the current rises slightly.</p>
+
+<div class="controls">
+  <label>Irradiance (W/m²):
+    <select id="irrSelect"><option value="200">200</option><option value="600">600</option><option value="1000" selected>1000</option></select>
+  </label>
+  <label>Temperature (°C):
+    <select id="tempSelect"><option value="25" selected>25</option><option value="45">45</option></select>
+  </label>
+  <span>Next resistance: <b id="nextRes">--</b> Ω</span>
+  <button class="primary" id="btnNext" type="button">Next</button>
+  <button id="btnReset" type="button">Reset current curve</button>
+  <button id="btnAll" type="button">Reset all</button>
+</div>
+<div class="readout"><span class="hl">Isc:</span> <span id="iscVal">--</span> A, &nbsp;<span class="hl">Voc:</span> <span id="vocVal">--</span> V</div>
+<div id="msg"></div>
+
+<div class="mainflex">
+  <div class="box">
+    <b>Measured data</b>
+    <table id="dataTable"></table>
+  </div>
+  <div class="box plot">
+    <canvas id="plot" width="700" height="450"></canvas>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<script>
+const baseTable={
+ "1000":[{R:0,V:0.00,I:2.20},{R:2,V:0.05,I:2.20},{R:5,V:0.10,I:2.20},{R:10,V:0.15,I:2.20},{R:15,V:0.20,I:2.20},{R:22,V:0.25,I:2.20},{R:33,V:0.30,I:2.20},{R:47,V:0.35,I:2.10},{R:68,V:0.40,I:1.90},{R:100,V:0.45,I:1.20},{R:330,V:0.50,I:0.30},{R:2200,V:0.52,I:0.00}],
+ "600":[{R:0,V:0.00,I:1.32},{R:2,V:0.05,I:1.32},{R:5,V:0.10,I:1.32},{R:10,V:0.15,I:1.32},{R:15,V:0.20,I:1.32},{R:22,V:0.25,I:1.32},{R:33,V:0.30,I:1.32},{R:47,V:0.35,I:1.26},{R:68,V:0.40,I:1.14},{R:100,V:0.45,I:0.72},{R:330,V:0.50,I:0.18},{R:2200,V:0.52,I:0.00}],
+ "200":[{R:0,V:0.00,I:0.44},{R:2,V:0.05,I:0.44},{R:5,V:0.10,I:0.44},{R:10,V:0.15,I:0.44},{R:15,V:0.20,I:0.44},{R:22,V:0.25,I:0.44},{R:33,V:0.30,I:0.44},{R:47,V:0.35,I:0.42},{R:68,V:0.40,I:0.38},{R:100,V:0.45,I:0.24},{R:330,V:0.50,I:0.06},{R:2200,V:0.52,I:0.00}]
+};
+const colorByIrr={"200":"#d99a00","600":"#2f62a8","1000":"#12a05a"};
+const $=id=>document.getElementById(id);
+let plottedCurves=[],currentPoints=[],currentResStep=0,lastIrr="1000",lastTemp="25";
+
+function adjV(v,t){return v*(1-0.003*(t-25));}   // Voc temperature coefficient −0.3 %/°C
+function adjI(i,t){return i*(1+0.0005*(t-25));}  // Isc temperature coefficient +0.05 %/°C
+function scaled(irr,t){return baseTable[irr].map(p=>({R:p.R,V:adjV(p.V,+t),I:adjI(p.I,+t)}));}
+function updateIscVoc(irr,t){const d=scaled(irr,t);$('iscVal').textContent=d[0].I.toFixed(2);$('vocVal').textContent=d[d.length-1].V.toFixed(2);}
+
+function nextPoint(){
+  const irr=$('irrSelect').value,t=$('tempSelect').value;lastIrr=irr;lastTemp=t;
+  const d=scaled(irr,t);
+  if(currentResStep>=d.length){$('msg').textContent='All points plotted for '+irr+' W/m², '+t+' °C. Reset the current curve or change the settings.';return;}
+  $('msg').textContent='';
+  currentPoints.push(d[currentResStep]);
+  updateTable(currentPoints);drawPlot();updateLegend();
+  currentResStep++;
+  $('nextRes').textContent=currentResStep<d.length?d[currentResStep].R:'--';
+}
+function resetCurrent(){
+  if(currentPoints.length)plottedCurves.push({irr:lastIrr,temp:lastTemp,data:[...currentPoints]});
+  currentPoints=[];currentResStep=0;$('msg').textContent='';
+  const irr=$('irrSelect').value,t=$('tempSelect').value;lastIrr=irr;lastTemp=t;
+  $('nextRes').textContent=baseTable[irr][0].R;
+  updateTable([]);drawPlot();updateIscVoc(irr,t);updateLegend();
+}
+function resetAll(){plottedCurves=[];currentPoints=[];resetCurrent();}
+
+function updateTable(data){
+  let h='<tr><th>R (Ω)</th><th>V (V)</th><th>I (A)</th></tr>';
+  data.forEach(d=>h+='<tr><td>'+d.R+'</td><td>'+d.V.toFixed(2)+'</td><td>'+d.I.toFixed(2)+'</td></tr>');
+  $('dataTable').innerHTML=h;
+}
+const X=v=>70+v/0.52*590, Y=i=>400-i/2.2*300;
+function curve(ctx,data,color,temp,w,r){
+  ctx.strokeStyle=color;ctx.lineWidth=w;ctx.setLineDash(temp==="45"?[8,6]:[]);
+  ctx.beginPath();data.forEach((p,j)=>j?ctx.lineTo(X(p.V),Y(p.I)):ctx.moveTo(X(p.V),Y(p.I)));ctx.stroke();ctx.setLineDash([]);
+  data.forEach(p=>{ctx.beginPath();ctx.arc(X(p.V),Y(p.I),r,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();});
+}
+function drawPlot(){
+  const c=$('plot'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+  ctx.strokeStyle='#e3e8ee';ctx.lineWidth=1;
+  for(let v=1;v<=6;v++){ctx.beginPath();ctx.moveTo(70+v*98,400);ctx.lineTo(70+v*98,70);ctx.stroke();}
+  for(let i=1;i<=4;i++){ctx.beginPath();ctx.moveTo(70,400-i*70);ctx.lineTo(660,400-i*70);ctx.stroke();}
+  ctx.strokeStyle='#222';ctx.beginPath();ctx.moveTo(70,70);ctx.lineTo(70,400);ctx.lineTo(660,400);ctx.stroke();
+  ctx.fillStyle='#000';ctx.font='16px Arial';ctx.textAlign='center';
+  ctx.fillText('Voltage (V)',365,440);
+  ctx.save();ctx.translate(22,235);ctx.rotate(-Math.PI/2);ctx.fillText('Current (A)',0,0);ctx.restore();
+  for(let v=0;v<=6;v++)ctx.fillText((0.09*v).toFixed(2),70+v*98,420);
+  ctx.textAlign='right';for(let i=0;i<=4;i++)ctx.fillText((i*0.5).toFixed(1),62,400-i*70+5);
+  plottedCurves.forEach(cv=>curve(ctx,cv.data,colorByIrr[cv.irr],cv.temp,2,5));
+  if(currentPoints.length)curve(ctx,currentPoints,colorByIrr[$('irrSelect').value],$('tempSelect').value,3,6);
+}
+function item(irr,t,data,cur){
+  const isc=data[0].I,voc=data[data.length-1].V,col=colorByIrr[irr];
+  return '<div><span class="sw" style="border-color:'+col+';border-top-style:'+(t==="45"?'dashed':'solid')+'"></span><b style="color:'+col+'">'+irr+' W/m² @ '+t+' °C</b>'+(cur?' (current)':'')+': <span class="hl">Isc = '+isc.toFixed(2)+' A, Voc = '+voc.toFixed(2)+' V</span></div>';
+}
+function updateLegend(){
+  let out=plottedCurves.map(c=>item(c.irr,c.temp,c.data,false)).join('');
+  if(currentPoints.length)out+=item($('irrSelect').value,$('tempSelect').value,currentPoints,true);
+  $('legend').innerHTML=out||'No curves plotted yet. Solid line = 25 °C, dashed line = 45 °C.';
+}
+$('btnNext').onclick=nextPoint;$('btnReset').onclick=resetCurrent;$('btnAll').onclick=resetAll;
+$('irrSelect').onchange=resetCurrent;$('tempSelect').onchange=resetCurrent;
+resetCurrent();
+</script>
+</body>
+</html>

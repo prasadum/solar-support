@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lithium Solar Batteries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Baloo+Chettan+2:wght@600;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky header + pill tab rail; one wide teaching canvas per tab — diagram first, short caption under, then flowchart + pros/cons */
+:root{
+--bg:#F4F7FB;--surface:#FFFFFF;--surface2:#E9EFF7;--ink:#0D1B2E;--muted:#4B5B72;--line:#C9D3E0;
+--sun:#C27C00;--sun-soft:#FFF0D1;--grid:#1C5BAE;--grid-soft:#E0EBFA;--batt:#16824A;--batt-soft:#DCF2E4;
+--hyb:#6942B0;--hyb-soft:#ECE5F9;--exp:#B0397A;--danger:#C4291F;--danger-soft:#FCE1DE;
+--pv:#1C365F;--pvcell:#6C98DA;--roof:#8A5A44;
+--f-display:"Baloo 2","Baloo Chettan 2","Nirmala UI",system-ui,sans-serif;
+--f-body:"Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif;
+--scale:1;--acc:var(--ink);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}
+:root[lang="ml"]{--f-display:"Baloo Chettan 2","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif}
+
+html{font-size:calc(clamp(15px,0.5vw + 10.5px,21px) * var(--scale))}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.5;margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:2.15rem;font-weight:800}
+h3{font-size:1.35rem;font-weight:800}
+p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:clamp(16px,3vw,40px)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1rem;padding-block:.55rem}
+.brand{display:flex;align-items:center;gap:.7rem;min-width:0}
+.brand svg{width:2.4rem;height:2.4rem;flex:none}
+.brand h1{font-size:1.45rem;font-weight:800}
+.brand .sub{font-size:.85rem;color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.tools select,.tools button{font:600 .95rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:.4rem .7rem;cursor:pointer;min-height:2.3rem}
+.tools select{padding-right:1.6rem}
+.tools button:hover,.tools select:hover{border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tabs{display:flex;gap:.4rem;overflow-x:auto;padding-block:.15rem .6rem;scrollbar-width:thin}
+.tab{flex:none;font:700 1rem var(--f-display);padding:.42rem 1rem .32rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:.45rem}
+.tab .no{font:600 .75rem var(--f-body);color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] .no{color:var(--bg);opacity:.7}
+
+/* panels */
+.panel{padding-block:1.4rem 3rem;display:grid;gap:1.3rem}
+.head{display:grid;gap:.35rem}
+.head h2{color:var(--acc)}
+.lead{font-size:1.18rem;color:var(--muted);max-width:68ch}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(.5rem,1.4vw,1.2rem);overflow-x:auto;min-width:0}
+.fig svg{display:block;width:100%;height:auto;min-width:620px}
+.fig svg.dia{max-height:64vh}
+.fig h3{margin-bottom:.6rem}
+.row2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.3rem;align-items:start}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.row2,.row3{grid-template-columns:minmax(0,1fr)}}
+
+/* scene controls */
+.scene{display:grid;gap:.8rem}
+.sbtns{display:flex;flex-wrap:wrap;gap:.5rem}
+.sbtn{font:700 1.02rem var(--f-display);padding:.45rem 1.1rem .35rem;border-radius:10px;border:2px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer}
+.sbtn[aria-pressed="true"]{background:var(--acc);color:var(--bg)}
+.cap{font-size:1.16rem;background:var(--surface2);border-radius:12px;padding:.8rem 1.1rem}
+[data-show].off:not(.flow){display:none}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-size:.92rem;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:30px;border-top:5px dashed;vertical-align:middle;margin-right:.35rem}
+
+/* svg vocabulary */
+.wire{fill:none;stroke:var(--line);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke-width:5;stroke-dasharray:14 10;stroke-linecap:round;stroke-linejoin:round;animation:flow .9s linear infinite;transition:opacity .3s}
+.flow.dc{stroke:var(--sun)}.flow.ac{stroke:var(--grid)}.flow.bt{stroke:var(--batt)}.flow.ex{stroke:var(--exp)}.flow.dg{stroke:var(--danger);stroke-width:6}
+.flow.rev{animation-direction:reverse}
+.flow.off{opacity:.07;animation:none}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+.lbl{font:600 15px var(--f-body);fill:var(--ink)}
+.lbs{font:500 13px var(--f-body);fill:var(--muted)}
+.c{text-anchor:middle}.s{text-anchor:start}.e{text-anchor:end}
+.tg{font:800 17px var(--f-display)}
+.t-dg{fill:var(--danger)}.t-ok{fill:var(--batt)}.t-ex{fill:var(--exp)}.t-ac{fill:var(--grid)}
+.fo{font:600 14px/1.25 var(--f-body);color:var(--ink);display:flex;align-items:center;justify-content:center;text-align:center;width:100%;height:100%;padding:2px 5px}
+.fo.l{justify-content:flex-start;text-align:left}
+.fo.mut{color:var(--muted);font-weight:500;font-size:13px}
+.fo.dg{color:var(--danger)}.fo.ok{color:var(--batt)}
+.fo.big{font:800 19px/1.15 var(--f-display)}
+.fo.ttl{font:800 20px/1.15 var(--f-display);justify-content:flex-start;text-align:left}
+.fo.pdg{background:var(--danger-soft);border:2px solid var(--danger);border-radius:10px;color:var(--danger);font-weight:700}
+.fo.pok{background:var(--batt-soft);border:2px solid var(--batt);border-radius:10px;color:var(--batt);font-weight:700}
+.box{fill:var(--surface);stroke:var(--ink);stroke-width:4}
+.box2{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-sun{fill:var(--sun)}.s-sun{stroke:var(--sun);fill:none}
+.f-pv{fill:var(--pv);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}.s-cell{stroke:var(--pvcell);stroke-width:2;fill:none}
+.s-ink{stroke:var(--ink);fill:none}.f-ink{fill:var(--ink)}.f-muted{fill:var(--muted)}.f-surf{fill:var(--surface)}
+.f-batt{fill:var(--batt)}.s-grid{stroke:var(--grid);fill:none}.f-roof{fill:var(--roof)}
+.s-dg{stroke:var(--danger);fill:none}.f-dg{fill:var(--danger)}.s-ok{stroke:var(--batt);fill:none}.s-mut{stroke:var(--muted);fill:none}
+.f-scr{fill:var(--grid-soft);stroke:var(--ink);stroke-width:2}
+.f-moon{fill:var(--muted)}.f-cloud{fill:var(--muted);opacity:.55}
+.dim{fill:#000;opacity:.5}
+.absent{opacity:.14}
+.mono{font:700 13px ui-monospace,Consolas,monospace;fill:var(--ink)}
+
+/* flowcharts */
+.fc .nd{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.fc .st{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.fc .dq{fill:var(--surface2);stroke:var(--muted);stroke-width:2}
+.fc .ok{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.fc .bad{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+.fc .og{fill:var(--batt-soft);stroke:var(--batt);stroke-width:3}
+.fc .hy{fill:var(--hyb-soft);stroke:var(--hyb);stroke-width:3}
+.fc .on{fill:var(--grid-soft);stroke:var(--grid);stroke-width:3}
+.fc .ar{stroke:var(--ink);stroke-width:2.2;fill:none;marker-end:url(#arw)}
+.yn{font:700 14px var(--f-body);fill:var(--muted)}
+.ch1{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.ch2{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.ch3{fill:var(--grid-soft);stroke:var(--grid);stroke-width:2}
+.ch4{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+
+/* overview */
+.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.types{grid-template-columns:minmax(0,1fr)}}
+.type{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--acc);border-radius:16px;padding:1rem 1.1rem;display:grid;gap:.5rem;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.type:hover{box-shadow:0 6px 20px rgb(0 0 0 / .08)}
+.type h3{color:var(--acc);font-size:1.6rem}
+.type svg{width:100%;height:auto}
+.type p{font-size:1.08rem}
+.chip{display:inline-block;justify-self:start;font:700 .9rem var(--f-body);padding:.25rem .7rem;border-radius:999px}
+.chip.no{background:var(--danger-soft);color:var(--danger)}
+.chip.yes{background:var(--batt-soft);color:var(--batt)}
+.blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:.9rem}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem;display:grid;gap:.35rem;justify-items:center;text-align:center}
+.blk svg{width:84px;height:84px}
+.blk h4{font-size:1.08rem}
+.blk p{font-size:.92rem;color:var(--muted)}
+
+/* pros & cons */
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1rem}
+.pc>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.7rem;align-content:start}
+.pc h3.pro{color:var(--batt)}.pc h3.con{color:var(--danger)}
+.pc ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.pc li{position:relative;padding-left:2.3rem;font-size:1.08rem;min-height:1.7rem}
+.pc li::before{content:"+";position:absolute;left:0;top:.05rem;display:grid;place-items:center;width:1.65rem;height:1.65rem;border-radius:50%;background:var(--batt-soft);color:var(--batt);font-weight:800}
+.pc .cons li::before{content:"\2212";background:var(--danger-soft);color:var(--danger)}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:1.03rem}
+th,td{padding:.7rem .95rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child>*{border-bottom:0}
+thead th{font-family:var(--f-display);font-size:1.2rem;background:var(--surface2)}
+tbody th{font-weight:700;color:var(--muted);width:22%}
+.k-on{color:var(--grid)}.k-off{color:var(--batt)}.k-hy{color:var(--hyb)}
+.y{color:var(--batt);font-weight:700}.n{color:var(--danger);font-weight:700}
+.hl{background:var(--batt-soft)}
+
+/* cards */
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;display:grid;grid-template-columns:3.3rem minmax(0,1fr);gap:.15rem .85rem;align-content:start}
+.badge{grid-row:1 / span 3;width:3.3rem;height:3.3rem;border-radius:12px;display:grid;place-items:center;font:800 1.02rem var(--f-display);background:var(--grid-soft);color:var(--grid)}
+.badge.in{background:var(--hyb-soft);color:var(--hyb)}
+.badge.dg{background:var(--danger-soft);color:var(--danger)}
+.pcard h4{font-size:1.1rem}
+.pcard p{color:var(--muted);font-size:.97rem}
+.where{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.6rem;align-content:start}
+.card h3{font-size:1.25rem}
+.card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem}
+.card .foot{font-size:.95rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.5rem}
+.card.dgc{background:var(--danger-soft);border-color:var(--danger)}
+.card.okc{background:var(--batt-soft);border-color:var(--batt)}
+.card.dgc h3{color:var(--danger)}.card.okc h3{color:var(--batt)}
+.stds{display:flex;flex-wrap:wrap;gap:.5rem}
+.stds span{font:600 .92rem var(--f-body);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}
+.chain span{font:700 1rem var(--f-body);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:.5rem .8rem}
+.chain i{font-style:normal;color:var(--muted);font-weight:800}
+.chain span.k{border-color:var(--batt);background:var(--batt-soft)}
+.encl{display:flex;flex-wrap:wrap;gap:.5rem}
+.encl span{font:600 .95rem var(--f-body);padding:.3rem .75rem;border-radius:999px;background:var(--danger-soft);color:var(--danger)}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem}
+@media (max-width:760px){.calc{grid-template-columns:minmax(0,1fr)}}
+.inp{display:grid;gap:.6rem}
+.inp label{display:grid;grid-template-columns:minmax(0,1fr) 7.5rem;align-items:center;gap:.6rem;font-size:1rem}
+.inp input{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%;font-variant-numeric:tabular-nums}
+.out{display:grid;gap:.6rem}
+.res{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;background:var(--surface2);border-radius:10px;padding:.6rem .9rem}
+.res b{font:800 1.6rem var(--f-display);font-variant-numeric:tabular-nums}
+.res.big{background:var(--batt-soft)}
+.res.big b{color:var(--batt);font-size:2.1rem}
+.steps{font:600 .98rem ui-monospace,Consolas,monospace;color:var(--muted);display:grid;gap:.2rem}
+
+footer{border-top:1px solid var(--line);padding-block:1rem;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}
+
+:root{--pos:#7A3B1A;--neg:#6E7887;--acid:#D3E8F8;--sulf:#F7F6EE;--mat:#E6EFD9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}}
+:root[data-theme="dark"]{--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}
+.f-pos{fill:var(--pos);stroke:var(--ink);stroke-width:1.2}.f-neg{fill:var(--neg);stroke:var(--ink);stroke-width:1.2}
+.f-acid{fill:var(--acid)}.f-sulf{fill:var(--sulf)}.f-mat{fill:var(--mat)}
+.f-case{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-red{fill:var(--danger)}
+.lead-ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.nb circle{fill:var(--acc)}.nb text{font:800 20px var(--f-display);fill:var(--bg);text-anchor:middle}
+.vline{fill:none;stroke:var(--grid);stroke-width:4;stroke-linejoin:round}
+.iline{fill:none;stroke:var(--sun);stroke-width:4;stroke-linejoin:round;stroke-dasharray:10 6}
+.flow.e{stroke:var(--hyb)}
+.eqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:.9rem}
+.eq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem;display:grid;gap:.35rem}
+.eq .t{font:700 .85rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.eq .f{font:700 clamp(1.05rem,1.6vw,1.45rem)/1.35 "Noto Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+.eq.big{border:2px solid var(--acc);grid-column:1/-1}
+.eq.big .f{font-size:clamp(1.2rem,2.2vw,1.9rem)}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.mini .card svg{width:100%;height:auto;background:var(--surface2);border-radius:10px}
+.prob{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.prob .card svg{width:100%;height:auto;max-height:260px}
+.cer{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.35rem .7rem;align-items:start;font-size:1.02rem}
+.cer b{font:700 .78rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;padding:.15rem .5rem;border-radius:6px;text-align:center;margin-top:.15rem}
+.cer .c1{background:var(--sun-soft);color:var(--sun)}.cer .c2{background:var(--danger-soft);color:var(--danger)}.cer .c3{background:var(--batt-soft);color:var(--batt)}
+ol.steps2{margin:0;padding-left:0;list-style:none;display:grid;gap:.6rem;counter-reset:s}
+ol.steps2 li{counter-increment:s;position:relative;padding-left:3rem;font-size:1.12rem;min-height:2.2rem}
+ol.steps2 li::before{content:counter(s);position:absolute;left:0;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font:800 1.1rem var(--f-display)}
+.src{font-size:.85rem;color:var(--muted)}.src a{color:var(--grid)}
+select.inpsel{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%}
+.calc .res b{font-size:1.3rem}.calc .res.big b{font-size:1.7rem}
+.simgrid{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.simctl{display:grid;gap:.45rem}
+.simctl label{display:flex;justify-content:space-between;gap:.5rem;font-weight:600}
+.simctl output{font:800 1.2rem var(--f-display);color:var(--grid);font-variant-numeric:tabular-nums}
+.simctl input[type=range]{width:100%;accent-color:var(--grid);height:1.6rem}
+.simbtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-block:.4rem}
+.simviz{display:grid;gap:.6rem;min-width:0;overflow-x:auto}
+.simviz svg{min-width:560px}
+#smSun{transition:opacity .2s}
+
+:root{--cu:#B4662F;--al:#A9B4C2;--gra:#3A3D45;--lfp:#5D6F86;--ion:#7B4BC9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}}
+:root[data-theme="dark"]{--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}
+.f-cu{fill:var(--cu)}.f-al{fill:var(--al)}.f-gra{fill:var(--gra)}.f-lfp{fill:var(--lfp)}.f-ion{fill:var(--ion)}
+.ion{animation:ionR 2.4s linear infinite}
+.ion.l{animation-name:ionL}
+@keyframes ionR{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(150px);opacity:0}}
+@keyframes ionL{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(-150px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.ion{animation:none}}
+.dots{letter-spacing:.12em;color:var(--batt);font-size:1.15rem;white-space:nowrap}
+.dots i{font-style:normal;color:var(--line)}
+.bmsgrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.bmsgrid{grid-template-columns:minmax(0,1fr)}}
+.chipsrow{display:flex;flex-wrap:wrap;gap:.4rem}
+.pchip{font:800 .95rem var(--f-display);padding:.3rem .7rem;border-radius:8px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.pchip.on{background:var(--danger);color:#fff;border-color:var(--danger)}
+.pchip.bal.on{background:var(--sun);border-color:var(--sun)}
+.pchip.ok.on{background:var(--batt);border-color:var(--batt)}
+.msgs{display:grid;gap:.35rem}
+.msgs p{padding:.5rem .8rem;border-radius:10px;font-weight:600;background:var(--danger-soft);color:var(--danger)}
+.msgs p.okm{background:var(--batt-soft);color:var(--batt)}
+.msgs p.balm{background:var(--sun-soft);color:var(--sun)}
+.glow{fill:var(--sun);filter:drop-shadow(0 0 6px var(--sun))}
+.fet-on{stroke:var(--batt)}.fet-off{stroke:var(--danger)}
+.dodo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.dodo .card ul{list-style:none;padding:0}
+.dodo .card li{position:relative;padding-left:2.1rem;font-size:1.05rem}
+.dodo .card li::before{position:absolute;left:0;top:.05rem;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font-weight:800}
+.dodo .do li::before{content:"✓";background:var(--batt-soft);color:var(--batt)}
+.dodo .dont li::before{content:"✗";background:var(--danger-soft);color:var(--danger)}
+.glowr{stroke:var(--sun);stroke-width:4;fill:none;filter:drop-shadow(0 0 5px var(--sun))}
+.fet-on,.fet-off{fill:none;stroke-width:6;stroke-linecap:round}
+.calc input,.tw td input{font:700 1.05rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;width:100%;max-width:9rem}
+th .nm{font-weight:600;font-size:.88rem;color:var(--ink)}
+.fm{font:700 1rem "Noto Sans",system-ui,sans-serif;color:var(--ion)}
+.eq .w{font-size:.95rem;color:var(--muted)}
+.abbr{font-size:.92rem;color:var(--muted);line-height:1.55;margin-top:.5rem}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-ink"/></marker>
+<symbol id="s-sun" viewBox="0 0 100 100"><g class="s-sun" stroke-width="6" stroke-linecap="round"><path d="M50 4V18M50 82V96M4 50H18M82 50H96M17 17L27 27M73 73L83 83M83 17L73 27M17 83L27 73"/></g><circle cx="50" cy="50" r="22" class="f-sun"/></symbol>
+<symbol id="s-li" viewBox="0 0 100 100"><rect class="f-red" x="20" y="10" width="14" height="10" rx="2"/><rect class="f-ink" x="66" y="10" width="14" height="10" rx="2"/><rect class="box" x="8" y="20" width="84" height="72" rx="8"/><text x="50" y="66" class="c" style="font:800 26px var(--f-display);fill:var(--ion)">Li</text></symbol>
+<symbol id="s-batt" viewBox="0 0 100 100"><rect class="f-red" x="20" y="12" width="14" height="11" rx="2"/><rect class="f-ink" x="66" y="12" width="14" height="11" rx="2"/><rect class="box" x="8" y="22" width="84" height="66" rx="7"/><rect class="f-batt" x="18" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="41" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="64" y="40" width="18" height="38" rx="3"/></symbol>
+<symbol id="s-inv" viewBox="0 0 100 100"><rect class="box" x="5" y="5" width="90" height="90" rx="10"/><path class="s-ink" stroke-width="3" d="M5 95L95 5"/><path class="s-sun" stroke-width="5" d="M16 26H42M16 37H42"/><path class="s-grid" stroke-width="5" d="M56 72q6 -12 12 0t12 0"/></symbol>
+</defs>
+</svg>
+
+<header class="top">
+ <div class="wrap bar">
+  <div class="brand">
+   <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-li"/></svg>
+   <div>
+    <h1 data-en="Lithium Solar Batteries" data-hi="लिथियम सोलर बैटरी" data-ml="ലിഥിയം സോളാർ ബാറ്ററി"></h1>
+    <p class="sub" data-en="LiFePO₄ · Construction · Operation · BMS · Settings · Care" data-hi="LiFePO₄ · निर्माण · कार्य · BMS · सेटिंग · देखभाल" data-ml="LiFePO₄ · നിർമാണം · പ്രവർത്തനം · BMS · സെറ്റിങ് · പരിപാലനം"></p>
+   </div>
+  </div>
+  <div class="tools">
+   <label for="lang" class="sr">Language</label>
+   <select id="lang"><option value="en">English</option><option value="hi">हिन्दी</option><option value="ml">മലയാളം</option></select>
+   <button id="fdn" type="button" aria-label="Smaller text">A−</button>
+   <button id="fup" type="button" aria-label="Larger text">A+</button>
+   <button id="thm" type="button" aria-label="Switch light or dark theme">◐</button>
+   <button id="fsc" type="button" aria-label="Full screen">⛶</button>
+  </div>
+ </div>
+ <nav class="wrap tabs" role="tablist" aria-label="Topics">
+  <button class="tab" role="tab" data-tab="types" aria-controls="types"><span class="no">1</span><span data-en="Types" data-hi="प्रकार" data-ml="തരങ്ങൾ"></span></button>
+  <button class="tab" role="tab" data-tab="build" aria-controls="build"><span class="no">2</span><span data-en="Construction" data-hi="निर्माण" data-ml="നിർമാണം"></span></button>
+  <button class="tab" role="tab" data-tab="oper" aria-controls="oper"><span class="no">3</span><span data-en="Operation" data-hi="कार्य-प्रणाली" data-ml="പ്രവർത്തനം"></span></button>
+  <button class="tab" role="tab" data-tab="bms" aria-controls="bms"><span class="no">4</span><span data-en="BMS live" data-hi="BMS लाइव" data-ml="BMS ലൈവ്"></span></button>
+  <button class="tab" role="tab" data-tab="feat" aria-controls="feat"><span class="no">5</span><span data-en="Features &amp; settings" data-hi="विशेषताएँ व सेटिंग" data-ml="സവിശേഷതകൾ, സെറ്റിങ്"></span></button>
+  <button class="tab" role="tab" data-tab="pros" aria-controls="pros"><span class="no">6</span><span data-en="Pros, cons &amp; cost" data-hi="लाभ, हानि व लागत" data-ml="ഗുണം, ദോഷം, ചെലവ്"></span></button>
+  <button class="tab" role="tab" data-tab="care" aria-controls="care"><span class="no">7</span><span data-en="Care &amp; safety" data-hi="देखभाल व सुरक्षा" data-ml="പരിപാലനം, സുരക്ഷ"></span></button>
+  <button class="tab" role="tab" data-tab="inst" aria-controls="inst"><span class="no">8</span><span data-en="Installation" data-hi="स्थापना" data-ml="ഇൻസ്റ്റലേഷൻ"></span></button>
+  <button class="tab" role="tab" data-tab="abbr" aria-controls="abbr"><span class="no">9</span><span data-en="Abbreviations" data-hi="संक्षेप" data-ml="ചുരുക്കെഴുത്തുകൾ"></span></button>
+ </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1 TYPES ============ -->
+<section class="panel" id="types" role="tabpanel" style="--acc:var(--ion)">
+ <div class="head">
+  <h2 data-en="Lithium batteries used in solar" data-hi="सोलर में प्रयुक्त लिथियम बैटरियाँ" data-ml="സോളാറിൽ ഉപയോഗിക്കുന്ന ലിഥിയം ബാറ്ററികൾ"></h2>
+  <p class="lead" data-en="“Lithium” is a family. For home and commercial solar storage, lithium iron phosphate (LiFePO₄ or LFP) is the standard choice because it is the safest and longest-lasting." data-hi="“लिथियम” एक परिवार है। घरेलू व व्यावसायिक सोलर भंडारण के लिए लिथियम आयरन फॉस्फेट (LiFePO₄ या LFP) मानक विकल्प है, क्योंकि यह सबसे सुरक्षित और सबसे टिकाऊ है।" data-ml="“ലിഥിയം” ഒരു കുടുംബമാണ്. വീട്ടിലെയും വാണിജ്യ സോളാർ സംഭരണത്തിനും ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് (LiFePO₄ / LFP) ആണ് സാധാരണ തിരഞ്ഞെടുപ്പ്; ഏറ്റവും സുരക്ഷിതവും ദീർഘായുസ്സുള്ളതും അതാണ്."></p>
+ </div>
+ <div class="tw">
+  <table>
+   <thead><tr><th data-en="Chemistry" data-hi="रसायन" data-ml="രസതന്ത്രം"></th><th data-en="Cell voltage" data-hi="सेल वोल्टेज" data-ml="സെൽ വോൾട്ടേജ്"></th><th data-en="Safety" data-hi="सुरक्षा" data-ml="സുരക്ഷ"></th><th data-en="Cycle life" data-hi="चक्र आयु" data-ml="സൈക്കിൾ ആയുസ്സ്"></th><th data-en="Energy density" data-hi="ऊर्जा घनत्व" data-ml="ഊർജ സാന്ദ്രത"></th><th data-en="Low cost" data-hi="कम लागत" data-ml="കുറഞ്ഞ ചെലവ്"></th><th data-en="Typical use" data-hi="सामान्य उपयोग" data-ml="സാധാരണ ഉപയോഗം"></th></tr></thead>
+   <tbody>
+    <tr class="hl"><th><b>LFP</b><br><span class="nm" data-en="Lithium iron phosphate" data-hi="लिथियम आयरन फॉस्फेट" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്"></span><br><span class="fm">LiFePO₄</span></th><td>3.2 V</td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●<i>●</i></td><td data-en="Solar storage, inverters, buses" data-hi="सोलर भंडारण, इन्वर्टर, बसें" data-ml="സോളാർ സംഭരണം, ഇൻവെർട്ടർ, ബസുകൾ"></td></tr>
+    <tr><th><b>NMC</b><br><span class="nm" data-en="Lithium nickel manganese cobalt oxide" data-hi="लिथियम निकल मैंगनीज़ कोबाल्ट ऑक्साइड" data-ml="ലിഥിയം നിക്കൽ മാംഗനീസ് കോബാൾട്ട് ഓക്സൈഡ്"></span><br><span class="fm">LiNiMnCoO₂</span></th><td>3.6–3.7 V</td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td data-en="Electric cars, laptops, phones" data-hi="इलेक्ट्रिक कार, लैपटॉप, फोन" data-ml="ഇലക്ട്രിക് കാർ, ലാപ്ടോപ്പ്, ഫോൺ"></td></tr>
+    <tr><th><b>NCA</b><br><span class="nm" data-en="Lithium nickel cobalt aluminium oxide" data-hi="लिथियम निकल कोबाल्ट एल्यूमिनियम ऑक्साइड" data-ml="ലിഥിയം നിക്കൽ കോബാൾട്ട് അലുമിനിയം ഓക്സൈഡ്"></span><br><span class="fm">LiNiCoAlO₂</span></th><td>3.6 V</td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td data-en="Some electric cars" data-hi="कुछ इलेक्ट्रिक कार" data-ml="ചില ഇലക്ട്രിക് കാറുകൾ"></td></tr>
+    <tr><th><b>LTO</b><br><span class="nm" data-en="Lithium titanate (anode)" data-hi="लिथियम टाइटेनेट (एनोड)" data-ml="ലിഥിയം ടൈറ്റനേറ്റ് (ആനോഡ്)"></span><br><span class="fm">Li₄Ti₅O₁₂</span></th><td>2.3–2.4 V</td><td class="dots">●●●●●</td><td class="dots">●●●●●</td><td class="dots">●<i>●●●●</i></td><td class="dots">●<i>●●●●</i></td><td data-en="Fast-charge buses, grid support" data-hi="फास्ट-चार्ज बसें, ग्रिड सपोर्ट" data-ml="ഫാസ്റ്റ്-ചാർജ് ബസുകൾ, ഗ്രിഡ് പിന്തുണ"></td></tr>
+   </tbody>
+  </table>
+ </div>
+ <div class="fig">
+  <h3 data-en="Which ones are “lithium-ion”?" data-hi="कौन-सी “लिथियम-आयन” हैं?" data-ml="ഏതൊക്കെയാണ് “ലിഥിയം-അയോൺ”?"></h3>
+  <svg viewBox="0 0 990 350" role="img" aria-label="Family tree of lithium batteries" class="fc" style="min-width:740px"><path class="ar" d="M495 58V75H270V93"/><path class="ar" d="M495 58V75H750V93"/>
+<rect class="st" x="380" y="6" width="230" height="52" rx="26"/>
+<foreignObject x="380" y="6" width="230" height="52"><div class="fo big" data-en="Lithium batteries" data-hi="लिथियम बैटरियाँ" data-ml="ലിഥിയം ബാറ്ററികൾ"></div></foreignObject>
+<rect class="hy" x="40" y="95" width="460" height="60" rx="12"/>
+<foreignObject x="40" y="95" width="460" height="60"><div class="fo big" data-en="Rechargeable = LITHIUM-ION (Li-ion)" data-hi="रिचार्जेबल = लिथियम-आयन (Li-ion)" data-ml="റീചാർജബിൾ = ലിഥിയം-അയോൺ (Li-ion)"></div></foreignObject>
+<rect class="bad" x="560" y="95" width="390" height="60" rx="12"/>
+<foreignObject x="560" y="95" width="390" height="60"><div class="fo" style="font-weight:800" data-en="Non-rechargeable = lithium primary (lithium metal)" data-hi="नॉन-रिचार्जेबल = लिथियम प्राइमरी (लिथियम धातु)" data-ml="റീചാർജ് ചെയ്യാനാവാത്തത് = ലിഥിയം പ്രൈമറി (ലിഥിയം ലോഹം)"></div></foreignObject>
+<rect class="ok" x="40" y="180" width="145" height="72" rx="8"/>
+<text class="tg c" x="112" y="202" style="fill:var(--ion)">LFP</text>
+<foreignObject x="40" y="204" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Lithium iron phosphate: solar" data-hi="लिथियम आयरन फॉस्फेट: सोलर" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്: സോളാർ"></div></foreignObject>
+<rect class="nd" x="195" y="180" width="145" height="72" rx="8"/>
+<text class="tg c" x="267" y="202" style="fill:var(--ion)">NMC</text>
+<foreignObject x="195" y="204" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Nickel manganese cobalt: EVs" data-hi="निकल मैंगनीज़ कोबाल्ट: EV" data-ml="നിക്കൽ മാംഗനീസ് കോബാൾട്ട്: EV"></div></foreignObject>
+<rect class="nd" x="350" y="180" width="145" height="72" rx="8"/>
+<text class="tg c" x="422" y="202" style="fill:var(--ion)">NCA</text>
+<foreignObject x="350" y="204" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Nickel cobalt aluminium: EVs" data-hi="निकल कोबाल्ट एल्यूमिनियम: EV" data-ml="നിക്കൽ കോബാൾട്ട് അലുമിനിയം: EV"></div></foreignObject>
+<rect class="nd" x="40" y="262" width="145" height="72" rx="8"/>
+<text class="tg c" x="112" y="284" style="fill:var(--ion)">LCO</text>
+<foreignObject x="40" y="286" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Lithium cobalt oxide: phones" data-hi="लिथियम कोबाल्ट ऑक्साइड: फोन" data-ml="ലിഥിയം കോബാൾട്ട് ഓക്സൈഡ്: ഫോൺ"></div></foreignObject>
+<rect class="nd" x="195" y="262" width="145" height="72" rx="8"/>
+<text class="tg c" x="267" y="284" style="fill:var(--ion)">LMO</text>
+<foreignObject x="195" y="286" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Lithium manganese oxide: power tools" data-hi="लिथियम मैंगनीज़ ऑक्साइड: पावर टूल" data-ml="ലിഥിയം മാംഗനീസ് ഓക്സൈഡ്: പവർ ടൂൾ"></div></foreignObject>
+<rect class="nd" x="350" y="262" width="145" height="72" rx="8"/>
+<text class="tg c" x="422" y="284" style="fill:var(--ion)">LTO</text>
+<foreignObject x="350" y="286" width="145" height="48"><div class="fo" style="font-size:12px" data-en="Lithium titanate: fast-charge buses" data-hi="लिथियम टाइटेनेट: फास्ट-चार्ज बसें" data-ml="ലിഥിയം ടൈറ്റനേറ്റ്: ഫാസ്റ്റ്-ചാർജ് ബസുകൾ"></div></foreignObject>
+<path class="ar" d="M270 155V178"/><path class="ar" d="M755 155V178"/>
+<rect class="nd" x="575" y="180" width="175" height="72" rx="8"/><text class="tg c" x="662" y="202" style="fill:var(--danger)">CR2032</text>
+<foreignObject x="575" y="204" width="175" height="48"><div class="fo" style="font-size:12px" data-en="Coin cell: watches, remotes" data-hi="कॉइन सेल: घड़ी, रिमोट" data-ml="കോയിൻ സെൽ: വാച്ച്, റിമോട്ട്"></div></foreignObject>
+<rect class="nd" x="765" y="180" width="175" height="72" rx="8"/><text class="tg c" x="852" y="202" style="fill:var(--danger)">Li-SOCl₂</text>
+<foreignObject x="765" y="204" width="175" height="48"><div class="fo" style="font-size:12px" data-en="Lithium thionyl chloride: energy meters" data-hi="लिथियम थायोनिल क्लोराइड: ऊर्जा मीटर" data-ml="ലിഥിയം തയോണൈൽ ക്ലോറൈഡ്: എനർജി മീറ്റർ"></div></foreignObject>
+<foreignObject x="560" y="262" width="390" height="70"><div class="fo dg" style="font-weight:800" data-en="✗ Never recharge: risk of fire or explosion" data-hi="✗ कभी रिचार्ज न करें: आग या विस्फोट का खतरा" data-ml="✗ ഒരിക്കലും റീചാർജ് ചെയ്യരുത്: തീപിടിത്തം/സ്ഫോടന സാധ്യത"></div></foreignObject></svg>
+  <p class="cap" data-en="All the rechargeable chemistries on the left, including LFP, are lithium-ion batteries: Li⁺ ions shuttle between the electrodes. In shops, “Li-ion” usually means cobalt-based NMC or LCO cells, while LFP is sold as “LiFePO₄” or “lithium iron phosphate”. Lithium primary cells contain lithium metal and must never be recharged." data-hi="बाईं ओर के सभी रिचार्जेबल रसायन, LFP सहित, लिथियम-आयन बैटरी हैं: Li⁺ आयन इलेक्ट्रोडों के बीच आते-जाते हैं। बाज़ार में “Li-ion” का अर्थ प्रायः कोबाल्ट-आधारित NMC या LCO सेल होता है, जबकि LFP “LiFePO₄” या “लिथियम आयरन फॉस्फेट” नाम से बिकती है। लिथियम प्राइमरी सेल में लिथियम धातु होती है; इन्हें कभी रिचार्ज न करें।" data-ml="ഇടതുവശത്തെ എല്ലാ റീചാർജബിൾ രസതന്ത്രങ്ങളും, LFP ഉൾപ്പെടെ, ലിഥിയം-അയോൺ ബാറ്ററികളാണ്: Li⁺ അയോണുകൾ ഇലക്ട്രോഡുകൾക്കിടയിൽ സഞ്ചരിക്കുന്നു. കടകളിൽ “Li-ion” എന്നാൽ സാധാരണ കോബാൾട്ട് അടിസ്ഥാനമായ NMC/LCO സെല്ലുകളാണ്; LFP “LiFePO₄” അല്ലെങ്കിൽ “ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്” എന്ന പേരിൽ വിൽക്കുന്നു. ലിഥിയം പ്രൈമറി സെല്ലുകളിൽ ലിഥിയം ലോഹമുണ്ട്; ഇവ ഒരിക്കലും റീചാർജ് ചെയ്യരുത്."></p>
+ </div>
+ <div class="row2">
+  <div class="fig">
+   <h3 data-en="Cell formats" data-hi="सेल के आकार" data-ml="സെൽ രൂപങ്ങൾ"></h3>
+   <svg viewBox="0 0 640 300" role="img" aria-label="Cylindrical, prismatic and pouch cells" style="min-width:500px"><rect x="50" y="60" width="80" height="175" rx="12" class="f-al" style="stroke:var(--ink);stroke-width:3"/><ellipse cx="90" cy="62" rx="38" ry="10" class="f-surf" style="stroke:var(--ink);stroke-width:3"/><rect x="82" y="44" width="16" height="12" class="f-red"/>
+<rect x="215" y="70" width="210" height="165" rx="8" class="f-al" style="stroke:var(--ink);stroke-width:3"/><rect x="245" y="50" width="34" height="20" rx="3" class="f-red"/><rect x="361" y="50" width="34" height="20" rx="3" class="f-ink"/><circle cx="320" cy="62" r="7" class="f-surf" style="stroke:var(--ink);stroke-width:2"/><text class="mono c" x="320" y="160" style="font-size:18px">3.2 V 280 Ah</text>
+<rect x="480" y="80" width="130" height="155" rx="6" style="fill:var(--surface2);stroke:var(--ink);stroke-width:3"/><rect x="490" y="90" width="110" height="135" rx="4" style="fill:none;stroke:var(--muted);stroke-dasharray:5 4"/><rect x="503" y="56" width="22" height="26" class="f-al" style="stroke:var(--ink)"/><rect x="565" y="56" width="22" height="26" class="f-cu" style="stroke:var(--ink)"/>
+<foreignObject x="0" y="245" width="180" height="55"><div class="fo" data-en="Cylindrical (26650, 32650)" data-hi="बेलनाकार (26650, 32650)" data-ml="സിലിണ്ടറിക്കൽ (26650, 32650)"></div></foreignObject>
+<foreignObject x="210" y="245" width="220" height="55"><div class="fo" data-en="Prismatic: most solar packs" data-hi="प्रिज़्मैटिक: अधिकांश सोलर पैक" data-ml="പ്രിസ്മാറ്റിക്: മിക്ക സോളാർ പാക്കുകളും"></div></foreignObject>
+<foreignObject x="460" y="245" width="175" height="55"><div class="fo" data-en="Pouch" data-hi="पाउच" data-ml="പൗച്ച്"></div></foreignObject></svg>
+  </div>
+  <div class="fig">
+   <h3 data-en="Why LFP for solar?" data-hi="सोलर के लिए LFP क्यों?" data-ml="സോളാറിന് LFP എന്തുകൊണ്ട്?"></h3>
+   <svg viewBox="0 0 640 300" role="img" aria-label="Why LFP" style="min-width:500px"><circle cx="60" cy="75" r="44" style="fill:var(--hyb-soft);stroke:var(--ion);stroke-width:3"/><text class="c" x="60" y="85" style="font:800 28px var(--f-display);fill:var(--ion)">°C</text>
+<foreignObject x="112" y="20" width="210" height="115"><div class="fo l" style="font-size:17px" data-en="Very stable: thermal runaway only near 270 °C (NMC ≈ 210 °C)" data-hi="बहुत स्थिर: थर्मल रनअवे लगभग 270 °C पर (NMC ≈ 210 °C)" data-ml="വളരെ സ്ഥിരം: തെർമൽ റൺഎവേ ഏകദേശം 270 °C-ൽ മാത്രം (NMC ≈ 210 °C)"></div></foreignObject>
+<circle cx="380" cy="75" r="44" style="fill:var(--hyb-soft);stroke:var(--ion);stroke-width:3"/><text class="c" x="380" y="85" style="font:800 28px var(--f-display);fill:var(--ion)">↻</text>
+<foreignObject x="432" y="20" width="210" height="115"><div class="fo l" style="font-size:17px" data-en="4000–6000 cycles: more than 10 years of daily use" data-hi="4000–6000 चक्र: 10 वर्ष से अधिक दैनिक उपयोग" data-ml="4000–6000 സൈക്കിൾ: 10 വർഷത്തിലേറെ ദിവസേന ഉപയോഗം"></div></foreignObject>
+<circle cx="60" cy="215" r="44" style="fill:var(--hyb-soft);stroke:var(--ion);stroke-width:3"/><text class="c" x="60" y="225" style="font:800 28px var(--f-display);fill:var(--ion)">Co</text>
+<path class="s-dg" stroke-width="5" d="M30 185L90 245"/>
+<foreignObject x="112" y="160" width="210" height="115"><div class="fo l" style="font-size:17px" data-en="No cobalt or nickel: lower cost" data-hi="कोबाल्ट या निकल नहीं: कम लागत" data-ml="കോബാൾട്ടോ നിക്കലോ ഇല്ല: കുറഞ്ഞ ചെലവ്"></div></foreignObject>
+<circle cx="380" cy="215" r="44" style="fill:var(--hyb-soft);stroke:var(--ion);stroke-width:3"/><text class="c" x="380" y="225" style="font:800 28px var(--f-display);fill:var(--ion)">4S</text>
+<foreignObject x="432" y="160" width="210" height="115"><div class="fo l" style="font-size:17px" data-en="4 cells = 12.8 V: fits 12 / 24 / 48 V systems" data-hi="4 सेल = 12.8 V: 12 / 24 / 48 V सिस्टम में फिट" data-ml="4 സെൽ = 12.8 V: 12 / 24 / 48 V സിസ്റ്റങ്ങൾക്ക് യോജ്യം"></div></foreignObject></svg>
+  </div>
+ </div>
+ <div class="fig">
+  <h3 data-en="How packs are specified: S = series, P = parallel" data-hi="पैक कैसे निर्दिष्ट होते हैं: S = श्रेणी, P = समानांतर" data-ml="പാക്കുകൾ എങ്ങനെ സൂചിപ്പിക്കുന്നു: S = സീരീസ്, P = പാരലൽ"></h3>
+  <svg viewBox="0 0 990 330" role="img" aria-label="4S1P and 4S2P cell arrangements" style="min-width:740px"><text class="c" x="160" y="40" style="font:800 30px var(--f-display);fill:var(--ion)">4S1P</text>
+<rect x="30" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="34" y="83" width="11" height="7" class="f-ink"/><rect x="61" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="53.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="96" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="100" y="83" width="11" height="7" class="f-ink"/><rect x="127" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="119.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="162" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="166" y="83" width="11" height="7" class="f-ink"/><rect x="193" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="185.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="228" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="232" y="83" width="11" height="7" class="f-ink"/><rect x="259" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="251.0" y="128" style="font-size:11px">3.2V</text>
+<path class="s-ink" stroke-width="4" fill="none" d="M68 83Q84 66 103 83"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M134 83Q150 66 169 83"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M200 83Q216 66 235 83"/>
+<path class="s-ink" stroke-width="4" d="M40 83V62H18"/><path class="s-dg" stroke-width="4" d="M262 83V62H290"/>
+<text class="c" x="160" y="200" style="font:800 22px var(--f-display);fill:var(--grid)">12.8 V · 100 Ah</text>
+<text class="lbs c" x="160" y="226">4 × 3.2 V · 1 × 100 Ah</text>
+<path class="s-mut" stroke-width="1.5" stroke-dasharray="6 5" d="M330 20V310M660 20V310"/>
+<text class="c" x="495" y="40" style="font:800 30px var(--f-display);fill:var(--ion)">4S2P</text>
+<rect x="365" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="369" y="83" width="11" height="7" class="f-ink"/><rect x="396" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="388.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="431" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="435" y="83" width="11" height="7" class="f-ink"/><rect x="462" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="454.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="497" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="501" y="83" width="11" height="7" class="f-ink"/><rect x="528" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="520.0" y="128" style="font-size:11px">3.2V</text>
+<rect x="563" y="90" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="567" y="83" width="11" height="7" class="f-ink"/><rect x="594" y="83" width="11" height="7" class="f-red"/><text class="mono c" x="586.0" y="128" style="font-size:11px">3.2V</text>
+<path class="s-ink" stroke-width="4" fill="none" d="M403 83Q419 66 438 83"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M469 83Q485 66 504 83"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M535 83Q551 66 570 83"/>
+<rect x="365" y="190" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="369" y="183" width="11" height="7" class="f-ink"/><rect x="396" y="183" width="11" height="7" class="f-red"/><text class="mono c" x="388.0" y="228" style="font-size:11px">3.2V</text>
+<rect x="431" y="190" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="435" y="183" width="11" height="7" class="f-ink"/><rect x="462" y="183" width="11" height="7" class="f-red"/><text class="mono c" x="454.0" y="228" style="font-size:11px">3.2V</text>
+<rect x="497" y="190" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="501" y="183" width="11" height="7" class="f-ink"/><rect x="528" y="183" width="11" height="7" class="f-red"/><text class="mono c" x="520.0" y="228" style="font-size:11px">3.2V</text>
+<rect x="563" y="190" width="46" height="64" rx="5" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="567" y="183" width="11" height="7" class="f-ink"/><rect x="594" y="183" width="11" height="7" class="f-red"/><text class="mono c" x="586.0" y="228" style="font-size:11px">3.2V</text>
+<path class="s-ink" stroke-width="4" fill="none" d="M403 183Q419 166 438 183"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M469 183Q485 166 504 183"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M535 183Q551 166 570 183"/>
+<path class="s-ink" stroke-width="4" fill="none" d="M375 83V62H350V183H375"/><path class="s-dg" stroke-width="4" fill="none" d="M597 83V62H622V183H597"/>
+<text class="c" x="495" y="290" style="font:800 22px var(--f-display);fill:var(--batt)">12.8 V · 200 Ah</text>
+<text class="lbs c" x="495" y="314">4 × 3.2 V · 2 × 100 Ah</text>
+<text class="c" x="825" y="70" style="font:800 46px var(--f-display);fill:var(--ink)"><tspan style="fill:var(--grid)">16S</tspan> <tspan style="fill:var(--batt)">1P</tspan></text>
+<path class="s-grid" stroke-width="3" marker-end="url(#arw)" d="M778 82V120"/><path class="s-ok" stroke-width="3" marker-end="url(#arw)" d="M882 82V120"/>
+<foreignObject x="680" y="125" width="150" height="110"><div class="fo" style="color:var(--grid);font-weight:700" data-en="S = cells in series: volts add" data-hi="S = श्रेणी में सेल: वोल्ट जुड़ते हैं" data-ml="S = സീരീസിലെ സെല്ലുകൾ: വോൾട്ട് കൂടുന്നു"></div></foreignObject>
+<foreignObject x="835" y="125" width="150" height="110"><div class="fo" style="color:var(--batt);font-weight:700" data-en="P = strings in parallel: Ah add" data-hi="P = समानांतर स्ट्रिंग: Ah जुड़ते हैं" data-ml="P = പാരലൽ സ്ട്രിങ്ങുകൾ: Ah കൂടുന്നു"></div></foreignObject>
+<text class="c" x="825" y="270" style="font:800 20px var(--f-display);fill:var(--ink)">51.2 V · 100 Ah</text>
+<text class="lbs c" x="825" y="296">= 5.12 kWh</text></svg>
+  <p class="cap" data-en="Read “xSyP” as x cells in series and y strings in parallel. Series adds voltage, parallel adds ampere-hours. A 16S1P pack of 3.2 V 100 Ah cells is 51.2 V, 100 Ah; a 4S2P pack of the same cells is 12.8 V, 200 Ah. “1P” is often left out, so “16S” means 16S1P." data-hi="“xSyP” को ऐसे पढ़ें: x सेल श्रेणी में और y स्ट्रिंग समानांतर में। श्रेणी वोल्टेज जोड़ती है, समानांतर एम्पियर-घंटे जोड़ता है। 3.2 V 100 Ah सेलों का 16S1P पैक 51.2 V, 100 Ah है; उन्हीं सेलों का 4S2P पैक 12.8 V, 200 Ah है। “1P” प्रायः नहीं लिखा जाता, इसलिए “16S” का अर्थ 16S1P है।" data-ml="“xSyP” എന്നാൽ x സെല്ലുകൾ സീരീസിലും y സ്ട്രിങ്ങുകൾ പാരലലിലും. സീരീസ് വോൾട്ടേജ് കൂട്ടുന്നു, പാരലൽ ആമ്പിയർ-മണിക്കൂർ കൂട്ടുന്നു. 3.2 V 100 Ah സെല്ലുകളുടെ 16S1P പാക്ക് 51.2 V, 100 Ah; അതേ സെല്ലുകളുടെ 4S2P പാക്ക് 12.8 V, 200 Ah. “1P” പലപ്പോഴും എഴുതാറില്ല; അതിനാൽ “16S” എന്നാൽ 16S1P."></p>
+ </div>
+ <div class="card">
+  <h3 data-en="Pack calculator (xSyP)" data-hi="पैक कैलकुलेटर (xSyP)" data-ml="പാക്ക് കാൽക്കുലേറ്റർ (xSyP)"></h3>
+  <div class="calc">
+   <div class="inp">
+    <label for="pS"><span data-en="Cells in series (S)" data-hi="श्रेणी में सेल (S)" data-ml="സീരീസിലെ സെല്ലുകൾ (S)"></span><input id="pS" type="number" min="1" max="32" value="16"></label>
+    <label for="pP"><span data-en="Strings in parallel (P)" data-hi="समानांतर स्ट्रिंग (P)" data-ml="പാരലൽ സ്ട്രിങ്ങുകൾ (P)"></span><input id="pP" type="number" min="1" max="20" value="1"></label>
+    <label for="pV"><span data-en="Cell type" data-hi="सेल प्रकार" data-ml="സെൽ തരം"></span><select id="pV" class="inpsel"><option value="3.2|3.65|2.5" selected>LFP 3.2 V</option><option value="3.6|4.2|3.0">NMC 3.6 V</option><option value="2.3|2.8|1.5">LTO 2.3 V</option></select></label>
+    <label for="pA"><span data-en="Cell capacity (Ah)" data-hi="सेल क्षमता (Ah)" data-ml="സെൽ ശേഷി (Ah)"></span><input id="pA" type="number" min="1" step="1" value="100"></label>
+   </div>
+   <div class="out">
+    <div class="res big"><span data-en="Pack" data-hi="पैक" data-ml="പാക്ക്"></span><b id="pOut">–</b></div>
+    <div class="res"><span data-en="Energy" data-hi="ऊर्जा" data-ml="ഊർജം"></span><b id="pE">–</b></div>
+    <div class="res"><span data-en="Voltage range (max / min)" data-hi="वोल्टेज सीमा (अधिकतम / न्यूनतम)" data-ml="വോൾട്ടേജ് പരിധി (പരമാവധി / മിനിമം)"></span><b id="pR">–</b></div>
+    <div class="res"><span data-en="Total cells" data-hi="कुल सेल" data-ml="ആകെ സെല്ലുകൾ"></span><b id="pN">–</b></div>
+    <div class="steps"><span id="pst1"></span><span id="pst2"></span></div>
+   </div>
+  </div>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge in">4S</span><h4>12.8 V</h4><p data-en="4 cells in series: replaces a 12 V lead-acid battery" data-hi="4 सेल श्रेणी में: 12 V लेड-एसिड का विकल्प" data-ml="4 സെൽ സീരീസിൽ: 12 V ലെഡ്-ആസിഡിന് പകരം"></p></div>
+  <div class="pcard"><span class="badge in">8S</span><h4>25.6 V</h4><p data-en="24 V systems" data-hi="24 V सिस्टम" data-ml="24 V സിസ്റ്റങ്ങൾ"></p></div>
+  <div class="pcard"><span class="badge in">15S</span><h4>48 V</h4><p data-en="48 V class (charge ≈ 54 V)" data-hi="48 V श्रेणी (चार्ज ≈ 54 V)" data-ml="48 V ക്ലാസ് (ചാർജ് ≈ 54 V)"></p></div>
+  <div class="pcard"><span class="badge in">16S</span><h4>51.2 V</h4><p data-en="Most common rack / wall battery for hybrid inverters" data-hi="हाइब्रिड इन्वर्टर हेतु सबसे सामान्य रैक / वॉल बैटरी" data-ml="ഹൈബ്രിഡ് ഇൻവെർട്ടറിന് ഏറ്റവും സാധാരണ റാക്ക് / വാൾ ബാറ്ററി"></p></div>
+ </div>
+</section>
+
+<!-- ============ 2 CONSTRUCTION ============ -->
+<section class="panel" id="build" role="tabpanel" style="--acc:var(--grid)" hidden>
+ <div class="head">
+  <h2 data-en="Construction: from cell to battery pack" data-hi="निर्माण: सेल से बैटरी पैक तक" data-ml="നിർമാണം: സെല്ലിൽ നിന്ന് ബാറ്ററി പാക്ക് വരെ"></h2>
+ </div>
+ <div class="fig">
+  <h3 data-en="Inside one LFP (lithium iron phosphate) cell (layers magnified)" data-hi="एक LFP (लिथियम आयरन फॉस्फेट) सेल के अंदर (परतें बड़ी करके)" data-ml="ഒരു LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്) സെല്ലിനുള്ളിൽ (പാളികൾ വലുതാക്കി)"></h3>
+  <svg class="dia" viewBox="0 0 990 400" role="img" aria-label="Layers of a lithium iron phosphate cell"><rect x="135" y="80" width="245" height="250" class="f-acid"/>
+<rect x="120" y="30" width="15" height="300" class="f-cu" style="stroke:var(--ink)"/>
+<rect x="135" y="80" width="110" height="250" class="f-gra"/>
+<path d="M137 92H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 106H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 120H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 134H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 148H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 162H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 176H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 190H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 204H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 218H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 232H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 246H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 260H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 274H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 288H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 302H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M137 316H243" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<circle cx="160" cy="99" r="5" class="f-ion"/>
+<circle cx="195" cy="127" r="5" class="f-ion"/>
+<circle cx="225" cy="155" r="5" class="f-ion"/>
+<circle cx="170" cy="183" r="5" class="f-ion"/>
+<circle cx="210" cy="211" r="5" class="f-ion"/>
+<circle cx="150" cy="239" r="5" class="f-ion"/>
+<circle cx="190" cy="267" r="5" class="f-ion"/>
+<circle cx="230" cy="295" r="5" class="f-ion"/>
+<rect x="245" y="80" width="25" height="250" class="f-surf" style="stroke:var(--muted)"/>
+<circle cx="257" cy="86" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="96" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="106" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="116" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="126" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="136" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="146" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="156" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="166" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="176" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="186" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="196" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="206" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="216" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="226" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="236" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="246" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="256" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="266" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="276" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="286" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="296" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="306" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="316" r="2" class="f-muted" opacity=".5"/>
+<circle cx="257" cy="326" r="2" class="f-muted" opacity=".5"/>
+<rect x="270" y="80" width="110" height="250" class="f-lfp"/>
+<circle cx="282" cy="94" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="304" cy="94" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="326" cy="94" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="348" cy="94" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="370" cy="94" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="293" cy="121" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="315" cy="121" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="337" cy="121" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="359" cy="121" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="381" cy="121" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="282" cy="148" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="304" cy="148" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="326" cy="148" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="348" cy="148" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="370" cy="148" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="293" cy="175" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="315" cy="175" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="337" cy="175" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="359" cy="175" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="381" cy="175" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="282" cy="202" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="304" cy="202" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="326" cy="202" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="348" cy="202" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="370" cy="202" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="293" cy="229" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="315" cy="229" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="337" cy="229" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="359" cy="229" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="381" cy="229" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="282" cy="256" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="304" cy="256" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="326" cy="256" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="348" cy="256" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="370" cy="256" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="293" cy="283" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="315" cy="283" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="337" cy="283" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="359" cy="283" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="381" cy="283" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="282" cy="310" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="304" cy="310" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="326" cy="310" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="348" cy="310" r="5" style="fill:var(--surface);opacity:.35"/>
+<circle cx="370" cy="310" r="5" style="fill:var(--surface);opacity:.35"/>
+<rect x="380" y="30" width="15" height="300" class="f-al" style="stroke:var(--ink)"/>
+<text class="tg c" x="127" y="22">−</text><text class="tg c" x="387" y="22" style="fill:var(--danger)">+</text>
+<path class="lead-ln" d="M127 60L470 60H485"/><circle class="f-ink" cx="127" cy="60" r="4"/>
+<foreignObject x="488" y="38" width="500" height="44"><div class="fo l" data-en="Copper foil: − current collector" data-hi="तांबे की पन्नी: − करंट कलेक्टर" data-ml="ചെമ്പ് ഫോയിൽ: − കറന്റ് കളക്ടർ"></div></foreignObject>
+<path class="lead-ln" d="M190 115L470 115H485"/><circle class="f-ink" cx="190" cy="115" r="4"/>
+<foreignObject x="488" y="93" width="500" height="44"><div class="fo l" data-en="Graphite (carbon, C₆) anode: stores lithium between its layers" data-hi="ग्रेफाइट (कार्बन, C₆) एनोड: परतों के बीच लिथियम संग्रह" data-ml="ഗ്രാഫൈറ്റ് (കാർബൺ, C₆) ആനോഡ്: പാളികൾക്കിടയിൽ ലിഥിയം സംഭരിക്കുന്നു"></div></foreignObject>
+<path class="lead-ln" d="M257 170L470 170H485"/><circle class="f-ink" cx="257" cy="170" r="4"/>
+<foreignObject x="488" y="148" width="500" height="44"><div class="fo l" data-en="Separator: porous polyethylene / polypropylene (PE/PP) film" data-hi="सेपरेटर: छिद्रयुक्त पॉलीएथिलीन / पॉलीप्रोपाइलीन (PE/PP) फ़िल्म" data-ml="സെപ്പറേറ്റർ: സുഷിരമുള്ള പോളിഎഥിലീൻ / പോളിപ്രൊപ്പിലീൻ (PE/PP) ഫിലിം"></div></foreignObject>
+<path class="lead-ln" d="M325 225L470 225H485"/><circle class="f-ink" cx="325" cy="225" r="4"/>
+<foreignObject x="488" y="203" width="500" height="44"><div class="fo l" data-en="Lithium iron phosphate (LiFePO₄) cathode" data-hi="लिथियम आयरन फॉस्फेट (LiFePO₄) कैथोड" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് (LiFePO₄) കാഥോഡ്"></div></foreignObject>
+<path class="lead-ln" d="M387 280L470 280H485"/><circle class="f-ink" cx="387" cy="280" r="4"/>
+<foreignObject x="488" y="258" width="500" height="44"><div class="fo l" data-en="Aluminium foil: + current collector" data-hi="एल्यूमिनियम पन्नी: + करंट कलेक्टर" data-ml="അലുമിനിയം ഫോയിൽ: + കറന്റ് കളക്ടർ"></div></foreignObject>
+<path class="lead-ln" d="M300 320L470 335H485"/><circle class="f-ink" cx="300" cy="320" r="4"/>
+<foreignObject x="488" y="313" width="500" height="44"><div class="fo l" data-en="Electrolyte: lithium hexafluorophosphate (LiPF₆) in ethylene / dimethyl carbonate" data-hi="इलेक्ट्रोलाइट: एथिलीन / डाइमिथाइल कार्बोनेट में लिथियम हेक्साफ्लोरोफॉस्फेट (LiPF₆)" data-ml="ഇലക്ട്രോലൈറ്റ്: എഥിലീൻ / ഡൈമീഥൈൽ കാർബണേറ്റിൽ ലിഥിയം ഹെക്സാഫ്ലൂറോഫോസ്ഫേറ്റ് (LiPF₆)"></div></foreignObject>
+<foreignObject x="0" y="352" width="990" height="46"><div class="fo mut" data-en="These layers are wound (cylindrical) or stacked (prismatic, pouch) and sealed in a case with a safety vent." data-hi="ये परतें लपेटी (बेलनाकार) या ढेर की (प्रिज़्मैटिक, पाउच) जाती हैं और सेफ़्टी वेंट वाले केस में सील होती हैं।" data-ml="ഈ പാളികൾ ചുരുട്ടുകയോ (സിലിണ്ടറിക്കൽ) അടുക്കുകയോ (പ്രിസ്മാറ്റിക്, പൗച്ച്) ചെയ്ത് സേഫ്റ്റി വെന്റുള്ള കേസിൽ സീൽ ചെയ്യുന്നു."></div></foreignObject></svg>
+ </div>
+ <div class="fig">
+  <h3 data-en="Battery pack: 16 cells + BMS (battery management system) = 51.2 V" data-hi="बैटरी पैक: 16 सेल + BMS (बैटरी प्रबंधन प्रणाली) = 51.2 V" data-ml="ബാറ്ററി പാക്ക്: 16 സെൽ + BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) = 51.2 V"></h3>
+  <svg class="dia" viewBox="0 0 990 430" role="img" aria-label="Wiring of a 16S lithium battery pack"><rect x="12" y="14" width="966" height="404" rx="16" style="fill:var(--surface2);stroke:var(--ink);stroke-width:2.5;stroke-dasharray:10 6"/>
+<path d="M53 62V24H918V95" style="fill:none;stroke-width:6;stroke-linejoin:round;stroke:var(--ink)"/>
+<path d="M918 181V322H854" style="fill:none;stroke-width:6;stroke-linejoin:round;stroke:var(--ink)"/>
+<path d="M53 212H24V408H755V328" style="fill:none;stroke-width:6;stroke-linejoin:round;stroke:var(--danger)"/>
+<path d="M795 285H826" style="fill:none;stroke-width:6;stroke-linejoin:round;stroke:var(--danger)"/>
+<rect x="40" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="84" y="62" width="14" height="10" class="f-red"/><rect x="46" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="72" y="132" style="font-size:12px">3.2 V</text>
+<rect x="118" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="162" y="62" width="14" height="10" class="f-red"/><rect x="124" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="150" y="132" style="font-size:12px">3.2 V</text>
+<rect x="196" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="240" y="62" width="14" height="10" class="f-red"/><rect x="202" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="228" y="132" style="font-size:12px">3.2 V</text>
+<rect x="274" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="318" y="62" width="14" height="10" class="f-red"/><rect x="280" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="306" y="132" style="font-size:12px">3.2 V</text>
+<rect x="352" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="396" y="62" width="14" height="10" class="f-red"/><rect x="358" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="384" y="132" style="font-size:12px">3.2 V</text>
+<rect x="430" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="474" y="62" width="14" height="10" class="f-red"/><rect x="436" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="462" y="132" style="font-size:12px">3.2 V</text>
+<rect x="508" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="552" y="62" width="14" height="10" class="f-red"/><rect x="514" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="540" y="132" style="font-size:12px">3.2 V</text>
+<rect x="586" y="70" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="630" y="62" width="14" height="10" class="f-red"/><rect x="592" y="62" width="14" height="10" class="f-ink"/><text class="mono c" x="618" y="132" style="font-size:12px">3.2 V</text>
+<rect x="586" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="592" y="212" width="14" height="10" class="f-red"/><rect x="630" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="618" y="282" style="font-size:12px">3.2 V</text>
+<rect x="508" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="514" y="212" width="14" height="10" class="f-red"/><rect x="552" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="540" y="282" style="font-size:12px">3.2 V</text>
+<rect x="430" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="436" y="212" width="14" height="10" class="f-red"/><rect x="474" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="462" y="282" style="font-size:12px">3.2 V</text>
+<rect x="352" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="358" y="212" width="14" height="10" class="f-red"/><rect x="396" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="384" y="282" style="font-size:12px">3.2 V</text>
+<rect x="274" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="280" y="212" width="14" height="10" class="f-red"/><rect x="318" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="306" y="282" style="font-size:12px">3.2 V</text>
+<rect x="196" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="202" y="212" width="14" height="10" class="f-red"/><rect x="240" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="228" y="282" style="font-size:12px">3.2 V</text>
+<rect x="118" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="124" y="212" width="14" height="10" class="f-red"/><rect x="162" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="150" y="282" style="font-size:12px">3.2 V</text>
+<rect x="40" y="220" width="64" height="110" rx="6" class="f-al" style="stroke:var(--ink);stroke-width:2"/><rect x="46" y="212" width="14" height="10" class="f-red"/><rect x="84" y="212" width="14" height="10" class="f-ink"/><text class="mono c" x="72" y="282" style="font-size:12px">3.2 V</text>
+<rect x="84" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="84" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="162" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="162" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="240" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="240" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="318" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="318" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="396" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="396" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="474" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="474" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="552" y="58" width="48" height="8" rx="2" class="f-cu"/>
+<rect x="552" y="208" width="48" height="8" rx="2" class="f-cu"/>
+<path d="M641 62H668V212H641" style="fill:none;stroke:var(--cu);stroke-width:8"/>
+<rect x="700" y="60" width="265" height="165" rx="10" style="fill:var(--batt-soft);stroke:var(--batt);stroke-width:2.5"/>
+<rect x="700" y="64" width="8" height="158" class="f-ink"/>
+<text class="tg s" x="716" y="86" style="fill:var(--batt)">BMS</text>
+<rect x="718" y="100" width="66" height="40" rx="4" class="f-ink"/><text class="mono c" x="751" y="125" style="fill:var(--surface);font-size:12px">AFE</text>
+<rect x="796" y="100" width="60" height="40" rx="4" class="f-ink"/><text class="mono c" x="826" y="125" style="fill:var(--surface);font-size:12px">MCU</text>
+<rect x="878" y="95" width="80" height="40" rx="4" style="fill:var(--surface);stroke:var(--ink);stroke-width:2"/><text class="mono c" x="918" y="120" style="font-size:11px">MOSFETs</text>
+<rect x="878" y="155" width="80" height="26" rx="4" style="fill:var(--surface);stroke:var(--ink);stroke-width:2"/><text class="mono c" x="918" y="173" style="font-size:11px">SHUNT</text>
+<path class="s-ink" stroke-width="5" d="M918 135V155"/>
+<text class="mono s" x="716" y="180" style="font-size:11px;fill:var(--ion)">B0…B16</text><text class="mono s" x="716" y="214" style="font-size:11px;fill:var(--sun)">T1…T4</text>
+<text class="mono s" x="924" y="44" style="font-size:12px">B−</text>
+<path d="M53 62V30.0H672.0V70.0H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="53" cy="62" r="2.6" style="fill:var(--ion)"/>
+<path d="M108 58V32.4H673.5V76.4H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="108" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M186 58V34.8H675.0V82.8H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="186" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M264 58V37.2H676.5V89.2H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="264" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M342 58V39.6H678.0V95.6H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="342" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M420 58V42.0H679.5V102.0H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="420" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M498 58V44.4H681.0V108.4H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="498" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M576 58V46.8H682.5V114.8H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="576" cy="58" r="2.6" style="fill:var(--ion)"/>
+<path d="M668 135H684.0V121.2H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="668" cy="135" r="2.6" style="fill:var(--ion)"/>
+<path d="M576 208V186.0H685.5V127.6H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="576" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M498 208V188.2H687.0V134.0H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="498" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M420 208V190.4H688.5V140.4H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="420" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M342 208V192.6H690.0V146.8H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="342" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M264 208V194.8H691.5V153.2H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="264" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M186 208V197.0H693.0V159.6H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="186" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M108 208V199.2H694.5V166.0H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="108" cy="208" r="2.6" style="fill:var(--ion)"/>
+<path d="M53 212V201.4H696.0V172.4H702" style="fill:none;stroke:var(--ion);stroke-width:1.4"/><circle cx="53" cy="212" r="2.6" style="fill:var(--ion)"/>
+<text class="mono" x="30" y="58" style="font-size:11px;fill:var(--ion)">B0</text><text class="mono" x="60" y="232" style="font-size:11px;fill:var(--ion)">B16</text><text class="mono" x="672" y="150" style="font-size:11px;fill:var(--ion)">B8</text>
+<path d="M150 156V183H686V198H702" style="fill:none;stroke:var(--sun);stroke-width:1.8;stroke-dasharray:5 3"/>
+<path d="M150 141Q158 150 150 157Q142 150 150 141Z" class="f-ink"/>
+<text class="mono s" x="159" y="154" style="font-size:11px;fill:var(--sun)">T1</text>
+<path d="M462 156V181H684V204H702" style="fill:none;stroke:var(--sun);stroke-width:1.8;stroke-dasharray:5 3"/>
+<path d="M462 141Q470 150 462 157Q454 150 462 141Z" class="f-ink"/>
+<text class="mono s" x="471" y="154" style="font-size:11px;fill:var(--sun)">T2</text>
+<path d="M228 306V398H690V210H702" style="fill:none;stroke:var(--sun);stroke-width:1.8;stroke-dasharray:5 3"/>
+<path d="M228 291Q236 300 228 307Q220 300 228 291Z" class="f-ink"/>
+<text class="mono s" x="237" y="304" style="font-size:11px;fill:var(--sun)">T3</text>
+<path d="M540 306V394H688V216H702" style="fill:none;stroke:var(--sun);stroke-width:1.8;stroke-dasharray:5 3"/>
+<path d="M540 291Q548 300 540 307Q532 300 540 291Z" class="f-ink"/>
+<text class="mono s" x="549" y="304" style="font-size:11px;fill:var(--sun)">T4</text>
+<rect x="715" y="262" width="80" height="66" rx="8" class="box"/><rect x="744" y="272" width="22" height="22" rx="3" class="f-ink"/><text class="mono c" x="755" y="318" style="font-size:11px">DC MCB</text>
+<circle cx="840" cy="285" r="14" class="f-red"/><circle cx="840" cy="322" r="14" class="f-ink"/><text class="tg c" x="840" y="291" style="fill:#fff">+</text><text class="tg c" x="840" y="328" style="fill:#fff">−</text>
+<text class="mono s" x="858" y="290" style="font-size:12px">P+</text><text class="mono s" x="858" y="346" style="font-size:12px">P−</text>
+<rect x="885" y="350" width="80" height="30" rx="5" class="f-scr"/><text class="mono c" x="925" y="370" style="font-size:11px">SOC 85%</text>
+<rect x="885" y="385" width="80" height="26" rx="4" class="box2"/><text class="mono c" x="925" y="402" style="font-size:11px">CAN 485</text></svg>
+  <div class="legend">
+   <span><i class="sw" style="color:var(--ion);border-top-style:solid;border-top-width:2px"></i><span data-en="Thin sense wires B0–B16: one per series node (17 for 16S)" data-hi="पतले सेंस तार B0–B16: हर श्रेणी नोड पर एक (16S हेतु 17)" data-ml="നേർത്ത സെൻസ് വയറുകൾ B0–B16: ഓരോ സീരീസ് നോഡിനും ഒന്ന് (16S-ന് 17)"></span></span>
+   <span><i class="sw" style="color:var(--sun);border-top-width:2px"></i><span data-en="NTC (negative temperature coefficient) temperature sensors T1–T4" data-hi="NTC (ऋणात्मक तापमान गुणांक) तापमान सेंसर T1–T4" data-ml="NTC (നെഗറ്റീവ് ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ്) താപനില സെൻസറുകൾ T1–T4"></span></span>
+   <span><i class="sw" style="color:var(--danger);border-top-style:solid;border-top-width:6px"></i><span data-en="Main power path (thick cable)" data-hi="मुख्य पावर पथ (मोटी केबल)" data-ml="പ്രധാന പവർ പാത (കട്ടിയുള്ള കേബിൾ)"></span></span>
+  </div>
+  <p class="abbr" data-en="Abbreviations: AFE = analog front end (cell-measuring chip) · MCU = micro-controller unit · MOSFET = metal-oxide semiconductor field-effect transistor (electronic switch) · SHUNT = current-measuring resistor · NTC = negative temperature coefficient thermistor · B0–B16 = sense-wire numbers · T1–T4 = temperature sensors · B− = cell-stack negative · P+ / P− = pack output terminals · DC MCB = direct-current miniature circuit breaker · SOC = state of charge · CAN = controller area network · RS485 = two-wire serial link" data-hi="संक्षेप: AFE = एनालॉग फ्रंट एंड (सेल मापने वाली चिप) · MCU = माइक्रो-कंट्रोलर यूनिट · MOSFET = मेटल-ऑक्साइड सेमीकंडक्टर फील्ड-इफेक्ट ट्रांज़िस्टर (इलेक्ट्रॉनिक स्विच) · SHUNT = करंट मापने वाला प्रतिरोधक · NTC = ऋणात्मक तापमान गुणांक थर्मिस्टर · B0–B16 = सेंस तार क्रमांक · T1–T4 = तापमान सेंसर · B− = सेल-स्टैक ऋणात्मक · P+ / P− = पैक आउटपुट टर्मिनल · DC MCB = दिष्ट धारा मिनिएचर सर्किट ब्रेकर · SOC = चार्ज की स्थिति · CAN = कंट्रोलर एरिया नेटवर्क · RS485 = दो-तार सीरियल लिंक" data-ml="ചുരുക്കെഴുത്തുകൾ: AFE = അനലോഗ് ഫ്രണ്ട് എൻഡ് (സെൽ അളക്കുന്ന ചിപ്പ്) · MCU = മൈക്രോ-കൺട്രോളർ യൂണിറ്റ് · MOSFET = മെറ്റൽ-ഓക്സൈഡ് സെമികണ്ടക്ടർ ഫീൽഡ്-ഇഫക്ട് ട്രാൻസിസ്റ്റർ (ഇലക്ട്രോണിക് സ്വിച്ച്) · SHUNT = കറന്റ് അളക്കുന്ന റെസിസ്റ്റർ · NTC = നെഗറ്റീവ് ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് തെർമിസ്റ്റർ · B0–B16 = സെൻസ് വയർ നമ്പറുകൾ · T1–T4 = താപനില സെൻസറുകൾ · B− = സെൽ-സ്റ്റാക്ക് നെഗറ്റീവ് · P+ / P− = പാക്ക് ഔട്ട്പുട്ട് ടെർമിനലുകൾ · DC MCB = ഡയറക്ട് കറന്റ് മിനിയേച്ചർ സർക്യൂട്ട് ബ്രേക്കർ · SOC = ചാർജ് നില · CAN = കൺട്രോളർ ഏരിയ നെറ്റ്‌വർക്ക് · RS485 = രണ്ട്-വയർ സീരിയൽ ലിങ്ക്"></p>
+ </div>
+ <h3 data-en="How the BMS senses the pack" data-hi="BMS पैक को कैसे मापता है" data-ml="BMS പാക്കിനെ എങ്ങനെ അളക്കുന്നു"></h3>
+ <div class="pcards">
+  <div class="pcard"><span class="badge in">V</span><h4 data-en="Cell voltage: sense (balance) wires" data-hi="सेल वोल्टेज: सेंस (बैलेंस) तार" data-ml="സെൽ വോൾട്ടേജ്: സെൻസ് (ബാലൻസ്) വയറുകൾ"></h4><p data-en="One thin wire from every series junction (B0 at pack −, B16 at pack +) to the BMS AFE chip, which reads each cell as the difference between two wires. They carry only milliamps (balancing ≈ 50–150 mA), so thin wire (≈ 0.3–0.5 mm²), often with a small fuse, is used. Connect them in order B0 → B16, and plug the harness into the BMS last." data-hi="हर श्रेणी जोड़ से एक पतला तार (पैक − पर B0, पैक + पर B16) BMS के AFE चिप तक जाता है, जो हर सेल को दो तारों के अंतर से पढ़ता है। इनमें केवल मिलीएम्पियर बहते हैं (बैलेंसिंग ≈ 50–150 mA), इसलिए पतला तार (≈ 0.3–0.5 mm²), प्रायः छोटे फ्यूज़ के साथ, प्रयोग होता है। इन्हें क्रम B0 → B16 में जोड़ें और हार्नेस को BMS में सबसे अंत में लगाएँ।" data-ml="ഓരോ സീരീസ് ജംഗ്ഷനിൽ നിന്നും ഒരു നേർത്ത വയർ (പാക്ക് −-ൽ B0, പാക്ക് +-ൽ B16) BMS-ന്റെ AFE ചിപ്പിലേക്ക് പോകുന്നു; രണ്ട് വയറുകൾ തമ്മിലുള്ള വ്യത്യാസമായി ഓരോ സെല്ലും അളക്കുന്നു. ഇവയിൽ മില്ലിആമ്പിയർ മാത്രം (ബാലൻസിങ് ≈ 50–150 mA), അതിനാൽ നേർത്ത വയർ (≈ 0.3–0.5 mm²), പലപ്പോഴും ചെറിയ ഫ്യൂസോടെ. B0 → B16 ക്രമത്തിൽ ബന്ധിപ്പിക്കുക; ഹാർനെസ് ഏറ്റവും അവസാനം BMS-ൽ ഘടിപ്പിക്കുക."></p></div>
+  <div class="pcard"><span class="badge" style="background:var(--sun-soft);color:var(--sun)">NTC</span><h4 data-en="Temperature: NTC thermistors" data-hi="तापमान: NTC थर्मिस्टर" data-ml="താപനില: NTC തെർമിസ്റ്ററുകൾ"></h4><p data-en="Small 10 kΩ NTC beads are glued or taped to cell surfaces or busbars (usually 2–4 per pack, plus one on the MOSFET (metal-oxide semiconductor field-effect transistor) heatsink). Their resistance falls as temperature rises; the BMS reads this through a voltage divider and converts it to °C." data-hi="छोटे 10 kΩ NTC बीड सेल सतह या बसबार पर चिपकाए जाते हैं (प्रायः प्रति पैक 2–4, साथ में एक MOSFET (मेटल-ऑक्साइड सेमीकंडक्टर फील्ड-इफेक्ट ट्रांज़िस्टर) हीटसिंक पर)। तापमान बढ़ने पर इनका प्रतिरोध घटता है; BMS इसे वोल्टेज डिवाइडर से पढ़कर °C में बदलता है।" data-ml="ചെറിയ 10 kΩ NTC ബീഡുകൾ സെൽ പ്രതലത്തിലോ ബസ്ബാറിലോ ഒട്ടിക്കുന്നു (സാധാരണ ഒരു പാക്കിന് 2–4, കൂടാതെ MOSFET (മെറ്റൽ-ഓക്സൈഡ് സെമികണ്ടക്ടർ ഫീൽഡ്-ഇഫക്ട് ട്രാൻസിസ്റ്റർ) ഹീറ്റ്സിങ്കിൽ ഒന്ന്). താപനില കൂടുമ്പോൾ പ്രതിരോധം കുറയുന്നു; BMS വോൾട്ടേജ് ഡിവൈഡർ വഴി ഇത് അളന്ന് °C ആക്കുന്നു."></p></div>
+  <div class="pcard"><span class="badge dg">I</span><h4 data-en="Current: shunt resistor" data-hi="करंट: शंट प्रतिरोधक" data-ml="കറന്റ്: ഷണ്ട് റെസിസ്റ്റർ"></h4><p data-en="A very low-value shunt (≈ 0.1–1 mΩ) in the main negative path. The BMS measures its millivolt drop to get amps, which drives over-current protection and SOC (state of charge) coulomb counting." data-hi="मुख्य ऋणात्मक पथ में बहुत कम मान का शंट (≈ 0.1–1 mΩ)। BMS इसके मिलीवोल्ट ड्रॉप से एम्पियर निकालता है, जिससे ओवर-करंट सुरक्षा और SOC (चार्ज की स्थिति) कूलॉम काउंटिंग होती है।" data-ml="പ്രധാന നെഗറ്റീവ് പാതയിൽ വളരെ കുറഞ്ഞ മൂല്യമുള്ള ഷണ്ട് (≈ 0.1–1 mΩ). അതിലെ മില്ലിവോൾട്ട് ഡ്രോപ്പിൽ നിന്ന് BMS ആമ്പിയർ കണ്ടെത്തുന്നു; ഇത് ഓവർ-കറന്റ് സംരക്ഷണത്തിനും SOC (ചാർജ് നില) കൂളോം കൗണ്ടിങ്ങിനും ഉപയോഗിക്കുന്നു."></p></div>
+ </div>
+ <h3 data-en="Materials in an LFP cell (full names)" data-hi="LFP सेल के पदार्थ (पूरे नाम)" data-ml="LFP സെല്ലിലെ പദാർഥങ്ങൾ (പൂർണ നാമങ്ങൾ)"></h3>
+ <div class="tw">
+  <table>
+   <thead><tr><th data-en="Material (full name)" data-hi="पदार्थ (पूरा नाम)" data-ml="പദാർഥം (പൂർണ നാമം)"></th><th data-en="Formula" data-hi="सूत्र" data-ml="സൂത്രവാക്യം"></th><th data-en="Role in the cell" data-hi="सेल में भूमिका" data-ml="സെല്ലിലെ ധർമം"></th></tr></thead>
+   <tbody>
+    <tr class="hl"><th data-en="Lithium iron phosphate" data-hi="लिथियम आयरन फॉस्फेट" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്"></th><td class="fm">LiFePO₄</td><td data-en="Positive electrode (cathode), discharged state" data-hi="धनात्मक इलेक्ट्रोड (कैथोड), डिस्चार्ज अवस्था" data-ml="പോസിറ്റീവ് ഇലക്ട്രോഡ് (കാഥോഡ്), ഡിസ്ചാർജ് അവസ്ഥ"></td></tr>
+    <tr><th data-en="Iron phosphate" data-hi="आयरन फॉस्फेट" data-ml="അയൺ ഫോസ്ഫേറ്റ്"></th><td class="fm">FePO₄</td><td data-en="Cathode after lithium leaves it (charged state)" data-hi="लिथियम निकलने के बाद कैथोड (चार्ज अवस्था)" data-ml="ലിഥിയം പുറത്തുപോയ ശേഷമുള്ള കാഥോഡ് (ചാർജ് അവസ്ഥ)"></td></tr>
+    <tr><th data-en="Graphite (carbon)" data-hi="ग्रेफाइट (कार्बन)" data-ml="ഗ്രാഫൈറ്റ് (കാർബൺ)"></th><td class="fm">C₆</td><td data-en="Negative electrode (anode); stores lithium between its layers" data-hi="ऋणात्मक इलेक्ट्रोड (एनोड); परतों के बीच लिथियम संग्रह" data-ml="നെഗറ്റീവ് ഇലക്ട്രോഡ് (ആനോഡ്); പാളികൾക്കിടയിൽ ലിഥിയം സംഭരിക്കുന്നു"></td></tr>
+    <tr><th data-en="Lithiated graphite (lithium carbide)" data-hi="लिथियेटेड ग्रेफाइट (लिथियम कार्बाइड)" data-ml="ലിഥിയേറ്റഡ് ഗ്രാഫൈറ്റ് (ലിഥിയം കാർബൈഡ്)"></th><td class="fm">LiC₆</td><td data-en="Anode when fully charged" data-hi="पूर्ण चार्ज पर एनोड" data-ml="ഫുൾ ചാർജിലെ ആനോഡ്"></td></tr>
+    <tr><th data-en="Lithium hexafluorophosphate" data-hi="लिथियम हेक्साफ्लोरोफॉस्फेट" data-ml="ലിഥിയം ഹെക്സാഫ്ലൂറോഫോസ്ഫേറ്റ്"></th><td class="fm">LiPF₆</td><td data-en="Electrolyte salt that supplies Li⁺ ions" data-hi="इलेक्ट्रोलाइट लवण जो Li⁺ आयन देता है" data-ml="Li⁺ അയോണുകൾ നൽകുന്ന ഇലക്ട്രോലൈറ്റ് ലവണം"></td></tr>
+    <tr><th data-en="Ethylene carbonate / dimethyl carbonate" data-hi="एथिलीन कार्बोनेट / डाइमिथाइल कार्बोनेट" data-ml="എഥിലീൻ കാർബണേറ്റ് / ഡൈമീഥൈൽ കാർബണേറ്റ്"></th><td class="fm">EC / DMC</td><td data-en="Organic solvents of the electrolyte (flammable)" data-hi="इलेक्ट्रोलाइट के कार्बनिक विलायक (ज्वलनशील)" data-ml="ഇലക്ട്രോലൈറ്റിന്റെ ഓർഗാനിക് ലായകങ്ങൾ (തീപിടിക്കുന്നവ)"></td></tr>
+    <tr><th data-en="Polyethylene / polypropylene" data-hi="पॉलीएथिलीन / पॉलीप्रोपाइलीन" data-ml="പോളിഎഥിലീൻ / പോളിപ്രൊപ്പിലീൻ"></th><td class="fm">PE / PP</td><td data-en="Porous separator film: passes ions, blocks electrons" data-hi="छिद्रयुक्त सेपरेटर फ़िल्म: आयन गुजरते हैं, इलेक्ट्रॉन रुकते हैं" data-ml="സുഷിരമുള്ള സെപ്പറേറ്റർ ഫിലിം: അയോണുകളെ കടത്തിവിടുന്നു, ഇലക്ട്രോണുകളെ തടയുന്നു"></td></tr>
+    <tr><th data-en="Copper" data-hi="तांबा" data-ml="ചെമ്പ്"></th><td class="fm">Cu</td><td data-en="Anode current-collector foil (−)" data-hi="एनोड करंट-कलेक्टर पन्नी (−)" data-ml="ആനോഡ് കറന്റ് കളക്ടർ ഫോയിൽ (−)"></td></tr>
+    <tr><th data-en="Aluminium" data-hi="एल्यूमिनियम" data-ml="അലുമിനിയം"></th><td class="fm">Al</td><td data-en="Cathode current-collector foil (+)" data-hi="कैथोड करंट-कलेक्टर पन्नी (+)" data-ml="കാഥോഡ് കറന്റ് കളക്ടർ ഫോയിൽ (+)"></td></tr>
+    <tr><th data-en="Polyvinylidene fluoride" data-hi="पॉलीविनाइलिडीन फ्लोराइड" data-ml="പോളിവിനൈലിഡീൻ ഫ്ലൂറൈഡ്"></th><td class="fm">PVDF</td><td data-en="Binder that holds electrode powder on the foil" data-hi="बाइंडर जो इलेक्ट्रोड पाउडर को पन्नी पर टिकाता है" data-ml="ഇലക്ട്രോഡ് പൊടിയെ ഫോയിലിൽ ഉറപ്പിക്കുന്ന ബൈൻഡർ"></td></tr>
+    <tr><th data-en="Carbon black" data-hi="कार्बन ब्लैक" data-ml="കാർബൺ ബ്ലാക്ക്"></th><td class="fm">C</td><td data-en="Conductive additive mixed into the cathode" data-hi="कैथोड में मिलाया गया चालक योजक" data-ml="കാഥോഡിൽ ചേർക്കുന്ന ചാലക അഡിറ്റീവ്"></td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<!-- ============ 3 OPERATION ============ -->
+<section class="panel" id="oper" role="tabpanel" style="--acc:var(--ion)" hidden>
+ <div class="head">
+  <h2 data-en="Operation: lithium ions shuttle between electrodes" data-hi="कार्य: लिथियम आयन इलेक्ट्रोडों के बीच आते-जाते हैं" data-ml="പ്രവർത്തനം: ലിഥിയം അയോണുകൾ ഇലക്ട്രോഡുകൾക്കിടയിൽ സഞ്ചരിക്കുന്നു"></h2>
+  <p class="lead" data-en="No acid is used up and no water is formed. Only Li⁺ ions move through the electrolyte, while electrons travel through the external circuit." data-hi="कोई अम्ल खर्च नहीं होता और पानी नहीं बनता। केवल Li⁺ आयन इलेक्ट्रोलाइट से गुजरते हैं, जबकि इलेक्ट्रॉन बाहरी परिपथ से चलते हैं।" data-ml="ആസിഡ് ചെലവാകുന്നില്ല, വെള്ളം ഉണ്ടാകുന്നില്ല. Li⁺ അയോണുകൾ മാത്രം ഇലക്ട്രോലൈറ്റിലൂടെ നീങ്ങുന്നു; ഇലക്ട്രോണുകൾ ബാഹ്യ സർക്യൂട്ടിലൂടെ സഞ്ചരിക്കുന്നു."></p>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="dis" data-en="Discharging" data-hi="डिस्चार्जिंग" data-ml="ഡിസ്ചാർജിങ്"></button>
+   <button class="sbtn" type="button" data-scene="chg" data-en="Charging" data-hi="चार्जिंग" data-ml="ചാർജിങ്"></button>
+  </div>
+  <div class="fig">
+   <svg class="dia" viewBox="0 0 900 450" role="img" aria-label="Lithium ion movement during charge and discharge"><rect x="200" y="110" width="500" height="280" rx="10" class="f-case"/>
+<rect x="203" y="113" width="494" height="274" class="f-acid"/>
+<rect x="230" y="88" width="12" height="292" class="f-cu" style="stroke:var(--ink)"/><rect x="242" y="125" width="110" height="250" class="f-gra"/>
+<path d="M244 137H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 151H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 165H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 179H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 193H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 207H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 221H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 235H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 249H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 263H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 277H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 291H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 305H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 319H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 333H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 347H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<path d="M244 361H350" style="stroke:var(--surface2);stroke-width:1.5;opacity:.5"/>
+<rect x="440" y="125" width="20" height="250" class="f-surf" style="stroke:var(--muted)"/>
+<circle cx="450" cy="131" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="141" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="151" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="161" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="171" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="181" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="191" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="201" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="211" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="221" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="231" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="241" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="251" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="261" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="271" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="281" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="291" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="301" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="311" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="321" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="331" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="341" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="351" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="361" r="2" class="f-muted" opacity=".5"/>
+<circle cx="450" cy="371" r="2" class="f-muted" opacity=".5"/>
+<rect x="548" y="125" width="110" height="250" class="f-lfp"/><rect x="658" y="88" width="12" height="292" class="f-al" style="stroke:var(--ink)"/>
+<path class="s-ink" stroke-width="4" d="M236 88V40H415M485 40H664V88"/>
+<g data-show="dis"><circle class="f-sun" cx="450" cy="40" r="22"/><path class="s-sun" stroke-width="4" stroke-linecap="round" d="M450 4V12M420 16L426 22M480 16L474 22"/></g>
+<g data-show="chg"><rect class="box" x="415" y="18" width="70" height="44" rx="6"/><text class="lbl c" x="450" y="46">DC</text></g>
+<path class="flow e" data-show="dis" d="M236 88V40H664V88"/><path class="flow e" data-show="chg" d="M664 88V40H236V88"/>
+<text class="tg c" x="320" y="30" style="fill:var(--hyb)">e⁻</text>
+<text class="tg c" x="236" y="80">−</text><text class="tg c" x="664" y="80" style="fill:var(--danger)">+</text>
+<g data-show="dis">
+<g class="ion" style="animation-delay:0.00s"><circle cx="365" cy="150" r="11" class="f-ion"/><text class="c" x="365" y="154" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:0.34s"><circle cx="365" cy="185" r="11" class="f-ion"/><text class="c" x="365" y="189" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:0.68s"><circle cx="365" cy="220" r="11" class="f-ion"/><text class="c" x="365" y="224" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:1.02s"><circle cx="365" cy="255" r="11" class="f-ion"/><text class="c" x="365" y="259" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:1.36s"><circle cx="365" cy="290" r="11" class="f-ion"/><text class="c" x="365" y="294" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:1.70s"><circle cx="365" cy="325" r="11" class="f-ion"/><text class="c" x="365" y="329" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion" style="animation-delay:2.04s"><circle cx="365" cy="355" r="11" class="f-ion"/><text class="c" x="365" y="359" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+</g><g data-show="chg">
+<g class="ion l" style="animation-delay:0.00s"><circle cx="535" cy="150" r="11" class="f-ion"/><text class="c" x="535" y="154" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:0.34s"><circle cx="535" cy="185" r="11" class="f-ion"/><text class="c" x="535" y="189" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:0.68s"><circle cx="535" cy="220" r="11" class="f-ion"/><text class="c" x="535" y="224" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:1.02s"><circle cx="535" cy="255" r="11" class="f-ion"/><text class="c" x="535" y="259" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:1.36s"><circle cx="535" cy="290" r="11" class="f-ion"/><text class="c" x="535" y="294" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:1.70s"><circle cx="535" cy="325" r="11" class="f-ion"/><text class="c" x="535" y="329" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+<g class="ion l" style="animation-delay:2.04s"><circle cx="535" cy="355" r="11" class="f-ion"/><text class="c" x="535" y="359" style="font:700 10px var(--f-body);fill:#fff">Li⁺</text></g>
+</g>
+<foreignObject x="190" y="394" width="210" height="52"><div class="fo" data-en="Graphite (carbon) anode (−)" data-hi="ग्रेफाइट (कार्बन) एनोड (−)" data-ml="ഗ്രാഫൈറ്റ് (കാർബൺ) ആനോഡ് (−)"></div></foreignObject>
+<foreignObject x="395" y="394" width="110" height="52"><div class="fo" data-en="Separator (PE/PP)" data-hi="सेपरेटर (PE/PP)" data-ml="സെപ്പറേറ്റർ (PE/PP)"></div></foreignObject>
+<foreignObject x="500" y="394" width="215" height="52"><div class="fo" data-en="Lithium iron phosphate cathode (+)" data-hi="लिथियम आयरन फॉस्फेट कैथोड (+)" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് കാഥോഡ് (+)"></div></foreignObject>
+<foreignObject x="708" y="180" width="192" height="110"><div class="fo l mut" data-en="Electrolyte (lithium hexafluorophosphate, LiPF₆) carries only Li⁺ ions" data-hi="इलेक्ट्रोलाइट (लिथियम हेक्साफ्लोरोफॉस्फेट, LiPF₆) केवल Li⁺ आयन ले जाता है" data-ml="ഇലക്ട്രോലൈറ്റ് (ലിഥിയം ഹെക്സാഫ്ലൂറോഫോസ്ഫേറ്റ്, LiPF₆) Li⁺ അയോണുകളെ മാത്രം വഹിക്കുന്നു"></div></foreignObject></svg>
+  </div>
+  <p class="cap" data-show="dis" data-en="Discharging: Li⁺ ions leave the graphite anode, cross the separator and enter the lithium iron phosphate (LiFePO₄) cathode. Electrons flow through the load from − to +." data-hi="डिस्चार्जिंग: Li⁺ आयन ग्रेफाइट एनोड छोड़कर सेपरेटर पार करते हैं और लिथियम आयरन फॉस्फेट (LiFePO₄) कैथोड में जाते हैं। इलेक्ट्रॉन लोड से − से + की ओर बहते हैं।" data-ml="ഡിസ്ചാർജിങ്: Li⁺ അയോണുകൾ ഗ്രാഫൈറ്റ് ആനോഡ് വിട്ട് സെപ്പറേറ്റർ കടന്ന് ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് (LiFePO₄) കാഥോഡിലേക്ക് പോകുന്നു. ഇലക്ട്രോണുകൾ ലോഡിലൂടെ − ൽ നിന്ന് + ലേക്ക് ഒഴുകുന്നു."></p>
+  <p class="cap" data-show="chg" data-en="Charging: the charger pushes Li⁺ ions out of the cathode and stores them between the graphite layers of the anode (intercalation)." data-hi="चार्जिंग: चार्जर Li⁺ आयनों को कैथोड से निकालकर एनोड की ग्रेफाइट परतों के बीच संग्रहित करता है (इंटरकैलेशन)।" data-ml="ചാർജിങ്: ചാർജർ Li⁺ അയോണുകളെ കാഥോഡിൽ നിന്ന് പുറത്താക്കി ആനോഡിലെ ഗ്രാഫൈറ്റ് പാളികൾക്കിടയിൽ സംഭരിക്കുന്നു (ഇന്റർകലേഷൻ)."></p>
+ </div>
+ <div class="eqs">
+  <div class="eq"><span class="t" data-en="Cathode (+) during charge" data-hi="कैथोड (+) चार्जिंग में" data-ml="കാഥോഡ് (+) ചാർജിങ്ങിൽ"></span><span class="f">LiFePO₄ → FePO₄ + Li⁺ + e⁻</span><span class="w" data-en="Lithium iron phosphate → iron phosphate + lithium ion + electron" data-hi="लिथियम आयरन फॉस्फेट → आयरन फॉस्फेट + लिथियम आयन + इलेक्ट्रॉन" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് → അയൺ ഫോസ്ഫേറ്റ് + ലിഥിയം അയോൺ + ഇലക്ട്രോൺ"></span></div>
+  <div class="eq"><span class="t" data-en="Anode (−) during charge" data-hi="एनोड (−) चार्जिंग में" data-ml="ആനോഡ് (−) ചാർജിങ്ങിൽ"></span><span class="f">C₆ + Li⁺ + e⁻ → LiC₆</span><span class="w" data-en="Graphite (carbon) + lithium ion + electron → lithiated graphite" data-hi="ग्रेफाइट (कार्बन) + लिथियम आयन + इलेक्ट्रॉन → लिथियेटेड ग्रेफाइट" data-ml="ഗ്രാഫൈറ്റ് (കാർബൺ) + ലിഥിയം അയോൺ + ഇലക്ട്രോൺ → ലിഥിയേറ്റഡ് ഗ്രാഫൈറ്റ്"></span></div>
+  <div class="eq big"><span class="t" data-en="Overall (→ charge, ← discharge)" data-hi="कुल (→ चार्ज, ← डिस्चार्ज)" data-ml="മൊത്തം (→ ചാർജ്, ← ഡിസ്ചാർജ്)"></span><span class="f">LiFePO₄ + C₆ ⇌ FePO₄ + LiC₆</span><span class="w" data-en="Lithium iron phosphate + graphite ⇌ iron phosphate + lithiated graphite" data-hi="लिथियम आयरन फॉस्फेट + ग्रेफाइट ⇌ आयरन फॉस्फेट + लिथियेटेड ग्रेफाइट" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് + ഗ്രാഫൈറ്റ് ⇌ അയൺ ഫോസ്ഫേറ്റ് + ലിഥിയേറ്റഡ് ഗ്രാഫൈറ്റ്"></span></div>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge dg">3.65 V</span><h4 data-en="Maximum charge voltage" data-hi="अधिकतम चार्ज वोल्टेज" data-ml="പരമാവധി ചാർജ് വോൾട്ടേജ്"></h4><p data-en="Per cell; 14.6 V for 4S, 58.4 V for 16S" data-hi="प्रति सेल; 4S के लिए 14.6 V, 16S के लिए 58.4 V" data-ml="ഓരോ സെല്ലിനും; 4S-ന് 14.6 V, 16S-ന് 58.4 V"></p></div>
+  <div class="pcard"><span class="badge in">3.2 V</span><h4 data-en="Nominal voltage" data-hi="नाममात्र वोल्टेज" data-ml="നോമിനൽ വോൾട്ടേജ്"></h4><p data-en="12.8 V for 4S, 51.2 V for 16S" data-hi="4S के लिए 12.8 V, 16S के लिए 51.2 V" data-ml="4S-ന് 12.8 V, 16S-ന് 51.2 V"></p></div>
+  <div class="pcard"><span class="badge dg">2.5 V</span><h4 data-en="Minimum (BMS (battery management system) cut-off)" data-hi="न्यूनतम (BMS (बैटरी प्रबंधन प्रणाली) कट-ऑफ)" data-ml="മിനിമം (BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) കട്ട്-ഓഫ്)"></h4><p data-en="10.0 V for 4S, 40 V for 16S" data-hi="4S के लिए 10.0 V, 16S के लिए 40 V" data-ml="4S-ന് 10.0 V, 16S-ന് 40 V"></p></div>
+ </div>
+ <div class="fig">
+  <h3 data-en="Discharge curve: LFP (lithium iron phosphate) vs lead-acid (12 V class)" data-hi="डिस्चार्ज वक्र: LFP (लिथियम आयरन फॉस्फेट) बनाम लेड-एसिड (12 V श्रेणी)" data-ml="ഡിസ്ചാർജ് വക്രം: LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്) vs ലെഡ്-ആസിഡ് (12 V ക്ലാസ്)"></h3>
+  <svg viewBox="0 0 900 340" role="img" aria-label="Discharge curves" style="min-width:620px"><path class="s-mut" stroke-width="1" opacity=".5" d="M80 300H860"/><text class="lbs e" x="72" y="304">10 V</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M80 235H860"/><text class="lbs e" x="72" y="239">11 V</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M80 170H860"/><text class="lbs e" x="72" y="174">12 V</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M80 105H860"/><text class="lbs e" x="72" y="109">13 V</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M80 40H860"/><text class="lbs e" x="72" y="44">14 V</text>
+<text class="lbs c" x="80.0" y="320">0 %</text>
+<text class="lbs c" x="275.0" y="320">25 %</text>
+<text class="lbs c" x="470.0" y="320">50 %</text>
+<text class="lbs c" x="665.0" y="320">75 %</text>
+<text class="lbs c" x="860.0" y="320">100 %</text>
+<path class="s-ink" stroke-width="2" d="M80 30V300H860"/>
+<rect x="470.0" y="30" width="390.0" height="270" style="fill:var(--danger-soft);opacity:.5"/>
+<path d="M80.0 92.0L275.0 131.0L470.0 170.0L665.0 209.0L860.0 248.0" style="fill:none;stroke:var(--pos, #7A3B1A);stroke-width:4;stroke-dasharray:10 6"/>
+<path d="M80.0 66.0L103.4 82.3L158.0 88.8L314.0 92.0L548.0 97.2L704.0 103.7L766.4 111.5L805.4 131.0L828.8 163.5L844.4 209.0L860.0 300.0" style="fill:none;stroke:var(--ion);stroke-width:5"/>
+<path class="s-mut" stroke-width="2" stroke-dasharray="5 4" d="M470.0 30V300M782.0 30V300"/>
+<foreignObject x="476.0" y="34" width="200" height="46"><div class="fo l dg" style="font-size:13px" data-en="Lead-acid stops at 50 % DoD" data-hi="लेड-एसिड 50 % DoD पर रुकती है" data-ml="ലെഡ്-ആസിഡ് 50 % DoD-ൽ നിർത്തണം"></div></foreignObject>
+<foreignObject x="592.0" y="230" width="185" height="46"><div class="fo l" style="font-size:13px;color:var(--ion);justify-content:flex-end;text-align:right" data-en="LFP usable to ≈ 90 % DoD" data-hi="LFP ≈ 90 % DoD तक उपयोगी" data-ml="LFP ≈ 90 % DoD വരെ ഉപയോഗയോഗ്യം"></div></foreignObject>
+<foreignObject x="100" y="120" width="260" height="30"><div class="fo l" style="color:var(--ion);font-weight:800" data-en="LFP 12.8 V: flat plateau" data-hi="LFP 12.8 V: सपाट पठार" data-ml="LFP 12.8 V: പരന്ന പീഠഭൂമി"></div></foreignObject>
+<foreignObject x="100" y="160" width="260" height="30"><div class="fo l" style="color:var(--pos);font-weight:800" data-en="Lead-acid 12 V: 13.2 → 10.8 V" data-hi="लेड-एसिड 12 V: 13.2 → 10.8 V" data-ml="ലെഡ്-ആസിഡ് 12 V: 13.2 → 10.8 V"></div></foreignObject>
+<foreignObject x="300" y="316" width="300" height="24"><div class="fo mut" data-en="Depth of discharge (%)" data-hi="डिस्चार्ज की गहराई (%)" data-ml="ഡിസ്ചാർജ് ആഴം (%)"></div></foreignObject></svg>
+  <p class="cap" data-en="LFP voltage stays almost flat (≈ 3.2–3.3 V per cell) for most of the discharge. Voltage alone cannot show the state of charge, so the BMS counts the ampere-hours in and out (coulomb counting)." data-hi="LFP वोल्टेज अधिकांश डिस्चार्ज में लगभग सपाट रहता है (≈ 3.2–3.3 V प्रति सेल)। केवल वोल्टेज से चार्ज स्थिति नहीं पता चलती, इसलिए BMS अंदर-बाहर जाने वाले एम्पियर-घंटे गिनता है (कूलॉम काउंटिंग)।" data-ml="LFP വോൾട്ടേജ് ഡിസ്ചാർജിന്റെ ഭൂരിഭാഗവും ഏകദേശം പരന്നതാണ് (≈ 3.2–3.3 V/സെൽ). വോൾട്ടേജ് കൊണ്ട് മാത്രം ചാർജ് നില അറിയാനാവില്ല; അതിനാൽ BMS അകത്തേക്കും പുറത്തേക്കും പോകുന്ന ആമ്പിയർ-മണിക്കൂർ എണ്ണുന്നു (കൂളോം കൗണ്ടിങ്)."></p>
+ </div>
+</section>
+
+<!-- ============ 4 BMS LIVE ============ -->
+<section class="panel" id="bms" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="BMS (battery management system) live: watch the battery protect itself" data-hi="BMS (बैटरी प्रबंधन प्रणाली) लाइव: बैटरी को खुद की रक्षा करते देखें" data-ml="BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) ലൈവ്: ബാറ്ററി സ്വയം സംരക്ഷിക്കുന്നത് കാണുക"></h2>
+  <p class="lead" data-en="A 4S 100 Ah LFP (lithium iron phosphate) pack (12.8 V). Move the sliders or press the buttons and watch the BMS open its MOSFET (metal-oxide semiconductor field-effect transistor) switches and balance the cells." data-hi="4S 100 Ah LFP (लिथियम आयरन फॉस्फेट) पैक (12.8 V)। स्लाइडर हिलाएँ या बटन दबाएँ और देखें कि BMS कैसे अपने MOSFET (मेटल-ऑक्साइड सेमीकंडक्टर फील्ड-इफेक्ट ट्रांज़िस्टर) स्विच खोलता है और सेल संतुलित करता है।" data-ml="4S 100 Ah LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്) പാക്ക് (12.8 V). സ്ലൈഡറുകൾ നീക്കുകയോ ബട്ടണുകൾ അമർത്തുകയോ ചെയ്ത് BMS അതിന്റെ MOSFET (മെറ്റൽ-ഓക്സൈഡ് സെമികണ്ടക്ടർ ഫീൽഡ്-ഇഫക്ട് ട്രാൻസിസ്റ്റർ) സ്വിച്ചുകൾ തുറക്കുന്നതും സെല്ലുകൾ ബാലൻസ് ചെയ്യുന്നതും കാണുക."></p>
+ </div>
+ <div class="fig">
+  <div class="bmsgrid">
+   <div class="simctl">
+    <label for="bI"><span data-en="Current (+ charge / − discharge)" data-hi="करंट (+ चार्ज / − डिस्चार्ज)" data-ml="കറന്റ് (+ ചാർജ് / − ഡിസ്ചാർജ്)"></span><output id="bIo">+20 A</output></label>
+    <input type="range" id="bI" min="-100" max="100" step="5" value="20">
+    <label for="bT"><span data-en="Cell temperature (°C)" data-hi="सेल तापमान (°C)" data-ml="സെൽ താപനില (°C)"></span><output id="bTo">30</output></label>
+    <input type="range" id="bT" min="-10" max="70" step="1" value="30">
+    <div class="simbtns">
+     <button type="button" class="sbtn" id="bPlay" aria-pressed="true" data-en="⏯ Play / pause" data-hi="⏯ चलाएँ / रोकें" data-ml="⏯ പ്ലേ / പോസ്"></button>
+     <button type="button" class="sbtn" id="bUnb" data-en="Unbalance cell 3" data-hi="सेल 3 असंतुलित करें" data-ml="സെൽ 3 അസന്തുലിതമാക്കുക"></button>
+     <button type="button" class="sbtn" id="bSc" style="--acc:var(--danger)" data-en="⚡ Short circuit" data-hi="⚡ शॉर्ट सर्किट" data-ml="⚡ ഷോർട്ട് സർക്യൂട്ട്"></button>
+     <button type="button" class="sbtn" id="bRst" data-en="Reset" data-hi="रीसेट" data-ml="റീസെറ്റ്"></button>
+    </div>
+    <div class="res"><span data-en="Pack voltage" data-hi="पैक वोल्टेज" data-ml="പാക്ക് വോൾട്ടേജ്"></span><b id="bV">–</b></div>
+    <div class="res"><span data-en="Actual current" data-hi="वास्तविक करंट" data-ml="യഥാർഥ കറന്റ്"></span><b id="bIa">–</b></div>
+    <div class="res big"><span>SOC</span><b id="bS">–</b></div>
+   </div>
+   <div class="simviz">
+    <svg viewBox="0 0 900 390" role="img" aria-label="Animated BMS with four cells">
+     <rect x="560" y="60" width="200" height="260" rx="12" style="fill:var(--batt-soft);stroke:var(--batt);stroke-width:2.5"/>
+<text class="tg c" x="640" y="96" style="fill:var(--batt);font-size:24px">BMS</text><circle id="led" cx="730" cy="88" r="10" style="fill:var(--batt)"/>
+<path class="s-mut" stroke-width="1.5" stroke-dasharray="4 4" d="M110 70V16H640V60"/>
+<path class="s-mut" stroke-width="1.5" stroke-dasharray="4 4" d="M230 70V16H640V60"/>
+<path class="s-mut" stroke-width="1.5" stroke-dasharray="4 4" d="M350 70V16H640V60"/>
+<path class="s-mut" stroke-width="1.5" stroke-dasharray="4 4" d="M470 70V16H640V60"/>
+<rect class="f-ink" x="45" y="58" width="20" height="12" rx="2"/><rect class="f-red" x="85" y="58" width="20" height="12" rx="2"/>
+<rect class="box" x="30" y="70" width="90" height="210" rx="10"/>
+<rect id="cf0" x="35" y="160" width="80" height="120" rx="6" style="fill:var(--batt)"/>
+<text id="cv0" class="mono c" x="75" y="50" style="font-size:14px">3.290 V</text>
+<text id="cs0" class="c" x="75" y="185" style="font:800 22px var(--f-display);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:5px">60 %</text>
+<text class="lbs c" x="75" y="300">Cell 1</text>
+<path id="rr0" class="s-mut" stroke-width="3" fill="none" d="M43 330l8 -8l8 16l8 -16l8 16l8 -16l8 16l8 -16l8 16l4 -8"/>
+<text class="lbs c" x="75" y="358">R</text>
+<rect class="f-ink" x="165" y="58" width="20" height="12" rx="2"/><rect class="f-red" x="205" y="58" width="20" height="12" rx="2"/>
+<rect class="box" x="150" y="70" width="90" height="210" rx="10"/>
+<rect id="cf1" x="155" y="160" width="80" height="120" rx="6" style="fill:var(--batt)"/>
+<text id="cv1" class="mono c" x="195" y="50" style="font-size:14px">3.290 V</text>
+<text id="cs1" class="c" x="195" y="185" style="font:800 22px var(--f-display);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:5px">60 %</text>
+<text class="lbs c" x="195" y="300">Cell 2</text>
+<path id="rr1" class="s-mut" stroke-width="3" fill="none" d="M163 330l8 -8l8 16l8 -16l8 16l8 -16l8 16l8 -16l8 16l4 -8"/>
+<text class="lbs c" x="195" y="358">R</text>
+<rect class="f-ink" x="285" y="58" width="20" height="12" rx="2"/><rect class="f-red" x="325" y="58" width="20" height="12" rx="2"/>
+<rect class="box" x="270" y="70" width="90" height="210" rx="10"/>
+<rect id="cf2" x="275" y="160" width="80" height="120" rx="6" style="fill:var(--batt)"/>
+<text id="cv2" class="mono c" x="315" y="50" style="font-size:14px">3.290 V</text>
+<text id="cs2" class="c" x="315" y="185" style="font:800 22px var(--f-display);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:5px">60 %</text>
+<text class="lbs c" x="315" y="300">Cell 3</text>
+<path id="rr2" class="s-mut" stroke-width="3" fill="none" d="M283 330l8 -8l8 16l8 -16l8 16l8 -16l8 16l8 -16l8 16l4 -8"/>
+<text class="lbs c" x="315" y="358">R</text>
+<rect class="f-ink" x="405" y="58" width="20" height="12" rx="2"/><rect class="f-red" x="445" y="58" width="20" height="12" rx="2"/>
+<rect class="box" x="390" y="70" width="90" height="210" rx="10"/>
+<rect id="cf3" x="395" y="160" width="80" height="120" rx="6" style="fill:var(--batt)"/>
+<text id="cv3" class="mono c" x="435" y="50" style="font-size:14px">3.290 V</text>
+<text id="cs3" class="c" x="435" y="185" style="font:800 22px var(--f-display);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:5px">60 %</text>
+<text class="lbs c" x="435" y="300">Cell 4</text>
+<path id="rr3" class="s-mut" stroke-width="3" fill="none" d="M403 330l8 -8l8 16l8 -16l8 16l8 -16l8 16l8 -16l8 16l4 -8"/>
+<text class="lbs c" x="435" y="358">R</text>
+<path class="s-ink" stroke-width="5" fill="none" d="M95 58Q125 36 175 58"/>
+<path class="s-ink" stroke-width="5" fill="none" d="M215 58Q245 36 295 58"/>
+<path class="s-ink" stroke-width="5" fill="none" d="M335 58Q365 36 415 58"/>
+<path class="wire" style="stroke-width:6" d="M455 58V30H545V190H800"/>
+<path id="bFlow" class="flow ac" d="M455 58V30H545V190H800"/>
+<circle class="f-ink" cx="600" cy="190" r="5"/><circle class="f-ink" cx="650" cy="190" r="5"/><circle class="f-ink" cx="690" cy="190" r="5"/><circle class="f-ink" cx="740" cy="190" r="5"/>
+<rect x="602" y="182" width="46" height="16" style="fill:var(--batt-soft)"/><rect x="692" y="182" width="46" height="16" style="fill:var(--batt-soft)"/>
+<path id="fetC" class="fet-on" d="M600 190H650"/><path id="fetD" class="fet-on" d="M690 190H740"/>
+<text class="mono c" x="625" y="226">CHG FET</text><text class="mono c" x="715" y="226">DSG FET</text>
+<use href="#s-inv" x="800" y="145" width="90" height="90"/>
+<foreignObject x="770" y="240" width="130" height="44"><div class="fo" style="font-size:13px" data-en="Inverter / charger" data-hi="इन्वर्टर / चार्जर" data-ml="ഇൻവെർട്ടർ / ചാർജർ"></div></foreignObject>
+<rect x="515" y="176" width="20" height="128" rx="10" class="box" style="stroke-width:2"/><rect id="thm" x="519" y="220" width="12" height="80" rx="5" style="fill:var(--sun)"/><circle cx="525" cy="312" r="12" class="f-sun"/>
+<text id="thT" class="mono c" x="525" y="345" style="font-size:14px">30 °C</text>
+<foreignObject x="570" y="250" width="180" height="60"><div class="fo mut" style="font-size:12px" data-en="MOSFET switches open to protect the cells" data-hi="सेल की रक्षा हेतु MOSFET स्विच खुलते हैं" data-ml="സെല്ലുകളെ സംരക്ഷിക്കാൻ MOSFET സ്വിച്ചുകൾ തുറക്കുന്നു"></div></foreignObject>
+    </svg>
+    <div class="chipsrow">
+     <span class="pchip ok" id="cOK">OK</span><span class="pchip" id="cOVP">OVP</span><span class="pchip" id="cUVP">UVP</span><span class="pchip" id="cOCC">OCC</span><span class="pchip" id="cOCD">OCD</span><span class="pchip" id="cSCP">SCP</span><span class="pchip" id="cOTP">OTP</span><span class="pchip" id="cLTC">LTC</span><span class="pchip bal" id="cBAL">BAL</span>
+    </div>
+    <p class="abbr" data-en="Abbreviations: CHG FET / DSG FET = charge / discharge MOSFET switch · OVP = over-voltage protection · UVP = under-voltage protection · OCC / OCD = over-current in charge / discharge · SCP = short-circuit protection · OTP = over-temperature protection · LTC = low-temperature charge protection · BAL = cell balancing · R = bleed (balancing) resistor · SOC = state of charge" data-hi="संक्षेप: CHG FET / DSG FET = चार्ज / डिस्चार्ज MOSFET स्विच · OVP = ओवर-वोल्टेज सुरक्षा · UVP = अंडर-वोल्टेज सुरक्षा · OCC / OCD = चार्ज / डिस्चार्ज में ओवर-करंट · SCP = शॉर्ट-सर्किट सुरक्षा · OTP = अधिक-तापमान सुरक्षा · LTC = कम-तापमान चार्ज सुरक्षा · BAL = सेल बैलेंसिंग · R = ब्लीड (बैलेंसिंग) प्रतिरोधक · SOC = चार्ज की स्थिति" data-ml="ചുരുക്കെഴുത്തുകൾ: CHG FET / DSG FET = ചാർജ് / ഡിസ്ചാർജ് MOSFET സ്വിച്ച് · OVP = ഓവർ-വോൾട്ടേജ് സംരക്ഷണം · UVP = അണ്ടർ-വോൾട്ടേജ് സംരക്ഷണം · OCC / OCD = ചാർജ് / ഡിസ്ചാർജിലെ ഓവർ-കറന്റ് · SCP = ഷോർട്ട്-സർക്യൂട്ട് സംരക്ഷണം · OTP = അമിത-താപനില സംരക്ഷണം · LTC = കുറഞ്ഞ-താപനില ചാർജ് സംരക്ഷണം · BAL = സെൽ ബാലൻസിങ് · R = ബ്ലീഡ് (ബാലൻസിങ്) റെസിസ്റ്റർ · SOC = ചാർജ് നില"></p>
+    <div class="msgs">
+     <p class="okm" id="mOK" data-en="Normal: both MOSFETs (metal-oxide semiconductor field-effect transistors) ON" data-hi="सामान्य: दोनों MOSFET चालू" data-ml="സാധാരണം: രണ്ട് MOSFET-ഉം ഓൺ"></p>
+     <p id="mOVP" hidden data-en="OVP (over-voltage protection): a cell reached 3.65 V, charging stopped" data-hi="OVP (ओवर-वोल्टेज सुरक्षा): एक सेल 3.65 V पर पहुँचा, चार्जिंग बंद" data-ml="OVP (ഓവർ-വോൾട്ടേജ് സംരക്ഷണം): ഒരു സെൽ 3.65 V എത്തി, ചാർജിങ് നിർത്തി"></p>
+     <p id="mUVP" hidden data-en="UVP (under-voltage protection): a cell fell to 2.5 V, discharging stopped" data-hi="UVP (अंडर-वोल्टेज सुरक्षा): एक सेल 2.5 V तक गिरा, डिस्चार्जिंग बंद" data-ml="UVP (അണ്ടർ-വോൾട്ടേജ് സംരക്ഷണം): ഒരു സെൽ 2.5 V-ലേക്ക് താഴ്ന്നു, ഡിസ്ചാർജിങ് നിർത്തി"></p>
+     <p id="mOCC" hidden data-en="OCC (over-current in charge): charge current above 50 A (0.5C), charge MOSFET opened" data-hi="OCC (चार्ज में ओवर-करंट): चार्ज करंट 50 A (0.5C) से अधिक, चार्ज MOSFET खुला" data-ml="OCC (ചാർജിലെ ഓവർ-കറന്റ്): ചാർജ് കറന്റ് 50 A (0.5C) കവിഞ്ഞു, ചാർജ് MOSFET തുറന്നു"></p>
+     <p id="mOCD" hidden data-en="OCD (over-current in discharge): discharge current above 80 A, discharge MOSFET opened" data-hi="OCD (डिस्चार्ज में ओवर-करंट): डिस्चार्ज करंट 80 A से अधिक, डिस्चार्ज MOSFET खुला" data-ml="OCD (ഡിസ്ചാർജിലെ ഓവർ-കറന്റ്): ഡിസ്ചാർജ് കറന്റ് 80 A കവിഞ്ഞു, ഡിസ്ചാർജ് MOSFET തുറന്നു"></p>
+     <p id="mSCP" hidden data-en="SCP (short-circuit protection): short circuit cut in microseconds; press Reset after removing the fault" data-hi="SCP (शॉर्ट-सर्किट सुरक्षा): शॉर्ट सर्किट माइक्रोसेकंड में कटा; दोष हटाकर रीसेट दबाएँ" data-ml="SCP (ഷോർട്ട്-സർക്യൂട്ട് സംരക്ഷണം): ഷോർട്ട് സർക്യൂട്ട് മൈക്രോസെക്കൻഡിൽ വിച്ഛേദിച്ചു; തകരാർ മാറ്റി റീസെറ്റ് അമർത്തുക"></p>
+     <p id="mOTP" hidden data-en="OTP (over-temperature protection): cells above 55 °C, charging and discharging stopped" data-hi="OTP (अधिक-तापमान सुरक्षा): सेल 55 °C से ऊपर, चार्ज व डिस्चार्ज बंद" data-ml="OTP (അമിത-താപനില സംരക്ഷണം): സെല്ലുകൾ 55 °C-ന് മുകളിൽ, ചാർജും ഡിസ്ചാർജും നിർത്തി"></p>
+     <p id="mLTC" hidden data-en="LTC (low-temperature charge protection): below 0 °C, charging blocked to prevent lithium plating" data-hi="LTC (कम-तापमान चार्ज सुरक्षा): 0 °C से नीचे, लिथियम प्लेटिंग रोकने हेतु चार्जिंग अवरुद्ध" data-ml="LTC (കുറഞ്ഞ-താപനില ചാർജ് സംരക്ഷണം): 0 °C-ന് താഴെ, ലിഥിയം പ്ലേറ്റിങ് തടയാൻ ചാർജിങ് തടഞ്ഞു"></p>
+     <p class="balm" id="mBAL" hidden data-en="BAL (balancing): the highest cell is being bled through its resistor" data-hi="BAL (बैलेंसिंग): सबसे ऊँचे सेल को उसके रेज़िस्टर से डिस्चार्ज किया जा रहा है" data-ml="BAL (ബാലൻസിങ്): ഏറ്റവും ഉയർന്ന സെല്ലിനെ അതിന്റെ റെസിസ്റ്ററിലൂടെ ഡിസ്ചാർജ് ചെയ്യുന്നു"></p>
+    </div>
+   </div>
+  </div>
+  <p class="cap" data-en="Try this: press “Unbalance cell 3”, then charge at +40 A. Cell 3 reaches 3.65 V first, OVP stops charging, the BMS bleeds cell 3, and charging resumes. Set −5 °C with charging to see low-temperature protection." data-hi="ऐसे करें: “सेल 3 असंतुलित करें” दबाएँ, फिर +40 A पर चार्ज करें। सेल 3 पहले 3.65 V पहुँचता है, OVP चार्जिंग रोकता है, BMS सेल 3 को डिस्चार्ज करता है और चार्जिंग फिर शुरू होती है। चार्जिंग के साथ −5 °C सेट करके कम-तापमान सुरक्षा देखें।" data-ml="ഇങ്ങനെ ചെയ്യുക: “സെൽ 3 അസന്തുലിതമാക്കുക” അമർത്തി +40 A-ൽ ചാർജ് ചെയ്യുക. സെൽ 3 ആദ്യം 3.65 V എത്തുന്നു, OVP ചാർജിങ് നിർത്തുന്നു, BMS സെൽ 3 ഡിസ്ചാർജ് ചെയ്യുന്നു, ചാർജിങ് വീണ്ടും തുടങ്ങുന്നു. ചാർജിങ്ങിനൊപ്പം −5 °C സെറ്റ് ചെയ്ത് കുറഞ്ഞ താപനില സംരക്ഷണം കാണുക."></p>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge dg">OVP</span><h4 data-en="Over-voltage protection" data-hi="ओवर-वोल्टेज सुरक्षा" data-ml="ഓവർ-വോൾട്ടേജ് സംരക്ഷണം"></h4><p data-en="Any cell ≥ 3.65 V: charge MOSFET OFF" data-hi="कोई सेल ≥ 3.65 V: चार्ज MOSFET बंद" data-ml="ഏതെങ്കിലും സെൽ ≥ 3.65 V: ചാർജ് MOSFET ഓഫ്"></p></div>
+  <div class="pcard"><span class="badge dg">UVP</span><h4 data-en="Under-voltage protection" data-hi="अंडर-वोल्टेज सुरक्षा" data-ml="അണ്ടർ-വോൾട്ടേജ് സംരക്ഷണം"></h4><p data-en="Any cell ≤ 2.5 V: discharge MOSFET OFF" data-hi="कोई सेल ≤ 2.5 V: डिस्चार्ज MOSFET बंद" data-ml="ഏതെങ്കിലും സെൽ ≤ 2.5 V: ഡിസ്ചാർജ് MOSFET ഓഫ്"></p></div>
+  <div class="pcard"><span class="badge dg">OCC / OCD</span><h4 data-en="Over-current" data-hi="ओवर-करंट" data-ml="ഓവർ-കറന്റ്"></h4><p data-en="Charge or discharge current above the set limit" data-hi="चार्ज या डिस्चार्ज करंट सीमा से अधिक" data-ml="ചാർജ്/ഡിസ്ചാർജ് കറന്റ് പരിധി കവിഞ്ഞാൽ"></p></div>
+  <div class="pcard"><span class="badge dg">SCP</span><h4 data-en="Short-circuit protection" data-hi="शॉर्ट-सर्किट सुरक्षा" data-ml="ഷോർട്ട്-സർക്യൂട്ട് സംരക്ഷണം"></h4><p data-en="Cuts within microseconds; latches until reset" data-hi="माइक्रोसेकंड में काटता है; रीसेट तक बंद" data-ml="മൈക്രോസെക്കൻഡിൽ വിച്ഛേദിക്കുന്നു; റീസെറ്റ് വരെ ഓഫ്"></p></div>
+  <div class="pcard"><span class="badge dg">OTP</span><h4 data-en="Over-temperature" data-hi="अधिक तापमान" data-ml="അമിത താപനില"></h4><p data-en="Typically above 55–60 °C" data-hi="सामान्यतः 55–60 °C से ऊपर" data-ml="സാധാരണ 55–60 °C-ന് മുകളിൽ"></p></div>
+  <div class="pcard"><span class="badge dg">LTC</span><h4 data-en="Low-temperature charge block" data-hi="कम-तापमान चार्ज रोक" data-ml="കുറഞ്ഞ താപനില ചാർജ് തടയൽ"></h4><p data-en="No charging below 0 °C" data-hi="0 °C से नीचे चार्जिंग नहीं" data-ml="0 °C-ന് താഴെ ചാർജിങ് ഇല്ല"></p></div>
+  <div class="pcard"><span class="badge bal" style="background:var(--sun-soft);color:var(--sun)">BAL</span><h4 data-en="Cell balancing" data-hi="सेल बैलेंसिंग" data-ml="സെൽ ബാലൻസിങ്"></h4><p data-en="Passive: bleeds high cells through resistors; active: moves charge to low cells" data-hi="पैसिव: ऊँचे सेल को रेज़िस्टर से डिस्चार्ज; एक्टिव: चार्ज को निम्न सेल में भेजता है" data-ml="പാസീവ്: ഉയർന്ന സെല്ലുകളെ റെസിസ്റ്ററിലൂടെ ഡിസ്ചാർജ്; ആക്ടീവ്: ചാർജ് താഴ്ന്ന സെല്ലുകളിലേക്ക് മാറ്റുന്നു"></p></div>
+ </div>
+</section>
+
+<!-- ============ 5 FEATURES & SETTINGS ============ -->
+<section class="panel" id="feat" role="tabpanel" style="--acc:var(--hyb)" hidden>
+ <div class="head">
+  <h2 data-en="BMS (battery management system) features and user settings" data-hi="BMS (बैटरी प्रबंधन प्रणाली) विशेषताएँ और उपयोगकर्ता सेटिंग" data-ml="BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) സവിശേഷതകളും ഉപയോക്തൃ സെറ്റിങ്ങുകളും"></h2>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge in">V×n</span><h4 data-en="Cell voltage monitoring" data-hi="सेल वोल्टेज निगरानी" data-ml="സെൽ വോൾട്ടേജ് നിരീക്ഷണം"></h4><p data-en="Every cell measured many times a second" data-hi="हर सेल प्रति सेकंड कई बार मापा जाता है" data-ml="ഓരോ സെല്ലും സെക്കൻഡിൽ പലതവണ അളക്കുന്നു"></p></div>
+  <div class="pcard"><span class="badge in">Ah</span><h4 data-en="SOC (state of charge) by coulomb counting" data-hi="कूलॉम काउंटिंग से SOC (चार्ज की स्थिति)" data-ml="കൂളോം കൗണ്ടിങ് വഴി SOC (ചാർജ് നില)"></h4><p data-en="Counts Ah in and out; recalibrates at full charge" data-hi="अंदर-बाहर Ah गिनता है; पूर्ण चार्ज पर पुनः अंशांकन" data-ml="അകത്തും പുറത്തുമുള്ള Ah എണ്ണുന്നു; ഫുൾ ചാർജിൽ റീകാലിബ്രേറ്റ്"></p></div>
+  <div class="pcard"><span class="badge in">SOH</span><h4 data-en="State of health and cycle count" data-hi="स्वास्थ्य स्थिति व चक्र गणना" data-ml="ആരോഗ്യ നിലയും സൈക്കിൾ എണ്ണവും"></h4><p data-en="Tracks capacity fade over the years" data-hi="वर्षों में क्षमता की कमी पर नज़र" data-ml="വർഷങ്ങളിലെ ശേഷിക്കുറവ് നിരീക്ഷിക്കുന്നു"></p></div>
+  <div class="pcard"><span class="badge in">PRE</span><h4 data-en="Pre-charge circuit" data-hi="प्री-चार्ज सर्किट" data-ml="പ്രീ-ചാർജ് സർക്യൂട്ട്"></h4><p data-en="Limits inrush into inverter capacitors at switch-on" data-hi="स्विच-ऑन पर इन्वर्टर कैपेसिटर में इनरश सीमित" data-ml="സ്വിച്ച്-ഓണിൽ ഇൻവെർട്ടർ കപ്പാസിറ്ററിലേക്കുള്ള ഇൻറഷ് പരിമിതപ്പെടുത്തുന്നു"></p></div>
+  <div class="pcard"><span class="badge in">CAN</span><h4 data-en="Communication" data-hi="संचार" data-ml="ആശയവിനിമയം"></h4><p data-en="CAN (controller area network) / RS485 (two-wire serial link) to the inverter; Bluetooth or Wi-Fi app" data-hi="इन्वर्टर से CAN (कंट्रोलर एरिया नेटवर्क) / RS485 (दो-तार सीरियल लिंक); ब्लूटूथ या वाई-फाई ऐप" data-ml="ഇൻവെർട്ടറിലേക്ക് CAN (കൺട്രോളർ ഏരിയ നെറ്റ്‌വർക്ക്) / RS485 (രണ്ട്-വയർ സീരിയൽ ലിങ്ക്); ബ്ലൂടൂത്ത്/വൈ-ഫൈ ആപ്പ്"></p></div>
+  <div class="pcard"><span class="badge in">∥</span><h4 data-en="Parallel packs" data-hi="समानांतर पैक" data-ml="പാരലൽ പാക്കുകൾ"></h4><p data-en="DIP (dual in-line package)-switch addresses; one master BMS reports to the inverter" data-hi="DIP (ड्यूल इन-लाइन पैकेज)-स्विच पता; एक मास्टर BMS इन्वर्टर को रिपोर्ट करता है" data-ml="DIP (ഡ്യുവൽ ഇൻ-ലൈൻ പാക്കേജ്)-സ്വിച്ച് വിലാസം; ഒരു മാസ്റ്റർ BMS ഇൻവെർട്ടറിനെ അറിയിക്കുന്നു"></p></div>
+  <div class="pcard"><span class="badge in">LOG</span><h4 data-en="Event log and alarms" data-hi="इवेंट लॉग व अलार्म" data-ml="ഇവന്റ് ലോഗ്, അലാറം"></h4><p data-en="Stores faults, buzzer/LED (light-emitting diode) warnings" data-hi="दोष संग्रहीत, बज़र/LED (लाइट-एमिटिंग डायोड) चेतावनी" data-ml="തകരാറുകൾ സൂക്ഷിക്കുന്നു, ബസർ/LED (ലൈറ്റ്-എമിറ്റിങ് ഡയോഡ്) മുന്നറിയിപ്പ്"></p></div>
+  <div class="pcard"><span class="badge in">Zz</span><h4 data-en="Sleep and wake" data-hi="स्लीप और वेक" data-ml="സ്ലീപ്, വേക്ക്"></h4><p data-en="Low-power sleep in storage; wake by button or charger" data-hi="भंडारण में लो-पावर स्लीप; बटन या चार्जर से जागना" data-ml="സംഭരണത്തിൽ ലോ-പവർ സ്ലീപ്; ബട്ടൺ/ചാർജർ വഴി ഉണരൽ"></p></div>
+ </div>
+ <div class="fig">
+  <h3 data-en="With communication vs without" data-hi="संचार के साथ बनाम बिना" data-ml="ആശയവിനിമയത്തോടെ vs ഇല്ലാതെ"></h3>
+  <svg viewBox="0 0 990 300" role="img" aria-label="Closed loop and open loop battery control" style="min-width:720px"><path class="s-mut" stroke-width="1.5" stroke-dasharray="6 5" d="M495 10V290"/>
+<use href="#s-li" x="40" y="80" width="120" height="120"/><use href="#s-inv" x="320" y="80" width="120" height="120"/>
+<path d="M160 125H320" style="stroke:var(--danger);stroke-width:6"/><path d="M160 160H320" style="stroke:var(--ink);stroke-width:6"/>
+<path d="M100 200V245H380V200" style="fill:none;stroke:var(--ion);stroke-width:4;stroke-dasharray:8 5"/>
+<text class="mono c" x="240" y="270" style="fill:var(--ion);font-size:13px">CAN / RS485: CVL · CCL · DCL · SOC · alarms</text>
+<use href="#s-li" x="545" y="80" width="120" height="120"/><use href="#s-inv" x="825" y="80" width="120" height="120"/>
+<path d="M665 125H825" style="stroke:var(--danger);stroke-width:6"/><path d="M665 160H825" style="stroke:var(--ink);stroke-width:6"/>
+<rect x="835" y="215" width="100" height="58" rx="6" class="f-scr"/><text class="mono c" x="885" y="238" style="font-size:12px">CV 56.8 V</text><text class="mono c" x="885" y="258" style="font-size:12px">LVD 48.0 V</text>
+<foreignObject x="0" y="0" width="490" height="70"><div class="fo l" style="font-weight:700" data-en="Closed loop: the BMS tells the inverter the charge voltage, current limits and SOC" data-hi="क्लोज़्ड लूप: BMS इन्वर्टर को चार्ज वोल्टेज, करंट सीमा और SOC बताता है" data-ml="ക്ലോസ്ഡ് ലൂപ്: BMS ഇൻവെർട്ടറിനോട് ചാർജ് വോൾട്ടേജ്, കറന്റ് പരിധി, SOC എന്നിവ അറിയിക്കുന്നു"></div></foreignObject>
+<foreignObject x="505" y="0" width="485" height="70"><div class="fo l" style="font-weight:700" data-en="Open loop: the user enters voltage limits; the BMS acts only as a last-resort cut-off" data-hi="ओपन लूप: उपयोगकर्ता वोल्टेज सीमाएँ डालता है; BMS केवल अंतिम सुरक्षा कट-ऑफ है" data-ml="ഓപ്പൺ ലൂപ്: ഉപയോക്താവ് വോൾട്ടേജ് പരിധികൾ നൽകുന്നു; BMS അവസാന സുരക്ഷാ കട്ട്-ഓഫ് മാത്രം"></div></foreignObject>
+<foreignObject x="0" y="205" width="95" height="40"><div class="fo ok" style="font-size:13px" data-en="Preferred" data-hi="उत्तम" data-ml="ഉത്തമം"></div></foreignObject></svg>
+  <p class="abbr" data-en="Abbreviations: CAN = controller area network · RS485 = two-wire serial link · CVL = charge voltage limit · CCL = charge current limit · DCL = discharge current limit · SOC = state of charge · CV = charge (constant) voltage · LVD = low-voltage disconnect" data-hi="संक्षेप: CAN = कंट्रोलर एरिया नेटवर्क · RS485 = दो-तार सीरियल लिंक · CVL = चार्ज वोल्टेज सीमा · CCL = चार्ज करंट सीमा · DCL = डिस्चार्ज करंट सीमा · SOC = चार्ज की स्थिति · CV = चार्ज (स्थिर) वोल्टेज · LVD = लो-वोल्टेज डिस्कनेक्ट" data-ml="ചുരുക്കെഴുത്തുകൾ: CAN = കൺട്രോളർ ഏരിയ നെറ്റ്‌വർക്ക് · RS485 = രണ്ട്-വയർ സീരിയൽ ലിങ്ക് · CVL = ചാർജ് വോൾട്ടേജ് പരിധി · CCL = ചാർജ് കറന്റ് പരിധി · DCL = ഡിസ്ചാർജ് കറന്റ് പരിധി · SOC = ചാർജ് നില · CV = ചാർജ് (സ്ഥിര) വോൾട്ടേജ് · LVD = ലോ-വോൾട്ടേജ് ഡിസ്കണക്ട്"></p>
+ </div>
+ <div class="row2">
+  <div class="card">
+   <h3 data-en="Settings calculator for your pack" data-hi="आपके पैक हेतु सेटिंग कैलकुलेटर" data-ml="നിങ്ങളുടെ പാക്കിനുള്ള സെറ്റിങ് കാൽക്കുലേറ്റർ"></h3>
+   <div class="inp">
+    <label for="sn"><span data-en="Cells in series" data-hi="श्रेणी में सेल" data-ml="സീരീസിലെ സെല്ലുകൾ"></span><select id="sn" class="inpsel"><option value="4">4S · 12.8 V</option><option value="8">8S · 25.6 V</option><option value="15">15S · 48 V</option><option value="16" selected>16S · 51.2 V</option></select></label>
+    <label for="sah"><span data-en="Capacity (Ah)" data-hi="क्षमता (Ah)" data-ml="ശേഷി (Ah)"></span><input id="sah" type="number" min="10" step="10" value="100"></label>
+   </div>
+   <p class="foot" data-en="Values are typical. Always use the battery maker’s datasheet first." data-hi="मान सामान्य हैं। हमेशा पहले बैटरी निर्माता की डेटाशीट देखें।" data-ml="മൂല്യങ്ങൾ സാധാരണമാണ്. എപ്പോഴും ബാറ്ററി നിർമ്മാതാവിന്റെ ഡാറ്റാഷീറ്റിന് മുൻഗണന നൽകുക."></p>
+  </div>
+  <div class="tw">
+   <table style="min-width:520px">
+    <thead><tr><th data-en="Inverter / controller setting" data-hi="इन्वर्टर / कंट्रोलर सेटिंग" data-ml="ഇൻവെർട്ടർ / കൺട്രോളർ സെറ്റിങ്"></th><th data-en="Per cell" data-hi="प्रति सेल" data-ml="ഓരോ സെല്ലിനും"></th><th data-en="Your pack" data-hi="आपका पैक" data-ml="നിങ്ങളുടെ പാക്ക്"></th></tr></thead>
+    <tbody>
+     <tr><th data-en="Battery type" data-hi="बैटरी प्रकार" data-ml="ബാറ്ററി തരം"></th><td colspan="2" data-en="Lithium / LFP (or “User” with values below)" data-hi="लिथियम / LFP (या नीचे दिए मानों के साथ “User”)" data-ml="ലിഥിയം / LFP (അല്ലെങ്കിൽ താഴെയുള്ള മൂല്യങ്ങളോടെ “User”)"></td></tr>
+     <tr><th data-en="Bulk / absorption voltage" data-hi="बल्क / एब्ज़ॉर्प्शन वोल्टेज" data-ml="ബൾക്ക് / അബ്സോർപ്ഷൻ വോൾട്ടേജ്"></th><td>3.55 V</td><td class="y" id="t1"></td></tr>
+     <tr><th data-en="Absorption time" data-hi="एब्ज़ॉर्प्शन समय" data-ml="അബ്സോർപ്ഷൻ സമയം"></th><td colspan="2" data-en="Short: ≤ 30 min" data-hi="छोटा: ≤ 30 मिनट" data-ml="കുറവ്: ≤ 30 മിനിറ്റ്"></td></tr>
+     <tr><th data-en="Float voltage" data-hi="फ्लोट वोल्टेज" data-ml="ഫ്ലോട്ട് വോൾട്ടേജ്"></th><td>3.375 V</td><td id="t2"></td></tr>
+     <tr><th data-en="Equalisation" data-hi="इक्वलाइज़ेशन" data-ml="ഇക്വലൈസേഷൻ"></th><td colspan="2" class="n" data-en="OFF (never)" data-hi="बंद (कभी नहीं)" data-ml="ഓഫ് (ഒരിക്കലും വേണ്ട)"></td></tr>
+     <tr><th data-en="Temperature compensation" data-hi="तापमान क्षतिपूर्ति" data-ml="താപനില നഷ്ടപരിഹാരം"></th><td colspan="2" class="n" data-en="OFF" data-hi="बंद" data-ml="ഓഫ്"></td></tr>
+     <tr><th data-en="Low-battery alarm" data-hi="लो-बैटरी अलार्म" data-ml="ലോ-ബാറ്ററി അലാറം"></th><td>3.10 V</td><td id="t3"></td></tr>
+     <tr><th data-en="Low-voltage cut-off (inverter)" data-hi="लो-वोल्टेज कट-ऑफ (इन्वर्टर)" data-ml="ലോ-വോൾട്ടേജ് കട്ട്-ഓഫ് (ഇൻവെർട്ടർ)"></th><td>3.00 V</td><td class="n" id="t4"></td></tr>
+     <tr><th data-en="Restart voltage" data-hi="रीस्टार्ट वोल्टेज" data-ml="റീസ്റ്റാർട്ട് വോൾട്ടേജ്"></th><td>3.25 V</td><td id="t5"></td></tr>
+     <tr><th data-en="BMS OVP (over-voltage protection) / UVP (fixed)" data-hi="BMS OVP (ओवर-वोल्टेज सुरक्षा) / UVP (स्थिर)" data-ml="BMS OVP (ഓവർ-വോൾട്ടേജ് സംരക്ഷണം) / UVP (നിശ്ചിതം)"></th><td>3.65 / 2.50 V</td><td id="t6"></td></tr>
+     <tr><th data-en="Max charge current (0.5C)" data-hi="अधिकतम चार्ज करंट (0.5C)" data-ml="പരമാവധി ചാർജ് കറന്റ് (0.5C)"></th><td>–</td><td id="t7"></td></tr>
+     <tr><th data-en="Max discharge current (1C)" data-hi="अधिकतम डिस्चार्ज करंट (1C)" data-ml="പരമാവധി ഡിസ്ചാർജ് കറന്റ് (1C)"></th><td>–</td><td id="t8"></td></tr>
+     <tr><th data-en="With communication" data-hi="संचार के साथ" data-ml="ആശയവിനിമയത്തോടെ"></th><td colspan="2" data-en="Select the BMS protocol; set SOC cut-off (e.g. 10–20 %) instead of voltage" data-hi="BMS प्रोटोकॉल चुनें; वोल्टेज के बजाय SOC कट-ऑफ (जैसे 10–20 %) सेट करें" data-ml="BMS പ്രോട്ടോക്കോൾ തിരഞ്ഞെടുക്കുക; വോൾട്ടേജിന് പകരം SOC കട്ട്-ഓഫ് (ഉദാ. 10–20 %) സെറ്റ് ചെയ്യുക"></td></tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 6 PROS / CONS / COST ============ -->
+<section class="panel" id="pros" role="tabpanel" style="--acc:var(--sun)" hidden>
+ <div class="head">
+  <h2 data-en="Advantages, disadvantages and cost" data-hi="लाभ, हानियाँ और लागत" data-ml="ഗുണങ്ങൾ, ദോഷങ്ങൾ, ചെലവ്"></h2>
+ </div>
+ <div class="pc">
+  <div>
+   <h3 class="pro" data-en="Advantages" data-hi="लाभ" data-ml="ഗുണങ്ങൾ"></h3>
+   <ul>
+    <li data-en="Long life: 4000–6000 cycles (8–13 years)" data-hi="लंबी आयु: 4000–6000 चक्र (8–13 वर्ष)" data-ml="ദീർഘായുസ്സ്: 4000–6000 സൈക്കിൾ (8–13 വർഷം)"></li>
+    <li data-en="80–95 % usable capacity (lead-acid ≈ 50 %)" data-hi="80–95 % उपयोगी क्षमता (लेड-एसिड ≈ 50 %)" data-ml="80–95 % ഉപയോഗയോഗ്യ ശേഷി (ലെഡ്-ആസിഡ് ≈ 50 %)"></li>
+    <li data-en="High efficiency: ≈ 95 % round trip" data-hi="उच्च दक्षता: ≈ 95 % राउंड ट्रिप" data-ml="ഉയർന്ന കാര്യക്ഷമത: ≈ 95 % റൗണ്ട് ട്രിപ്"></li>
+    <li data-en="About one-third the weight; compact wall or rack mount" data-hi="लगभग एक-तिहाई वज़न; कॉम्पैक्ट दीवार या रैक माउंट" data-ml="ഏകദേശം മൂന്നിലൊന്ന് ഭാരം; ചെറിയ വാൾ/റാക്ക് മൗണ്ട്"></li>
+    <li data-en="No topping up, no acid fumes; can be installed indoors" data-hi="पानी भरना नहीं, अम्ल धुआँ नहीं; घर के अंदर लग सकती है" data-ml="വെള്ളം നിറയ്ക്കേണ്ട, ആസിഡ് പുകയില്ല; വീടിനുള്ളിൽ സ്ഥാപിക്കാം"></li>
+    <li data-en="Fast charging (0.5C: about 2 h) suits short sunny periods" data-hi="तेज़ चार्जिंग (0.5C: लगभग 2 घंटे) छोटी धूप अवधि हेतु उपयुक्त" data-ml="വേഗത്തിലുള്ള ചാർജിങ് (0.5C: ഏകദേശം 2 മണിക്കൂർ)"></li>
+    <li data-en="Low self-discharge (≈ 2–3 % per month) and live data from BMS (battery management system)" data-hi="कम स्व-डिस्चार्ज (≈ 2–3 % प्रति माह) और BMS (बैटरी प्रबंधन प्रणाली) से लाइव डेटा" data-ml="കുറഞ്ഞ സ്വയം ഡിസ്ചാർജ് (≈ 2–3 %/മാസം), BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം)-ൽ നിന്ന് ലൈവ് ഡാറ്റ"></li>
+   </ul>
+  </div>
+  <div class="cons">
+   <h3 class="con" data-en="Disadvantages" data-hi="हानियाँ" data-ml="ദോഷങ്ങൾ"></h3>
+   <ul>
+    <li data-en="High initial price (3–5 × lead-acid per kWh)" data-hi="अधिक प्रारंभिक मूल्य (प्रति kWh लेड-एसिड का 3–5 गुना)" data-ml="ഉയർന്ന പ്രാരംഭ വില (kWh-ന് ലെഡ്-ആസിഡിന്റെ 3–5 മടങ്ങ്)"></li>
+    <li data-en="Needs a BMS and correct inverter settings or communication" data-hi="BMS और सही इन्वर्टर सेटिंग या संचार आवश्यक" data-ml="BMS-ഉം ശരിയായ ഇൻവെർട്ടർ സെറ്റിങ്/ആശയവിനിമയവും ആവശ്യം"></li>
+    <li data-en="Cannot be charged below 0 °C" data-hi="0 °C से नीचे चार्ज नहीं हो सकती" data-ml="0 °C-ന് താഴെ ചാർജ് ചെയ്യാനാവില്ല"></li>
+    <li data-en="BMS cut-off is sudden: power stops without a slow warning" data-hi="BMS कट-ऑफ अचानक: धीमी चेतावनी के बिना बिजली बंद" data-ml="BMS കട്ട്-ഓഫ് പെട്ടെന്നാണ്: സാവധാന മുന്നറിയിപ്പില്ലാതെ വൈദ്യുതി നിലയ്ക്കുന്നു"></li>
+    <li data-en="Heat shortens life; abuse can cause fire (risk is low for LFP (lithium iron phosphate))" data-hi="गर्मी आयु घटाती है; दुरुपयोग से आग संभव (LFP (लिथियम आयरन फॉस्फेट) में जोखिम कम)" data-ml="ചൂട് ആയുസ്സ് കുറയ്ക്കുന്നു; ദുരുപയോഗം തീപിടിത്തത്തിന് കാരണമാകാം (LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്)-ൽ സാധ്യത കുറവ്)"></li>
+    <li data-en="Recycling network still small; risk of low-grade cells" data-hi="रीसाइक्लिंग नेटवर्क अभी छोटा; घटिया सेलों का जोखिम" data-ml="റീസൈക്ലിങ് ശൃംഖല ഇപ്പോഴും ചെറുത്; ഗുണനിലവാരമില്ലാത്ത സെല്ലുകളുടെ അപകടസാധ്യത"></li>
+   </ul>
+  </div>
+ </div>
+ <div class="tw">
+  <table>
+   <thead><tr><th></th><th data-en="Lithium iron phosphate (LiFePO₄, LFP)" data-hi="लिथियम आयरन फॉस्फेट (LiFePO₄, LFP)" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് (LiFePO₄, LFP)"></th><th data-en="Tubular lead-acid" data-hi="ट्यूबलर लेड-एसिड" data-ml="ട്യൂബുലാർ ലെഡ്-ആസിഡ്"></th></tr></thead>
+   <tbody>
+    <tr><th data-en="Cell voltage" data-hi="सेल वोल्टेज" data-ml="സെൽ വോൾട്ടേജ്"></th><td>3.2 V (2.5–3.65)</td><td>2.0 V (1.8–2.2)</td></tr>
+    <tr><th data-en="Cells for 12 V" data-hi="12 V हेतु सेल" data-ml="12 V-ന് സെല്ലുകൾ"></th><td>4 → 12.8 V</td><td>6 → 12 V</td></tr>
+    <tr><th data-en="Usable DoD (depth of discharge)" data-hi="उपयोगी DoD (डिस्चार्ज की गहराई)" data-ml="ഉപയോഗയോഗ്യ DoD (ഡിസ്ചാർജ് ആഴം)"></th><td class="y">80–95 %</td><td>50 %</td></tr>
+    <tr><th data-en="Cycle life" data-hi="चक्र आयु" data-ml="സൈക്കിൾ ആയുസ്സ്"></th><td class="y">4000–6000</td><td>1200–1500</td></tr>
+    <tr><th data-en="Round-trip efficiency" data-hi="राउंड-ट्रिप दक्षता" data-ml="റൗണ്ട്-ട്രിപ് കാര്യക്ഷമത"></th><td class="y">≈ 95 %</td><td>≈ 80 %</td></tr>
+    <tr><th data-en="Charge time" data-hi="चार्ज समय" data-ml="ചാർജ് സമയം"></th><td class="y" data-en="2–3 h" data-hi="2–3 घंटे" data-ml="2–3 മണിക്കൂർ"></td><td data-en="8–10 h" data-hi="8–10 घंटे" data-ml="8–10 മണിക്കൂർ"></td></tr>
+    <tr><th data-en="Maintenance" data-hi="रखरखाव" data-ml="പരിപാലനം"></th><td class="y" data-en="None" data-hi="नहीं" data-ml="ഇല്ല"></td><td data-en="Water topping, cleaning" data-hi="पानी भरना, सफ़ाई" data-ml="വെള്ളം നിറയ്ക്കൽ, ശുചീകരണം"></td></tr>
+    <tr><th data-en="Protection" data-hi="सुरक्षा" data-ml="സംരക്ഷണം"></th><td data-en="Built-in BMS" data-hi="अंतर्निहित BMS" data-ml="ഉൾച്ചേർന്ന BMS"></td><td data-en="From charge controller only" data-hi="केवल चार्ज कंट्रोलर से" data-ml="ചാർജ് കൺട്രോളറിൽ നിന്ന് മാത്രം"></td></tr>
+    <tr><th data-en="Upfront cost" data-hi="प्रारंभिक लागत" data-ml="പ്രാരംഭ ചെലവ്"></th><td class="n" data-en="High" data-hi="अधिक" data-ml="കൂടുതൽ"></td><td class="y" data-en="Low" data-hi="कम" data-ml="കുറവ്"></td></tr>
+   </tbody>
+  </table>
+ </div>
+ <div class="row2">
+  <div class="card">
+   <h3 data-en="Cost per kWh delivered over life" data-hi="पूरी आयु में प्रति kWh लागत" data-ml="ആയുസ്സിൽ ഓരോ kWh-നും ചെലവ്"></h3>
+   <div class="tw" style="border:0">
+    <table style="min-width:440px">
+     <thead><tr><th></th><th data-en="LFP (lithium iron phosphate)" data-hi="LFP (लिथियम आयरन फॉस्फेट)" data-ml="LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്)"></th><th data-en="Lead-acid" data-hi="लेड-एसिड" data-ml="ലെഡ്-ആസിഡ്"></th></tr></thead>
+     <tbody>
+      <tr><th data-en="Price (₹)" data-hi="मूल्य (₹)" data-ml="വില (₹)"></th><td><input id="aP" type="number" value="73750" step="1000"></td><td><input id="bP" type="number" value="60000" step="1000"></td></tr>
+      <tr><th data-en="Energy (kWh)" data-hi="ऊर्जा (kWh)" data-ml="ഊർജം (kWh)"></th><td><input id="aE" type="number" value="5.12" step="0.1"></td><td><input id="bE" type="number" value="7.2" step="0.1"></td></tr>
+      <tr><th>DoD (%)</th><td><input id="aD" type="number" value="90"></td><td><input id="bD" type="number" value="50"></td></tr>
+      <tr><th data-en="Cycles" data-hi="चक्र" data-ml="സൈക്കിളുകൾ"></th><td><input id="aC" type="number" value="4000" step="100"></td><td><input id="bC" type="number" value="1500" step="100"></td></tr>
+      <tr><th data-en="Efficiency (%)" data-hi="दक्षता (%)" data-ml="കാര്യക്ഷമത (%)"></th><td><input id="aF" type="number" value="95"></td><td><input id="bF" type="number" value="80"></td></tr>
+      <tr><th data-en="₹ per kWh delivered" data-hi="प्रति kWh ₹" data-ml="ഓരോ kWh-നും ₹"></th><td class="y" id="aR" style="font:800 1.5rem var(--f-display)"></td><td class="n" id="bR" style="font:800 1.5rem var(--f-display)"></td></tr>
+     </tbody>
+    </table>
+   </div>
+   <p class="foot" data-en="Defaults: 51.2 V 100 Ah LFP vs four 12 V 150 Ah tubular batteries (48 V, 7.2 kWh)." data-hi="डिफ़ॉल्ट: 51.2 V 100 Ah LFP बनाम चार 12 V 150 Ah ट्यूबलर बैटरी (48 V, 7.2 kWh)।" data-ml="ഡിഫോൾട്ട്: 51.2 V 100 Ah LFP vs നാല് 12 V 150 Ah ട്യൂബുലാർ ബാറ്ററി (48 V, 7.2 kWh)."></p>
+  </div>
+  <div class="fig">
+   <h3 data-en="Indicative prices in India (2026)" data-hi="भारत में सांकेतिक मूल्य (2026)" data-ml="ഇന്ത്യയിലെ ഏകദേശ വില (2026)"></h3>
+   <svg viewBox="0 0 600 260" role="img" aria-label="Battery price ranges" style="min-width:460px"><path class="s-mut" stroke-width="1" opacity=".5" d="M210 20V215"/><text class="lbs c" x="210" y="236">₹0k</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M296 20V215"/><text class="lbs c" x="296" y="236">₹25k</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M382 20V215"/><text class="lbs c" x="382" y="236">₹50k</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M469 20V215"/><text class="lbs c" x="469" y="236">₹75k</text>
+<path class="s-mut" stroke-width="1" opacity=".5" d="M555 20V215"/><text class="lbs c" x="555" y="236">₹100k</text>
+<rect x="258.3" y="35" width="6.9" height="30" rx="4" style="fill:var(--pos)"/>
+<text class="lbl s" x="273" y="55">₹14k–16k</text>
+<foreignObject x="0" y="30" width="205" height="40"><div class="fo l" style="font-size:13px;justify-content:flex-end;text-align:right" data-en="Tubular 12 V 150 Ah (1.8 kWh)" data-hi="ट्यूबलर 12 V 150 Ah (1.8 kWh)" data-ml="ട്യൂബുലാർ 12 V 150 Ah (1.8 kWh)"></div></foreignObject>
+<rect x="348.0" y="105" width="103.5" height="30" rx="4" style="fill:var(--ion)"/>
+<text class="lbl c" x="400" y="125" style="fill:#fff">₹40k–70k</text>
+<foreignObject x="0" y="100" width="205" height="40"><div class="fo l" style="font-size:13px;justify-content:flex-end;text-align:right" data-en="LFP 2.4–2.5 kWh" data-hi="LFP 2.4–2.5 kWh" data-ml="LFP 2.4–2.5 kWh"></div></foreignObject>
+<rect x="464.4" y="175" width="107.8" height="30" rx="4" style="fill:var(--ion)"/>
+<text class="lbl c" x="518" y="195" style="fill:#fff">₹74k–1.05L</text>
+<foreignObject x="0" y="170" width="205" height="40"><div class="fo l" style="font-size:13px;justify-content:flex-end;text-align:right" data-en="LFP 4.8–5.1 kWh" data-hi="LFP 4.8–5.1 kWh" data-ml="LFP 4.8–5.1 kWh"></div></foreignObject></svg>
+   <p class="src"><span data-en="Sources (checked Oct 2026):" data-hi="स्रोत (अक्टूबर 2026 में जाँचे गए):" data-ml="ഉറവിടങ്ങൾ (2026 ഒക്ടോബറിൽ പരിശോധിച്ചത്):"></span> <a href="https://qbitsenergy.com/blog/solar-battery-price-guide-india-2026/" target="_blank" rel="noopener">Qbits Energy – Solar battery price guide 2026</a> · <a href="https://www.hykonindia.com/product/hykon-hilife-48v-100ah-lifepo4-battery" target="_blank" rel="noopener">Hykon HiLIFE 48 V 100 Ah</a> · <a href="https://www.heavengreenenergy.com/blog/exide-vs-luminous-solar-battery" target="_blank" rel="noopener">Heaven Green Energy – tubular prices</a></p>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 7 CARE ============ -->
+<section class="panel" id="care" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="Care, maintenance and safety" data-hi="देखभाल, रखरखाव और सुरक्षा" data-ml="പരിപാലനം, സംരക്ഷണം, സുരക്ഷ"></h2>
+ </div>
+ <div class="fig">
+  <h3 data-en="Temperature window (typical LFP (lithium iron phosphate) datasheet)" data-hi="तापमान सीमा (सामान्य LFP (लिथियम आयरन फॉस्फेट) डेटाशीट)" data-ml="താപനില പരിധി (സാധാരണ LFP (ലിഥിയം അയൺ ഫോസ്ഫേറ്റ്) ഡാറ്റാഷീറ്റ്)"></h3>
+  <svg viewBox="0 0 900 230" role="img" aria-label="Temperature window for charge and discharge" style="min-width:620px"><rect x="438" y="25" width="188" height="150" style="fill:var(--sun-soft)"/>
+<foreignObject x="438.125" y="0" width="187.5" height="26"><div class="fo" style="font-size:13px;color:var(--sun)" data-en="Ideal 15–35 °C" data-hi="आदर्श 15–35 °C" data-ml="ഉത്തമം 15–35 °C"></div></foreignObject>
+<rect x="110" y="45" width="188" height="40" style="fill:var(--danger)"/><rect x="298" y="45" width="422" height="40" style="fill:var(--batt)"/><rect x="719" y="45" width="141" height="40" style="fill:var(--danger)"/>
+<rect x="110" y="115" width="750" height="40" style="fill:var(--batt)"/>
+<text class="lbl c" x="508" y="71" style="fill:#fff">0 … 45 °C</text><text class="lbl c" x="485" y="141" style="fill:#fff">−20 … 60 °C</text>
+<text class="lbl c" x="204" y="71" style="fill:#fff">✗</text>
+<path class="s-ink" stroke-width="1.5" d="M110 160V170"/><text class="lbs c" x="110" y="188">-20 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M298 160V170"/><text class="lbs c" x="298" y="188">0 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M438 160V170"/><text class="lbs c" x="438" y="188">15 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M532 160V170"/><text class="lbs c" x="532" y="188">25 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M626 160V170"/><text class="lbs c" x="626" y="188">35 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M719 160V170"/><text class="lbs c" x="719" y="188">45 °C</text>
+<path class="s-ink" stroke-width="1.5" d="M860 160V170"/><text class="lbs c" x="860" y="188">60 °C</text>
+<foreignObject x="0" y="45" width="105" height="40"><div class="fo l" style="font-weight:700" data-en="Charge" data-hi="चार्ज" data-ml="ചാർജ്"></div></foreignObject>
+<foreignObject x="0" y="115" width="105" height="40"><div class="fo l" style="font-weight:700" data-en="Discharge" data-hi="डिस्चार्ज" data-ml="ഡിസ്ചാർജ്"></div></foreignObject>
+<foreignObject x="0" y="196" width="900" height="32"><div class="fo mut" data-en="Every 10 °C above 25 °C roughly halves calendar life. Keep the pack out of direct sun." data-hi="25 °C से हर 10 °C अधिक पर आयु लगभग आधी। पैक को सीधी धूप से दूर रखें।" data-ml="25 °C-ന് മുകളിൽ ഓരോ 10 °C-ലും ആയുസ്സ് ഏകദേശം പകുതിയാകുന്നു. പാക്ക് നേരിട്ടുള്ള വെയിലിൽ നിന്ന് മാറ്റി വെക്കുക."></div></foreignObject></svg>
+ </div>
+ <div class="dodo">
+  <div class="card do">
+   <h3 class="pro" style="color:var(--batt)" data-en="Do" data-hi="करें" data-ml="ചെയ്യുക"></h3>
+   <ul>
+    <li data-en="Install in a shaded, dry, ventilated place at 15–35 °C" data-hi="छायादार, सूखी, हवादार जगह पर 15–35 °C में लगाएँ" data-ml="തണലുള്ള, ഉണങ്ങിയ, വായുസഞ്ചാരമുള്ള സ്ഥലത്ത് 15–35 °C-ൽ സ്ഥാപിക്കുക"></li>
+    <li data-en="Select “Lithium/LFP” in the inverter or use BMS (battery management system) communication" data-hi="इन्वर्टर में “Lithium/LFP” चुनें या BMS (बैटरी प्रबंधन प्रणाली) संचार उपयोग करें" data-ml="ഇൻവെർട്ടറിൽ “Lithium/LFP” തിരഞ്ഞെടുക്കുക അല്ലെങ്കിൽ BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) ആശയവിനിമയം ഉപയോഗിക്കുക"></li>
+    <li data-en="Charge fully to 100 % about once a month (balancing and SOC (state of charge) reset)" data-hi="लगभग महीने में एक बार 100 % तक चार्ज करें (बैलेंसिंग व SOC (चार्ज की स्थिति) रीसेट)" data-ml="മാസത്തിൽ ഒരിക്കൽ 100 % വരെ ചാർജ് ചെയ്യുക (ബാലൻസിങ്, SOC (ചാർജ് നില) റീസെറ്റ്)"></li>
+    <li data-en="Store at 40–60 % SOC; top up every 3–6 months" data-hi="40–60 % SOC पर रखें; हर 3–6 महीने में चार्ज करें" data-ml="40–60 % SOC-ൽ സൂക്ഷിക്കുക; 3–6 മാസം കൂടുമ്പോൾ ചാർജ് ചെയ്യുക"></li>
+    <li data-en="Tighten terminals to the specified torque; check yearly" data-hi="टर्मिनल निर्दिष्ट टॉर्क पर कसें; हर वर्ष जाँचें" data-ml="ടെർമിനലുകൾ നിശ്ചിത ടോർക്കിൽ മുറുക്കുക; വർഷംതോറും പരിശോധിക്കുക"></li>
+    <li data-en="Check app alarms and cell voltage spread (≤ 0.05 V)" data-hi="ऐप अलार्म और सेल वोल्टेज अंतर (≤ 0.05 V) जाँचें" data-ml="ആപ്പ് അലാറങ്ങളും സെൽ വോൾട്ടേജ് വ്യത്യാസവും (≤ 0.05 V) പരിശോധിക്കുക"></li>
+    <li data-en="Parallel packs: same model, same SOC, correct DIP (dual in-line package) addresses" data-hi="समानांतर पैक: एक ही मॉडल, समान SOC, सही DIP (ड्यूल इन-लाइन पैकेज) पता" data-ml="പാരലൽ പാക്കുകൾ: ഒരേ മോഡൽ, ഒരേ SOC, ശരിയായ DIP (ഡ്യുവൽ ഇൻ-ലൈൻ പാക്കേജ്) വിലാസം"></li>
+    <li data-en="Use a DC (direct current) breaker/fuse rated for DC near the battery" data-hi="बैटरी के पास DC (दिष्ट धारा)-रेटेड ब्रेकर/फ्यूज़ लगाएँ" data-ml="ബാറ്ററിക്ക് സമീപം DC (ഡയറക്ട് കറന്റ്)-റേറ്റഡ് ബ്രേക്കർ/ഫ്യൂസ് ഉപയോഗിക്കുക"></li>
+   </ul>
+  </div>
+  <div class="card dont">
+   <h3 class="con" style="color:var(--danger)" data-en="Do not" data-hi="न करें" data-ml="ചെയ്യരുത്"></h3>
+   <ul>
+    <li data-en="Charge below 0 °C" data-hi="0 °C से नीचे चार्ज" data-ml="0 °C-ന് താഴെ ചാർജ് ചെയ്യൽ"></li>
+    <li data-en="Use lead-acid settings, especially equalisation" data-hi="लेड-एसिड सेटिंग, विशेषकर इक्वलाइज़ेशन, उपयोग" data-ml="ലെഡ്-ആസിഡ് സെറ്റിങ്, പ്രത്യേകിച്ച് ഇക്വലൈസേഷൻ"></li>
+    <li data-en="Mix old and new packs or different brands" data-hi="पुराने-नए पैक या अलग ब्रांड मिलाना" data-ml="പഴയതും പുതിയതുമായ പാക്കുകൾ / വ്യത്യസ്ത ബ്രാൻഡുകൾ കലർത്തൽ"></li>
+    <li data-en="Keep at 100 % in a hot place for months" data-hi="गर्म जगह पर महीनों 100 % पर रखना" data-ml="ചൂടുള്ള സ്ഥലത്ത് മാസങ്ങളോളം 100 %-ൽ സൂക്ഷിക്കൽ"></li>
+    <li data-en="Open the pack or bypass the BMS" data-hi="पैक खोलना या BMS को बायपास करना" data-ml="പാക്ക് തുറക്കൽ / BMS ബൈപാസ് ചെയ്യൽ"></li>
+    <li data-en="Short the terminals, drop, puncture or wet the pack" data-hi="टर्मिनल शॉर्ट करना, गिराना, छेदना या भिगोना" data-ml="ടെർമിനൽ ഷോർട്ട് ചെയ്യൽ, താഴെയിടൽ, തുളയ്ക്കൽ, നനയ്ക്കൽ"></li>
+    <li data-en="Leave it fully discharged; the BMS may lock out" data-hi="पूरी तरह डिस्चार्ज छोड़ना; BMS लॉक हो सकता है" data-ml="പൂർണമായി ഡിസ്ചാർജ് ചെയ്ത നിലയിൽ വിടൽ; BMS ലോക്ക് ആകാം"></li>
+   </ul>
+  </div>
+ </div>
+ <div class="row2">
+  <div class="card dgc">
+   <h3 data-en="In an emergency" data-hi="आपात स्थिति में" data-ml="അടിയന്തര സാഹചര്യത്തിൽ"></h3>
+   <ol class="steps2" style="--acc:var(--danger)">
+    <li data-en="Switch off the DC breaker and the inverter." data-hi="DC ब्रेकर और इन्वर्टर बंद करें।" data-ml="DC ബ്രേക്കറും ഇൻവെർട്ടറും ഓഫ് ചെയ്യുക."></li>
+    <li data-en="If there is smoke, swelling or a hissing sound, move everyone away." data-hi="धुआँ, फूलना या फुफकार की आवाज़ हो तो सभी को दूर ले जाएँ।" data-ml="പുക, വീർക്കൽ, ശീൽക്കാര ശബ്ദം ഉണ്ടെങ്കിൽ എല്ലാവരെയും മാറ്റുക."></li>
+    <li data-en="Call the fire service and follow the maker’s fire guidance." data-hi="अग्निशमन सेवा बुलाएँ और निर्माता के अग्नि निर्देश अपनाएँ।" data-ml="ഫയർ സർവീസിനെ വിളിക്കുക, നിർമ്മാതാവിന്റെ അഗ്നി നിർദേശങ്ങൾ പാലിക്കുക."></li>
+   </ol>
+  </div>
+  <div class="card">
+   <h3 data-en="Standards and disposal" data-hi="मानक और निपटान" data-ml="സ്റ്റാൻഡേർഡുകളും നിർമാർജനവും"></h3>
+   <div class="stds"><span>IS 16046 (Part 2) / IEC 62133-2</span><span>IEC 62619</span><span>UN 38.3</span><span data-en="BIS (Bureau of Indian Standards) registration" data-hi="BIS (भारतीय मानक ब्यूरो) पंजीकरण" data-ml="BIS (ബ്യൂറോ ഓഫ് ഇന്ത്യൻ സ്റ്റാൻഡേർഡ്സ്) രജിസ്ട്രേഷൻ"></span><span data-en="Battery Waste Management Rules, 2022" data-hi="बैटरी अपशिष्ट प्रबंधन नियम, 2022" data-ml="ബാറ്ററി മാലിന്യ പരിപാലന ചട്ടങ്ങൾ, 2022"></span></div>
+   <p class="abbr" data-en="IS = Indian Standard · IEC = International Electrotechnical Commission · UN 38.3 = United Nations transport safety test for lithium batteries · BIS = Bureau of Indian Standards" data-hi="IS = भारतीय मानक · IEC = अंतर्राष्ट्रीय इलेक्ट्रोटेक्निकल आयोग · UN 38.3 = लिथियम बैटरी हेतु संयुक्त राष्ट्र परिवहन सुरक्षा परीक्षण · BIS = भारतीय मानक ब्यूरो" data-ml="IS = ഇന്ത്യൻ സ്റ്റാൻഡേർഡ് · IEC = ഇന്റർനാഷണൽ ഇലക്ട്രോടെക്നിക്കൽ കമ്മീഷൻ · UN 38.3 = ലിഥിയം ബാറ്ററികൾക്കുള്ള ഐക്യരാഷ്ട്ര ഗതാഗത സുരക്ഷാ പരിശോധന · BIS = ബ്യൂറോ ഓഫ് ഇന്ത്യൻ സ്റ്റാൻഡേർഡ്സ്"></p>
+   <p data-en="At end of life, return the pack to the producer or an authorised recycler. Never put it in household waste." data-hi="आयु समाप्त होने पर पैक निर्माता या अधिकृत रीसाइक्लर को लौटाएँ। घरेलू कचरे में कभी न डालें।" data-ml="ആയുസ്സ് കഴിയുമ്പോൾ പാക്ക് നിർമ്മാതാവിനോ അംഗീകൃത റീസൈക്ലറിനോ തിരികെ നൽകുക. വീട്ടുമാലിന്യത്തിൽ ഒരിക്കലും ഇടരുത്."></p>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 8 INSTALLATION ============ -->
+<section class="panel" id="inst" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="Installation: switching sequence and parallel packs" data-hi="स्थापना: स्विचिंग क्रम और समानांतर पैक" data-ml="ഇൻസ്റ്റലേഷൻ: സ്വിച്ചിങ് ക്രമവും പാരലൽ പാക്കുകളും"></h2>
+  <p class="lead" data-en="The inverter starts from the battery, so the battery is switched on first and switched off last, as with lead-acid." data-hi="इन्वर्टर बैटरी से चालू होता है, इसलिए लेड-एसिड की तरह बैटरी सबसे पहले चालू और सबसे अंत में बंद होती है।" data-ml="ഇൻവെർട്ടർ ബാറ്ററിയിൽ നിന്നാണ് ഓണാകുന്നത്; അതിനാൽ ലെഡ്-ആസിഡ് പോലെ ബാറ്ററി ആദ്യം ഓൺ ചെയ്യുകയും അവസാനം ഓഫ് ചെയ്യുകയും വേണം."></p>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="on" data-en="Commissioning (ON)" data-hi="कमीशनिंग (चालू)" data-ml="കമ്മീഷനിങ് (ഓൺ)"></button>
+   <button class="sbtn" type="button" data-scene="off" data-en="Shutdown (OFF)" data-hi="शटडाउन (बंद)" data-ml="ഷട്ട്ഡൗൺ (ഓഫ്)"></button>
+  </div>
+  <div style="display:grid;gap:1rem">
+   <div class="fig">
+    <svg class="dia" viewBox="0 0 900 400" role="img" aria-label="Lithium battery and hybrid inverter switching order"><path class="wire" style="stroke-width:7" d="M160 200H380M520 200H560M680 200H720"/>
+<path class="wire" style="stroke-width:7" d="M600 120V60H700"/>
+<path class="flow bt" data-show="on" d="M160 200H380"/><path class="flow dc" data-show="on" d="M680 200H720"/>
+<use href="#s-li" x="30" y="130" width="130" height="130"/>
+<circle cx="95" cy="290" r="14" class="box"/><path class="s-ink" stroke-width="3" d="M95 281V291M88 285a9 9 0 1 0 14 0"/>
+<rect class="box" x="220" y="184" width="40" height="32" rx="5"/><rect class="f-ink" x="234" y="190" width="12" height="14" rx="2"/><rect class="box" x="430" y="184" width="40" height="32" rx="5"/><rect class="f-ink" x="444" y="190" width="12" height="14" rx="2"/>
+<use href="#s-inv" x="520" y="130" width="160" height="160"/>
+<path d="M95 262V330H600V292" style="fill:none;stroke:var(--ion);stroke-width:4;stroke-dasharray:8 5"/>
+<use href="#s-sun" x="700" y="10" width="60" height="60"/><polygon class="f-pv" points="770,30 870,30 860,90 760,90"/>
+<rect class="box" x="680" y="184" width="40" height="32" rx="5"/><rect class="f-ink" x="694" y="190" width="12" height="14" rx="2"/><path class="s-ink" stroke-width="5" d="M720 200H800"/><rect class="box" x="800" y="170" width="80" height="60" rx="8"/><text class="mono c" x="840" y="206">AC</text>
+<rect class="box" x="630" y="44" width="40" height="32" rx="5"/><rect class="f-ink" x="644" y="50" width="12" height="14" rx="2"/>
+<foreignObject x="20" y="330" width="180" height="40"><div class="fo mut" style="font-size:15px" data-en="Battery power button" data-hi="बैटरी पावर बटन" data-ml="ബാറ്ററി പവർ ബട്ടൺ"></div></foreignObject>
+<foreignObject x="190" y="225" width="110" height="36"><div class="fo mut" style="font-size:14px" data-en="Battery DC breaker" data-hi="बैटरी DC ब्रेकर" data-ml="ബാറ്ററി DC ബ്രേക്കർ"></div></foreignObject>
+<foreignObject x="395" y="225" width="110" height="36"><div class="fo mut" style="font-size:14px" data-en="Inverter battery breaker" data-hi="इन्वर्टर बैटरी ब्रेकर" data-ml="ഇൻവെർട്ടർ ബാറ്ററി ബ്രേക്കർ"></div></foreignObject>
+<foreignObject x="600" y="72" width="110" height="36"><div class="fo mut" style="font-size:14px" data-en="PV isolator" data-hi="PV आइसोलेटर" data-ml="PV ഐസൊലേറ്റർ"></div></foreignObject>
+<foreignObject x="650" y="232" width="110" height="36"><div class="fo mut" style="font-size:14px" data-en="AC breaker" data-hi="AC ब्रेकर" data-ml="AC ബ്രേക്കർ"></div></foreignObject>
+<foreignObject x="250" y="338" width="320" height="30"><div class="fo" style="font-size:13px;color:var(--ion)" data-en="CAN / RS485 cable" data-hi="CAN / RS485 केबल" data-ml="CAN / RS485 കേബിൾ"></div></foreignObject>
+<g class="nb" data-show="on"><circle cx="130" cy="290" r="18"/><text x="130" y="297">3</text></g><g class="nb" data-show="on"><circle cx="240" cy="160" r="18"/><text x="240" y="167">3</text></g><g class="nb" data-show="on"><circle cx="450" cy="160" r="18"/><text x="450" y="167">4</text></g><g class="nb" data-show="on"><circle cx="650" cy="22" r="18"/><text x="650" y="29">5</text></g><g class="nb" data-show="on"><circle cx="700" cy="160" r="18"/><text x="700" y="167">5</text></g>
+<g class="nb" data-show="off"><circle cx="130" cy="290" r="18"/><text x="130" y="297">4</text></g><g class="nb" data-show="off"><circle cx="240" cy="160" r="18"/><text x="240" y="167">4</text></g><g class="nb" data-show="off"><circle cx="450" cy="160" r="18"/><text x="450" y="167">3</text></g><g class="nb" data-show="off"><circle cx="650" cy="22" r="18"/><text x="650" y="29">2</text></g><g class="nb" data-show="off"><circle cx="700" cy="160" r="18"/><text x="700" y="167">1</text></g></svg>
+   </div>
+   <div class="card">
+    <ol class="steps2" data-show="on">
+     <li data-en="All breakers OFF. Set battery type / BMS (battery management system) protocol in the inverter; set DIP (dual in-line package) addresses on the packs." data-hi="सभी ब्रेकर बंद। इन्वर्टर में बैटरी प्रकार / BMS (बैटरी प्रबंधन प्रणाली) प्रोटोकॉल सेट करें; पैक पर DIP (ड्यूल इन-लाइन पैकेज) पता सेट करें।" data-ml="എല്ലാ ബ്രേക്കറുകളും ഓഫ്. ഇൻവെർട്ടറിൽ ബാറ്ററി തരം / BMS (ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം) പ്രോട്ടോക്കോൾ സെറ്റ് ചെയ്യുക; പാക്കുകളിൽ DIP (ഡ്യുവൽ ഇൻ-ലൈൻ പാക്കേജ്) വിലാസം സെറ്റ് ചെയ്യുക."></li>
+     <li data-en="Connect DC (direct current) cables (check polarity, torque) and the CAN (controller area network) / RS485 (two-wire serial link) cable." data-hi="DC (दिष्ट धारा) केबल (पोलैरिटी, टॉर्क जाँचें) और CAN (कंट्रोलर एरिया नेटवर्क) / RS485 (दो-तार सीरियल लिंक) केबल जोड़ें।" data-ml="DC (ഡയറക്ട് കറന്റ്) കേബിളുകളും (പോളാരിറ്റി, ടോർക്ക് പരിശോധിക്കുക) CAN (കൺട്രോളർ ഏരിയ നെറ്റ്‌വർക്ക്) / RS485 (രണ്ട്-വയർ സീരിയൽ ലിങ്ക്) കേബിളും ബന്ധിപ്പിക്കുക."></li>
+     <li data-en="Press the battery power button, then switch ON the battery DC breaker." data-hi="बैटरी पावर बटन दबाएँ, फिर बैटरी DC ब्रेकर चालू करें।" data-ml="ബാറ്ററി പവർ ബട്ടൺ അമർത്തുക, തുടർന്ന് ബാറ്ററി DC ബ്രേക്കർ ഓൺ ചെയ്യുക."></li>
+     <li data-en="Switch ON the inverter battery breaker; the inverter starts (pre-charge)." data-hi="इन्वर्टर बैटरी ब्रेकर चालू करें; इन्वर्टर चालू होता है (प्री-चार्ज)।" data-ml="ഇൻവെർട്ടർ ബാറ്ററി ബ്രേക്കർ ഓൺ ചെയ്യുക; ഇൻവെർട്ടർ ഓണാകുന്നു (പ്രീ-ചാർജ്)."></li>
+     <li data-en="Close the PV (photovoltaic, solar panel) isolator, then the AC (alternating current) grid / load breakers." data-hi="PV (फोटोवोल्टिक, सोलर पैनल) आइसोलेटर बंद करें, फिर AC (प्रत्यावर्ती धारा) ग्रिड / लोड ब्रेकर।" data-ml="PV (ഫോട്ടോവോൾട്ടായിക്, സോളാർ പാനൽ) ഐസൊലേറ്റർ അടയ്ക്കുക, തുടർന്ന് AC (ആൾട്ടർനേറ്റിങ് കറന്റ്) ഗ്രിഡ് / ലോഡ് ബ്രേക്കറുകൾ."></li>
+     <li data-en="Check: communication OK, SOC (state of charge) shown, cell voltages balanced in the app." data-hi="जाँचें: संचार ठीक, SOC (चार्ज की स्थिति) दिख रहा, ऐप में सेल वोल्टेज संतुलित।" data-ml="പരിശോധിക്കുക: ആശയവിനിമയം ശരി, SOC (ചാർജ് നില) കാണുന്നു, ആപ്പിൽ സെൽ വോൾട്ടേജുകൾ സന്തുലിതം."></li>
+    </ol>
+    <ol class="steps2" data-show="off">
+     <li data-en="Switch OFF AC loads and grid breakers." data-hi="AC लोड और ग्रिड ब्रेकर बंद करें।" data-ml="AC ലോഡ്, ഗ്രിഡ് ബ്രേക്കറുകൾ ഓഫ് ചെയ്യുക."></li>
+     <li data-en="Open the PV isolator." data-hi="PV आइसोलेटर खोलें।" data-ml="PV ഐസൊലേറ്റർ തുറക്കുക."></li>
+     <li data-en="Switch OFF the inverter and its battery breaker." data-hi="इन्वर्टर और उसका बैटरी ब्रेकर बंद करें।" data-ml="ഇൻവെർട്ടറും അതിന്റെ ബാറ്ററി ബ്രേക്കറും ഓഫ് ചെയ്യുക."></li>
+     <li data-en="Switch OFF the battery DC breaker, then the power button. Store at 40–60 % SOC." data-hi="बैटरी DC ब्रेकर बंद करें, फिर पावर बटन। 40–60 % SOC पर रखें।" data-ml="ബാറ്ററി DC ബ്രേക്കർ ഓഫ് ചെയ്യുക, പിന്നെ പവർ ബട്ടൺ. 40–60 % SOC-ൽ സൂക്ഷിക്കുക."></li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="fig">
+  <h3 data-en="Three packs in parallel: diagonal take-off and daisy-chained communication" data-hi="तीन पैक समानांतर में: विकर्ण टेक-ऑफ और डेज़ी-चेन संचार" data-ml="മൂന്ന് പാക്കുകൾ പാരലലിൽ: ഡയഗണൽ ടേക്ക്-ഓഫ്, ഡെയ്സി-ചെയിൻ ആശയവിനിമയം"></h3>
+  <svg class="dia" viewBox="0 0 980 340" role="img" aria-label="Parallel battery packs wiring"><path d="M40 250H940" style="stroke:var(--danger);stroke-width:8"/><path d="M40 290H940" style="stroke:var(--ink);stroke-width:8"/>
+<use href="#s-li" x="120" y="40" width="130" height="130"/>
+<path d="M155 53V250" style="stroke:var(--danger);stroke-width:5;opacity:1"/><path d="M215 53V290" style="stroke:var(--ink);stroke-width:5;opacity:0.45"/>
+<rect class="box2" x="140" y="178" width="90" height="26" rx="4"/><text class="mono c" x="185" y="196" style="font-size:13px">DIP 1</text>
+<path d="M230 191H420" style="stroke:var(--ion);stroke-width:4;stroke-dasharray:7 5"/>
+<use href="#s-li" x="400" y="40" width="130" height="130"/>
+<path d="M435 53V250" style="stroke:var(--danger);stroke-width:5;opacity:0.45"/><path d="M495 53V290" style="stroke:var(--ink);stroke-width:5;opacity:0.45"/>
+<rect class="box2" x="420" y="178" width="90" height="26" rx="4"/><text class="mono c" x="465" y="196" style="font-size:13px">DIP 2</text>
+<path d="M510 191H700" style="stroke:var(--ion);stroke-width:4;stroke-dasharray:7 5"/>
+<use href="#s-li" x="680" y="40" width="130" height="130"/>
+<path d="M715 53V250" style="stroke:var(--danger);stroke-width:5;opacity:0.45"/><path d="M775 53V290" style="stroke:var(--ink);stroke-width:5;opacity:1"/>
+<rect class="box2" x="700" y="178" width="90" height="26" rx="4"/><text class="mono c" x="745" y="196" style="font-size:13px">DIP 3</text>
+<path d="M140 191H40V215" style="stroke:var(--ion);stroke-width:4;stroke-dasharray:7 5;fill:none"/>
+<path class="flow bt" d="M155 250H40"/><path class="flow bt rev" d="M40 290H775"/>
+<text class="tg s" x="44" y="240" style="fill:var(--danger)">+</text><text class="tg s" x="44" y="322">−</text>
+<foreignObject x="0" y="300" width="330" height="40"><div class="fo l" style="font-weight:700" data-en="To inverter: + from pack 1, − from pack 3" data-hi="इन्वर्टर तक: + पैक 1 से, − पैक 3 से" data-ml="ഇൻവെർട്ടറിലേക്ക്: + പാക്ക് 1-ൽ നിന്ന്, − പാക്ക് 3-ൽ നിന്ന്"></div></foreignObject>
+<foreignObject x="0" y="140" width="120" height="40"><div class="fo ok" data-en="Master" data-hi="मास्टर" data-ml="മാസ്റ്റർ"></div></foreignObject>
+<foreignObject x="560" y="300" width="420" height="40"><div class="fo l mut" data-en="Diagonal connection balances the current through each pack" data-hi="विकर्ण कनेक्शन हर पैक का करंट संतुलित करता है" data-ml="ഡയഗണൽ കണക്ഷൻ ഓരോ പാക്കിലെയും കറന്റ് സന്തുലിതമാക്കുന്നു"></div></foreignObject></svg>
+ </div>
+ <div class="row2">
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))">
+   <div class="pcard"><span class="badge in">=</span><h4 data-en="Same model and firmware" data-hi="एक ही मॉडल और फ़र्मवेयर" data-ml="ഒരേ മോഡലും ഫേംവെയറും"></h4><p data-en="Never mix capacities or brands" data-hi="क्षमता या ब्रांड कभी न मिलाएँ" data-ml="ശേഷിയോ ബ്രാൻഡോ ഒരിക്കലും കലർത്തരുത്"></p></div>
+   <div class="pcard"><span class="badge in">ΔV</span><h4 data-en="Equal voltage first" data-hi="पहले समान वोल्टेज" data-ml="ആദ്യം തുല്യ വോൾട്ടേജ്"></h4><p data-en="Charge each pack separately to full; join when within 0.1 V" data-hi="हर पैक अलग से पूरा चार्ज करें; 0.1 V के भीतर हों तब जोड़ें" data-ml="ഓരോ പാക്കും വെവ്വേറെ ഫുൾ ചാർജ് ചെയ്യുക; 0.1 V-നുള്ളിൽ ആകുമ്പോൾ ചേർക്കുക"></p></div>
+   <div class="pcard"><span class="badge in">L</span><h4 data-en="Equal cable lengths" data-hi="समान केबल लंबाई" data-ml="തുല്യ കേബിൾ നീളം"></h4><p data-en="So every pack shares the current equally" data-hi="ताकि हर पैक करंट बराबर बाँटे" data-ml="ഓരോ പാക്കും കറന്റ് തുല്യമായി പങ്കിടാൻ"></p></div>
+   <div class="pcard"><span class="badge in">ID</span><h4 data-en="Master address 1" data-hi="मास्टर पता 1" data-ml="മാസ്റ്റർ വിലാസം 1"></h4><p data-en="Inverter cable goes to the master; others 2, 3 …" data-hi="इन्वर्टर केबल मास्टर से; अन्य 2, 3 …" data-ml="ഇൻവെർട്ടർ കേബിൾ മാസ്റ്ററിലേക്ക്; മറ്റുള്ളവ 2, 3 …"></p></div>
+  </div>
+  <div class="card">
+   <h3 data-en="Battery current and DC breaker" data-hi="बैटरी करंट और DC ब्रेकर" data-ml="ബാറ്ററി കറന്റും DC ബ്രേക്കറും"></h3>
+   <div class="inp">
+    <label for="iP"><span data-en="Inverter power (W)" data-hi="इन्वर्टर पावर (W)" data-ml="ഇൻവെർട്ടർ പവർ (W)"></span><input id="iP" type="number" min="100" step="100" value="5000"></label>
+    <label for="iV"><span data-en="Battery voltage (V)" data-hi="बैटरी वोल्टेज (V)" data-ml="ബാറ്ററി വോൾട്ടേജ് (V)"></span><input id="iV" type="number" min="12" step="0.1" value="51.2"></label>
+    <label for="iE"><span data-en="Inverter efficiency (%)" data-hi="इन्वर्टर दक्षता (%)" data-ml="ഇൻവെർട്ടർ കാര്യക്ഷമത (%)"></span><input id="iE" type="number" min="50" max="100" value="94"></label>
+    <label for="iN"><span data-en="Packs in parallel" data-hi="समानांतर पैक" data-ml="പാരലൽ പാക്കുകൾ"></span><input id="iN" type="number" min="1" step="1" value="1"></label>
+   </div>
+   <div class="res"><span data-en="Battery current" data-hi="बैटरी करंट" data-ml="ബാറ്ററി കറന്റ്"></span><b id="iI">–</b></div>
+   <div class="res big"><span data-en="DC breaker / fuse (≥ 1.25 ×)" data-hi="DC ब्रेकर / फ्यूज़ (≥ 1.25 ×)" data-ml="DC ബ്രേക്കർ / ഫ്യൂസ് (≥ 1.25 ×)"></span><b id="iB">–</b></div>
+   <div class="res"><span data-en="Current per pack" data-hi="प्रति पैक करंट" data-ml="ഓരോ പാക്കിനും കറന്റ്"></span><b id="iPP">–</b></div>
+   <div class="steps"><span id="is1"></span></div>
+  </div>
+ </div>
+</section>
+
+
+<!-- ============ 9 ABBREVIATIONS ============ -->
+<section class="panel" id="abbr" role="tabpanel" style="--acc:var(--ion)" hidden>
+ <div class="head">
+  <h2 data-en="Abbreviations and full forms" data-hi="संक्षेप और पूर्ण रूप" data-ml="ചുരുക്കെഴുത്തുകളും പൂർണ രൂപങ്ങളും"></h2>
+ </div>
+ <div class="tw">
+  <table style="min-width:520px">
+   <thead><tr><th data-en="Abbreviation" data-hi="संक्षेप" data-ml="ചുരുക്കെഴുത്ത്"></th><th data-en="Full form" data-hi="पूर्ण रूप" data-ml="പൂർണ രൂപം"></th></tr></thead>
+   <tbody>
+    <tr><th class="fm">AC</th><td data-en="Alternating current" data-hi="प्रत्यावर्ती धारा" data-ml="ആൾട്ടർനേറ്റിങ് കറന്റ്"></td></tr>
+    <tr><th class="fm">AFE</th><td data-en="Analog front end: chip that measures every cell" data-hi="एनालॉग फ्रंट एंड: हर सेल मापने वाली चिप" data-ml="അനലോഗ് ഫ്രണ്ട് എൻഡ്: ഓരോ സെല്ലും അളക്കുന്ന ചിപ്പ്"></td></tr>
+    <tr><th class="fm">Ah</th><td data-en="Ampere-hour (capacity)" data-hi="एम्पियर-घंटा (क्षमता)" data-ml="ആമ്പിയർ-മണിക്കൂർ (ശേഷി)"></td></tr>
+    <tr><th class="fm">B0–B16</th><td data-en="Sense-wire numbers, from pack negative to pack positive" data-hi="सेंस तार क्रमांक, पैक ऋणात्मक से धनात्मक तक" data-ml="സെൻസ് വയർ നമ്പറുകൾ, പാക്ക് നെഗറ്റീവ് മുതൽ പോസിറ്റീവ് വരെ"></td></tr>
+    <tr><th class="fm">BAL</th><td data-en="Cell balancing" data-hi="सेल बैलेंसिंग" data-ml="സെൽ ബാലൻസിങ്"></td></tr>
+    <tr><th class="fm">BIS</th><td data-en="Bureau of Indian Standards" data-hi="भारतीय मानक ब्यूरो" data-ml="ബ്യൂറോ ഓഫ് ഇന്ത്യൻ സ്റ്റാൻഡേർഡ്സ്"></td></tr>
+    <tr><th class="fm">BMS</th><td data-en="Battery management system" data-hi="बैटरी प्रबंधन प्रणाली" data-ml="ബാറ്ററി മാനേജ്മെന്റ് സിസ്റ്റം"></td></tr>
+    <tr><th class="fm">C (0.5C, 1C)</th><td data-en="C-rate: current as a fraction of capacity" data-hi="C-रेट: क्षमता के अनुपात में करंट" data-ml="C-റേറ്റ്: ശേഷിയുടെ അനുപാതത്തിൽ കറന്റ്"></td></tr>
+    <tr><th class="fm">CAN</th><td data-en="Controller area network (communication bus)" data-hi="कंट्रोलर एरिया नेटवर्क (संचार बस)" data-ml="കൺട്രോളർ ഏരിയ നെറ്റ്‌വർക്ക് (ആശയവിനിമയ ബസ്)"></td></tr>
+    <tr><th class="fm">CCL</th><td data-en="Charge current limit" data-hi="चार्ज करंट सीमा" data-ml="ചാർജ് കറന്റ് പരിധി"></td></tr>
+    <tr><th class="fm">CHG / DSG</th><td data-en="Charge / discharge" data-hi="चार्ज / डिस्चार्ज" data-ml="ചാർജ് / ഡിസ്ചാർജ്"></td></tr>
+    <tr><th class="fm">CV / CVL</th><td data-en="Charge (constant) voltage / charge voltage limit" data-hi="चार्ज (स्थिर) वोल्टेज / चार्ज वोल्टेज सीमा" data-ml="ചാർജ് (സ്ഥിര) വോൾട്ടേജ് / ചാർജ് വോൾട്ടേജ് പരിധി"></td></tr>
+    <tr><th class="fm">DC</th><td data-en="Direct current" data-hi="दिष्ट धारा" data-ml="ഡയറക്ട് കറന്റ്"></td></tr>
+    <tr><th class="fm">DCL</th><td data-en="Discharge current limit" data-hi="डिस्चार्ज करंट सीमा" data-ml="ഡിസ്ചാർജ് കറന്റ് പരിധി"></td></tr>
+    <tr><th class="fm">DIP</th><td data-en="Dual in-line package (small address switch)" data-hi="ड्यूल इन-लाइन पैकेज (छोटा पता स्विच)" data-ml="ഡ്യുവൽ ഇൻ-ലൈൻ പാക്കേജ് (ചെറിയ വിലാസ സ്വിച്ച്)"></td></tr>
+    <tr><th class="fm">DoD</th><td data-en="Depth of discharge" data-hi="डिस्चार्ज की गहराई" data-ml="ഡിസ്ചാർജ് ആഴം"></td></tr>
+    <tr><th class="fm">EC / DMC</th><td data-en="Ethylene carbonate / dimethyl carbonate" data-hi="एथिलीन कार्बोनेट / डाइमिथाइल कार्बोनेट" data-ml="എഥിലീൻ കാർബണേറ്റ് / ഡൈമീഥൈൽ കാർബണേറ്റ്"></td></tr>
+    <tr><th class="fm">EV</th><td data-en="Electric vehicle" data-hi="इलेक्ट्रिक वाहन" data-ml="ഇലക്ട്രിക് വാഹനം"></td></tr>
+    <tr><th class="fm">FET</th><td data-en="Field-effect transistor" data-hi="फील्ड-इफेक्ट ट्रांज़िस्टर" data-ml="ഫീൽഡ്-ഇഫക്ട് ട്രാൻസിസ്റ്റർ"></td></tr>
+    <tr><th class="fm">IEC</th><td data-en="International Electrotechnical Commission" data-hi="अंतर्राष्ट्रीय इलेक्ट्रोटेक्निकल आयोग" data-ml="ഇന്റർനാഷണൽ ഇലക്ട്രോടെക്നിക്കൽ കമ്മീഷൻ"></td></tr>
+    <tr><th class="fm">IS</th><td data-en="Indian Standard" data-hi="भारतीय मानक" data-ml="ഇന്ത്യൻ സ്റ്റാൻഡേർഡ്"></td></tr>
+    <tr><th class="fm">kWh</th><td data-en="Kilowatt-hour (energy)" data-hi="किलोवाट-घंटा (ऊर्जा)" data-ml="കിലോവാട്ട്-മണിക്കൂർ (ഊർജം)"></td></tr>
+    <tr><th class="fm">LCO</th><td data-en="Lithium cobalt oxide" data-hi="लिथियम कोबाल्ट ऑक्साइड" data-ml="ലിഥിയം കോബാൾട്ട് ഓക്സൈഡ്"></td></tr>
+    <tr><th class="fm">LED</th><td data-en="Light-emitting diode" data-hi="लाइट-एमिटिंग डायोड" data-ml="ലൈറ്റ്-എമിറ്റിങ് ഡയോഡ്"></td></tr>
+    <tr><th class="fm">LFP</th><td data-en="Lithium iron phosphate (LiFePO₄)" data-hi="लिथियम आयरन फॉस्फेट (LiFePO₄)" data-ml="ലിഥിയം അയൺ ഫോസ്ഫേറ്റ് (LiFePO₄)"></td></tr>
+    <tr><th class="fm">LMO</th><td data-en="Lithium manganese oxide" data-hi="लिथियम मैंगनीज़ ऑक्साइड" data-ml="ലിഥിയം മാംഗനീസ് ഓക്സൈഡ്"></td></tr>
+    <tr><th class="fm">LTC</th><td data-en="Low-temperature charge protection" data-hi="कम-तापमान चार्ज सुरक्षा" data-ml="കുറഞ്ഞ-താപനില ചാർജ് സംരക്ഷണം"></td></tr>
+    <tr><th class="fm">LTO</th><td data-en="Lithium titanate (Li₄Ti₅O₁₂)" data-hi="लिथियम टाइटेनेट (Li₄Ti₅O₁₂)" data-ml="ലിഥിയം ടൈറ്റനേറ്റ് (Li₄Ti₅O₁₂)"></td></tr>
+    <tr><th class="fm">LVD</th><td data-en="Low-voltage disconnect" data-hi="लो-वोल्टेज डिस्कनेक्ट" data-ml="ലോ-വോൾട്ടേജ് ഡിസ്കണക്ട്"></td></tr>
+    <tr><th class="fm">MCB</th><td data-en="Miniature circuit breaker" data-hi="मिनिएचर सर्किट ब्रेकर" data-ml="മിനിയേച്ചർ സർക്യൂട്ട് ബ്രേക്കർ"></td></tr>
+    <tr><th class="fm">MCU</th><td data-en="Micro-controller unit: the BMS “brain”" data-hi="माइक्रो-कंट्रोलर यूनिट: BMS का “दिमाग”" data-ml="മൈക്രോ-കൺട്രോളർ യൂണിറ്റ്: BMS-ന്റെ “തലച്ചോറ്”"></td></tr>
+    <tr><th class="fm">MOSFET</th><td data-en="Metal-oxide semiconductor field-effect transistor (electronic switch)" data-hi="मेटल-ऑक्साइड सेमीकंडक्टर फील्ड-इफेक्ट ट्रांज़िस्टर (इलेक्ट्रॉनिक स्विच)" data-ml="മെറ്റൽ-ഓക്സൈഡ് സെമികണ്ടക്ടർ ഫീൽഡ്-ഇഫക്ട് ട്രാൻസിസ്റ്റർ (ഇലക്ട്രോണിക് സ്വിച്ച്)"></td></tr>
+    <tr><th class="fm">NCA</th><td data-en="Lithium nickel cobalt aluminium oxide" data-hi="लिथियम निकल कोबाल्ट एल्यूमिनियम ऑक्साइड" data-ml="ലിഥിയം നിക്കൽ കോബാൾട്ട് അലുമിനിയം ഓക്സൈഡ്"></td></tr>
+    <tr><th class="fm">NMC</th><td data-en="Lithium nickel manganese cobalt oxide" data-hi="लिथियम निकल मैंगनीज़ कोबाल्ट ऑक्साइड" data-ml="ലിഥിയം നിക്കൽ മാംഗനീസ് കോബാൾട്ട് ഓക്സൈഡ്"></td></tr>
+    <tr><th class="fm">NTC</th><td data-en="Negative temperature coefficient (thermistor)" data-hi="ऋणात्मक तापमान गुणांक (थर्मिस्टर)" data-ml="നെഗറ്റീവ് ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് (തെർമിസ്റ്റർ)"></td></tr>
+    <tr><th class="fm">OCC / OCD</th><td data-en="Over-current in charge / in discharge" data-hi="चार्ज / डिस्चार्ज में ओवर-करंट" data-ml="ചാർജ് / ഡിസ്ചാർജിലെ ഓവർ-കറന്റ്"></td></tr>
+    <tr><th class="fm">OTP</th><td data-en="Over-temperature protection" data-hi="अधिक-तापमान सुरक्षा" data-ml="അമിത-താപനില സംരക്ഷണം"></td></tr>
+    <tr><th class="fm">OVP</th><td data-en="Over-voltage protection" data-hi="ओवर-वोल्टेज सुरक्षा" data-ml="ഓവർ-വോൾട്ടേജ് സംരക്ഷണം"></td></tr>
+    <tr><th class="fm">P+ / P−</th><td data-en="Pack positive / negative output terminals" data-hi="पैक धनात्मक / ऋणात्मक आउटपुट टर्मिनल" data-ml="പാക്ക് പോസിറ്റീവ് / നെഗറ്റീവ് ഔട്ട്പുട്ട് ടെർമിനലുകൾ"></td></tr>
+    <tr><th class="fm">PE / PP</th><td data-en="Polyethylene / polypropylene" data-hi="पॉलीएथिलीन / पॉलीप्रोपाइलीन" data-ml="പോളിഎഥിലീൻ / പോളിപ്രൊപ്പിലീൻ"></td></tr>
+    <tr><th class="fm">PV</th><td data-en="Photovoltaic (solar panel)" data-hi="फोटोवोल्टिक (सोलर पैनल)" data-ml="ഫോട്ടോവോൾട്ടായിക് (സോളാർ പാനൽ)"></td></tr>
+    <tr><th class="fm">PVDF</th><td data-en="Polyvinylidene fluoride (binder)" data-hi="पॉलीविनाइलिडीन फ्लोराइड (बाइंडर)" data-ml="പോളിവിനൈലിഡീൻ ഫ്ലൂറൈഡ് (ബൈൻഡർ)"></td></tr>
+    <tr><th class="fm">RS485</th><td data-en="Recommended Standard 485: two-wire serial link" data-hi="रिकमेंडेड स्टैंडर्ड 485: दो-तार सीरियल लिंक" data-ml="റെക്കമൻഡഡ് സ്റ്റാൻഡേർഡ് 485: രണ്ട്-വയർ സീരിയൽ ലിങ്ക്"></td></tr>
+    <tr><th class="fm">SCP</th><td data-en="Short-circuit protection" data-hi="शॉर्ट-सर्किट सुरक्षा" data-ml="ഷോർട്ട്-സർക്യൂട്ട് സംരക്ഷണം"></td></tr>
+    <tr><th class="fm">SOC</th><td data-en="State of charge" data-hi="चार्ज की स्थिति" data-ml="ചാർജ് നില"></td></tr>
+    <tr><th class="fm">SOH</th><td data-en="State of health" data-hi="स्वास्थ्य स्थिति" data-ml="ആരോഗ്യ നില"></td></tr>
+    <tr><th class="fm">T1–T4</th><td data-en="Temperature sensors 1 to 4" data-hi="तापमान सेंसर 1 से 4" data-ml="താപനില സെൻസറുകൾ 1 മുതൽ 4 വരെ"></td></tr>
+    <tr><th class="fm">UN 38.3</th><td data-en="United Nations transport safety test for lithium batteries" data-hi="लिथियम बैटरी हेतु संयुक्त राष्ट्र परिवहन सुरक्षा परीक्षण" data-ml="ലിഥിയം ബാറ്ററികൾക്കുള്ള ഐക്യരാഷ്ട്ര ഗതാഗത സുരക്ഷാ പരിശോധന"></td></tr>
+    <tr><th class="fm">UVP</th><td data-en="Under-voltage protection" data-hi="अंडर-वोल्टेज सुरक्षा" data-ml="അണ്ടർ-വോൾട്ടേജ് സംരക്ഷണം"></td></tr>
+    <tr><th class="fm">xSyP (4S, 16S1P)</th><td data-en="x cells in series, y strings in parallel" data-hi="x सेल श्रेणी में, y स्ट्रिंग समानांतर में" data-ml="x സെല്ലുകൾ സീരീസിൽ, y സ്ട്രിങ്ങുകൾ പാരലലിൽ"></td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap"><span>NSTI Calicut · PRASAD UM, VI</span><span data-en="Keys: ← → change tab" data-hi="कुंजी: ← → टैब बदलें" data-ml="കീ: ← → ടാബ് മാറ്റുക"></span></div>
+</footer>
+
+<script>
+(function(){
+ var root=document.documentElement;
+ function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+ function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
+ function $(id){return document.getElementById(id)}
+ function setT(id,t){$(id).textContent=t}
+ var sel=$('lang');
+ function applyLang(l){
+  if(['en','hi','ml'].indexOf(l)<0)l='en';
+  root.lang=l;
+  document.querySelectorAll('[data-en]').forEach(function(el){var v=el.getAttribute('data-'+l);el.textContent=(v!==null&&v!=='')?v:el.getAttribute('data-en')});
+  sel.value=l;sv('li-lang',l);
+ }
+ window.setLang=applyLang;
+ sel.addEventListener('change',function(){applyLang(sel.value)});
+ var tabs=[].slice.call(document.querySelectorAll('.tab'));
+ var ids=tabs.map(function(t){return t.dataset.tab});
+ function show(id,focus){
+  if(ids.indexOf(id)<0)id=ids[0];
+  tabs.forEach(function(t){var on=t.dataset.tab===id;t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1;$(t.dataset.tab).hidden=!on;if(on&&focus)t.focus();if(on)t.scrollIntoView({block:'nearest',inline:'nearest'})});
+  sv('li-tab',id);try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo(0,0);
+ }
+ tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.tab)})});
+ document.addEventListener('keydown',function(e){
+  var tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+  var cur=ids.indexOf((tabs.filter(function(t){return t.getAttribute('aria-selected')==='true'})[0]||tabs[0]).dataset.tab);
+  var n=e.key==='ArrowRight'?Math.min(ids.length-1,cur+1):Math.max(0,cur-1);
+  show(ids[n],e.target.classList&&e.target.classList.contains('tab'));e.preventDefault();
+ });
+ document.querySelectorAll('.scene').forEach(function(sc){
+  var btns=sc.querySelectorAll('[data-scene]');
+  function set(s){btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.scene===s?'true':'false')});sc.querySelectorAll('[data-show]').forEach(function(el){el.classList.toggle('off',el.dataset.show.split(' ').indexOf(s)<0)})}
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.scene)})});set(btns[0].dataset.scene);
+ });
+ var scale=parseFloat(ld('li-scale'))||1;
+ function setScale(s){scale=Math.min(1.5,Math.max(0.8,Math.round(s*100)/100));root.style.setProperty('--scale',scale);sv('li-scale',scale)}
+ $('fup').addEventListener('click',function(){setScale(scale+0.1)});$('fdn').addEventListener('click',function(){setScale(scale-0.1)});setScale(scale);
+ $('thm').addEventListener('click',function(){var cur=root.getAttribute('data-theme');if(!cur){cur=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}root.setAttribute('data-theme',cur==='dark'?'light':'dark')});
+ $('fsc').addEventListener('click',function(){try{if(document.fullscreenElement){document.exitFullscreen()}else{var p=root.requestFullscreen&&root.requestFullscreen();if(p&&p.catch)p.catch(function(){})}}catch(e){}});
+ function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0}
+
+ function packcalc(){
+  var S=Math.max(1,Math.round(num('pS'))),P=Math.max(1,Math.round(num('pP'))),c=$('pV').value.split('|').map(Number),A=num('pA');
+  var V=S*c[0],Ah=P*A;
+  setT('pOut',S+'S'+P+'P · '+V.toFixed(1)+' V · '+Ah.toFixed(0)+' Ah');
+  setT('pE',(V*Ah/1000).toFixed(2)+' kWh');
+  setT('pR',(S*c[1]).toFixed(1)+' / '+(S*c[2]).toFixed(1)+' V');
+  setT('pN',S*P);
+  setT('pst1','V = '+S+' × '+c[0]+' V = '+V.toFixed(1)+' V');
+  setT('pst2','Ah = '+P+' × '+A+' Ah = '+Ah.toFixed(0)+' Ah');
+ }
+ ['pS','pP','pV','pA'].forEach(function(id){$(id).addEventListener('input',packcalc)});packcalc();
+ /* ---- settings calculator ---- */
+ function settings(){
+  var n=num('sn'),ah=num('sah');
+  setT('t1',(n*3.55).toFixed(1)+' V');setT('t2',(n*3.375).toFixed(1)+' V');setT('t3',(n*3.1).toFixed(1)+' V');
+  setT('t4',(n*3.0).toFixed(1)+' V');setT('t5',(n*3.25).toFixed(1)+' V');setT('t6',(n*3.65).toFixed(1)+' / '+(n*2.5).toFixed(1)+' V');
+  setT('t7',(ah*0.5).toFixed(0)+' A');setT('t8',ah.toFixed(0)+' A');
+ }
+ ['sn','sah'].forEach(function(id){$(id).addEventListener('input',settings)});settings();
+
+ /* ---- cost per kWh ---- */
+ function cost(){
+  ['a','b'].forEach(function(k){
+   var d=num(k+'E')*num(k+'D')/100*num(k+'C')*num(k+'F')/100;
+   setT(k+'R',d>0?'₹'+(num(k+'P')/d).toFixed(1):'–');
+  });
+ }
+ ['aP','aE','aD','aC','aF','bP','bE','bD','bC','bF'].forEach(function(id){$(id).addEventListener('input',cost)});cost();
+
+ /* ---- BMS simulator ---- */
+ var OCV=[[0,2.5],[3,2.9],[8,3.15],[15,3.22],[30,3.26],[60,3.29],[85,3.32],[95,3.35],[98,3.42],[100,3.6]];
+ function ocv(s){for(var i=1;i<OCV.length;i++){if(s<=OCV[i][0]){var a=OCV[i-1],b=OCV[i];return a[1]+(b[1]-a[1])*(s-a[0])/(b[0]-a[0])}}return 3.6}
+ var soc,scp,ovpL,uvpL,playing=true,balCell=-1;
+ function reset(){soc=[60,60,60,60];scp=false;ovpL=false;uvpL=false;$('bI').value=20;$('bT').value=30}
+ reset();
+ var Y0=280,H=210;
+ function draw(Ieff,V,st){
+  for(var i=0;i<4;i++){
+   var h=H*soc[i]/100,f=$('cf'+i);f.setAttribute('y',(Y0-h).toFixed(1));f.setAttribute('height',h.toFixed(1));
+   var col=(V[i]>=3.6||V[i]<=2.8)?'var(--danger)':((soc[i]>95||soc[i]<15)?'var(--sun)':'var(--batt)');f.style.fill=col;
+   setT('cv'+i,V[i].toFixed(3)+' V');setT('cs'+i,soc[i].toFixed(0)+' %');
+   var r=$('rr'+i);r.setAttribute('class',i===balCell?'glowr':'s-mut');
+  }
+  var c=$('fetC'),d=$('fetD');
+  c.setAttribute('d',st.chg?'M600 190H650':'M600 190L644 168');c.setAttribute('class',st.chg?'fet-on':'fet-off');
+  d.setAttribute('d',st.dsg?'M690 190H740':'M690 190L734 168');d.setAttribute('class',st.dsg?'fet-on':'fet-off');
+  var fl=$('bFlow');
+  if(Math.abs(Ieff)<0.5){fl.classList.add('off')}else{fl.classList.remove('off');fl.classList.toggle('rev',Ieff>0);fl.style.animationDuration=Math.min(4,Math.max(0.2,30/Math.abs(Ieff))).toFixed(2)+'s'}
+  $('led').style.fill=(st.chg&&st.dsg)?'var(--batt)':'var(--danger)';
+  var T=num('bT'),th=Math.max(4,Math.min(120,(T+10)/80*120));$('thm').setAttribute('y',(300-th).toFixed(1));$('thm').setAttribute('height',th.toFixed(1));
+  $('thm').style.fill=T>55||T<0?'var(--danger)':'var(--sun)';setT('thT',T+' °C');
+ }
+ function step(dt){
+  var I=num('bI'),T=num('bT');
+  setT('bIo',(I>0?'+':'')+I+' A');setT('bTo',T);
+  var Vo=soc.map(ocv),maxO=Math.max.apply(null,Vo),minO=Math.min.apply(null,Vo);
+  var Vt=Vo.map(function(v){return v+I*0.0008});
+  if(Math.max.apply(null,Vt)>=3.65)ovpL=true; if(ovpL&&maxO<3.40)ovpL=false;
+  if(Math.min.apply(null,Vt)<=2.5)uvpL=true; if(uvpL&&minO>3.0)uvpL=false;
+  var occ=I>50,ocd=I<-80,otp=T>55,ltc=T<0&&I>0;
+  var chg=!(ovpL||occ||otp||ltc||scp),dsg=!(uvpL||ocd||otp||scp);
+  var Ieff=I>0?(chg?I:0):(dsg?I:0);
+  for(var i=0;i<4;i++)soc[i]=Math.max(0,Math.min(100,soc[i]+Ieff*dt*0.05));
+  var hi=0,lo=0;for(i=1;i<4;i++){if(soc[i]>soc[hi])hi=i;if(soc[i]<soc[lo])lo=i}
+  balCell=(Ieff>=0&&maxO>3.33&&soc[hi]-soc[lo]>0.6)?hi:-1;
+  if(balCell>=0)soc[hi]-=dt*1.2;
+  var V=soc.map(function(s){return ocv(s)+Ieff*0.0008});
+  draw(Ieff,V,{chg:chg,dsg:dsg});
+  setT('bV',V.reduce(function(a,b){return a+b},0).toFixed(2)+' V');
+  setT('bIa',(Ieff>0?'+':'')+Ieff.toFixed(0)+' A');
+  setT('bS',(soc.reduce(function(a,b){return a+b},0)/4).toFixed(0)+' %');
+  var flags={OVP:ovpL,UVP:uvpL,OCC:occ,OCD:ocd,SCP:scp,OTP:otp,LTC:ltc,BAL:balCell>=0};
+  var any=false;Object.keys(flags).forEach(function(k){$('c'+k).classList.toggle('on',flags[k]);$('m'+k).hidden=!flags[k];if(flags[k]&&k!=='BAL')any=true});
+  $('cOK').classList.toggle('on',!any);$('mOK').hidden=any;
+ }
+ setInterval(function(){if(!playing||$('bms').hidden)return;step(0.1)},100);
+ step(0);
+ $('bPlay').addEventListener('click',function(){playing=!playing;$('bPlay').setAttribute('aria-pressed',playing?'true':'false')});
+ $('bUnb').addEventListener('click',function(){soc[2]=Math.min(100,soc[2]+10);step(0)});
+ $('bSc').addEventListener('click',function(){scp=true;step(0)});
+ $('bRst').addEventListener('click',function(){reset();step(0)});
+ ['bI','bT'].forEach(function(id){$(id).addEventListener('input',function(){step(0)})});
+
+
+ function brk(){
+  var P=num('iP'),V=num('iV'),e=num('iE'),n=Math.max(1,num('iN'));
+  var I=(V>0&&e>0)?P/(V*e/100):0,B=I*1.25,std=[32,40,50,63,80,100,125,160,200,250,315,400,500,630];
+  var pick=std.filter(function(x){return x>=B})[0]||Math.ceil(B);
+  setT('iI',I.toFixed(0)+' A');setT('iB',pick+' A');setT('iPP',(I/n).toFixed(0)+' A');
+  setT('is1',P+' W ÷ ('+V+' V × '+(e/100).toFixed(2)+') = '+I.toFixed(0)+' A; × 1.25 = '+B.toFixed(0)+' A → '+pick+' A');
+ }
+ ['iP','iV','iE','iN'].forEach(function(id){$(id).addEventListener('input',brk)});brk();
+ applyLang(ld('li-lang')||'en');
+ var h=(location.hash||'').replace('#','');
+ show(ids.indexOf(h)>=0?h:(ld('li-tab')||ids[0]));
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hotspots, Bypass Diodes and Blocking Diodes</title>
+<style>
+:root{
+  --paper:#F6F8FB; --card:#FFFFFF; --ink:#13202E; --muted:#4B5A6B;
+  --navy:#1B3A66; --poly:#2F6DB5; --sky:#E4EDF7; --line:#C8D3DF;
+  --sun:#B86E00; --sunfill:#F2B233; --leaf:#2D7A4B; --red:#B23A3A;
+  --fs:20px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+    --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+    --sun:#F2B233; --leaf:#6CC08F; --red:#E58080;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+  --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+  --sun:#F2B233; --leaf:#6CC08F; --red:#E58080;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);font-size:var(--fs)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Segoe UI","Nirmala UI","Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif;line-height:1.5}
+h1,h2,h3,.tabbtn,.num,th{font-family:Bahnschrift,"DIN Alternate","Segoe UI Semibold","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif}
+html[lang="hi"] body,html[lang="ml"] body{line-height:1.65}
+h1{font-size:1.55rem;margin:0;font-weight:600}
+h2{font-size:1.55rem;margin:0 0 .3rem;font-weight:600;color:var(--navy)}
+h3{font-size:1.1rem;margin:1.6rem 0 .5rem;font-weight:600}
+p{margin:.3rem 0 .8rem;max-width:72ch}
+header.top{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;align-items:center;justify-content:space-between;
+  padding:.8rem clamp(1rem,3vw,2.2rem) .6rem;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .sub{color:var(--muted);font-size:.8rem}
+.stamp{font-size:.72rem;color:var(--muted);text-align:right;margin-top:.25rem}
+.tools{display:flex;gap:.4rem;align-items:center;justify-content:flex-end}
+.tools button,.tools select{font:inherit;font-size:.8rem;padding:.25rem .6rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:4px;cursor:pointer}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);overflow-x:auto;white-space:nowrap;padding:0 clamp(.5rem,2vw,1.6rem)}
+.tabbtn{display:inline-block;font-size:.85rem;color:#DCE7F5;background:none;border:0;padding:.7rem .85rem .6rem;cursor:pointer;border-bottom:4px solid transparent}
+.tabbtn[aria-selected="true"]{color:#fff;border-bottom-color:var(--sunfill);font-weight:600}
+:focus-visible{outline:3px solid var(--sunfill);outline-offset:2px}
+main{max-width:1260px;margin:0 auto;padding:1.2rem clamp(1rem,3vw,2.2rem) 3rem}
+section.panel{display:none} section.panel.active{display:block}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1rem}
+figure{margin:0 0 1rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:.78rem;color:var(--muted);margin-top:.35rem}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;align-items:start}
+@media (max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;margin:.6rem 0 1rem}
+@media (max-width:800px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fact{border-left:5px solid var(--navy);background:var(--card);padding:.5rem .8rem}
+.fact .num{font-size:1.45rem;font-weight:600;color:var(--navy);display:block;line-height:1.2}
+.fact span:last-child{font-size:.78rem;color:var(--muted)}
+.steps{list-style:none;padding:0;margin:.4rem 0 1rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;counter-reset:s}
+@media (max-width:800px){.steps{grid-template-columns:1fr 1fr}}
+.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem .7rem .5rem 2.6rem;position:relative;font-size:.85rem}
+.steps li::before{content:counter(s);position:absolute;left:.6rem;top:.45rem;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--sunfill);color:#13202E;font-weight:700;text-align:center;line-height:1.5rem;font-size:.85rem}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:700px){.pc{grid-template-columns:1fr}}
+.pc>div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem 1rem;font-size:.88rem}
+.pc h3{margin:.2rem 0 .3rem;font-size:.95rem}
+.pc .pro h3{color:var(--leaf)} .pc .con h3{color:var(--red)}
+ul{margin:.2rem 0 .4rem;padding-left:1.1rem} li{margin:.2rem 0}
+.note{background:var(--sky);border-left:5px solid var(--sun);padding:.6rem 1rem;margin:1rem 0;font-size:.9rem}
+.note b{color:var(--sun)}
+.tablewrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.8rem}
+th,td{padding:.45rem .6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--sky);font-weight:600}
+td.n{white-space:nowrap}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:5px;overflow:hidden;margin:.2rem 0 .7rem}
+.seg button{font:inherit;font-size:.82rem;border:0;background:var(--card);color:var(--ink);padding:.4rem .8rem;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg.lang{margin:0}.seg.lang button{font-size:.8rem;padding:.25rem .6rem}
+.calc .seg{display:flex;margin:.1rem 0 .3rem}.calc .seg button{flex:1 1 auto;font-size:.78rem;padding:.35rem .4rem}
+.archbox{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1rem;align-items:start}
+@media (max-width:900px){.archbox{grid-template-columns:1fr}}
+.archinfo{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem 1rem;font-size:.92rem}
+.archinfo h3{margin:.1rem 0 .4rem;color:var(--navy)}
+.tag{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:3px;background:var(--sunfill);color:#13202E;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
+.card svg{display:block;width:100%;height:auto;background:#EAF2FA}
+.card .cb{padding:.5rem .75rem .65rem;font-size:.82rem}
+.card .cb b{display:block;font-size:.95rem;margin-bottom:.15rem}
+.card .fit{margin-top:.35rem;color:var(--navy);font-weight:600;font-size:.78rem}
+.tests{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+@media (max-width:800px){.tests{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.test{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.4rem .6rem .6rem;text-align:center;font-size:.8rem}
+.test svg{width:100%;max-width:150px;height:auto}
+.test small{display:block;color:var(--muted);font-size:.72rem}
+.dot{display:inline-block;width:.85rem;height:.85rem;border-radius:50%}
+.d3{background:var(--leaf)} .d2{background:var(--sunfill)} .d1{background:var(--line)}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.9rem 1.1rem;margin:.6rem 0 1.6rem}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+.calc label{display:block;font-size:.8rem;color:var(--muted);margin:.45rem 0 .1rem}
+.calc input,.calc select{font:inherit;font-size:.92rem;width:100%;padding:.3rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.out{background:var(--sky);border-radius:6px;padding:.7rem 1rem}
+.out .big{font-family:Bahnschrift,"Segoe UI",sans-serif;font-size:1.6rem;font-weight:600;color:var(--navy)}
+.out .row{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px dashed var(--line);padding:.2rem 0;font-size:.85rem}
+.worked{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem .9rem;margin:.5rem 0;font-size:.88rem}
+.worked .step{font-family:Consolas,"Cascadia Mono",monospace;font-size:.82rem;background:var(--paper);padding:.45rem .7rem;border-radius:4px;white-space:pre-wrap;overflow-x:auto;margin-top:.35rem}
+.formula{font-family:Consolas,"Cascadia Mono",monospace;font-size:.88rem;background:var(--sky);display:inline-block;padding:.3rem .7rem;border-radius:4px}
+footer{max-width:1260px;margin:0 auto;padding:1rem clamp(1rem,3vw,2.2rem) 2rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--line)}
+svg text{font-family:"Segoe UI","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif}
+.svgtxt{fill:var(--ink)} .svgmuted{fill:var(--muted)}
+@media print{nav.tabs,.tools{display:none} section.panel{display:block;page-break-after:always}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.ctrl{display:flex;flex-wrap:wrap;gap:.6rem 1.4rem;align-items:center;margin:.2rem 0 .8rem;font-size:.9rem}
+.ctrl label{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ctrl .seg{margin:0}
+input[type=range]{width:min(340px,70vw);accent-color:#B86E00;height:1.4rem}
+.state{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-weight:700;color:#fff;font-size:.85rem}
+.st0{background:#2D7A4B}.st1{background:#B86E00}.st2{background:#C2410C}.st3{background:#B23A3A}
+.out{margin-bottom:.8rem}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B86E00"/></marker>
+ <marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1B3A66"/></marker>
+ <marker id="arrr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B23A3A"/></marker>
+ <radialGradient id="heat"><stop offset="0" stop-color="#FFF3B0"/><stop offset=".35" stop-color="#FF8A00"/><stop offset="1" stop-color="#C21807" stop-opacity="0"/></radialGradient>
+</defs></svg>
+<header class="top">
+  <div><h1 data-t="title"></h1><div class="sub" data-t="sub"></div></div>
+  <div>
+    <div class="tools">
+      <div class="seg lang" role="group" aria-label="Language" id="langSeg"><button data-l="en">English</button><button data-l="hi">हिन्दी</button><button data-l="ml">മലയാളം</button></div>
+      <button id="fsDown">A−</button><button id="fsUp">A+</button>
+      <button id="prevTab" aria-label="Previous">◀</button><button id="nextTab" aria-label="Next">▶</button>
+    </div>
+    <div class="stamp" data-t="stamp"></div>
+  </div>
+</header>
+<nav class="tabs" role="tablist" id="tablist"></nav>
+<main>
+
+<section class="panel" id="shade" data-tab="tab1">
+ <h2 data-t="sh_h"></h2><p class="lead" data-t="sh_l"></p>
+ <div class="ctrl">
+  <label><span data-t="c_shade"></span> <b id="sVal">40%</b><input type="range" id="sRange" min="0" max="100" value="40"></label>
+  <div class="seg" role="group" id="bpSeg"></div>
+ </div>
+ <figure><svg id="f_hot" viewBox="0 0 900 380" role="img"></svg><figcaption data-t="hot_c"></figcaption></figure>
+ <div class="g2">
+  <div class="out" id="hotOut"></div>
+  <ol class="steps" style="grid-template-columns:1fr;margin:0"><li data-t="st1"></li><li data-t="st2"></li><li data-t="st3"></li><li data-t="st4"></li></ol>
+ </div>
+ <div class="facts">
+  <div class="fact"><span class="num">+0.5 V</span><span data-t="fa1"></span></div>
+  <div class="fact"><span class="num">−10 … −20 V</span><span data-t="fa2"></span></div>
+  <div class="fact"><span class="num">100–150 °C</span><span data-t="fa3"></span></div>
+  <div class="fact"><span class="num">20–24</span><span data-t="fa4"></span></div>
+ </div>
+ <div class="note"><b data-t="rem"></b> <span data-t="sh_note"></span></div>
+</section>
+
+<section class="panel" id="effects" data-tab="tab2">
+ <h2 data-t="ef_h"></h2><p class="lead" data-t="ef_l"></p>
+ <h3 data-t="cause_h"></h3>
+ <div class="tests" id="causes"></div>
+ <h3 data-t="dmg_h"></h3>
+ <div class="tests" id="damage"></div>
+ <figure style="margin-top:1rem"><svg id="f_ir1" viewBox="0 0 960 330" role="img"></svg><figcaption data-t="ir1_c"></figcaption></figure>
+</section>
+
+<section class="panel" id="bypass" data-tab="tab3">
+ <h2 data-t="bp_h"></h2><p class="lead" data-t="bp_l"></p>
+ <div class="seg" role="group" id="subSeg"></div>
+ <div class="archbox">
+  <figure><svg id="f_byp" viewBox="0 0 600 560" role="img"></svg></figure>
+  <div><div class="out" id="bypOut"></div>
+   <div class="facts" style="grid-template-columns:1fr 1fr;margin-top:.8rem">
+    <div class="fact"><span class="num">0.3–0.5 V</span><span data-t="bf1"></span></div>
+    <div class="fact"><span class="num">≥1.25 × Isc</span><span data-t="bf2"></span></div>
+    <div class="fact"><span class="num">3</span><span data-t="bf3"></span></div>
+    <div class="fact"><span class="num">−⅓</span><span data-t="bf4"></span></div>
+   </div></div>
+ </div>
+ <div class="g2">
+  <figure><svg id="f_jbox" viewBox="0 0 520 320" role="img"></svg></figure>
+  <figure><svg id="f_hcbp" viewBox="0 0 520 320" role="img"></svg></figure>
+ </div>
+ <div class="note"><b data-t="rem"></b> <span data-t="bp_note"></span></div>
+</section>
+
+<section class="panel" id="curves" data-tab="tab4">
+ <h2 data-t="cv_h"></h2><p class="lead" data-t="cv_l"></p>
+ <div class="ctrl">
+  <label><span data-t="c_shade2"></span> <b id="cVal">50%</b><input type="range" id="cRange" min="0" max="100" value="50"></label>
+  <div class="seg" role="group" id="nSeg"></div>
+  <div class="seg" role="group" id="bp2Seg"></div>
+ </div>
+ <figure><svg id="f_iv" viewBox="0 0 960 380" role="img"></svg><figcaption data-t="iv_c"></figcaption></figure>
+ <div class="out" id="ivOut"></div>
+ <div class="note"><b data-t="rem"></b> <span data-t="cv_note"></span></div>
+</section>
+
+<section class="panel" id="blocking" data-tab="tab5">
+ <h2 data-t="bk_h"></h2><p class="lead" data-t="bk_l"></p>
+ <h3 data-t="bk1_h"></h3>
+ <div class="ctrl"><div class="seg" role="group" id="dnSeg"></div><div class="seg" role="group" id="bdSeg"></div></div>
+ <figure><svg id="f_blk1" viewBox="0 0 900 300" role="img"></svg><figcaption id="blk1Cap"></figcaption></figure>
+ <h3 data-t="bk2_h"></h3>
+ <div class="ctrl"><div class="seg" role="group" id="flSeg"></div><div class="seg" role="group" id="bd2Seg"></div></div>
+ <figure><svg id="f_blk2" viewBox="0 0 900 400" role="img"></svg><figcaption id="blk2Cap"></figcaption></figure>
+ <h3 data-t="vs_h"></h3>
+ <div class="tablewrap"><table id="vsTable"></table></div>
+ <div class="note"><b data-t="field"></b> <span data-t="bk_note"></span></div>
+</section>
+
+<section class="panel" id="testing" data-tab="tab6">
+ <h2 data-t="ts_h"></h2><p class="lead" data-t="ts_l"></p>
+ <div class="g2">
+  <figure><svg id="f_meter" viewBox="0 0 520 300" role="img"></svg></figure>
+  <figure><svg id="f_voc" viewBox="0 0 520 300" role="img"></svg></figure>
+ </div>
+ <figure><svg id="f_ir2" viewBox="0 0 960 330" role="img"></svg></figure>
+ <div class="tablewrap"><table id="faultTable"></table></div>
+ <div class="note"><b data-t="safety"></b> <span data-t="ts_note"></span></div>
+</section>
+
+<section class="panel" id="prevent" data-tab="tab7">
+ <h2 data-t="pv_h"></h2><p class="lead" data-t="pv_l"></p>
+ <div class="tests" id="prevCards"></div>
+ <h3 data-t="std_h"></h3>
+ <div class="tablewrap"><table id="stdTable"></table></div>
+</section>
+
+<section class="panel" id="calc" data-tab="tab8">
+ <h2 data-t="calc_h"></h2><p class="lead" data-t="calc_l"></p>
+
+ <h3 data-t="k1h"></h3>
+ <span class="formula">P = Vrev × I ;  T ≈ Tcell + Rth × P</span>
+ <div class="worked"><b data-t="w1"></b><div class="step">Vrev = 23 × 0.5 + 0.4 = 11.9 V
+P = 11.9 × 9 = 107 W  →  T ≈ 55 + 0.6 × 107 = 119 °C</div></div>
+ <div class="calc"><div>
+  <label for="k1v" data-t="l_vrev"></label><input id="k1v" type="number" value="11.9" step="0.1">
+  <label for="k1i" data-t="l_icell"></label><input id="k1i" type="number" value="9" step="0.1">
+  <label for="k1r" data-t="l_rth"></label><input id="k1r" type="number" value="0.6" step="0.05">
+  <label for="k1t" data-t="l_tc"></label><input id="k1t" type="number" value="55">
+ </div><div class="out" id="k1o"></div></div>
+
+ <h3 data-t="k2h"></h3>
+ <span class="formula">V = Vmp × (n − k) ÷ n − k × Vf</span>
+ <div class="worked"><b data-t="w2"></b><div class="step">V = 31.2 × 2 ÷ 3 − 0.4 = 20.4 V
+P = 20.4 × 9.5 = 193.8 W  (296.4 W normal → loss 34.6 %)</div></div>
+ <div class="calc"><div>
+  <label for="k2v" data-t="l_vmp"></label><input id="k2v" type="number" value="31.2" step="0.1">
+  <label for="k2i" data-t="l_imp"></label><input id="k2i" type="number" value="9.5" step="0.1">
+  <label for="k2n" data-t="l_nsub"></label><input id="k2n" type="number" value="3" min="1">
+  <label for="k2k" data-t="l_ksub"></label><input id="k2k" type="number" value="1" min="0">
+  <label for="k2f" data-t="l_vf"></label><input id="k2f" type="number" value="0.4" step="0.05">
+ </div><div class="out" id="k2o"></div></div>
+
+ <h3 data-t="k3h"></h3>
+ <span class="formula">P = Vf × I ;  E = P × h × 365</span>
+ <div class="worked"><b data-t="w3"></b><div class="step">Silicon: 0.7 × 8 = 5.6 W → 5.6 × 5 × 365 = 10.2 kWh/yr
+Schottky: 0.4 × 8 = 3.2 W → 5.8 kWh/yr</div></div>
+ <div class="calc"><div>
+  <label for="k3v" data-t="l_vf"></label><input id="k3v" type="number" value="0.7" step="0.05">
+  <label for="k3i" data-t="l_istr"></label><input id="k3i" type="number" value="8" step="0.1">
+  <label for="k3h" data-t="l_hrs"></label><input id="k3h" type="number" value="5" step="0.5">
+  <label for="k3s" data-t="l_vsys"></label><input id="k3s" type="number" value="24">
+ </div><div class="out" id="k3o"></div></div>
+
+ <h3 data-t="k4h"></h3>
+ <span class="formula">Irev = (Np − 1) × Isc ;  1.5 Isc ≤ In ≤ 2.4 Isc, In ≤ Imax,fuse</span>
+ <div class="worked"><b data-t="w4"></b><div class="step">Irev = 3 × 14.1 = 42.3 A  &gt; 30 A  →  protection needed
+In: 21.2 A … 30 A  →  25 A gPV fuse in each string</div></div>
+ <div class="calc"><div>
+  <label for="k4n" data-t="l_np"></label><input id="k4n" type="number" value="4" min="1">
+  <label for="k4i" data-t="l_isc"></label><input id="k4i" type="number" value="14.1" step="0.1">
+  <label for="k4f" data-t="l_ifuse"></label><input id="k4f" type="number" value="30">
+ </div><div class="out" id="k4o"></div></div>
+</section>
+</main>
+<footer data-t="foot"></footer>
+<script>
+const T={
+title:["Hotspots, Bypass Diodes and Blocking Diodes","हॉटस्पॉट, बाइपास डायोड और ब्लॉकिंग डायोड","ഹോട്ട്‌സ്പോട്ട്, ബൈപാസ് ഡയോഡ്, ബ്ലോക്കിംഗ് ഡയോഡ്"],
+sub:["Shading effects on PV modules, with layouts and animations","PV मॉड्यूल पर छाया का असर, लेआउट और एनिमेशन के साथ","PV മൊഡ്യൂളിൽ നിഴലിന്റെ ഫലം, ലേഔട്ടും ആനിമേഷനും സഹിതം"],
+stamp:["Prepared by PRASAD UM, VI, Vocational Instructor, NSTI Calicut","तैयारकर्ता: PRASAD UM, VI, वोकेशनल इंस्ट्रक्टर, NSTI कालीकट","തയ്യാറാക്കിയത്: PRASAD UM, VI, വൊക്കേഷണൽ ഇൻസ്ട്രക്ടർ, NSTI കോഴിക്കോട്"],
+foot:["Teaching model with typical values. Real modules vary; follow the manufacturer's manual. Prepared by PRASAD UM, VI, NSTI Calicut.","आम मानों वाला शिक्षण मॉडल। असली मॉड्यूल अलग हो सकते हैं; निर्माता का मैनुअल देखें। तैयारकर्ता: PRASAD UM, VI, NSTI कालीकट।","സാധാരണ മൂല്യങ്ങളുള്ള പഠന മോഡൽ. യഥാർത്ഥ മൊഡ്യൂളുകൾ വ്യത്യാസപ്പെടാം; നിർമ്മാതാവിന്റെ മാനുവൽ പാലിക്കുക. തയ്യാറാക്കിയത്: PRASAD UM, VI, NSTI കോഴിക്കോട്."],
+tab1:["Shading & hotspot","छाया और हॉटस्पॉट","നിഴലും ഹോട്ട്‌സ്പോട്ടും"],
+tab2:["Causes & damage","कारण और नुकसान","കാരണങ്ങളും കേടുപാടും"],
+tab3:["Bypass diode","बाइपास डायोड","ബൈപാസ് ഡയോഡ്"],
+tab4:["I-V & P-V curves","I-V और P-V कर्व","I-V & P-V കർവുകൾ"],
+tab5:["Blocking diode","ब्लॉकिंग डायोड","ബ്ലോക്കിംഗ് ഡയോഡ്"],
+tab6:["Testing & faults","टेस्टिंग और खराबी","ടെസ്റ്റിംഗും തകരാറുകളും"],
+tab7:["Prevention & standards","बचाव और स्टैंडर्ड","പ്രതിരോധവും സ്റ്റാൻഡേർഡുകളും"],
+tab8:["Calculators","कैलकुलेटर","കാൽക്കുലേറ്ററുകൾ"],
+rem:["Remember:","याद रखें:","ഓർക്കുക:"],field:["In the field:","फील्ड में:","ഫീൽഡിൽ:"],safety:["Safety:","सुरक्षा:","സുരക്ഷ:"],
+on:["ON","चालू","ഓൺ"],off:["OFF","बंद","ഓഫ്"],
+bpLabel:["Bypass diode","बाइपास डायोड","ബൈപാസ് ഡയോഡ്"],
+/* tab1 */
+sh_h:["One shaded cell can heat up the whole string's energy","एक छायादार सेल पूरी स्ट्रिंग की ऊर्जा से गर्म हो सकता है","ഒരു നിഴൽ വീണ സെൽ മുഴുവൻ സ്ട്രിംഗിന്റെ ഊർജ്ജം കൊണ്ട് ചൂടാകാം"],
+sh_l:["Move the slider to shade one cell. Switch the bypass diode on and off.","स्लाइडर से एक सेल पर छाया डालें। बाइपास डायोड चालू/बंद करें।","സ്ലൈഡർ നീക്കി ഒരു സെല്ലിൽ നിഴൽ ഇടുക. ബൈപാസ് ഡയോഡ് ഓൺ/ഓഫ് ചെയ്യുക."],
+c_shade:["Shade on one cell:","एक सेल पर छाया:","ഒരു സെല്ലിലെ നിഴൽ:"],
+hot_c:["One substring of 24 cells (12 drawn). The string current is ≈10 A, forced by the other modules.","24 सेल की एक सबस्ट्रिंग (12 दिखाए)। स्ट्रिंग करंट ≈10 A, बाकी मॉड्यूल इसे धकेलते हैं।","24 സെല്ലുകളുള്ള ഒരു സബ്‌സ്ട്രിംഗ് (12 കാണിച്ചിരിക്കുന്നു). സ്ട്രിംഗ് കറന്റ് ≈10 A, മറ്റ് മൊഡ്യൂളുകൾ തള്ളുന്നു."],
+st1:["Cells in series carry the same current","सीरीज के सभी सेल में एक ही करंट","സീരീസിലെ എല്ലാ സെല്ലിലും ഒരേ കറന്റ്"],
+st2:["The shaded cell cannot make that current","छायादार सेल उतना करंट नहीं बना पाता","നിഴൽ വീണ സെല്ലിന് അത്ര കറന്റ് ഉണ്ടാക്കാനാവില്ല"],
+st3:["It is pushed into reverse voltage and acts as a load","उस पर उल्टा वोल्टेज आता है और वह लोड बन जाता है","അതിൽ റിവേഴ്സ് വോൾട്ടേജ് വന്ന് അത് ലോഡ് ആയി മാറുന്നു"],
+st4:["V × I turns into heat → hotspot","V × I गर्मी बनता है → हॉटस्पॉट","V × I ചൂടായി മാറുന്നു → ഹോട്ട്‌സ്പോട്ട്"],
+fa1:["normal cell voltage at work","काम करते सेल का सामान्य वोल्टेज","പ്രവർത്തിക്കുന്ന സെല്ലിന്റെ സാധാരണ വോൾട്ടേജ്"],
+fa2:["reverse breakdown of a c-Si cell","c-Si सेल का रिवर्स ब्रेकडाउन","c-Si സെല്ലിന്റെ റിവേഴ്സ് ബ്രേക്ക്ഡൗൺ"],
+fa3:["typical hotspot temperature","आम हॉटस्पॉट तापमान","സാധാരണ ഹോട്ട്‌സ്പോട്ട് താപനില"],
+fa4:["cells protected by one bypass diode","एक बाइपास डायोड से सुरक्षित सेल","ഒരു ബൈപാസ് ഡയോഡ് സംരക്ഷിക്കുന്ന സെല്ലുകൾ"],
+sh_note:["The bypass diode limits the reverse voltage, but light partial shade is still the worst case. Keep modules free of shade.","बाइपास डायोड उल्टे वोल्टेज को सीमित करता है, पर हल्की आंशिक छाया अब भी सबसे खतरनाक है। मॉड्यूल को छाया से दूर रखें।","ബൈപാസ് ഡയോഡ് റിവേഴ്സ് വോൾട്ടേജ് പരിമിതപ്പെടുത്തുന്നു, പക്ഷേ നേരിയ ഭാഗിക നിഴലാണ് ഇപ്പോഴും ഏറ്റവും അപകടം. മൊഡ്യൂളുകൾ നിഴലില്ലാതെ സൂക്ഷിക്കുക."],
+o_i:["Current through shaded cell","छायादार सेल में करंट","നിഴൽ സെല്ലിലൂടെയുള്ള കറന്റ്"],
+o_ib:["Current through bypass diode","बाइपास डायोड में करंट","ബൈപാസ് ഡയോഡിലൂടെയുള്ള കറന്റ്"],
+o_v:["Reverse voltage on shaded cell","छायादार सेल पर उल्टा वोल्टेज","നിഴൽ സെല്ലിലെ റിവേഴ്സ് വോൾട്ടേജ്"],
+o_p:["Heat in shaded cell","छायादार सेल में गर्मी","നിഴൽ സെല്ലിലെ ചൂട്"],
+o_t:["Shaded cell temperature","छायादार सेल का तापमान","നിഴൽ സെല്ലിന്റെ താപനില"],
+s_ok:["Normal – no reverse bias","सामान्य – उल्टा वोल्टेज नहीं","സാധാരണ – റിവേഴ്സ് ബയസ് ഇല്ല"],
+s_warm:["Warm – watch it","गर्म – ध्यान दें","ചൂട് – ശ്രദ്ധിക്കുക"],
+s_hot:["HOTSPOT – EVA browning","हॉटस्पॉट – EVA भूरा होना","ഹോട്ട്‌സ്പോട്ട് – EVA ബ്രൗണിംഗ്"],
+s_dan:["DANGER – backsheet burn / fire risk","खतरा – बैकशीट जलना / आग का खतरा","അപകടം – ബാക്ക്‌ഷീറ്റ് കത്തൽ / തീപിടിത്ത സാധ്യത"],
+breakdown:["breakdown","ब्रेकडाउन","ബ്രേക്ക്ഡൗൺ"],
+sun:["Sun","धूप","വെയിൽ"],
+toInv:["to other modules / inverter","बाकी मॉड्यूल / इन्वर्टर की ओर","മറ്റ് മൊഡ്യൂളുകൾ / ഇൻവെർട്ടറിലേക്ക്"],
+/* tab2 */
+ef_h:["What causes hotspots and what they damage","हॉटस्पॉट के कारण और उनसे नुकसान","ഹോട്ട്‌സ്പോട്ടിന്റെ കാരണങ്ങളും കേടുപാടുകളും"],
+ef_l:["Anything that makes one cell weaker than its neighbours can start a hotspot.","जो भी चीज़ एक सेल को पड़ोसियों से कमज़ोर करे, वह हॉटस्पॉट शुरू कर सकती है।","ഒരു സെല്ലിനെ അടുത്ത സെല്ലുകളേക്കാൾ ദുർബലമാക്കുന്ന എന്തും ഹോട്ട്‌സ്പോട്ട് ഉണ്ടാക്കാം."],
+cause_h:["Causes","कारण","കാരണങ്ങൾ"],dmg_h:["Damage","नुकसान","കേടുപാടുകൾ"],
+ca1:["Bird droppings","पक्षी की बीट","പക്ഷി കാഷ്ഠം"],ca2:["Fallen leaves","गिरे पत्ते","വീണ ഇലകൾ"],ca3:["Coconut tree / tower shadow","नारियल पेड़ / टावर की छाया","തെങ്ങ് / ടവർ നിഴൽ"],ca4:["Dust at bottom edge","नीचे किनारे पर धूल","താഴത്തെ അറ്റത്ത് പൊടി"],
+ca5:["Water tank / parapet shadow","पानी की टंकी / मुंडेर की छाया","വാട്ടർ ടാങ്ക് / പാരപെറ്റ് നിഴൽ"],ca6:["Cracked cell","टूटा सेल","പൊട്ടിയ സെൽ"],ca7:["Bad solder joint","खराब सोल्डर जोड़","മോശം സോൾഡർ ജോയിന്റ്"],ca8:["Mismatched cells","बेमेल सेल","പൊരുത്തമില്ലാത്ത സെല്ലുകൾ"],
+dm1:["EVA browning","EVA भूरा होना","EVA ബ്രൗണിംഗ്"],dm2:["Burnt backsheet","जली बैकशीट","കത്തിയ ബാക്ക്‌ഷീറ്റ്"],dm3:["Cracked glass","टूटा ग्लास","പൊട്ടിയ ഗ്ലാസ്"],dm4:["Melted junction box","पिघला जंक्शन बॉक्स","ഉരുകിയ ജംഗ്ഷൻ ബോക്സ്"],
+dm5:["Snail trails, cell cracks","स्नेल ट्रेल, सेल क्रैक","സ്നെയിൽ ട്രെയിൽ, സെൽ ക്രാക്ക്"],dm6:["Permanent power loss","स्थायी पावर नुकसान","സ്ഥിരമായ പവർ നഷ്ടം"],dm7:["Fire risk on roof","छत पर आग का खतरा","മേൽക്കൂരയിൽ തീപിടിത്ത സാധ്യത"],dm8:["Warranty void","वारंटी खत्म","വാറന്റി നഷ്ടം"],
+ir1_c:["Thermal camera view: the shaded cell glows far hotter than its neighbours (simulated).","थर्मल कैमरा दृश्य: छायादार सेल पड़ोसियों से बहुत ज्यादा गर्म (सिमुलेटेड)।","തെർമൽ ക്യാമറ ദൃശ്യം: നിഴൽ സെൽ അടുത്തവയേക്കാൾ വളരെ ചൂടാണ് (സിമുലേറ്റഡ്)."],
+visible:["Visible light","सामान्य दृश्य","സാധാരണ ദൃശ്യം"],thermal:["Thermal image","थर्मल इमेज","തെർമൽ ഇമേജ്"],
+/* tab3 */
+bp_h:["Bypass diode: a side road for the current","बाइपास डायोड: करंट के लिए एक साइड रास्ता","ബൈപാസ് ഡയോഡ്: കറന്റിന് ഒരു ബൈപാസ് റോഡ്"],
+bp_l:["Each diode is connected in parallel (reverse direction) across a group of cells. Choose which group to shade.","हर डायोड सेल समूह के पैरेलल (उल्टी दिशा में) जुड़ा है। किस समूह पर छाया हो, चुनें।","ഓരോ ഡയോഡും ഒരു സെൽ ഗ്രൂപ്പിന് പാരലലായി (റിവേഴ്സ് ദിശയിൽ) ഘടിപ്പിച്ചിരിക്കുന്നു. ഏത് ഗ്രൂപ്പിൽ നിഴൽ വേണമെന്ന് തിരഞ്ഞെടുക്കുക."],
+noShade:["No shade","छाया नहीं","നിഴൽ ഇല്ല"],shA:["Shade group A","समूह A पर छाया","ഗ്രൂപ്പ് A-യിൽ നിഴൽ"],shB:["Shade group B","समूह B पर छाया","ഗ്രൂപ്പ് B-യിൽ നിഴൽ"],shC:["Shade group C","समूह C पर छाया","ഗ്രൂപ്പ് C-യിൽ നിഴൽ"],shAB:["Shade A + B","A + B पर छाया","A + B-യിൽ നിഴൽ"],
+grp:["Group","समूह","ഗ്രൂപ്പ്"],jbox:["Junction box","जंक्शन बॉक्स","ജംഗ്ഷൻ ബോക്സ്"],
+o_mv:["Module voltage (at Imp 9.5 A)","मॉड्यूल वोल्टेज (Imp 9.5 A पर)","മൊഡ്യൂൾ വോൾട്ടേജ് (Imp 9.5 A-ൽ)"],o_mp:["Module power","मॉड्यूल पावर","മൊഡ്യൂൾ പവർ"],o_dc:["Diodes conducting","चालू डायोड","പ്രവർത്തിക്കുന്ന ഡയോഡുകൾ"],o_none:["none","कोई नहीं","ഒന്നുമില്ല"],
+o_bpNote:["Current skips the shaded group through its diode; the rest keeps working.","करंट डायोड से छायादार समूह को छोड़ देता है; बाकी काम करते रहते हैं।","കറന്റ് ഡയോഡിലൂടെ നിഴൽ ഗ്രൂപ്പ് ഒഴിവാക്കുന്നു; ബാക്കി പ്രവർത്തിക്കുന്നു."],
+o_okNote:["All diodes are reverse-biased and idle.","सभी डायोड उल्टे बायस में और बंद हैं।","എല്ലാ ഡയോഡുകളും റിവേഴ്സ് ബയസിൽ, നിഷ്ക്രിയം."],
+bf1:["Schottky forward drop","शॉट्की फॉरवर्ड ड्रॉप","ഷോട്ട്കി ഫോർവേഡ് ഡ്രോപ്പ്"],bf2:["diode current rating (typ. 25–30 A)","डायोड करंट रेटिंग (आम 25–30 A)","ഡയോഡ് കറന്റ് റേറ്റിംഗ് (സാധാരണ 25–30 A)"],bf3:["diodes per module","प्रति मॉड्यूल डायोड","ഒരു മൊഡ്യൂളിലെ ഡയോഡുകൾ"],bf4:["module voltage lost per bypassed group","हर बाइपास समूह पर मॉड्यूल वोल्टेज घटता है","ബൈപാസ് ചെയ്ത ഓരോ ഗ്രൂപ്പിനും നഷ്ടമാകുന്ന വോൾട്ടേജ്"],
+jb_h:["Inside the junction box","जंक्शन बॉक्स के अंदर","ജംഗ്ഷൻ ബോക്സിനുള്ളിൽ"],ribbon:["ribbons from cells","सेल से रिबन","സെല്ലുകളിൽ നിന്നുള്ള റിബൺ"],
+hcb_h:["Half-cut module: 3 diodes in the centre","हाफ-कट मॉड्यूल: बीच में 3 डायोड","ഹാഫ്-കട്ട് മൊഡ്യൂൾ: നടുവിൽ 3 ഡയോഡുകൾ"],
+hcb_s:["Upper and lower halves are in parallel; each diode protects one third of both halves.","ऊपरी और निचला आधा पैरेलल में; हर डायोड दोनों हिस्सों के एक-तिहाई की रक्षा करता है।","മുകളിലെയും താഴത്തെയും പകുതികൾ പാരലലിൽ; ഓരോ ഡയോഡും രണ്ടിന്റെയും മൂന്നിലൊന്ന് സംരക്ഷിക്കുന്നു."],
+bp_note:["Bypass diodes protect against hotspots and keep the string running, but each bypassed group still loses about one third of the module's power.","बाइपास डायोड हॉटस्पॉट से बचाते हैं और स्ट्रिंग चलती रहती है, पर हर बाइपास समूह से मॉड्यूल की लगभग एक-तिहाई पावर जाती है।","ബൈപാസ് ഡയോഡുകൾ ഹോട്ട്‌സ്പോട്ടിൽ നിന്ന് സംരക്ഷിക്കുകയും സ്ട്രിംഗ് പ്രവർത്തിപ്പിക്കുകയും ചെയ്യുന്നു, പക്ഷേ ബൈപാസ് ചെയ്യുന്ന ഓരോ ഗ്രൂപ്പും മൊഡ്യൂളിന്റെ ഏകദേശം മൂന്നിലൊന്ന് പവർ കുറയ്ക്കും."],
+/* tab4 */
+cv_h:["What shading does to the I-V and P-V curves","छाया I-V और P-V कर्व पर क्या करती है","നിഴൽ I-V, P-V കർവുകളിൽ എന്ത് ചെയ്യുന്നു"],
+cv_l:["One 60-cell module with 3 bypass groups. Dashed line = no shade.","3 बाइपास समूहों वाला एक 60-सेल मॉड्यूल। डैश लाइन = बिना छाया।","3 ബൈപാസ് ഗ്രൂപ്പുകളുള്ള ഒരു 60-സെൽ മൊഡ്യൂൾ. ഡാഷ് ലൈൻ = നിഴൽ ഇല്ല."],
+c_shade2:["Shade on each shaded cell:","हर छायादार सेल पर छाया:","ഓരോ നിഴൽ സെല്ലിലും നിഴൽ:"],
+n1:["1 shaded cell","1 छायादार सेल","1 നിഴൽ സെൽ"],n2:["2 cells (2 groups)","2 सेल (2 समूह)","2 സെൽ (2 ഗ്രൂപ്പ്)"],
+iv_c:["Steps in the I-V curve and extra peaks in the P-V curve appear when bypass diodes switch on.","बाइपास डायोड चालू होने पर I-V कर्व में सीढ़ियाँ और P-V कर्व में extra चोटियाँ बनती हैं।","ബൈപാസ് ഡയോഡുകൾ ഓണാകുമ്പോൾ I-V കർവിൽ പടികളും P-V കർവിൽ അധിക കൊടുമുടികളും വരുന്നു."],
+gmpp:["Global MPP","ग्लोबल MPP","ഗ്ലോബൽ MPP"],lmpp:["Local MPP","लोकल MPP","ലോക്കൽ MPP"],
+o_p0:["Power without shade","बिना छाया पावर","നിഴലില്ലാതെ പവർ"],o_p1:["Power with shade (best point)","छाया के साथ पावर (सबसे अच्छा बिंदु)","നിഴലോടെ പവർ (ഏറ്റവും നല്ല പോയിന്റ്)"],o_loss:["Loss","नुकसान","നഷ്ടം"],o_peaks:["Peaks on P-V curve","P-V कर्व पर चोटियाँ","P-V കർവിലെ കൊടുമുടികൾ"],
+cv_note:["With several peaks, the inverter's MPPT must scan the whole curve (global MPPT) or it may stick at a lower local peak.","कई चोटियाँ हों तो इन्वर्टर का MPPT पूरा कर्व स्कैन करे (ग्लोबल MPPT), वरना वह नीची लोकल चोटी पर अटक सकता है।","പല കൊടുമുടികൾ ഉണ്ടെങ്കിൽ ഇൻവെർട്ടറിന്റെ MPPT മുഴുവൻ കർവും സ്കാൻ ചെയ്യണം (ഗ്ലോബൽ MPPT), അല്ലെങ്കിൽ താഴ്ന്ന ലോക്കൽ കൊടുമുടിയിൽ കുടുങ്ങാം."],
+voltage:["Voltage (V)","वोल्टेज (V)","വോൾട്ടേജ് (V)"],current:["Current (A)","करंट (A)","കറന്റ് (A)"],power:["Power (W)","पावर (W)","പവർ (W)"],
+/* tab5 */
+bk_h:["Blocking diode: a one-way valve","ब्लॉकिंग डायोड: एक-तरफा वाल्व","ബ്ലോക്കിംഗ് ഡയോഡ്: ഒരു വഴി മാത്രമുള്ള വാൽവ്"],
+bk_l:["Connected in series with the panel or string. It lets current out, but stops it coming back.","पैनल या स्ट्रिंग के सीरीज में जुड़ा। करंट को बाहर जाने देता है, पर वापस आने से रोकता है।","പാനലിനോ സ്ട്രിംഗിനോ സീരീസിൽ ഘടിപ്പിക്കുന്നു. കറന്റ് പുറത്തേക്ക് വിടുന്നു, തിരികെ വരുന്നത് തടയുന്നു."],
+bk1_h:["Off-grid battery: day and night","ऑफ-ग्रिड बैटरी: दिन और रात","ഓഫ്-ഗ്രിഡ് ബാറ്ററി: പകലും രാത്രിയും"],
+day:["Day","दिन","പകൽ"],night:["Night","रात","രാത്രി"],
+withD:["With blocking diode","ब्लॉकिंग डायोड के साथ","ബ്ലോക്കിംഗ് ഡയോഡോടെ"],noD:["Without diode","डायोड के बिना","ഡയോഡ് ഇല്ലാതെ"],
+battery:["Battery","बैटरी","ബാറ്ററി"],blocked:["BLOCKED","रोका गया","തടഞ്ഞു"],
+b1day:["Day: panel voltage is higher, the diode conducts and the battery charges (drop 0.4–0.7 V).","दिन: पैनल वोल्टेज ज्यादा, डायोड चालू, बैटरी चार्ज होती है (ड्रॉप 0.4–0.7 V)।","പകൽ: പാനൽ വോൾട്ടേജ് കൂടുതൽ, ഡയോഡ് കണ്ടക്ട് ചെയ്യുന്നു, ബാറ്ററി ചാർജാകുന്നു (ഡ്രോപ്പ് 0.4–0.7 V)."],
+b1nd:["Night with diode: the diode is reverse-biased, so the battery cannot discharge into the panel.","रात, डायोड के साथ: डायोड उल्टे बायस में, बैटरी पैनल में डिस्चार्ज नहीं होती।","രാത്രി, ഡയോഡോടെ: ഡയോഡ് റിവേഴ്സ് ബയസിൽ, ബാറ്ററി പാനലിലേക്ക് ഡിസ്ചാർജ് ആകില്ല."],
+b1nn:["Night without diode: the dark panel acts as a load and slowly drains the battery.","रात, डायोड के बिना: अंधेरा पैनल लोड बनकर बैटरी को धीरे-धीरे खाली करता है।","രാത്രി, ഡയോഡ് ഇല്ലാതെ: ഇരുണ്ട പാനൽ ലോഡായി മാറി ബാറ്ററി പതുക്കെ ചോർത്തുന്നു."],
+bk2_h:["Parallel strings: reverse current into a faulty string","पैरेलल स्ट्रिंग: खराब स्ट्रिंग में उल्टा करंट","പാരലൽ സ്ട്രിംഗുകൾ: തകരാറുള്ള സ്ട്രിംഗിലേക്ക് റിവേഴ്സ് കറന്റ്"],
+normal:["All strings normal","सभी स्ट्रिंग सामान्य","എല്ലാ സ്ട്രിംഗും സാധാരണ"],fault3:["String 3 faulty / shaded","स्ट्रिंग 3 खराब / छाया में","സ്ട്രിംഗ് 3 തകരാർ / നിഴൽ"],
+strg:["String","स्ट्रिंग","സ്ട്രിംഗ്"],inverter:["Inverter / controller","इन्वर्टर / कंट्रोलर","ഇൻവെർട്ടർ / കൺട്രോളർ"],
+b2n:["Normal: all strings push current into the common bus.","सामान्य: सभी स्ट्रिंग कॉमन बस में करंट भेजती हैं।","സാധാരണ: എല്ലാ സ്ട്രിംഗുകളും കോമൺ ബസിലേക്ക് കറന്റ് അയക്കുന്നു."],
+b2fn:["Fault, no diode: strings 1 and 2 drive reverse current into string 3 – it overheats.","खराबी, डायोड नहीं: स्ट्रिंग 1 और 2 स्ट्रिंग 3 में उल्टा करंट भेजती हैं – वह गर्म होती है।","തകരാർ, ഡയോഡ് ഇല്ല: സ്ട്രിംഗ് 1, 2 സ്ട്രിംഗ് 3-ലേക്ക് റിവേഴ്സ് കറന്റ് അയക്കുന്നു – അത് ചൂടാകുന്നു."],
+b2fd:["Fault with diodes: the diode in string 3 blocks the reverse current.","खराबी, डायोड के साथ: स्ट्रिंग 3 का डायोड उल्टा करंट रोकता है।","തകരാർ, ഡയോഡോടെ: സ്ട്രിംഗ് 3-ലെ ഡയോഡ് റിവേഴ്സ് കറന്റ് തടയുന്നു."],
+vs_h:["Bypass diode vs blocking diode","बाइपास डायोड बनाम ब्लॉकिंग डायोड","ബൈപാസ് ഡയോഡ് vs ബ്ലോക്കിംഗ് ഡയോഡ്"],
+v_item:["Point","बिंदु","വിഷയം"],
+v1:["Connection","कनेक्शन","കണക്ഷൻ"],v1a:["Parallel across a cell group","सेल समूह के पैरेलल","സെൽ ഗ്രൂപ്പിന് പാരലൽ"],v1b:["Series with panel / string","पैनल / स्ट्रिंग के सीरीज में","പാനൽ / സ്ട്രിംഗിന് സീരീസിൽ"],
+v2:["Purpose","उद्देश्य","ലക്ഷ്യം"],v2a:["Stop hotspots, keep current flowing","हॉटस्पॉट रोकना, करंट चलते रहना","ഹോട്ട്‌സ്പോട്ട് തടയുക, കറന്റ് ഒഴുക്ക് നിലനിർത്തുക"],v2b:["Stop reverse current","उल्टा करंट रोकना","റിവേഴ്സ് കറന്റ് തടയുക"],
+v3:["Location","जगह","സ്ഥാനം"],v3a:["Module junction box","मॉड्यूल जंक्शन बॉक्स","മൊഡ്യൂൾ ജംഗ്ഷൻ ബോക്സ്"],v3b:["Combiner box / charge controller","कम्बाइनर बॉक्स / चार्ज कंट्रोलर","കമ്പൈനർ ബോക്സ് / ചാർജ് കൺട്രോളർ"],
+v4:["Conducts when","कब चालू","എപ്പോൾ കണ്ടക്ട് ചെയ്യും"],v4a:["Only when cells are shaded","सिर्फ छाया होने पर","സെല്ലുകളിൽ നിഴൽ വരുമ്പോൾ മാത്രം"],v4b:["Always while generating","उत्पादन के समय हमेशा","ഉൽപ്പാദന സമയത്ത് എപ്പോഴും"],
+v5:["Normal loss","सामान्य नुकसान","സാധാരണ നഷ്ടം"],v5a:["≈ 0","≈ 0","≈ 0"],v5b:["Vf × I all day","Vf × I पूरे दिन","Vf × I ദിവസം മുഴുവൻ"],
+v6:["Rating","रेटिंग","റേറ്റിംഗ്"],v6a:["Schottky, ≥1.25 × Isc","शॉट्की, ≥1.25 × Isc","ഷോട്ട്കി, ≥1.25 × Isc"],v6b:["≥1.25 × Isc, PIV ≥ 2 × Voc","≥1.25 × Isc, PIV ≥ 2 × Voc","≥1.25 × Isc, PIV ≥ 2 × Voc"],
+bk_note:["Modern grid-tied systems rarely use blocking diodes (they waste power). Inverters and charge controllers block reverse current internally, and gPV string fuses protect parallel strings.","आधुनिक ग्रिड सिस्टम में ब्लॉकिंग डायोड कम लगते हैं (पावर बर्बाद)। इन्वर्टर और चार्ज कंट्रोलर अंदर से उल्टा करंट रोकते हैं, और gPV स्ट्रिंग फ्यूज पैरेलल स्ट्रिंग की रक्षा करते हैं।","ആധുനിക ഗ്രിഡ് സിസ്റ്റങ്ങളിൽ ബ്ലോക്കിംഗ് ഡയോഡ് അപൂർവ്വം (പവർ പാഴാക്കുന്നു). ഇൻവെർട്ടറും ചാർജ് കൺട്രോളറും ഉള്ളിൽ റിവേഴ്സ് കറന്റ് തടയുന്നു, gPV സ്ട്രിംഗ് ഫ്യൂസുകൾ പാരലൽ സ്ട്രിംഗുകളെ സംരക്ഷിക്കുന്നു."],
+/* tab6 */
+ts_h:["Testing diodes and finding hotspots","डायोड की जाँच और हॉटस्पॉट ढूँढना","ഡയോഡ് ടെസ്റ്റിംഗും ഹോട്ട്‌സ്പോട്ട് കണ്ടെത്തലും"],
+ts_l:["Three simple checks: multimeter diode test, Voc check, and thermal camera.","तीन आसान जाँच: मल्टीमीटर डायोड टेस्ट, Voc जाँच और थर्मल कैमरा।","മൂന്ന് ലളിത പരിശോധനകൾ: മൾട്ടിമീറ്റർ ഡയോഡ് ടെസ്റ്റ്, Voc പരിശോധന, തെർമൽ ക്യാമറ."],
+mt_h:["Multimeter in diode mode (module covered)","डायोड मोड में मल्टीमीटर (मॉड्यूल ढका हुआ)","ഡയോഡ് മോഡിൽ മൾട്ടിമീറ്റർ (മൊഡ്യൂൾ മൂടിയത്)"],
+fwd:["Forward: 0.3–0.5 V = good","फॉरवर्ड: 0.3–0.5 V = ठीक","ഫോർവേഡ്: 0.3–0.5 V = നല്ലത്"],rev:["Reverse: OL = good","रिवर्स: OL = ठीक","റിവേഴ്സ്: OL = നല്ലത്"],
+mt_s:["0 V both ways = shorted · OL both ways = open","दोनों तरफ 0 V = शॉर्ट · दोनों तरफ OL = ओपन","രണ്ട് വശത്തും 0 V = ഷോർട്ട് · രണ്ട് വശത്തും OL = ഓപ്പൺ"],
+voc_h:["Voc check of a 60-cell module","60-सेल मॉड्यूल की Voc जाँच","60-സെൽ മൊഡ്യൂളിന്റെ Voc പരിശോധന"],
+vh1:["Healthy","ठीक","ശരി"],vh2:["1 diode shorted","1 डायोड शॉर्ट","1 ഡയോഡ് ഷോർട്ട്"],vh3:["2 diodes shorted","2 डायोड शॉर्ट","2 ഡയോഡ് ഷോർട്ട്"],vh4:["Diode open (Voc normal, no protection!)","डायोड ओपन (Voc ठीक, पर सुरक्षा नहीं!)","ഡയോഡ് ഓപ്പൺ (Voc ശരി, സംരക്ഷണം ഇല്ല!)"],
+ir2_h:["Thermal patterns and what they mean","थर्मल पैटर्न और उनका मतलब","തെർമൽ പാറ്റേണുകളും അർത്ഥവും"],
+ip1:["One hot cell: shade, crack or defect","एक गर्म सेल: छाया, क्रैक या खराबी","ഒരു ചൂടുള്ള സെൽ: നിഴൽ, ക്രാക്ക് അല്ലെങ്കിൽ തകരാർ"],
+ip2:["One warm third: group bypassed (diode on or shorted)","एक-तिहाई गर्म: समूह बाइपास (डायोड चालू या शॉर्ट)","മൂന്നിലൊന്ന് ചൂട്: ഗ്രൂപ്പ് ബൈപാസ് (ഡയോഡ് ഓൺ / ഷോർട്ട്)"],
+ip3:["Hot junction box: diode overheating or loose contact","गर्म जंक्शन बॉक्स: डायोड गर्म या ढीला कनेक्शन","ചൂടുള്ള ജംഗ്ഷൻ ബോക്സ്: ഡയോഡ് ചൂട് അല്ലെങ്കിൽ ലൂസ് കോൺടാക്റ്റ്"],
+fsym:["Symptom","लक्षण","ലക്ഷണം"],fcause:["Likely cause","संभावित कारण","സാധ്യതയുള്ള കാരണം"],fact:["Action","कार्रवाई","നടപടി"],
+fr1a:["Module Voc about ⅔ of normal","मॉड्यूल Voc सामान्य का लगभग ⅔","മൊഡ്യൂൾ Voc സാധാരണയുടെ ഏകദേശം ⅔"],fr1b:["One bypass diode shorted","एक बाइपास डायोड शॉर्ट","ഒരു ബൈപാസ് ഡയോഡ് ഷോർട്ട്"],fr1c:["Replace diode / module as per warranty","वारंटी के अनुसार डायोड / मॉड्यूल बदलें","വാറന്റി പ്രകാരം ഡയോഡ് / മൊഡ്യൂൾ മാറ്റുക"],
+fr2a:["Brown spot on one cell","एक सेल पर भूरा धब्बा","ഒരു സെല്ലിൽ ബ്രൗൺ പാട്"],fr2b:["Repeated hotspot","बार-बार हॉटस्पॉट","ആവർത്തിച്ചുള്ള ഹോട്ട്‌സ്പോട്ട്"],fr2c:["Remove shade source, IR scan, replace if severe","छाया का कारण हटाएँ, IR स्कैन, गंभीर हो तो बदलें","നിഴൽ കാരണം നീക്കുക, IR സ്കാൻ, ഗുരുതരമെങ്കിൽ മാറ്റുക"],
+fr3a:["Melted / discoloured junction box","पिघला / बदरंग जंक्शन बॉक्स","ഉരുകിയ / നിറംമാറിയ ജംഗ്ഷൻ ബോക്സ്"],fr3b:["Diode overload or loose terminal","डायोड ओवरलोड या ढीला टर्मिनल","ഡയോഡ് ഓവർലോഡ് അല്ലെങ്കിൽ ലൂസ് ടെർമിനൽ"],fr3c:["Isolate string, replace module","स्ट्रिंग अलग करें, मॉड्यूल बदलें","സ്ട്രിംഗ് ഐസൊലേറ്റ് ചെയ്യുക, മൊഡ്യൂൾ മാറ്റുക"],
+fr4a:["Battery flat every morning (off-grid)","हर सुबह बैटरी खाली (ऑफ-ग्रिड)","എല്ലാ രാവിലെയും ബാറ്ററി കാലി (ഓഫ്-ഗ്രിഡ്)"],fr4b:["No reverse-current blocking","उल्टा करंट रोकने की व्यवस्था नहीं","റിവേഴ്സ് കറന്റ് തടയൽ ഇല്ല"],fr4c:["Fit blocking diode or proper charge controller","ब्लॉकिंग डायोड या सही चार्ज कंट्रोलर लगाएँ","ബ്ലോക്കിംഗ് ഡയോഡ് അല്ലെങ്കിൽ ശരിയായ ചാർജ് കൺട്രോളർ ഘടിപ്പിക്കുക"],
+ts_note:["Before opening a junction box, isolate the string with the DC isolator and cover the module with an opaque sheet. A module in light is always live.","जंक्शन बॉक्स खोलने से पहले DC आइसोलेटर से स्ट्रिंग अलग करें और मॉड्यूल को अपारदर्शी शीट से ढकें। रोशनी में मॉड्यूल हमेशा चालू रहता है।","ജംഗ്ഷൻ ബോക്സ് തുറക്കുന്നതിന് മുമ്പ് DC ഐസൊലേറ്റർ ഉപയോഗിച്ച് സ്ട്രിംഗ് ഐസൊലേറ്റ് ചെയ്ത് മൊഡ്യൂൾ ഒപേക്ക് ഷീറ്റ് കൊണ്ട് മൂടുക. വെളിച്ചത്തിൽ മൊഡ്യൂൾ എപ്പോഴും ലൈവ് ആണ്."],
+/* tab7 */
+pv_h:["Preventing hotspots","हॉटस्पॉट से बचाव","ഹോട്ട്‌സ്പോട്ട് തടയൽ"],
+pv_l:["Good design and simple maintenance stop most hotspots.","अच्छा डिज़ाइन और आसान रखरखाव ज़्यादातर हॉटस्पॉट रोकते हैं।","നല്ല ഡിസൈനും ലളിതമായ പരിപാലനവും മിക്ക ഹോട്ട്‌സ്പോട്ടുകളും തടയുന്നു."],
+pr1:["Shade-free 9 am – 3 pm","सुबह 9 – दोपहर 3 छाया-मुक्त","രാവിലെ 9 – ഉച്ചയ്ക്ക് 3 നിഴലില്ലാതെ"],pr2:["Regular cleaning","नियमित सफाई","സ്ഥിരമായ ശുചീകരണം"],pr3:["Trim trees, move objects","पेड़ काटें, सामान हटाएँ","മരങ്ങൾ വെട്ടുക, വസ്തുക്കൾ മാറ്റുക"],pr4:["Yearly IR scan","सालाना IR स्कैन","വാർഷിക IR സ്കാൻ"],
+pr5:["Half-cut modules","हाफ-कट मॉड्यूल","ഹാഫ്-കട്ട് മൊഡ്യൂളുകൾ"],pr6:["Optimisers / microinverters","ऑप्टिमाइज़र / माइक्रोइन्वर्टर","ഒപ്റ്റിമൈസർ / മൈക്രോഇൻവെർട്ടർ"],pr7:["Same module model in a string","एक स्ट्रिंग में एक ही मॉड्यूल मॉडल","ഒരു സ്ട്രിംഗിൽ ഒരേ മൊഡ്യൂൾ മോഡൽ"],pr8:["Handle with care – no walking","सावधानी से संभालें – ऊपर न चलें","ശ്രദ്ധയോടെ കൈകാര്യം – മുകളിൽ നടക്കരുത്"],
+std_h:["Standards","स्टैंडर्ड","സ്റ്റാൻഡേർഡുകൾ"],code:["Code","कोड","കോഡ്"],covers:["Covers","किसके लिए","എന്തിന്"],
+sd1:["Hot-spot endurance test (MQT 09)","हॉट-स्पॉट सहनशक्ति टेस्ट (MQT 09)","ഹോട്ട്-സ്പോട്ട് സഹിഷ്ണുത ടെസ്റ്റ് (MQT 09)"],
+sd2:["Bypass diode thermal test (MQT 18)","बाइपास डायोड थर्मल टेस्ट (MQT 18)","ബൈപാസ് ഡയോഡ് തെർമൽ ടെസ്റ്റ് (MQT 18)"],
+sd3:["Bypass diode thermal runaway test","बाइपास डायोड थर्मल रनअवे टेस्ट","ബൈപാസ് ഡയോഡ് തെർമൽ റൺഎവേ ടെസ്റ്റ്"],
+sd4:["Module safety, incl. fire and junction box","मॉड्यूल सुरक्षा, आग और जंक्शन बॉक्स सहित","മൊഡ്യൂൾ സുരക്ഷ, തീ, ജംഗ്ഷൻ ബോക്സ് ഉൾപ്പെടെ"],
+sd5:["Infrared (IR) thermography of PV plants","PV प्लांट की इन्फ्रारेड (IR) थर्मोग्राफी","PV പ്ലാന്റുകളുടെ ഇൻഫ്രാറെഡ് (IR) തെർമോഗ്രഫി"],
+sd6:["Array design, reverse current and string fuses","ऐरे डिज़ाइन, उल्टा करंट और स्ट्रिंग फ्यूज","അറേ ഡിസൈൻ, റിവേഴ്സ് കറന്റ്, സ്ട്രിംഗ് ഫ്യൂസ്"],
+sd7:["gPV fuses for PV strings","PV स्ट्रिंग के लिए gPV फ्यूज","PV സ്ട്രിംഗുകൾക്കുള്ള gPV ഫ്യൂസ്"],
+sd8:["Commissioning tests (Voc, Isc, IR)","कमीशनिंग टेस्ट (Voc, Isc, IR)","കമ്മീഷനിംഗ് ടെസ്റ്റുകൾ (Voc, Isc, IR)"],
+/* calc */
+calc_h:["Calculators","कैलकुलेटर","കാൽക്കുലേറ്ററുകൾ"],calc_l:["Change any value; results update instantly.","कोई भी मान बदलें; नतीजा तुरंत बदलेगा।","ഏത് മൂല്യവും മാറ്റുക; ഫലം ഉടൻ മാറും."],
+k1h:["1. Hotspot power and temperature","1. हॉटस्पॉट पावर और तापमान","1. ഹോട്ട്‌സ്പോട്ട് പവറും താപനിലയും"],
+k2h:["2. Module output with bypassed groups","2. बाइपास समूहों के साथ मॉड्यूल आउटपुट","2. ബൈപാസ് ഗ്രൂപ്പുകളോടെ മൊഡ്യൂൾ ഔട്ട്പുട്ട്"],
+k3h:["3. Blocking diode loss","3. ब्लॉकिंग डायोड नुकसान","3. ബ്ലോക്കിംഗ് ഡയോഡ് നഷ്ടം"],
+k4h:["4. Reverse current and string fuse","4. उल्टा करंट और स्ट्रिंग फ्यूज","4. റിവേഴ്സ് കറന്റും സ്ട്രിംഗ് ഫ്യൂസും"],
+w1:["Example: 24-cell group, 23 cells at 0.5 V, diode 0.4 V, 9 A","उदाहरण: 24-सेल समूह, 23 सेल 0.5 V पर, डायोड 0.4 V, 9 A","ഉദാഹരണം: 24-സെൽ ഗ്രൂപ്പ്, 23 സെൽ 0.5 V-ൽ, ഡയോഡ് 0.4 V, 9 A"],
+w2:["Example: 60-cell module, Vmp 31.2 V, Imp 9.5 A, 1 group bypassed","उदाहरण: 60-सेल मॉड्यूल, Vmp 31.2 V, Imp 9.5 A, 1 समूह बाइपास","ഉദാഹരണം: 60-സെൽ മൊഡ്യൂൾ, Vmp 31.2 V, Imp 9.5 A, 1 ഗ്രൂപ്പ് ബൈപാസ്"],
+w3:["Example: 8 A for 5 h/day, silicon vs Schottky diode","उदाहरण: 8 A, 5 घंटे/दिन, सिलिकॉन बनाम शॉट्की डायोड","ഉദാഹരണം: 8 A, 5 മണിക്കൂർ/ദിവസം, സിലിക്കൺ vs ഷോട്ട്കി ഡയോഡ്"],
+w4:["Example: 4 parallel strings, Isc 14.1 A, module max fuse 30 A","उदाहरण: 4 पैरेलल स्ट्रिंग, Isc 14.1 A, मॉड्यूल अधिकतम फ्यूज 30 A","ഉദാഹരണം: 4 പാരലൽ സ്ട്രിംഗ്, Isc 14.1 A, മൊഡ്യൂൾ പരമാവധി ഫ്യൂസ് 30 A"],
+l_vrev:["Reverse voltage Vrev (V)","उल्टा वोल्टेज Vrev (V)","റിവേഴ്സ് വോൾട്ടേജ് Vrev (V)"],l_icell:["Current through cell I (A)","सेल में करंट I (A)","സെല്ലിലൂടെ കറന്റ് I (A)"],l_rth:["Thermal resistance Rth (K/W)","थर्मल रेज़िस्टेंस Rth (K/W)","തെർമൽ റെസിസ്റ്റൻസ് Rth (K/W)"],l_tc:["Normal cell temperature (°C)","सामान्य सेल तापमान (°C)","സാധാരണ സെൽ താപനില (°C)"],
+l_vmp:["Module Vmp (V)","मॉड्यूल Vmp (V)","മൊഡ്യൂൾ Vmp (V)"],l_imp:["Module Imp (A)","मॉड्यूल Imp (A)","മൊഡ്യൂൾ Imp (A)"],l_nsub:["Bypass groups n","बाइपास समूह n","ബൈപാസ് ഗ്രൂപ്പുകൾ n"],l_ksub:["Groups bypassed k","बाइपास हुए समूह k","ബൈപാസ് ആയ ഗ്രൂപ്പുകൾ k"],l_vf:["Diode drop Vf (V)","डायोड ड्रॉप Vf (V)","ഡയോഡ് ഡ്രോപ്പ് Vf (V)"],
+l_istr:["String current I (A)","स्ट्रिंग करंट I (A)","സ്ട്രിംഗ് കറന്റ് I (A)"],l_hrs:["Sun hours per day","प्रति दिन धूप के घंटे","ദിവസം വെയിൽ മണിക്കൂർ"],l_vsys:["System voltage (V)","सिस्टम वोल्टेज (V)","സിസ്റ്റം വോൾട്ടേജ് (V)"],
+l_np:["Parallel strings Np","पैरेलल स्ट्रिंग Np","പാരലൽ സ്ട്രിംഗുകൾ Np"],l_isc:["Module Isc (A)","मॉड्यूल Isc (A)","മൊഡ്യൂൾ Isc (A)"],l_ifuse:["Module max series fuse (A)","मॉड्यूल अधिकतम सीरीज फ्यूज (A)","മൊഡ്യൂൾ പരമാവധി സീരീസ് ഫ്യൂസ് (A)"],
+o_ph:["Heat in the cell","सेल में गर्मी","സെല്ലിലെ ചൂട്"],o_th:["Cell temperature","सेल तापमान","സെൽ താപനില"],o_st:["Condition","स्थिति","അവസ്ഥ"],
+o_v2:["Module voltage","मॉड्यूल वोल्टेज","മൊഡ്യൂൾ വോൾട്ടേജ്"],o_p2:["Module power","मॉड्यूल पावर","മൊഡ്യൂൾ പവർ"],o_n2:["Normal power","सामान्य पावर","സാധാരണ പവർ"],o_l2:["Loss","नुकसान","നഷ്ടം"],
+o_p3:["Diode loss","डायोड नुकसान","ഡയോഡ് നഷ്ടം"],o_e3:["Energy lost per year","सालाना ऊर्जा नुकसान","വാർഷിക ഊർജ്ജ നഷ്ടം"],o_pc3:["% of system power","सिस्टम पावर का %","സിസ്റ്റം പവറിന്റെ %"],
+o_r4:["Worst reverse current","सबसे ज्यादा उल्टा करंट","പരമാവധി റിവേഴ്സ് കറന്റ്"],o_need:["Protection needed – fit gPV fuses","सुरक्षा ज़रूरी – gPV फ्यूज लगाएँ","സംരക്ഷണം വേണം – gPV ഫ്യൂസ് ഘടിപ്പിക്കുക"],o_noneed:["No string fuse needed","स्ट्रिंग फ्यूज की ज़रूरत नहीं","സ്ട്രിംഗ് ഫ്യൂസ് ആവശ്യമില്ല"],o_rng:["Fuse rating range","फ्यूज रेटिंग रेंज","ഫ്യൂസ് റേറ്റിംഗ് പരിധി"],o_bad:["No valid fuse – check module data","सही फ्यूज नहीं – मॉड्यूल डेटा जाँचें","ശരിയായ ഫ്യൂസ് ഇല്ല – മൊഡ്യൂൾ ഡാറ്റ പരിശോധിക്കുക"]
+};
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg",XL="http://www.w3.org/1999/xlink",LI={en:0,hi:1,ml:2};
+let lang="en";try{const s=localStorage.getItem("pvlang");if(s&&LI[s]!==undefined)lang=s}catch(e){}
+const t=k=>{const v=T[k];return v?(v[LI[lang]]||v[0]):k};
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function el(tag,a,p,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;if(p)p.appendChild(e);return e;}
+function tx(p,x,y,s,o){o=o||{};const fs=o.fs||14,lh=o.lh||fs*1.25;const a={x:x,y:y,"font-size":fs,"text-anchor":o.anchor||"start"};
+ if(o.fill)a.fill=o.fill;else a.class=o.cls||"svgtxt";if(o.weight)a["font-weight"]=o.weight;const e=el("text",a,p);
+ const words=String(s).split(" "),lines=[];let cur="";const W=o.w||999;words.forEach(w=>{if((cur+" "+w).trim().length>W&&cur){lines.push(cur);cur=w}else cur=(cur+" "+w).trim()});if(cur)lines.push(cur);
+ lines.forEach((l,i)=>el("tspan",{x:x,dy:i?lh:0},e,l));return e;}
+const C={navy:"#1B3A66",poly:"#2F6DB5",sun:"#F2B233",sunD:"#B86E00",grey:"#9AA3AD",dk:"#6B7480",line:"#C8D3DF",red:"#B23A3A",green:"#2D7A4B",ink:"#13202E",cell:"#16294A"};
+function sunIcon(p,x,y,r){el("circle",{cx:x,cy:y,r:r,fill:C.sun},p);for(let k=0;k<8;k++){const a=k*Math.PI/4;el("line",{x1:x+Math.cos(a)*(r+4),y1:y+Math.sin(a)*(r+4),x2:x+Math.cos(a)*(r+10),y2:y+Math.sin(a)*(r+10),stroke:C.sun,"stroke-width":3,"stroke-linecap":"round"},p);}}
+function moon(p,x,y,r){el("circle",{cx:x,cy:y,r:r,fill:"#F5F1DE"},p);el("circle",{cx:x+r*.45,cy:y-r*.3,r:r*.85,fill:"#2B3A55"},p);}
+function cellsGrid(p,x,y,w,h,cols,rows,fill,gap){gap=gap||3;const cw=(w-gap*(cols+1))/cols,ch=(h-gap*(rows+1))/rows;el("rect",{x:x,y:y,width:w,height:h,fill:"#C8D3DF"},p);
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)el("rect",{x:x+gap+c*(cw+gap),y:y+gap+r*(ch+gap),width:cw,height:ch,fill:typeof fill==="function"?fill(r,c):(fill||C.cell)},p);return {cw:cw,ch:ch,gap:gap};}
+let uid=0;
+function flow(s,d,n,dur,col,rev,r){const id="fp"+(++uid);el("path",{id:id,d:d,fill:"none",stroke:"none"},s);
+ if(n<=0)return;if(reduce){el("path",{d:d,fill:"none",stroke:col,"stroke-width":2,"stroke-dasharray":"6 6",opacity:.8},s);return;}
+ for(let i=0;i<n;i++){const c=el("circle",{r:r||5,fill:col,stroke:"#fff","stroke-width":1},s);
+  const a=el("animateMotion",{dur:dur+"s",repeatCount:"indefinite",begin:(-i*dur/n).toFixed(2)+"s",calcMode:"linear"},c);
+  if(rev){a.setAttribute("keyPoints","1;0");a.setAttribute("keyTimes","0;1");}
+  const m=el("mpath",{},a);m.setAttribute("href","#"+id);m.setAttributeNS(XL,"xlink:href","#"+id);}}
+/* diode: horizontal at (x,y) pointing right, length L; rot rotates around (x,y) */
+function diode(p,x,y,on,rot,L){L=L||40;const g=el("g",{transform:`rotate(${rot||0} ${x} ${y})`},p);const col=on?C.sunD:C.ink;
+ el("polygon",{points:`${x-10},${y-11} ${x-10},${y+11} ${x+9},${y}`,fill:on?C.sun:"#fff",stroke:col,"stroke-width":2.5},g);el("line",{x1:x+10,y1:y-12,x2:x+10,y2:y+12,stroke:col,"stroke-width":3},g);return g;}
+function cross(p,x,y,sz){el("path",{d:`M${x-sz},${y-sz} L${x+sz},${y+sz} M${x+sz},${y-sz} L${x-sz},${y+sz}`,stroke:C.red,"stroke-width":5,"stroke-linecap":"round"},p);}
+function tcol(T){const S=[[30,[27,20,100]],[45,[91,44,131]],[60,[194,24,91]],[80,[255,111,0]],[100,[255,213,79]],[125,[255,253,231]]];
+ if(T<=S[0][0])return`rgb(${S[0][1]})`;for(let i=1;i<S.length;i++)if(T<=S[i][0]){const f=(T-S[i-1][0])/(S[i][0]-S[i-1][0]);const c=S[i-1][1].map((v,j)=>Math.round(v+(S[i][1][j]-v)*f));return`rgb(${c})`;}return`rgb(${S[S.length-1][1]})`;}
+function scaleBar(p,x,y,h){for(let k=0;k<=40;k++){const T=30+k*95/40;el("rect",{x:x,y:y+h-(k+1)*h/41,width:18,height:h/41+1,fill:tcol(T)},p);}
+ [30,60,90,125].forEach(T=>tx(p,x+24,y+h-(T-30)/95*h+4,T+" °C",{fs:11,cls:"svgmuted"}));}
+function leaf(p,x,y,s,op){el("path",{d:`M${x},${y} q${18*s},${-22*s} ${42*s},${-6*s} q${-10*s},${24*s} ${-42*s},${6*s}z`,fill:"#3E7A3A",opacity:op===undefined?1:op},p);el("line",{x1:x,y1:y,x2:x+36*s,y2:y-5*s,stroke:"#2A5A28","stroke-width":1.5,opacity:op===undefined?1:op},p);}
+const F={};
+/* ---------- TAB 1: shading model ---------- */
+let sh=40,bp=true;
+function hotModel(){const s=sh/100;let Ic,Ib=0,V=0,P=0;
+ if(s<0.05){Ic=10*(1-s);}else if(bp){Ic=Math.min(10,10*(1-s)+0.3);Ib=10-Ic;V=11.9;P=V*Ic;}else{Ic=10;V=15;P=150;}
+ const Tm=55+0.6*P;const st=Tm<70?0:Tm<90?1:Tm<120?2:3;return{s,Ic,Ib,V,P,Tm,st};}
+F.f_hot=s=>{const M=hotModel(),x0=60,pitch=66,w=56,y=150,idx=5;
+ sunIcon(s,860,40,16);
+ el("path",{d:"M20,330 V178 H870 V330 H20",fill:"none",stroke:C.ink,"stroke-width":3},s);
+ if(bp){el("path",{d:"M40,178 V95 H850 V178",fill:"none",stroke:C.ink,"stroke-width":3},s);diode(s,445,95,M.Ib>0.05);tx(s,445,78,t("bpLabel")+" ("+t("on")+")",{fs:13,anchor:"middle",weight:600});}
+ else{el("path",{d:"M40,178 V95 H850 V178",fill:"none",stroke:C.line,"stroke-width":2,"stroke-dasharray":"6 6"},s);tx(s,445,88,t("bpLabel")+" ("+t("off")+")",{fs:13,anchor:"middle",cls:"svgmuted"});}
+ for(let i=0;i<12;i++){const x=x0+i*pitch;el("rect",{x:x,y:y,width:w,height:w,fill:C.cell,stroke:"#5B7CA8"},s);
+  for(let k=1;k<3;k++)el("line",{x1:x+k*w/3,y1:y,x2:x+k*w/3,y2:y+w,stroke:"#7D8CA3","stroke-width":1},s);
+  if(i!==idx)tx(s,x+w/2,y-8,"+0.5",{fs:11,anchor:"middle",fill:C.green,weight:600});}
+ const xs=x0+idx*pitch;
+ if(M.s>0){el("rect",{x:xs-4,y:y-4,width:w+8,height:w+8,fill:"#111",opacity:Math.min(.85,M.s*.85)},s);leaf(s,xs+4,y+40,1.1,Math.min(1,M.s*1.6));}
+ const ho=Math.max(0,Math.min(1,(M.Tm-60)/80));
+ if(ho>0){const g=el("circle",{cx:xs+w/2,cy:y+w/2,r:70,fill:"url(#heat)",opacity:ho},s);
+  if(M.Tm>=90&&!reduce)el("animate",{attributeName:"opacity",values:`${ho};${ho*.45};${ho}`,dur:"1.2s",repeatCount:"indefinite"},g);}
+ tx(s,xs+w/2,y+w+22,M.V>0?"−"+M.V.toFixed(1)+" V":(M.s>0?"+0.4":"+0.5"),{fs:15,anchor:"middle",weight:700,fill:M.V>0?C.red:C.green});
+ if(!bp&&M.V>0)tx(s,xs+w/2,y+w+40,"("+t("breakdown")+")",{fs:11,anchor:"middle",fill:C.red});
+ el("rect",{x:330,y:310,width:240,height:40,rx:6,fill:"#E4EDF7",stroke:C.grey},s);tx(s,450,335,t("toInv"),{fs:12,anchor:"middle"});
+ const nc=Math.max(1,Math.round(M.Ic*1.4)),nb=Math.round(M.Ib*1.4);
+ flow(s,"M20,330 V178 H870 V330 H20",nc,7,C.navy,false);
+ if(bp&&nb>0)flow(s,"M20,330 V178 H40 V95 H850 V178 H870 V330 H20",nb,7,C.sunD,false);
+};
+function hotOut(){const M=hotModel(),row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;const st=["s_ok","s_warm","s_hot","s_dan"][M.st];
+ document.getElementById("hotOut").innerHTML=`<div><span class="state st${M.st}">${t(st)}</span></div><div class="big">${M.Tm.toFixed(0)} °C</div>`+
+ row(t("o_i"),M.Ic.toFixed(1)+" A")+(bp?row(t("o_ib"),M.Ib.toFixed(1)+" A"):"")+row(t("o_v"),M.V?("−"+M.V.toFixed(1)+" V"):"0 V")+row(t("o_p"),M.P.toFixed(0)+" W")+row(t("o_t"),M.Tm.toFixed(0)+" °C");}
+/* ---------- TAB 2: cards ---------- */
+function miniMod(s,x,y,w,h,fill){return cellsGrid(s,x,y,w,h,4,3,fill,2);}
+const IC={
+ ca1:s=>{miniMod(s,25,10,100,72);el("path",{d:"M70,30 q8,-6 14,2 q6,8 -2,14 q-8,6 -14,-2 q-4,-6 2,-14z",fill:"#F4F4F4"},s);el("circle",{cx:90,cy:52,r:3,fill:"#F4F4F4"},s);},
+ ca2:s=>{miniMod(s,25,10,100,72);leaf(s,55,50,1.1);leaf(s,80,70,.8);},
+ ca3:s=>{miniMod(s,45,20,95,65);el("polygon",{points:"45,85 90,20 120,20 75,85",fill:"#000",opacity:.45},s);el("line",{x1:20,y1:88,x2:28,y2:10,stroke:"#8A6E4B","stroke-width":5},s);for(let k=0;k<5;k++)el("path",{d:`M28,10 q${-18+k*9},${-2} ${-26+k*13},${14}`,stroke:"#3E7A3A","stroke-width":3,fill:"none"},s);},
+ ca4:s=>{miniMod(s,25,10,100,72);el("rect",{x:25,y:64,width:100,height:18,fill:"#A07A4A",opacity:.85},s);},
+ ca5:s=>{miniMod(s,55,30,90,55);el("rect",{x:12,y:15,width:34,height:45,rx:4,fill:"#3A3A3A"},s);el("polygon",{points:"46,40 90,85 55,85 46,60",fill:"#000",opacity:.45},s);},
+ ca6:s=>{el("rect",{x:40,y:8,width:74,height:74,fill:C.cell},s);el("path",{d:"M48,20 L70,45 L62,60 L90,78 M70,45 L100,38",stroke:"#D7DEE6","stroke-width":2,fill:"none"},s);},
+ ca7:s=>{el("rect",{x:40,y:8,width:74,height:74,fill:C.cell},s);el("rect",{x:60,y:8,width:5,height:74,fill:"#C9CED4"},s);el("rect",{x:90,y:8,width:5,height:74,fill:"#C9CED4"},s);el("circle",{cx:62,cy:45,r:9,fill:C.red,opacity:.8},s);},
+ ca8:s=>{cellsGrid(s,25,10,100,72,4,3,(r,c)=>(r*4+c)%5===2?"#3E6AA8":C.cell,2);},
+ dm1:s=>{el("rect",{x:40,y:8,width:74,height:74,fill:C.cell},s);el("circle",{cx:77,cy:45,r:24,fill:"#8B5A2B",opacity:.75},s);el("circle",{cx:77,cy:45,r:12,fill:"#5C3317",opacity:.8},s);},
+ dm2:s=>{el("rect",{x:25,y:10,width:100,height:72,fill:"#F2F2F2",stroke:C.grey},s);el("path",{d:"M60,30 q14,-8 24,4 q10,14 -4,22 q-16,8 -24,-6 q-6,-12 4,-20z",fill:"#2B1B10"},s);el("circle",{cx:72,cy:44,r:8,fill:"#6B3A12"},s);},
+ dm3:s=>{miniMod(s,25,10,100,72);const c=[78,42];for(let k=0;k<9;k++){const a=k*0.7;el("line",{x1:c[0],y1:c[1],x2:c[0]+Math.cos(a)*45,y2:c[1]+Math.sin(a)*35,stroke:"#fff","stroke-width":1.5},s);}},
+ dm4:s=>{el("rect",{x:45,y:15,width:60,height:40,rx:4,fill:"#3A3A3A"},s);el("path",{d:"M55,55 q0,14 6,16 q6,-2 4,-16 M82,55 q2,20 8,22 q5,-4 2,-22",fill:"#3A3A3A"},s);el("path",{d:"M60,25 q8,-10 16,0 q8,-10 16,0",stroke:C.sunD,"stroke-width":3,fill:"none"},s);},
+ dm5:s=>{el("rect",{x:40,y:8,width:74,height:74,fill:"#26447A"},s);el("path",{d:"M48,25 q12,6 22,-2 t24,6 M50,55 q10,-8 20,2 t26,-4",stroke:"#0B1426","stroke-width":3,fill:"none"},s);},
+ dm6:s=>{el("polyline",{points:"25,20 60,28 90,60 125,72",fill:"none",stroke:C.red,"stroke-width":4,"marker-end":"url(#arrr)"},s);el("line",{x1:20,y1:82,x2:130,y2:82,stroke:C.grey,"stroke-width":2},s);el("line",{x1:20,y1:10,x2:20,y2:82,stroke:C.grey,"stroke-width":2},s);},
+ dm7:s=>{el("polygon",{points:"15,80 75,40 135,80",fill:"#B5654A"},s);el("path",{d:"M75,15 q22,24 10,48 q-6,10 -10,10 q-14,0 -18,-14 q-2,-12 8,-20 q-2,10 6,12 q-4,-18 4,-36z",fill:"#FF6F00"},s);el("path",{d:"M76,45 q10,12 2,24 q-10,2 -10,-8 q0,-8 8,-16z",fill:"#FFD54F"},s);},
+ dm8:s=>{el("rect",{x:40,y:8,width:70,height:76,fill:"#FFF",stroke:C.grey},s);for(let k=0;k<4;k++)el("line",{x1:50,y1:24+k*12,x2:100,y2:24+k*12,stroke:C.line,"stroke-width":3},s);cross(s,75,46,22);},
+ pr1:s=>{sunIcon(s,40,38,16);el("circle",{cx:105,cy:45,r:30,fill:"#fff",stroke:C.ink,"stroke-width":3},s);el("path",{d:"M105,45 V25 M105,45 L120,52",stroke:C.ink,"stroke-width":3},s);el("path",{d:"M105,15 A30,30 0 0 1 131,60 L105,45z",fill:C.sun,opacity:.5},s);},
+ pr2:s=>{miniMod(s,15,25,80,58);el("path",{d:"M115,12 q14,20 14,28 a14,14 0 1,1 -28,0 q0,-8 14,-28z",fill:"#7FB3D9"},s);el("rect",{x:98,y:60,width:30,height:8,fill:C.sunD},s);for(let k=0;k<6;k++)el("line",{x1:100+k*5,y1:68,x2:100+k*5,y2:80,stroke:"#8A6E4B","stroke-width":2},s);},
+ pr3:s=>{el("line",{x1:45,y1:88,x2:45,y2:30,stroke:"#8A6E4B","stroke-width":6},s);el("circle",{cx:45,cy:28,r:22,fill:"#4E9A45"},s);el("circle",{cx:100,cy:35,r:9,fill:"none",stroke:C.ink,"stroke-width":3},s);el("circle",{cx:100,cy:62,r:9,fill:"none",stroke:C.ink,"stroke-width":3},s);el("path",{d:"M107,40 L140,58 M107,57 L140,40",stroke:C.ink,"stroke-width":3},s);},
+ pr4:s=>{el("rect",{x:30,y:25,width:70,height:45,rx:6,fill:"#3A3A3A"},s);el("circle",{cx:65,cy:47,r:16,fill:"url(#heat)"},s);el("rect",{x:100,y:35,width:24,height:24,fill:"#3A3A3A"},s);el("rect",{x:50,y:70,width:16,height:18,fill:"#3A3A3A"},s);},
+ pr5:s=>{cellsGrid(s,35,8,80,78,4,8,(r)=>r<4?C.cell:"#26447A",2);el("rect",{x:68,y:44,width:14,height:7,fill:"#222"},s);},
+ pr6:s=>{miniMod(s,20,10,100,65);el("rect",{x:55,y:72,width:30,height:16,rx:3,fill:"#2D7A4B"},s);tx(s,70,84,"MLPE",{fs:9,anchor:"middle",fill:"#fff",weight:700});},
+ pr7:s=>{for(let k=0;k<3;k++)miniMod(s,10+k*45,20,40,55);tx(s,75,90,"= = =",{fs:14,anchor:"middle",weight:700});},
+ pr8:s=>{miniMod(s,25,30,100,55);el("ellipse",{cx:75,cy:30,rx:14,ry:24,fill:"#8A6E4B"},s);cross(s,75,45,26);}};
+function cards(id,keys){const b=document.getElementById(id);b.innerHTML="";keys.forEach(k=>{const c=document.createElement("div");c.className="test";const s=el("svg",{viewBox:"0 0 150 95"},c);IC[k](s);
+ const d=document.createElement("div");d.innerHTML=`<b>${t(k)}</b>`;c.appendChild(d);b.appendChild(c);});}
+function irModule(s,x,y,temps,title,jbT){const H=220;el("rect",{x:x,y:y,width:210,height:H,fill:"#1B1464"},s);
+ for(let r=0;r<10;r++)for(let c=0;c<6;c++)el("rect",{x:x+4+c*34,y:y+4+r*(H-8)/10,width:32,height:(H-8)/10-2,fill:tcol(temps(r,c))},s);
+ if(jbT)el("rect",{x:x+85,y:y-6,width:40,height:16,rx:2,fill:tcol(jbT),stroke:"#fff"},s);
+ tx(s,x+105,y+H+24,title,{fs:13,anchor:"middle",weight:600,w:32});}
+F.f_ir1=s=>{tx(s,140,22,t("visible"),{fs:15,anchor:"middle",weight:600});cellsGrid(s,30,40,220,280,6,10,C.cell,3);leaf(s,140,146,0.9);
+ tx(s,520,22,t("thermal"),{fs:15,anchor:"middle",weight:600});el("rect",{x:410,y:40,width:220,height:280,fill:"#1B1464"},s);
+ for(let r=0;r<10;r++)for(let c=0;c<6;c++){const d=Math.hypot(r-3,c-3);let T=45+((r*7+c*3)%5)*.6;if(r===3&&c===3)T=112;else if(d<1.5)T=58;el("rect",{x:413+c*36,y:43+r*27.6,width:34,height:25.6,fill:tcol(T)},s);}
+ scaleBar(s,660,40,280);tx(s,780,150,"ΔT ≈ 60 K",{fs:22,weight:700,fill:C.red});tx(s,780,180,"112 °C vs 45 °C",{fs:14,cls:"svgmuted"});};
+F.f_ir2=s=>{tx(s,480,24,t("ir2_h"),{fs:15,anchor:"middle",weight:600});
+ const base=(r,c)=>44+((r*5+c*3)%4)*.7;
+ irModule(s,40,50,(r,c)=>r===6&&c===1?105:base(r,c),t("ip1"));
+ irModule(s,320,50,(r,c)=>(c===2||c===3)?54+((r+c)%3):base(r,c),t("ip2"));
+ irModule(s,600,50,base,t("ip3"),118);
+ scaleBar(s,880,40,250);};
+/* ---------- TAB 3: bypass layout ---------- */
+let shadeSel="none";
+F.f_byp=s=>{const cx=c=>90+c*58,top=100,bot=526,Tx=[cx(0),(cx(1)+cx(2))/2,(cx(3)+cx(4))/2,cx(5)];
+ const sh={none:[],A:[0],B:[1],C:[2],AB:[0,1]}[shadeSel];
+ el("rect",{x:60,y:top,width:355,height:436,fill:"#C8D3DF",stroke:C.grey,"stroke-width":2},s);
+ for(let c=0;c<6;c++)for(let r=0;r<10;r++){const g=Math.floor(c/2);el("rect",{x:cx(c)-25,y:110+r*42,width:50,height:38,fill:sh.includes(g)?"#4A5468":C.cell},s);}
+ for(let c=0;c<6;c++)el("line",{x1:cx(c),y1:top,x2:cx(c),y2:bot,stroke:"#7D8CA3","stroke-width":2},s);
+ for(let k=0;k<3;k++){el("line",{x1:cx(2*k),y1:bot,x2:cx(2*k+1),y2:bot,stroke:"#7D8CA3","stroke-width":3},s);
+  tx(s,(cx(2*k)+cx(2*k+1))/2,552,t("grp")+" "+"ABC"[k],{fs:14,anchor:"middle",weight:700,fill:sh.includes(k)?C.sunD:C.ink});
+  if(sh.includes(k))leaf(s,cx(2*k)-20,300,1.2);}
+ el("rect",{x:70,y:30,width:340,height:55,rx:6,fill:"#2B2B2B",opacity:.12,stroke:C.dk},s);tx(s,240,24,t("jbox"),{fs:13,anchor:"middle",cls:"svgmuted"});
+ for(let k=0;k<4;k++){el("line",{x1:Tx[k],y1:70,x2:Tx[k],y2:top,stroke:C.ink,"stroke-width":3},s);el("line",{x1:Tx[k],y1:55,x2:Tx[k],y2:70,stroke:C.ink,"stroke-width":3},s);el("circle",{cx:Tx[k],cy:70,r:4,fill:C.ink},s);}
+ for(let k=0;k<3;k++){el("line",{x1:Tx[k],y1:top,x2:cx(2*k),y2:top,stroke:C.ink,"stroke-width":3},s);el("line",{x1:cx(2*k+1),y1:top,x2:Tx[k+1],y2:top,stroke:C.ink,"stroke-width":3},s);
+  el("line",{x1:Tx[k],y1:55,x2:Tx[k+1],y2:55,stroke:C.ink,"stroke-width":3},s);diode(s,(Tx[k]+Tx[k+1])/2,55,sh.includes(k));tx(s,(Tx[k]+Tx[k+1])/2,44,"D"+(k+1),{fs:12,anchor:"middle",weight:700});}
+ el("line",{x1:20,y1:70,x2:Tx[0],y2:70,stroke:C.ink,"stroke-width":3},s);el("line",{x1:Tx[3],y1:70,x2:580,y2:70,stroke:C.ink,"stroke-width":3},s);
+ tx(s,22,92,"−",{fs:22,weight:700});tx(s,565,92,"+",{fs:22,weight:700});
+ let d=`M20,70 H${Tx[0]}`;for(let k=0;k<3;k++){if(sh.includes(k))d+=` V55 H${Tx[k+1]} V70`;else d+=` V${top} H${cx(2*k)} V${bot} H${cx(2*k+1)} V${top} H${Tx[k+1]} V70`;}d+=" H580";
+ flow(s,d,26,9,C.sunD,false,5);};
+function bypOut(){const k={none:0,A:1,B:1,C:1,AB:2}[shadeSel],V=31.2*(3-k)/3-0.4*k,P=V*9.5,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+ const dl={none:t("o_none"),A:"D1",B:"D2",C:"D3",AB:"D1, D2"}[shadeSel];
+ document.getElementById("bypOut").innerHTML=`<div>${t("o_mp")}</div><div class="big">${P.toFixed(0)} W</div>`+row(t("o_mv"),V.toFixed(1)+" V")+row(t("o_dc"),dl)+`<p style="margin:.4rem 0 0;font-size:.85rem">${k?t("o_bpNote"):t("o_okNote")}</p>`;}
+F.f_jbox=s=>{tx(s,20,24,t("jb_h"),{fs:15,weight:600});el("rect",{x:50,y:45,width:420,height:200,rx:10,fill:"#2E2E2E"},s);
+ const X=[110,210,310,410];X.forEach(x=>{el("rect",{x:x-12,y:65,width:24,height:160,fill:"#C77B30"},s);el("line",{x1:x,y1:245,x2:x,y2:290,stroke:"#C9CED4","stroke-width":5},s);});
+ for(let k=0;k<3;k++){const xm=(X[k]+X[k+1])/2;el("line",{x1:X[k]+12,y1:145,x2:X[k+1]-12,y2:145,stroke:"#C9CED4","stroke-width":3},s);el("rect",{x:xm-22,y:132,width:44,height:26,rx:3,fill:"#111"},s);el("rect",{x:xm+12,y:132,width:6,height:26,fill:"#DDD"},s);tx(s,xm-4,175,"D"+(k+1),{fs:13,anchor:"middle",fill:"#fff",weight:700});}
+ el("path",{d:"M98,90 H20",stroke:"#111","stroke-width":8},s);el("path",{d:"M422,90 H500",stroke:C.red,"stroke-width":8},s);tx(s,20,80,"−",{fs:22,weight:700});tx(s,495,80,"+",{fs:22,weight:700,fill:C.red});
+ tx(s,260,310,t("ribbon")+" ↑",{fs:13,anchor:"middle",cls:"svgmuted"});};
+F.f_hcbp=s=>{tx(s,20,24,t("hcb_h"),{fs:15,weight:600});cellsGrid(s,110,40,300,110,6,6,C.cell,2);cellsGrid(s,110,158,300,110,6,6,"#26447A",2);
+ [160,260,360].forEach((x,k)=>{el("rect",{x:x-16,y:146,width:32,height:16,rx:3,fill:"#222"},s);tx(s,x,141,"D"+(k+1),{fs:11,anchor:"middle",weight:700});});
+ tx(s,260,300,t("hcb_s"),{fs:13,anchor:"middle",w:62});};
+/* ---------- TAB 4: I-V model ---------- */
+let cs=50,nsh=1,bp2=true;
+const nVt=0.03,Iph0=9.8,I0=Iph0/(Math.exp(0.68/0.03)-1),Rs=0.004,Rsh=30;
+function vcell(I,Iph){if(I<Iph)return nVt*Math.log((Iph-I)/I0+1)-I*Rs;let v=-(I-Iph)*Rsh;if(v<-15)v=-15-(I-Iph-15/Rsh)*0.05;return v-I*Rs;}
+function ilist(s){const L=[];for(let I=0;I<Iph0+0.4;I+=0.02)L.push(I);[Iph0,Iph0*(1-s)].forEach(ip=>{for(let x=1.5;x<=9;x+=0.08)L.push(ip-Math.pow(10,-x));for(let d=0;d<0.6;d+=0.004)L.push(ip+d);});return L.filter(I=>I>=0).sort((a,b)=>a-b);}
+function curve(shaded,s,useBp){const pts=[];for(const I of ilist(s)){let V=0;for(let g=0;g<3;g++){const m=shaded.includes(g)?1:0;let Vs=(20-m)*vcell(I,Iph0)+m*vcell(I,Iph0*(1-s));if(useBp)Vs=Math.max(Vs,-0.4);V+=Vs;}if(V>=0)pts.push([V,I,V*I]);}pts.sort((a,b)=>a[0]-b[0]);return pts;}
+function peaks(p){const B=[];p.forEach(q=>{const b=Math.round(q[0]/0.25);if(!B[b]||q[2]>B[b][2])B[b]=q;});const A=B.filter(Boolean),out=[];
+ for(let i=0;i<A.length;i++){let ok=A[i][2]>10;for(let k=Math.max(0,i-6);k<=Math.min(A.length-1,i+6);k++)if(A[k][2]>A[i][2])ok=false;if(ok&&i<A.length-1&&(!out.length||A[i][0]-out[out.length-1][0]>2))out.push(A[i]);}return out;}
+let ivRes={};
+F.f_iv=s=>{const sh=nsh===1?[0]:[0,1],ref=curve([],0,true),cur=curve(sh,cs/100,bp2);
+ const plots=[{x:70,k:1,max:11,lab:t("current")},{x:560,k:2,max:320,lab:t("power")}],W=360,H=270,Y0=320,Vmax=45;
+ plots.forEach(P=>{const sx=v=>P.x+v/Vmax*W,sy=v=>Y0-v/P.max*H;
+  for(let v=0;v<=Vmax;v+=10){el("line",{x1:sx(v),y1:Y0,x2:sx(v),y2:Y0-H,stroke:C.line},s);tx(s,sx(v),Y0+18,String(v),{fs:11,anchor:"middle",cls:"svgmuted"});}
+  const st=P.k===1?2:80;for(let v=0;v<=P.max;v+=st){el("line",{x1:P.x,y1:sy(v),x2:P.x+W,y2:sy(v),stroke:C.line},s);tx(s,P.x-6,sy(v)+4,String(v),{fs:11,anchor:"end",cls:"svgmuted"});}
+  el("rect",{x:P.x,y:Y0-H,width:W,height:H,fill:"none",stroke:C.grey},s);
+  tx(s,P.x+W/2,Y0+40,t("voltage"),{fs:13,anchor:"middle"});tx(s,P.x,Y0-H-12,P.lab,{fs:13,weight:600});
+  el("polyline",{points:ref.map(p=>sx(p[0])+","+sy(p[P.k])).join(" "),fill:"none",stroke:C.grey,"stroke-width":2.5,"stroke-dasharray":"7 5"},s);
+  el("polyline",{points:cur.map(p=>sx(p[0])+","+sy(p[P.k])).join(" "),fill:"none",stroke:C.navy,"stroke-width":3.5},s);});
+ const pk=peaks(cur),g=pk.reduce((a,b)=>b[2]>a[2]?b:a,[0,0,0]),sx=v=>560+v/Vmax*W,sy=v=>Y0-v/320*H;
+ pk.forEach(p=>{const isG=p===g;el("circle",{cx:sx(p[0]),cy:sy(p[2]),r:7,fill:isG?C.sun:"#fff",stroke:isG?C.sunD:C.navy,"stroke-width":2.5},s);
+  tx(s,sx(p[0]),sy(p[2])-14,(isG?t("gmpp"):t("lmpp"))+" "+p[2].toFixed(0)+" W",{fs:12,anchor:"middle",weight:600,fill:isG?C.sunD:C.navy});});
+ const p0=Math.max(...ref.map(p=>p[2]));ivRes={p0:p0,p1:g[2],n:pk.length};};
+function ivOut(){const r=ivRes,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+ document.getElementById("ivOut").innerHTML=row(t("o_p0"),r.p0.toFixed(0)+" W")+row(t("o_p1"),r.p1.toFixed(0)+" W")+row(t("o_loss"),((1-r.p1/r.p0)*100).toFixed(1)+" %")+row(t("o_peaks"),String(r.n));}
+/* ---------- TAB 5: blocking ---------- */
+let isDay=true,hasD=true,fault=true,hasD2=false;
+F.f_blk1=s=>{if(isDay)sunIcon(s,60,40,18);else{el("rect",{x:0,y:0,width:900,height:300,fill:"#2B3A55",opacity:.12},s);moon(s,60,40,18);}
+ cellsGrid(s,90,75,120,170,3,5,isDay?C.cell:"#0E1A30",3);tx(s,150,270,"PV",{fs:16,anchor:"middle",weight:700});
+ el("path",{d:"M210,90 H740 V125 M740,195 V230 H210",fill:"none",stroke:C.ink,"stroke-width":3},s);
+ el("rect",{x:700,y:125,width:80,height:70,rx:4,fill:"#3A3A3A"},s);el("rect",{x:712,y:116,width:14,height:9,fill:C.red},s);el("rect",{x:754,y:116,width:14,height:9,fill:"#111"},s);tx(s,740,165,t("battery"),{fs:13,anchor:"middle",fill:"#fff",weight:600});tx(s,740,212,"12 V",{fs:12,anchor:"middle",fill:"#fff"});
+ tx(s,215,82,"+",{fs:18,weight:700,fill:C.red});tx(s,215,252,"−",{fs:18,weight:700});
+ if(hasD){el("rect",{x:430,y:90,width:0,height:0},s);el("line",{x1:420,y1:90,x2:470,y2:90,stroke:"#fff","stroke-width":6},s);diode(s,445,90,isDay);tx(s,445,62,"D",{fs:14,anchor:"middle",weight:700});}
+ const d="M210,90 H740 V230 H210 Z";
+ if(isDay)flow(s,d,14,6,C.navy,false);
+ else if(!hasD){flow(s,d,7,10,C.red,true);el("rect",{x:110,y:140,width:80,height:40,fill:"url(#heat)",opacity:.35},s);}
+ else{cross(s,500,90,14);tx(s,500,125,t("blocked"),{fs:14,anchor:"middle",weight:700,fill:C.red});}
+ document.getElementById("blk1Cap").textContent=isDay?t("b1day"):hasD?t("b1nd"):t("b1nn");};
+F.f_blk2=s=>{const X=[150,300,450],rev=fault&&!hasD2;sunIcon(s,850,40,16);
+ el("line",{x1:X[0],y1:40,x2:760,y2:40,stroke:C.red,"stroke-width":4},s);el("line",{x1:X[0],y1:360,x2:760,y2:360,stroke:C.ink,"stroke-width":4},s);
+ el("line",{x1:760,y1:40,x2:760,y2:150,stroke:C.red,"stroke-width":4},s);el("line",{x1:760,y1:250,x2:760,y2:360,stroke:C.ink,"stroke-width":4},s);
+ el("rect",{x:690,y:150,width:140,height:100,rx:6,fill:"#E4EDF7",stroke:C.grey,"stroke-width":2},s);tx(s,760,195,t("inverter"),{fs:13,anchor:"middle",weight:600,w:14});
+ X.forEach((x,i)=>{el("line",{x1:x,y1:40,x2:x,y2:360,stroke:C.ink,"stroke-width":3},s);
+  for(let m=0;m<3;m++){const bad=fault&&i===2;cellsGrid(s,x-38,95+m*82,76,72,3,3,bad&&m===1?"#3E465A":C.cell,2);if(bad&&m===1)leaf(s,x-28,150,1.2);}
+  tx(s,x,385,t("strg")+" "+(i+1),{fs:13,anchor:"middle",weight:600});
+  if(hasD2){el("line",{x1:x,y1:52,x2:x,y2:88,stroke:"#fff","stroke-width":5},s);diode(s,x,70,!(fault&&i===2),-90);}
+  if(i===2&&rev)el("circle",{cx:x,cy:220,r:70,fill:"url(#heat)",opacity:.55},s);});
+ X.forEach((x,i)=>{if(i===2&&fault){if(rev)flow(s,`M${x},40 V360`,8,6,C.red,false);else if(hasD2){cross(s,x+22,70,10);}}else flow(s,`M${x},360 V40`,7,6,C.navy,false);});
+ flow(s,"M460,40 H760 V360 H460",fault?(rev?5:9):12,6,C.sunD,false);
+ tx(s,30,45,"+",{fs:20,weight:700,fill:C.red});tx(s,30,365,"−",{fs:20,weight:700});
+ document.getElementById("blk2Cap").textContent=!fault?t("b2n"):hasD2?t("b2fd"):t("b2fn");};
+/* ---------- TAB 6: testing ---------- */
+function meter(s,x,disp,fw){el("rect",{x:x,y:40,width:150,height:150,rx:12,fill:"#F2B233",stroke:C.sunD,"stroke-width":2},s);el("rect",{x:x+15,y:55,width:120,height:45,rx:4,fill:"#C7D3B8"},s);
+ tx(s,x+125,88,disp,{fs:24,anchor:"end",weight:700,fill:C.ink});el("circle",{cx:x+75,cy:140,r:24,fill:"#333"},s);tx(s,x+75,145,"→|",{fs:14,anchor:"middle",fill:"#fff",weight:700});
+ const dy=245;el("line",{x1:x+30,y1:dy,x2:x+120,y2:dy,stroke:C.ink,"stroke-width":3},s);diode(s,x+75,dy,false);
+ const red=fw?x+35:x+115,blk=fw?x+115:x+35;el("path",{d:`M${x+55},190 Q${x+40},215 ${red},${dy-4}`,stroke:C.red,"stroke-width":4,fill:"none"},s);el("path",{d:`M${x+95},190 Q${x+110},215 ${blk},${dy-4}`,stroke:"#111","stroke-width":4,fill:"none"},s);
+ tx(s,x+75,282,fw?t("fwd"):t("rev"),{fs:13,anchor:"middle",weight:600});}
+F.f_meter=s=>{tx(s,20,24,t("mt_h"),{fs:15,weight:600});meter(s,40,"0.38",true);meter(s,300,"OL",false);};
+F.f_voc=s=>{tx(s,20,24,t("voc_h"),{fs:15,weight:600});const B=[["vh1",40.8,C.green],["vh2",27.2,C.sunD],["vh3",13.6,C.red],["vh4",40.8,"#7A5C99"]];
+ B.forEach((b,i)=>{const y=50+i*58,w=b[1]/45*240;tx(s,190,y+22,t(b[0]),{fs:12,anchor:"end",w:26});el("rect",{x:200,y:y+4,width:w,height:30,fill:b[2]},s);tx(s,206+w,y+25,b[1]+" V",{fs:14,weight:700});});};
+/* ---------- tables ---------- */
+function tables(){const R=(a)=>a.map(r=>"<tr>"+r.map((c,i)=>`<td>${i===0?"<b>"+c+"</b>":c}</td>`).join("")+"</tr>").join("");
+ document.getElementById("vsTable").innerHTML=`<thead><tr><th>${t("v_item")}</th><th>${t("bpLabel")}</th><th>${t("tab5")}</th></tr></thead><tbody>`+R([1,2,3,4,5,6].map(i=>[t("v"+i),t("v"+i+"a"),t("v"+i+"b")]))+"</tbody>";
+ document.getElementById("faultTable").innerHTML=`<thead><tr><th>${t("fsym")}</th><th>${t("fcause")}</th><th>${t("fact")}</th></tr></thead><tbody>`+R([1,2,3,4].map(i=>[t("fr"+i+"a"),t("fr"+i+"b"),t("fr"+i+"c")]))+"</tbody>";
+ const S=[["IEC 61215-2","sd1"],["IEC 61215-2","sd2"],["IEC 62979","sd3"],["IS/IEC 61730-1, -2","sd4"],["IEC TS 62446-3","sd5"],["IS/IEC 62548","sd6"],["IEC 60269-6","sd7"],["IS/IEC 62446-1","sd8"]];
+ document.getElementById("stdTable").innerHTML=`<thead><tr><th>${t("code")}</th><th>${t("covers")}</th></tr></thead><tbody>`+R(S.map(r=>[r[0],t(r[1])]))+"</tbody>";}
+/* ---------- segmented controls ---------- */
+function seg(id,opts,cur,fn){const b=document.getElementById(id);b.innerHTML="";opts.forEach(o=>{const x=document.createElement("button");x.type="button";x.textContent=o[0];x.setAttribute("aria-pressed",o[1]===cur);x.addEventListener("click",()=>fn(o[1]));b.appendChild(x);});}
+function redraw(id){const s=document.getElementById(id);s.innerHTML="";F[id](s);}
+function controls(){
+ seg("bpSeg",[[t("bpLabel")+": "+t("on"),true],[t("bpLabel")+": "+t("off"),false]],bp,v=>{bp=v;controls();redraw("f_hot");hotOut();});
+ seg("subSeg",[[t("noShade"),"none"],[t("shA"),"A"],[t("shB"),"B"],[t("shC"),"C"],[t("shAB"),"AB"]],shadeSel,v=>{shadeSel=v;controls();redraw("f_byp");bypOut();});
+ seg("nSeg",[[t("n1"),1],[t("n2"),2]],nsh,v=>{nsh=v;controls();redraw("f_iv");ivOut();});
+ seg("bp2Seg",[[t("bpLabel")+": "+t("on"),true],[t("bpLabel")+": "+t("off"),false]],bp2,v=>{bp2=v;controls();redraw("f_iv");ivOut();});
+ seg("dnSeg",[["☀ "+t("day"),true],["☾ "+t("night"),false]],isDay,v=>{isDay=v;controls();redraw("f_blk1");});
+ seg("bdSeg",[[t("withD"),true],[t("noD"),false]],hasD,v=>{hasD=v;controls();redraw("f_blk1");});
+ seg("flSeg",[[t("normal"),false],[t("fault3"),true]],fault,v=>{fault=v;controls();redraw("f_blk2");});
+ seg("bd2Seg",[[t("withD"),true],[t("noD"),false]],hasD2,v=>{hasD2=v;controls();redraw("f_blk2");});
+ document.querySelectorAll("#langSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));}
+/* ---------- calculators ---------- */
+const $=id=>document.getElementById(id),nv=id=>parseFloat($(id).value)||0,row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+function k1(){const P=nv("k1v")*nv("k1i"),Tm=nv("k1t")+nv("k1r")*P,st=Tm<70?0:Tm<90?1:Tm<120?2:3;
+ $("k1o").innerHTML=`<div>${t("o_ph")}</div><div class="big">${P.toFixed(1)} W</div>`+row(t("o_th"),Tm.toFixed(0)+" °C")+row(t("o_st"),`<span class="state st${st}">${t(["s_ok","s_warm","s_hot","s_dan"][st])}</span>`);}
+function k2(){const V0=nv("k2v"),I=nv("k2i"),n=Math.max(1,nv("k2n")),k=Math.min(n,Math.max(0,nv("k2k"))),V=Math.max(0,V0*(n-k)/n-k*nv("k2f")),P=V*I,Pn=V0*I;
+ $("k2o").innerHTML=`<div>${t("o_p2")}</div><div class="big">${P.toFixed(1)} W</div>`+row(t("o_v2"),V.toFixed(1)+" V")+row(t("o_n2"),Pn.toFixed(1)+" W")+row(t("o_l2"),(Pn?(1-P/Pn)*100:0).toFixed(1)+" %");}
+function k3(){const P=nv("k3v")*nv("k3i"),E=P*nv("k3h")*365/1000,pc=nv("k3s")?nv("k3v")/nv("k3s")*100:0;
+ $("k3o").innerHTML=`<div>${t("o_p3")}</div><div class="big">${P.toFixed(1)} W</div>`+row(t("o_e3"),E.toFixed(1)+" kWh")+row(t("o_pc3"),pc.toFixed(1)+" %");}
+function k4(){const Np=Math.max(1,nv("k4n")),Isc=nv("k4i"),If=nv("k4f"),Ir=(Np-1)*Isc,need=Ir>If,lo=1.5*Isc,hi=Math.min(2.4*Isc,If);
+ const sizes=[6,8,10,12,15,16,20,25,30,32,40],pick=sizes.find(z=>z>=lo&&z<=hi);
+ $("k4o").innerHTML=`<div>${t("o_r4")}</div><div class="big">${Ir.toFixed(1)} A</div>`+`<p style="margin:.3rem 0"><span class="state ${need?"st3":"st0"}">${need?t("o_need"):t("o_noneed")}</span></p>`+
+ (need?(lo<=hi?row(t("o_rng"),lo.toFixed(1)+" – "+hi.toFixed(1)+" A"+(pick?" → "+pick+" A gPV":"")):row(t("o_rng"),t("o_bad"))):"");}
+function calcAll(){k1();k2();k3();k4();}
+[["k1v","k1i","k1r","k1t"],["k2v","k2i","k2n","k2k","k2f"],["k3v","k3i","k3h","k3s"],["k4n","k4i","k4f"]].forEach((ids,j)=>ids.forEach(i=>$(i).addEventListener("input",[k1,k2,k3,k4][j])));
+/* sliders */
+$("sRange").addEventListener("input",e=>{sh=+e.target.value;$("sVal").textContent=sh+"%";redraw("f_hot");hotOut();});
+$("cRange").addEventListener("input",e=>{cs=+e.target.value;$("cVal").textContent=cs+"%";redraw("f_iv");ivOut();});
+/* ---------- language, tabs ---------- */
+const panels=[...document.querySelectorAll("section.panel")],tablist=document.getElementById("tablist");
+panels.forEach((p,i)=>{const b=document.createElement("button");b.className="tabbtn";b.setAttribute("role","tab");b.id="tab-"+p.id;b.onclick=()=>show(i);tablist.appendChild(b);p.setAttribute("role","tabpanel");p.setAttribute("aria-labelledby",b.id);});
+const tabs=[...tablist.children];let cur=0;
+function show(i){cur=(i+panels.length)%panels.length;panels.forEach((p,j)=>p.classList.toggle("active",j===cur));tabs.forEach((b,j)=>{b.setAttribute("aria-selected",j===cur);b.tabIndex=j===cur?0:-1});
+ tabs[cur].scrollIntoView({block:"nearest",inline:"nearest"});try{history.replaceState(null,"","#"+panels[cur].id)}catch(e){}window.scrollTo({top:0});}
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll("[data-t]").forEach(e=>e.innerHTML=t(e.dataset.t));tabs.forEach((b,i)=>b.textContent=t(panels[i].dataset.tab));
+ controls();for(const id in F)redraw(id);hotOut();bypOut();ivOut();
+ cards("causes",["ca1","ca2","ca3","ca4","ca5","ca6","ca7","ca8"]);cards("damage",["dm1","dm2","dm3","dm4","dm5","dm6","dm7","dm8"]);cards("prevCards",["pr1","pr2","pr3","pr4","pr5","pr6","pr7","pr8"]);
+ tables();calcAll();}
+function setLang(l){if(LI[l]===undefined)return;lang=l;try{localStorage.setItem("pvlang",lang)}catch(e){}applyLang();}
+document.querySelectorAll("#langSeg button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.l)));
+$("prevTab").onclick=()=>show(cur-1);$("nextTab").onclick=()=>show(cur+1);
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.key==="ArrowRight"||e.key==="PageDown"){show(cur+1);e.preventDefault()}if(e.key==="ArrowLeft"||e.key==="PageUp"){show(cur-1);e.preventDefault()}
+ if(e.key==="l"||e.key==="L"){const o=["en","hi","ml"];setLang(o[(o.indexOf(lang)+1)%3]);}});
+let fs=20;try{const v=localStorage.getItem("pvfs");if(v)fs=+v}catch(e){}
+function setFs(v){fs=Math.max(14,Math.min(30,v));document.documentElement.style.setProperty("--fs",fs+"px");try{localStorage.setItem("pvfs",fs)}catch(e){}}
+setFs(fs);$("fsUp").onclick=()=>setFs(fs+2);$("fsDown").onclick=()=>setFs(fs-2);
+const st=panels.findIndex(p=>"#"+p.id===location.hash);applyLang();show(st<0?0:st);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar Smart Technician Advanced Challenge</title>
+<style>
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;background:#f5f8fa;color:#222;margin:0;padding:16px clamp(12px,2.5vw,32px) 32px}
+  h1,h2{text-align:center;margin:6px 0}
+  h1{font-size:clamp(20px,3.2vw,28px);color:#0a4a8a}
+  h2{font-size:clamp(14px,2vw,17px);font-weight:normal;color:#555;margin-bottom:12px}
+  .score{position:sticky;top:0;z-index:2;background:#0a4a8a;color:#fff;text-align:center;padding:8px;border-radius:8px;font-weight:bold;margin-bottom:6px}
+  #quiz{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:14px;margin-top:10px}
+  .question{background:#fff;padding:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+  .options label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;padding:6px 8px;border-radius:6px;cursor:pointer}
+  .options label:hover{background:#f0f5fb}
+  .options input{margin-top:3px}
+  button{background:#007bff;color:#fff;padding:10px 18px;border:none;border-radius:6px;cursor:pointer;font:inherit;font-weight:bold}
+  button:hover{background:#0056b3}
+  button:disabled{background:#9db8d6;cursor:default}
+  .feedback{margin-top:8px;font-style:italic;min-height:1.2em}
+  .result{text-align:center;font-size:1.2em;margin-top:20px}
+  .finish{display:block;margin:22px auto 0}
+  .warn{color:#b45309;text-align:center;margin-top:10px;font-weight:bold}
+</style>
+</head>
+<body>
+<h1>☀️ Solar Smart Technician Advanced Challenge</h1>
+<h2>Rooftop Solar PV Installation &amp; Maintenance (NSQF Level 3)</h2>
+<div class="score" id="score">Answered 0 · Correct 0</div>
+<div id="quiz"></div>
+<button class="finish" id="finish" type="button">Finish quiz</button>
+<div class="warn" id="warn"></div>
+<div class="result" id="result"></div>
+<script>
+const quizData=[{"q": "Which effect describes generation of current when photons create electron–hole pairs?", "o": ["Photoelectric effect", "Photovoltaic effect", "Thermionic emission", "Piezoelectric effect"], "a": 1, "f": "The photovoltaic effect generates current when light falls on a semiconductor junction."}, {"q": "A PV panel has Vmp = 32 V and the inverter maximum is 600 V. Maximum panels in series (by Vmp)?", "o": ["16", "18", "20", "22"], "a": 1, "f": "600 ÷ 32 ≈ 18.75 → 18 panels. In real design also check string Voc at the lowest site temperature."}, {"q": "Which parameter drops when temperature rises?", "o": ["Isc", "Voc", "Series resistance", "Number of cells"], "a": 1, "f": "Open-circuit voltage decreases as temperature rises."}, {"q": "What does MPPT do?", "o": ["Converts AC to DC", "Finds the maximum power point", "Balances battery", "Measures irradiance"], "a": 1, "f": "MPPT keeps the PV array operating at its maximum power point."}, {"q": "Which standard covers crystalline PV module design qualification?", "o": ["IEC 61730", "IEC 61215", "IEC 60364", "IEC 62109"], "a": 1, "f": "IEC 61215 defines design qualification for PV modules."}, {"q": "Voc measured 38.7 V vs label 39.2 V. Likely reason?", "o": ["Faulty panel", "Temperature/irradiance difference", "Wrong wiring", "Inverter error"], "a": 1, "f": "A small variation is normal because field conditions differ from STC."}, {"q": "Most common earthing method for rooftop PV?", "o": ["Isolated only", "TT/TN with frame bonding", "No earthing", "Floating"], "a": 1, "f": "Module frames and surge devices are bonded and earthed as per the site earthing system."}, {"q": "Which device prevents reverse current flowing into a shaded or weak string?", "o": ["Fuse", "Blocking diode", "Charge controller", "Earth rod"], "a": 1, "f": "A blocking diode stops reverse current into a string. Bypass diodes protect shaded cells from hotspots."}, {"q": "String voltage is low but panels are clean. First check?", "o": ["Replace inverter", "Check connections/fuses", "Re-tilt panels", "Change panels"], "a": 1, "f": "Loose connectors or blown fuses often cause voltage drops."}, {"q": "Which loss increases with long DC cable runs?", "o": ["Shading", "MPPT", "I²R (resistive)", "Thermal runaway"], "a": 2, "f": "Resistive (I²R) losses rise with long, high-current cables."}, {"q": "12 panels (250 W, 30 V, 8.33 A) as 3 strings × 4 in series: array Vmp/Imp?", "o": ["30 V, 25 A", "120 V, 25 A", "120 V, 8.33 A", "30 V, 8.33 A"], "a": 1, "f": "4 in series → 120 V; 3 strings in parallel → 25 A total."}, {"q": "Potential Induced Degradation (PID) is caused by?", "o": ["Poor soldering", "Voltage stress/leakage", "Microcracks", "Wind"], "a": 1, "f": "PID results from high system voltage stress and leakage current to earth."}, {"q": "IEC 61701 tests PV modules for?", "o": ["Cold cycle", "Salt mist corrosion", "Fire", "Hail"], "a": 1, "f": "IEC 61701 covers salt mist corrosion testing."}, {"q": "MPPT efficiency of 98% means?", "o": ["2% loss always", "Extracts 98% of the maximum possible power", "Battery 98% charged", "Inverter 98% efficient"], "a": 1, "f": "It tracks up to 98% of the available maximum power."}, {"q": "Protection needed before the combiner box output?", "o": ["DC isolator/fuse per string", "Earth leakage only", "AC MCB", "SPD only"], "a": 0, "f": "Each string needs a DC fuse or isolator for safety."}, {"q": "Correct GHI formula?", "o": ["DNI × cos(θz) + DHI", "DNI + reflected", "DHI × cos(θ)", "DNI × sin(θ)"], "a": 0, "f": "GHI = beam (DNI × cos of zenith angle) + diffuse horizontal irradiance."}, {"q": "STC uses AM1.5. What does it mean?", "o": ["1.5 kW/m²", "Air mass 1.5 atmosphere thickness", "Altitude 1.5 km", "A multiplier"], "a": 1, "f": "AM1.5 is sunlight that has passed through 1.5 times the vertical thickness of the atmosphere."}, {"q": "Why is field power lower than the STC rating?", "o": ["Temperature rise reduces output", "MPPT algorithms", "Clean panels perform worse", "More sunshine"], "a": 0, "f": "Cells run hotter than 25 °C in the field, which reduces voltage and power."}, {"q": "Anti-islanding protection ensures?", "o": ["Inverter runs during grid failure", "Inverter shuts off during grid failure", "Disconnects batteries", "Boosts output"], "a": 1, "f": "It stops the inverter energising the grid during an outage."}, {"q": "How are micro-cracks invisible to the eye detected?", "o": ["Visual check", "EL imaging", "Voc check", "Thermometer"], "a": 1, "f": "Electroluminescence (EL) imaging reveals hidden cracks."}, {"q": "Temperature coefficient −0.4%/°C, cell heats from 25 to 45 °C, 300 W rated → power?", "o": ["300 W", "276 W", "288 W", "240 W"], "a": 1, "f": "20 °C rise × 0.4% = 8% loss → 300 × 0.92 = 276 W."}, {"q": "Which inverter specification protects against cold-morning overvoltage?", "o": ["Max DC input voltage rating", "AC frequency", "Battery SOC", "Earth probe"], "a": 0, "f": "String Voc at the coldest morning must stay below the maximum DC input voltage."}, {"q": "To reduce mismatch loss use?", "o": ["Mixed panels", "Identical panels", "Different tilts", "Remove diodes"], "a": 1, "f": "Identical panels in the same orientation reduce mismatch."}, {"q": "Which component diverts lightning surges?", "o": ["MPPT", "DC SPD", "AC isolator", "Fan"], "a": 1, "f": "A DC surge protective device clamps surge voltages."}, {"q": "Mounting structure loads must follow?", "o": ["Module label", "Local building code & supplier specs", "Array power", "Inverter rating"], "a": 1, "f": "Follow local codes and the structure supplier's load ratings."}, {"q": "Combiner rated 60 A, each string 8 A. Maximum parallel strings?", "o": ["6", "7", "8", "9"], "a": 1, "f": "60 ÷ 8 = 7.5 → 7 strings maximum."}, {"q": "To detect soiling quickly, measure?", "o": ["Visual only", "Isc under the same irradiance", "Voc only", "Inverter model"], "a": 1, "f": "Soiling reduces current; compare Isc under the same irradiance."}, {"q": "A sign of PID?", "o": ["Voc rise", "Gradual uniform power drop", "Mechanical damage", "Faster MPPT"], "a": 1, "f": "PID causes a slow power loss, especially in humid, high-voltage systems."}, {"q": "To halve resistive loss in a DC cable?", "o": ["Double the current", "Double the cable area", "Halve the voltage", "Use thinner cable"], "a": 1, "f": "Resistance ∝ 1/area, so doubling the area halves the loss."}, {"q": "Best daily system-health metric?", "o": ["Power at noon", "Daily kWh compared with irradiance", "Yearly visual check", "Battery voltage"], "a": 1, "f": "Daily yield against irradiance shows true system performance."}];
+let score=0,answered=0,confirmPending=false;
+const quiz=document.getElementById('quiz');
+function upd(){document.getElementById('score').textContent='Answered '+answered+' / '+quizData.length+' · Correct '+score;}
+quizData.forEach((item,i)=>{
+  const div=document.createElement('div');div.className='question';
+  div.innerHTML='<b>Q'+(i+1)+'. '+item.q+'</b><div class="options">'+item.o.map((o,j)=>'<label><input type="radio" name="q'+i+'" value="'+j+'"> <span>'+o+'</span></label>').join('')+'</div><button type="button">Check answer</button><div class="feedback"></div>';
+  const btn=div.querySelector('button'),fb=div.querySelector('.feedback');
+  btn.onclick=()=>{
+    const sel=div.querySelector('input:checked');
+    if(!sel){fb.textContent='Please select an option first.';fb.style.color='#b45309';return;}
+    if(+sel.value===item.a){fb.textContent='✅ Correct! '+item.f;fb.style.color='#006400';score++;}
+    else{fb.textContent='❌ Incorrect. Correct answer: '+item.o[item.a]+'. '+item.f;fb.style.color='#a00000';}
+    btn.disabled=true;div.querySelectorAll('input').forEach(e=>e.disabled=true);answered++;upd();
+  };
+  quiz.appendChild(div);
+});
+document.getElementById('finish').onclick=function(){
+  const warn=document.getElementById('warn');
+  if(answered<quizData.length&&!confirmPending){
+    warn.textContent=(quizData.length-answered)+' questions are unanswered. Click “Finish quiz” again to submit anyway.';
+    confirmPending=true;return;
+  }
+  warn.textContent='';
+  const p=Math.round(score/quizData.length*100);
+  const g=p>=85?'Excellent':p>=65?'Good':p>=50?'Pass':'Needs improvement';
+  document.getElementById('result').innerHTML='<strong>Your score: '+score+'/'+quizData.length+' ('+p+'%)</strong><br><br>Grade: <strong>'+g+'</strong><br><br>🎓 All the best for your exam and your career in solar energy! ☀️';
+  this.disabled=true;
+};
+upd();
+</script>
+</body>
+</html>

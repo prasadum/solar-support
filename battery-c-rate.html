@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}</style>
+<title>Battery C-Rate Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap">
+<style>
+/* Layout: projector-first single light look — navy header band, big tab strip, one panel per tab, picture-led cards */
+:root{
+  color-scheme:light;
+  --bg:#EEF2F7; --panel:#FFFFFF; --ink:#13203A; --muted:#55627A; --line:#D3DBE6;
+  --head:#13203A; --head-fg:#FFFFFF;
+  --time:#1D5FB0; --time-soft:#DCE8F7;
+  --amp:#C0561A; --amp-soft:#F9E4D5;
+  --water:#3C8FD8; --water-soft:#CFE4F7;
+  --ok:#2C7A31; --ok-soft:#E0F1E1; --warn:#9A6200; --warn-soft:#FBEFD4; --bad:#C42626; --bad-soft:#FBE0E0;
+  --f-body:"Atkinson Hyperlegible","Noto Sans Malayalam","Noto Sans Devanagari","Nirmala UI","Kartika","Mangal",system-ui,sans-serif;
+  --f-disp:"Barlow Semi Condensed","Noto Sans Malayalam","Noto Sans Devanagari","Nirmala UI",system-ui,sans-serif;
+}
+html{font-size:clamp(16px,0.55vw + 11px,23px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.45;margin:0}
+*{box-sizing:border-box}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--time);outline-offset:2px}
+
+header{background:var(--head);color:var(--head-fg);padding-inline:16px;padding-block:.7rem}
+.hwrap{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem}
+.brand{flex:1 1 280px;min-width:0;display:flex;align-items:center;gap:.8rem}
+.brand svg{flex:none}
+.brand h1{font-family:var(--f-disp);font-size:1.7rem;margin:0;line-height:1.1;text-wrap:balance}
+.brand p{margin:0;opacity:.8;font-size:.9rem}
+.hctl{display:flex;gap:.5rem;align-items:center}
+.hctl select,.hctl button{background:transparent;border:2px solid #ffffff66;border-radius:8px;padding:.35rem .7rem;color:var(--head-fg);cursor:pointer}
+.hctl select option{color:#13203A;background:#fff}
+
+nav{background:var(--panel);border-bottom:2px solid var(--line);padding-inline:16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tabs{max-width:1320px;margin:0 auto;display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:thin}
+.tab{flex:none;border:0;background:transparent;padding:.75rem 1rem .6rem;font-weight:700;color:var(--muted);border-bottom:4px solid transparent;cursor:pointer;display:flex;align-items:center;gap:.45rem;white-space:nowrap}
+.tab .n{display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--line);color:var(--ink);font-size:.78em}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amp)}
+.tab[aria-selected="true"] .n{background:var(--amp);color:#fff}
+
+main{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:1.2rem 2rem}
+.panel h2{font-family:var(--f-disp);font-size:1.75rem;margin:.2rem 0 1rem;text-wrap:balance}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem}
+.grid{display:grid;gap:1rem}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.pill{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .7rem;border-radius:999px;font-weight:700;font-size:.9rem}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.big{font-family:var(--f-disp);font-weight:700;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.tcol{color:var(--time)} .acol{color:var(--amp)}
+
+/* Concept */
+.concept-top{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1rem}
+.map{display:flex;align-items:center;gap:.9rem}
+.map svg{flex:none}
+.map b{font-size:1.15rem}
+.tanks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.tankcard{text-align:center;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.tankcard .rate{font-family:var(--f-disp);font-size:2rem;font-weight:700}
+.tankcard .vals{display:flex;gap:1rem;justify-content:center;font-weight:700;font-size:1.15rem}
+.tankcard .sim{font-variant-numeric:tabular-nums;color:var(--muted);min-height:1.4em}
+.tank .water{fill:var(--water);transform-box:fill-box;transform-origin:50% 100%}
+.tank .stream{stroke:var(--water);stroke-dasharray:10 6;stroke-linecap:round}
+.tank .shell{fill:var(--water-soft);stroke:var(--ink);stroke-width:3}
+.tank .pipe{fill:var(--muted)}
+.tank.run .water{animation:drain var(--d) linear forwards}
+.tank.run .stream{animation:flow .35s linear infinite,stop var(--d) step-end forwards}
+@keyframes drain{from{transform:scaleY(1)}to{transform:scaleY(0)}}
+@keyframes flow{to{stroke-dashoffset:-16}}
+@keyframes stop{to{opacity:0}}
+.formula-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:1rem}
+.formula{text-align:center}
+.formula .eq{font-family:var(--f-disp);font-size:2.3rem;font-weight:700}
+.rule{margin-top:1rem;text-align:center;font-size:1.35rem;font-weight:700;background:var(--amp-soft);color:var(--amp);border-radius:12px;padding:.8rem}
+.btn{border:2px solid var(--ink);background:var(--panel);border-radius:8px;padding:.4rem 1rem;font-weight:700;cursor:pointer}
+
+/* Calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:1rem}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+.field{margin-bottom:1rem}
+.field>label,.flabel{display:block;font-weight:700;margin-bottom:.4rem}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--panel);padding:.45rem 1.2rem;font-weight:700;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+#cap{width:100%;font-size:2rem;font-weight:700;padding:.3rem .6rem;border:2px solid var(--line);border-radius:10px;font-variant-numeric:tabular-nums;background:var(--panel)}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.chip{border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:.5rem .2rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.chip b{font-size:1.2rem}
+.chip span{font-size:.75rem;color:var(--muted);min-height:1em}
+.chip[aria-pressed="true"]{border-color:var(--amp);background:var(--amp-soft)}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+.res{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.3rem}
+.res h3{margin:0;font-size:1rem;color:var(--muted)}
+.res .sub{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.steps{font-variant-numeric:tabular-nums;font-size:1.05rem;display:grid;gap:.25rem}
+.steps div{padding:.3rem .6rem;border-radius:8px;background:var(--bg)}
+.iconrow{display:flex;flex-wrap:wrap;gap:.8rem}
+.ic{display:flex;flex-direction:column;align-items:center;gap:.2rem;width:6.4rem;text-align:center;font-size:.85rem;font-weight:700}
+.ic svg{color:var(--ink)}
+.bchip{display:inline-block;padding:.2rem .7rem;border-radius:8px;font-weight:700;border:2px solid var(--ink);margin:.15rem}
+.dial .face{fill:var(--panel);stroke:var(--line);stroke-width:2}
+.dial .tick{stroke:var(--muted);stroke-width:2}
+.dial .tl{fill:var(--muted);font-size:12px;font-family:var(--f-body)}
+.dial .rbg{fill:none;stroke:var(--time-soft);stroke-width:14}
+.dial .r1{fill:none;stroke:var(--time);stroke-width:14;stroke-linecap:round}
+.dial .r2{fill:none;stroke:var(--ink);stroke-width:10;stroke-linecap:round}
+.dial .ct{fill:var(--ink);font:700 24px var(--f-disp)}
+.gauge .z{fill:none;stroke-width:16}
+.gauge .zok{stroke:var(--ok)} .gauge .zw{stroke:var(--warn)} .gauge .zb{stroke:var(--bad)}
+.gauge .gl{fill:var(--muted);font:700 12px var(--f-body)}
+.gauge .needle{stroke:var(--ink);stroke-width:5;stroke-linecap:round;transition:transform .6s cubic-bezier(.3,1.4,.5,1)}
+.gauge .hub{fill:var(--ink)}
+
+/* Scale */
+.fly{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:.45rem .7rem;align-items:center}
+.fly .hd{font-weight:700;font-size:1.05rem}
+.fly .hd.l{text-align:right;color:var(--time)} .fly .hd.r{color:var(--amp)}
+.frow{display:contents;cursor:pointer}
+.bar{height:2.1rem;border-radius:6px;display:flex;align-items:center;font-weight:700;font-variant-numeric:tabular-nums;padding:0 .5rem;white-space:nowrap;transition:filter .15s}
+.bl{justify-self:end;background:var(--time);color:#fff;justify-content:flex-start}
+.br{justify-self:start;background:var(--amp);color:#fff;justify-content:flex-end}
+.mid{border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:.25rem .6rem;text-align:center;min-width:5.5rem;cursor:pointer;line-height:1.1}
+.mid b{font-size:1.15rem;display:block}
+.mid span{font-size:.75rem;color:var(--muted)}
+.frow:hover .bar,.mid:focus-visible ~ .bar{filter:brightness(1.15)}
+.ends{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+.ends .card{flex:1 1 260px;display:flex;align-items:center;gap:.8rem;font-weight:700;font-size:1.1rem}
+
+/* Types */
+.scroll{overflow-x:auto}
+.tchart{min-width:760px;display:grid;grid-template-columns:15rem 1fr;gap:.55rem 1rem;align-items:center}
+.tname{display:flex;align-items:center;gap:.6rem;min-width:0}
+.tname svg{flex:none}
+.tname b{display:block;font-size:1.1rem}
+.tname span{display:block;font-size:.78rem;color:var(--muted);line-height:1.2}
+.track{position:relative;height:2.4rem;background:var(--bg);border-radius:8px}
+.track .g{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.track .poss{position:absolute;top:.55rem;bottom:.55rem;border-radius:6px;background:repeating-linear-gradient(45deg,var(--amp-soft) 0 6px,var(--panel) 6px 10px);border:2px solid var(--amp)}
+.track .typ{position:absolute;top:.3rem;bottom:.3rem;border-radius:6px;background:var(--amp)}
+.axis{position:relative;height:1.6rem}
+.axis span{position:absolute;transform:translateX(-50%);font-weight:700;font-size:.85rem;color:var(--muted);white-space:nowrap}
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
+.sw{display:inline-block;width:2.2rem;height:1rem;border-radius:4px;vertical-align:middle;margin-right:.4rem}
+
+/* Loss */
+.effects{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem}
+.eff{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.4rem;font-weight:700;font-size:1.1rem}
+.charts2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.charts2 h3{margin:0 0 .5rem;font-size:1.05rem}
+.ch text{font-family:var(--f-body)}
+.ch .ax{fill:var(--muted);font-size:13px}
+.ch .gl{stroke:var(--line);stroke-width:1}
+.ch .la{stroke:var(--amp);stroke-width:4;fill:none}
+.ch .li{stroke:var(--time);stroke-width:4;fill:none}
+.ch .dla{fill:var(--amp)} .ch .dli{fill:var(--time)}
+.ch .vl{font-size:13px;font-weight:700}
+.ch .hb{fill:var(--bad)}
+
+/* Label */
+.labels{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1rem}
+.lab{display:flex;flex-direction:column;gap:.7rem}
+.lab .eqn{font-family:var(--f-disp);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.ne{margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;align-items:stretch}
+.ne .neq{display:grid;place-items:center;font-family:var(--f-disp);font-size:3.4rem;font-weight:700;color:var(--bad)}
+.ne .card{text-align:center;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+table.nt{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.nt th,.nt td{padding:.5rem .7rem;border-bottom:1px solid var(--line);text-align:left}
+.nt th{color:var(--muted);font-size:.9rem}
+.cmp{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:.8rem}
+.cmp .bx{flex:1 1 140px;text-align:center;border:2px solid var(--line);border-radius:10px;padding:.5rem}
+
+/* Worked examples */
+.exnav{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.exnav button{width:3rem;height:3rem;border-radius:50%;border:2px solid var(--ink);background:var(--panel);font-weight:700;font-size:1.2rem;cursor:pointer}
+.exnav button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.exq{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap}
+.exq>div:first-child{flex:none}
+.exprob{flex:1 1 300px;min-width:0;font-size:1.5rem;font-weight:700;line-height:1.35;text-wrap:balance}
+.exsteps{list-style:none;padding:0;margin:1rem 0;display:grid;gap:.6rem;counter-reset:s}
+.exsteps li{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:1rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.7rem 1rem;font-size:1.45rem;font-variant-numeric:tabular-nums}
+.exsteps li .k{font-size:.9rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.exsteps li.ans{border:3px solid var(--ok);background:var(--ok-soft)}
+.exsteps li.note{border:3px solid var(--bad);background:var(--bad-soft);font-size:1.15rem;font-weight:700;color:var(--bad)}
+.exsteps li.in{animation:pop .35s ease-out}
+@keyframes pop{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:600px){.exsteps li{grid-template-columns:1fr;gap:.2rem}}
+.exbtns{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn.pri{background:var(--ink);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* Quiz */
+.qtop{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;font-size:1.1rem}
+.qdots{display:flex;gap:.4rem;flex:1;flex-wrap:wrap}
+.qdots i{width:1.1rem;height:1.1rem;border-radius:50%;background:var(--line);display:block}
+.qdots i.cur{outline:3px solid var(--ink);outline-offset:1px}
+.qdots i.y{background:var(--ok)} .qdots i.n{background:var(--bad)}
+.qcard .qq{font-size:1.7rem;font-weight:700;margin:0 0 1rem;text-wrap:balance;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:.7rem}
+.qopt{border:3px solid var(--line);background:var(--panel);border-radius:12px;padding:.8rem 1rem;font-size:1.35rem;font-weight:700;text-align:left;cursor:pointer;display:flex;align-items:center;gap:.8rem}
+.qopt .lt{flex:none;width:2.2rem;height:2.2rem;border-radius:50%;display:grid;place-items:center;background:var(--bg);font-size:1rem}
+.qopt:hover:not(:disabled){border-color:var(--ink)}
+.qopt.y{border-color:var(--ok);background:var(--ok-soft)} .qopt.n{border-color:var(--bad);background:var(--bad-soft)}
+.qopt:disabled{cursor:default}
+.qfb{margin-top:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;min-height:3rem}
+.qend{text-align:center;display:flex;flex-direction:column;align-items:center;gap:.8rem}
+
+footer{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:.5rem 1.5rem;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+
+@media (prefers-reduced-motion:reduce){
+  .tank.run .water,.tank.run .stream{animation:none}
+  .gauge .needle{transition:none}
+}
+</style>
+
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand">
+      <svg width="58" height="40" viewBox="0 0 58 40" aria-hidden="true"><rect x="2" y="6" width="48" height="28" rx="4" fill="none" stroke="#fff" stroke-width="3"/><rect x="50" y="14" width="6" height="12" rx="1.5" fill="#fff"/><rect x="7" y="11" width="10" height="18" fill="#F08A4B"/><rect x="19" y="11" width="10" height="18" fill="#F08A4B"/><rect x="31" y="11" width="10" height="18" fill="#ffffff44"/></svg>
+      <div><h1 data-i18n="title">C-Rating of Battery</h1><p data-i18n="subtitle">Discharge time &amp; current</p></div>
+    </div>
+    <div class="hctl">
+      <label for="lang" class="small" style="opacity:.8">ഭാഷ / भाषा / Lang</label>
+      <select id="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="ml">മലയാളം</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+      <button id="fsBtn" type="button" data-i18n="fs">Full screen</button>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" id="t-concept" data-tab="concept"><span class="n">1</span><span data-i18n="tab_concept">What is C-rate?</span></button>
+    <button class="tab" role="tab" id="t-calc" data-tab="calc"><span class="n">2</span><span data-i18n="tab_calc">Calculator</span></button>
+    <button class="tab" role="tab" id="t-scale" data-tab="scale"><span class="n">3</span><span data-i18n="tab_scale">C-rate Scale</span></button>
+    <button class="tab" role="tab" id="t-types" data-tab="types"><span class="n">4</span><span data-i18n="tab_types">Battery Types</span></button>
+    <button class="tab" role="tab" id="t-loss" data-tab="loss"><span class="n">5</span><span data-i18n="tab_loss">High-C Effects</span></button>
+    <button class="tab" role="tab" id="t-label" data-tab="label"><span class="n">6</span><span data-i18n="tab_label">Read the Label</span></button>
+    <button class="tab" role="tab" id="t-ex" data-tab="ex"><span class="n">7</span><span data-i18n="tab_ex">Worked Examples</span></button>
+    <button class="tab" role="tab" id="t-quiz" data-tab="quiz"><span class="n">8</span><span data-i18n="tab_quiz">Quiz</span></button>
+  </div>
+</nav>
+
+<main>
+  <!-- 1 CONCEPT -->
+  <section class="panel" id="p-concept" role="tabpanel" aria-labelledby="t-concept">
+    <h2 data-i18n="c_h">C-rate tells how fast a battery is emptied</h2>
+    <div class="concept-top">
+      <div class="card map"><svg width="70" height="70" viewBox="0 0 70 70" aria-hidden="true"><rect x="10" y="8" width="44" height="54" rx="4" style="fill:var(--water-soft);stroke:var(--ink)" stroke-width="3"/><rect x="13" y="22" width="38" height="37" style="fill:var(--water)"/><text x="32" y="46" text-anchor="middle" style="fill:#fff;font:700 15px var(--f-disp)">Ah</text></svg><b data-i18n="c_tank">Capacity (Ah) = water in the tank</b></div>
+      <div class="card map"><svg width="70" height="70" viewBox="0 0 70 70" aria-hidden="true"><rect x="6" y="16" width="34" height="10" style="fill:var(--muted)"/><rect x="34" y="10" width="8" height="8" style="fill:var(--ink)"/><path d="M44 26 V64" style="stroke:var(--water)" stroke-width="10" stroke-dasharray="8 5"/><text x="20" y="48" text-anchor="middle" style="fill:var(--amp);font:700 20px var(--f-disp)">A</text></svg><b data-i18n="c_tap">Current (A) = flow from the tap</b></div>
+      <div class="card map"><svg width="70" height="70" viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="35" r="28" style="fill:var(--time-soft);stroke:var(--time)" stroke-width="4"/><path d="M35 35 V14 M35 35 L48 42" style="stroke:var(--ink)" stroke-width="4" stroke-linecap="round"/></svg><b data-i18n="c_1c">1C = a full battery empties in 1 hour</b></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem">
+        <b style="font-size:1.15rem" data-i18n="same100">Same 100 Ah battery</b>
+        <span class="muted small">4 s = 1 h</span>
+        <button class="btn" id="replay" type="button" data-i18n="replay">Replay</button>
+      </div>
+      <div class="tanks" id="tanks"></div>
+    </div>
+    <div class="formula-row">
+      <div class="card formula"><div class="muted" data-i18n="current">Discharge current</div><div class="eq"><span class="acol">I</span> = C × Ah</div><div class="muted">2C × 100 Ah = 200 A</div></div>
+      <div class="card formula"><div class="muted" data-i18n="time">Discharge time</div><div class="eq"><span class="tcol">t</span> = 1 ÷ C</div><div class="muted">1 ÷ 2C = 0.5 h = 30 min</div></div>
+      <div class="card formula"><div class="muted">C-rate</div><div class="eq">C = I ÷ Ah</div><div class="muted">50 A ÷ 100 Ah = 0.5C</div></div>
+    </div>
+    <div class="rule" data-i18n="rule">Higher C → more current, less time</div>
+  </section>
+
+  <!-- 2 CALCULATOR -->
+  <section class="panel" id="p-calc" role="tabpanel" aria-labelledby="t-calc" hidden>
+    <div class="calc">
+      <div class="card">
+        <div class="field"><span class="flabel" data-i18n="unit">Capacity unit</span>
+          <div class="seg" role="group"><button type="button" id="uAh" aria-pressed="true">Ah</button><button type="button" id="umAh" aria-pressed="false">mAh</button></div>
+        </div>
+        <div class="field"><label for="cap" data-i18n="capacity">Battery capacity</label>
+          <input type="number" id="cap" value="100" min="0" step="any" inputmode="decimal">
+        </div>
+        <div class="field"><span class="flabel" data-i18n="crate">Select C-rate</span>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div id="laBadge"></div>
+      </div>
+      <div class="grid">
+        <div class="results">
+          <div class="card res"><h3 data-i18n="time">Discharge time</h3><div id="dial"></div><div class="sub" id="tSub"></div></div>
+          <div class="card res"><h3 data-i18n="current">Discharge current</h3><div id="gauge"></div><div class="big acol" id="iBig">--</div><div class="sub" id="iSub"></div></div>
+        </div>
+        <div class="card"><b data-i18n="steps">Calculation</b><div class="steps" id="steps" style="margin-top:.5rem"></div><p class="muted small" style="margin:.6rem 0 0" data-i18n="ideal">Ideal time. At high C the real time is shorter.</p></div>
+        <div class="card"><b data-i18n="used">Used in</b><div class="iconrow" id="apps" style="margin-top:.6rem"></div>
+          <div style="margin-top:.8rem"><b data-i18n="btype">Battery type</b>: <span id="bats"></span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 SCALE -->
+  <section class="panel" id="p-scale" role="tabpanel" aria-labelledby="t-scale" hidden>
+    <h2 data-i18n="s_h">Same 100 Ah battery, different C-rates</h2>
+    <div class="card">
+      <div class="fly" id="fly"></div>
+      <p class="muted small" style="margin:.8rem 0 0;text-align:center" data-i18n="s_tap">Tap a row to open it in the calculator</p>
+    </div>
+    <div class="ends">
+      <div class="card"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 V40" style="stroke:var(--water)" stroke-width="4" stroke-dasharray="6 4"/><circle cx="24" cy="24" r="18" fill="none" style="stroke:var(--time)" stroke-width="3"/></svg><span data-i18n="s_low">Low C: small current, long time</span></div>
+      <div class="card"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4 V44" style="stroke:var(--water)" stroke-width="16" stroke-dasharray="8 4"/><path d="M27 8 l-8 16 h8 l-6 16" fill="none" style="stroke:var(--amp)" stroke-width="3.5"/></svg><span data-i18n="s_high">High C: big current, short time</span></div>
+    </div>
+  </section>
+
+  <!-- 4 TYPES -->
+  <section class="panel" id="p-types" role="tabpanel" aria-labelledby="t-types" hidden>
+    <h2 data-i18n="t_h">Which battery for which C-rate?</h2>
+    <div class="card">
+      <div class="scroll"><div class="tchart" id="tchart"></div></div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--amp)"></span><b data-i18n="typical">Typical</b></span>
+        <span><span class="sw" style="background:repeating-linear-gradient(45deg,var(--amp-soft) 0 6px,var(--panel) 6px 10px);border:2px solid var(--amp)"></span><b data-i18n="possible">Possible (with limits)</b></span>
+        <span class="muted small" data-i18n="t_note">Typical ranges. Always check the datasheet.</span>
+      </div>
+      <p class="pill warn" style="margin:.8rem 0 0" data-i18n="la_burst">Starter battery: high C only for a few seconds</p>
+    </div>
+  </section>
+
+  <!-- 5 LOSS -->
+  <section class="panel" id="p-loss" role="tabpanel" aria-labelledby="t-loss" hidden>
+    <h2 data-i18n="l_h">What happens at high C?</h2>
+    <div class="effects" id="effects"></div>
+    <div class="charts2">
+      <div class="card"><h3 data-i18n="l_chart">Usable capacity vs C-rate (typical)</h3><div id="capChart"></div></div>
+      <div class="card"><h3 data-i18n="l_heat">Heat inside a 100 Ah battery (r = 5 mΩ)</h3><div id="heatChart"></div><div class="rule" style="margin-top:.6rem" data-i18n="l_rule">2× current → 4× heat</div></div>
+    </div>
+  </section>
+
+  <!-- 6 LABEL -->
+  <section class="panel" id="p-label" role="tabpanel" aria-labelledby="t-label" hidden>
+    <h2 data-i18n="b_h">Reading battery labels</h2>
+    <div class="labels">
+      <div class="card lab">
+        <svg viewBox="0 0 420 200" width="100%" style="max-width:520px" aria-label="Tubular battery label 12V 150Ah at C10">
+          <rect x="20" y="40" width="380" height="150" rx="10" style="fill:var(--ink)"/>
+          <rect x="70" y="18" width="50" height="26" rx="4" style="fill:var(--bad)"/><rect x="300" y="18" width="50" height="26" rx="4" style="fill:var(--muted)"/>
+          <text x="95" y="37" text-anchor="middle" style="fill:#fff;font:700 18px var(--f-disp)">+</text><text x="325" y="37" text-anchor="middle" style="fill:#fff;font:700 18px var(--f-disp)">−</text>
+          <text x="210" y="80" text-anchor="middle" style="fill:#ffffffaa;font:700 17px var(--f-disp);letter-spacing:3px">TUBULAR BATTERY</text>
+          <text x="140" y="140" text-anchor="middle" style="fill:#fff;font:700 40px var(--f-disp)">12V 150Ah</text>
+          <rect x="268" y="104" width="112" height="50" rx="25" style="fill:var(--amp)"/>
+          <text x="324" y="139" text-anchor="middle" style="fill:#fff;font:700 30px var(--f-disp)">@ C10</text>
+          <text x="210" y="178" text-anchor="middle" style="fill:#ffffff88;font:13px var(--f-body)">INVERTER · DEEP CYCLE</text>
+        </svg>
+        <div class="pill" style="background:var(--amp-soft);color:var(--amp);align-self:flex-start" data-i18n="b_c10">C10 = capacity when emptied in 10 hours</div>
+        <div><span class="muted" data-i18n="b_rated">Rated current</span><div class="eqn">150 Ah ÷ 10 h = <span class="acol">15 A</span></div></div>
+      </div>
+      <div class="card lab">
+        <svg viewBox="0 0 420 200" width="100%" style="max-width:520px" aria-label="LiPo pack label 2200mAh 25C">
+          <rect x="20" y="40" width="330" height="140" rx="18" style="fill:var(--time)"/>
+          <path d="M350 80 H400 M350 100 H400 M350 120 H400" style="stroke:var(--muted)" stroke-width="5"/>
+          <path d="M350 145 C380 145 380 170 405 170" fill="none" style="stroke:var(--bad)" stroke-width="7"/><path d="M350 160 C375 160 375 185 405 185" fill="none" style="stroke:var(--ink)" stroke-width="7"/>
+          <text x="185" y="78" text-anchor="middle" style="fill:#ffffffbb;font:700 18px var(--f-disp);letter-spacing:2px">LiPo 11.1V 3S</text>
+          <text x="125" y="135" text-anchor="middle" style="fill:#fff;font:700 38px var(--f-disp)">2200mAh</text>
+          <rect x="240" y="100" width="92" height="50" rx="25" style="fill:var(--amp)"/>
+          <text x="286" y="136" text-anchor="middle" style="fill:#fff;font:700 30px var(--f-disp)">25C</text>
+          <text x="185" y="167" text-anchor="middle" style="fill:#ffffffaa;font:13px var(--f-body)">BURST 50C · 10 s</text>
+        </svg>
+        <div class="pill" style="background:var(--amp-soft);color:var(--amp);align-self:flex-start" data-i18n="b_25c">25C = maximum continuous current</div>
+        <div><span class="muted" data-i18n="b_max">Maximum current</span><div class="eqn">2.2 Ah × 25 = <span class="acol">55 A</span></div></div>
+      </div>
+    </div>
+
+    <div class="ne">
+      <div class="card"><b>C10</b><div id="neA"></div><div class="eqn" style="font-family:var(--f-disp);font-size:1.5rem;font-weight:700"><span class="acol">15 A</span> · <span class="tcol">10 h</span></div><span class="pill ok" data-i18n="la_ok">Lead-acid: suitable</span></div>
+      <div class="neq">≠</div>
+      <div class="card"><b>10C</b><div id="neB"></div><div class="eqn" style="font-family:var(--f-disp);font-size:1.5rem;font-weight:700"><span class="acol">1500 A</span> · <span class="tcol">6 min</span></div><span class="pill bad" data-i18n="la_bad">Lead-acid: not suitable</span></div>
+    </div>
+    <p class="muted" style="text-align:center;margin:.4rem 0 1rem"><b data-i18n="b_same">Same 150 Ah battery</b></p>
+
+    <div class="card">
+      <div class="scroll"><table class="nt">
+        <thead><tr><th data-i18n="b_lab">Label</th><th>C-rate</th><th><span data-i18n="b_cur">Current</span> (150 Ah)</th><th data-i18n="b_time">Time</th></tr></thead>
+        <tbody>
+          <tr><td><b>C20</b></td><td>0.05C</td><td class="acol"><b>7.5 A</b></td><td class="tcol"><b>20 h</b></td></tr>
+          <tr><td><b>C10</b></td><td>0.1C</td><td class="acol"><b>15 A</b></td><td class="tcol"><b>10 h</b></td></tr>
+          <tr><td><b>C5</b></td><td>0.2C</td><td class="acol"><b>30 A</b></td><td class="tcol"><b>5 h</b></td></tr>
+        </tbody>
+      </table></div>
+      <div class="cmp">
+        <div style="flex:1 1 100%;font-weight:700" data-i18n="b_cmp">Compare batteries at the same C-rating</div>
+        <div class="bx"><div class="muted small">@ C20</div><div class="big">150 Ah</div></div>
+        <div class="bx"><div class="muted small">@ C10 (<span data-i18n="approx">approx.</span>)</div><div class="big">135 Ah</div></div>
+        <div style="flex:1 1 100%" class="muted" data-i18n="b_cmp2">Same battery shows more Ah at C20 than at C10</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 WORKED EXAMPLES -->
+  <section class="panel" id="p-ex" role="tabpanel" aria-labelledby="t-ex" hidden>
+    <div class="exnav" id="exNav"></div>
+    <div class="card exq"><div id="exPic"></div><div class="exprob" id="exProb"></div></div>
+    <ol class="exsteps" id="exSteps"></ol>
+    <div class="exbtns">
+      <button class="btn pri" type="button" id="exNext" data-i18n="next_step">Next step</button>
+      <button class="btn" type="button" id="exAll" data-i18n="show_all">Show all</button>
+      <button class="btn" type="button" id="exReset" data-i18n="reset">Reset</button>
+      <button class="btn" type="button" id="exTry" data-i18n="try_calc">Try in calculator</button>
+    </div>
+  </section>
+
+  <!-- 8 QUIZ -->
+  <section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+    <div class="qtop"><b id="qCount"></b><div class="qdots" id="qDots"></div><b id="qScore"></b></div>
+    <div class="card qcard" id="qCard"></div>
+  </section>
+</main>
+<footer><span data-i18n="foot">NSTI Calicut · PRASAD UM, VI</span><span class="muted">← → / PgUp PgDn</span></footer>
+
+<script>
+(function(){
+const L={
+en:{title:'C-Rating of Battery',subtitle:'Discharge time & current',fs:'Full screen',
+tab_concept:'What is C-rate?',tab_calc:'Calculator',tab_scale:'C-rate Scale',tab_types:'Battery Types',tab_loss:'High-C Effects',tab_label:'Read the Label',
+c_h:'C-rate tells how fast a battery is emptied',c_tank:'Capacity (Ah) = water in the tank',c_tap:'Current (A) = flow from the tap',c_1c:'1C = a full battery empties in 1 hour',slow:'Slow',normal:'Normal',fast:'Fast',same100:'Same 100 Ah battery',replay:'Replay',rule:'Higher C → more current, less time',
+unit:'Capacity unit',capacity:'Battery capacity',crate:'Select C-rate',time:'Discharge time',current:'Discharge current',steps:'Calculation',used:'Used in',btype:'Battery type',ideal:'Ideal time. At high C the real time is shorter.',la_ok:'Lead-acid: suitable',la_warn:'Lead-acid: short bursts only (starter)',la_bad:'Lead-acid: not suitable. Use Li-ion / LiPo',err:'Enter a capacity above 0',
+s_h:'Same 100 Ah battery, different C-rates',s_time:'Time',s_cur:'Current',s_low:'Low C: small current, long time',s_high:'High C: big current, short time',s_tap:'Tap a row to open it in the calculator',
+t_h:'Which battery for which C-rate?',typical:'Typical',possible:'Possible (with limits)',t_note:'Typical ranges. Always check the datasheet.',d_la:'Inverter, solar, UPS',d_alk:'Remote, clock (not rechargeable)',d_nimh:'AA cells, toys, cordless phone',d_lfp:'Solar storage, e-rickshaw',d_li:'Laptop, EV, power tools',d_lipo:'Drones, RC models',la_burst:'Starter battery: high C only for a few seconds',
+l_h:'What happens at high C?',e_cap:'Less usable Ah',e_heat:'More heat (I²R)',e_volt:'Voltage drops (I×r)',e_life:'Shorter life',l_chart:'Usable capacity vs C-rate (typical)',l_heat:'Heat inside a 100 Ah battery (r = 5 mΩ)',l_rule:'2× current → 4× heat',
+b_h:'Reading battery labels',b_c10:'C10 = capacity when emptied in 10 hours',b_rated:'Rated current',b_25c:'25C = maximum continuous current',b_max:'Maximum current',b_same:'Same 150 Ah battery',b_cmp:'Compare batteries at the same C-rating',b_cmp2:'Same battery shows more Ah at C20 than at C10',b_lab:'Label',b_cur:'Current',b_time:'Time',approx:'approx.',foot:'NSTI Calicut · PRASAD UM, VI',
+a_tower:'Telecom tower',a_solar:'Solar storage',a_inverter:'Home inverter',a_ups:'UPS',a_erick:'E-rickshaw',a_ev:'Electric vehicle',a_tools:'Power tools',a_light:'Emergency light',a_robot:'Robotics',a_drone:'Drone',a_rc:'RC car',a_plane:'RC aircraft'},
+ml:{title:'ബാറ്ററിയുടെ C-റേറ്റിംഗ്',subtitle:'ഡിസ്ചാർജ് സമയവും കറന്റും',fs:'ഫുൾ സ്ക്രീൻ',
+tab_concept:'C-റേറ്റ് എന്നാൽ?',tab_calc:'കാൽക്കുലേറ്റർ',tab_scale:'C-റേറ്റ് സ്കെയിൽ',tab_types:'ബാറ്ററി തരങ്ങൾ',tab_loss:'ഉയർന്ന C-യുടെ ഫലം',tab_label:'ലേബൽ വായിക്കാം',
+c_h:'ബാറ്ററി എത്ര വേഗം തീരുന്നു എന്ന് C-റേറ്റ് പറയുന്നു',c_tank:'കപ്പാസിറ്റി (Ah) = ടാങ്കിലെ വെള്ളം',c_tap:'കറന്റ് (A) = ടാപ്പിലെ ഒഴുക്ക്',c_1c:'1C = ഫുൾ ബാറ്ററി 1 മണിക്കൂറിൽ തീരും',slow:'പതുക്കെ',normal:'സാധാരണ',fast:'വേഗം',same100:'ഒരേ 100 Ah ബാറ്ററി',replay:'വീണ്ടും കാണിക്കുക',rule:'C കൂടിയാൽ → കറന്റ് കൂടും, സമയം കുറയും',
+unit:'കപ്പാസിറ്റി യൂണിറ്റ്',capacity:'ബാറ്ററി കപ്പാസിറ്റി',crate:'C-റേറ്റ് തിരഞ്ഞെടുക്കുക',time:'ഡിസ്ചാർജ് സമയം',current:'ഡിസ്ചാർജ് കറന്റ്',steps:'കണക്കുകൂട്ടൽ',used:'ഉപയോഗം',btype:'ബാറ്ററി തരം',ideal:'ഇത് ആദർശ സമയം. ഉയർന്ന C-യിൽ യഥാർത്ഥ സമയം കുറയും.',la_ok:'ലെഡ്-ആസിഡ്: അനുയോജ്യം',la_warn:'ലെഡ്-ആസിഡ്: കുറച്ചു സമയം മാത്രം (സ്റ്റാർട്ടർ)',la_bad:'ലെഡ്-ആസിഡ്: അനുയോജ്യമല്ല. Li-ion / LiPo ഉപയോഗിക്കുക',err:'0-ൽ കൂടുതൽ കപ്പാസിറ്റി നൽകുക',
+s_h:'ഒരേ 100 Ah ബാറ്ററി, വ്യത്യസ്ത C-റേറ്റുകൾ',s_time:'സമയം',s_cur:'കറന്റ്',s_low:'കുറഞ്ഞ C: ചെറിയ കറന്റ്, കൂടുതൽ സമയം',s_high:'ഉയർന്ന C: വലിയ കറന്റ്, കുറഞ്ഞ സമയം',s_tap:'കാൽക്കുലേറ്ററിൽ തുറക്കാൻ ഒരു വരിയിൽ ടാപ്പ് ചെയ്യുക',
+t_h:'ഏത് C-റേറ്റിന് ഏത് ബാറ്ററി?',typical:'സാധാരണ',possible:'സാധ്യം (പരിധിയോടെ)',t_note:'സാധാരണ പരിധികൾ മാത്രം. ഡാറ്റാഷീറ്റ് പരിശോധിക്കുക.',d_la:'ഇൻവെർട്ടർ, സോളാർ, UPS',d_alk:'റിമോട്ട്, ക്ലോക്ക് (റീചാർജ് ചെയ്യാനാവില്ല)',d_nimh:'AA സെൽ, കളിപ്പാട്ടം, കോർഡ്‌ലെസ് ഫോൺ',d_lfp:'സോളാർ സ്റ്റോറേജ്, ഇ-റിക്ഷ',d_li:'ലാപ്ടോപ്പ്, EV, പവർ ടൂളുകൾ',d_lipo:'ഡ്രോൺ, RC മോഡലുകൾ',la_burst:'സ്റ്റാർട്ടർ ബാറ്ററി: ഉയർന്ന C ഏതാനും സെക്കൻഡ് മാത്രം',
+l_h:'ഉയർന്ന C-യിൽ എന്ത് സംഭവിക്കും?',e_cap:'ലഭ്യമായ Ah കുറയും',e_heat:'കൂടുതൽ ചൂട് (I²R)',e_volt:'വോൾട്ടേജ് താഴും (I×r)',e_life:'ആയുസ്സ് കുറയും',l_chart:'ലഭ്യമായ കപ്പാസിറ്റി vs C-റേറ്റ് (സാധാരണ)',l_heat:'100 Ah ബാറ്ററിക്കുള്ളിലെ ചൂട് (r = 5 mΩ)',l_rule:'2× കറന്റ് → 4× ചൂട്',
+b_h:'ബാറ്ററി ലേബൽ വായിക്കാം',b_c10:'C10 = 10 മണിക്കൂറിൽ തീരുമ്പോഴുള്ള കപ്പാസിറ്റി',b_rated:'റേറ്റഡ് കറന്റ്',b_25c:'25C = പരമാവധി തുടർച്ചയായ കറന്റ്',b_max:'പരമാവധി കറന്റ്',b_same:'ഒരേ 150 Ah ബാറ്ററി',b_cmp:'ഒരേ C-റേറ്റിംഗിൽ ബാറ്ററികൾ താരതമ്യം ചെയ്യുക',b_cmp2:'ഒരേ ബാറ്ററി C10-നേക്കാൾ കൂടുതൽ Ah C20-ൽ കാണിക്കും',b_lab:'ലേബൽ',b_cur:'കറന്റ്',b_time:'സമയം',approx:'ഏകദേശം',foot:'NSTI Calicut · PRASAD UM, VI',
+a_tower:'ടെലികോം ടവർ',a_solar:'സോളാർ സ്റ്റോറേജ്',a_inverter:'ഹോം ഇൻവെർട്ടർ',a_ups:'UPS',a_erick:'ഇ-റിക്ഷ',a_ev:'ഇലക്ട്രിക് വാഹനം',a_tools:'പവർ ടൂളുകൾ',a_light:'എമർജൻസി ലൈറ്റ്',a_robot:'റോബോട്ടിക്സ്',a_drone:'ഡ്രോൺ',a_rc:'RC കാർ',a_plane:'RC വിമാനം'},
+hi:{title:'बैटरी की C-रेटिंग',subtitle:'डिस्चार्ज समय और करंट',fs:'फ़ुल स्क्रीन',
+tab_concept:'C-रेट क्या है?',tab_calc:'कैलकुलेटर',tab_scale:'C-रेट स्केल',tab_types:'बैटरी के प्रकार',tab_loss:'उच्च C का प्रभाव',tab_label:'लेबल पढ़ें',
+c_h:'C-रेट बताता है कि बैटरी कितनी तेज़ी से खाली होती है',c_tank:'क्षमता (Ah) = टंकी में पानी',c_tap:'करंट (A) = नल से बहाव',c_1c:'1C = पूरी बैटरी 1 घंटे में खाली',slow:'धीमा',normal:'सामान्य',fast:'तेज़',same100:'वही 100 Ah बैटरी',replay:'फिर से चलाएँ',rule:'C अधिक → करंट अधिक, समय कम',
+unit:'क्षमता की इकाई',capacity:'बैटरी क्षमता',crate:'C-रेट चुनें',time:'डिस्चार्ज समय',current:'डिस्चार्ज करंट',steps:'गणना',used:'उपयोग',btype:'बैटरी प्रकार',ideal:'यह आदर्श समय है। उच्च C पर वास्तविक समय कम होता है।',la_ok:'लेड-एसिड: उपयुक्त',la_warn:'लेड-एसिड: केवल थोड़े समय के लिए (स्टार्टर)',la_bad:'लेड-एसिड: उपयुक्त नहीं। Li-ion / LiPo लें',err:'0 से अधिक क्षमता दर्ज करें',
+s_h:'वही 100 Ah बैटरी, अलग-अलग C-रेट',s_time:'समय',s_cur:'करंट',s_low:'कम C: कम करंट, लंबा समय',s_high:'उच्च C: अधिक करंट, कम समय',s_tap:'कैलकुलेटर में खोलने के लिए किसी पंक्ति पर टैप करें',
+t_h:'किस C-रेट के लिए कौन-सी बैटरी?',typical:'सामान्य',possible:'संभव (सीमा के साथ)',t_note:'ये सामान्य सीमाएँ हैं। डेटाशीट ज़रूर देखें।',d_la:'इन्वर्टर, सोलर, UPS',d_alk:'रिमोट, घड़ी (रिचार्ज नहीं)',d_nimh:'AA सेल, खिलौने, कॉर्डलेस फ़ोन',d_lfp:'सोलर स्टोरेज, ई-रिक्शा',d_li:'लैपटॉप, EV, पावर टूल्स',d_lipo:'ड्रोन, RC मॉडल',la_burst:'स्टार्टर बैटरी: उच्च C केवल कुछ सेकंड',
+l_h:'उच्च C पर क्या होता है?',e_cap:'उपयोगी Ah घटता है',e_heat:'अधिक गर्मी (I²R)',e_volt:'वोल्टेज गिरता है (I×r)',e_life:'जीवन घटता है',l_chart:'उपयोगी क्षमता vs C-रेट (सामान्य)',l_heat:'100 Ah बैटरी के अंदर गर्मी (r = 5 mΩ)',l_rule:'2× करंट → 4× गर्मी',
+b_h:'बैटरी लेबल पढ़ना',b_c10:'C10 = 10 घंटे में खाली होने पर क्षमता',b_rated:'रेटेड करंट',b_25c:'25C = अधिकतम लगातार करंट',b_max:'अधिकतम करंट',b_same:'वही 150 Ah बैटरी',b_cmp:'बैटरियों की तुलना समान C-रेटिंग पर करें',b_cmp2:'वही बैटरी C10 की तुलना में C20 पर अधिक Ah दिखाती है',b_lab:'लेबल',b_cur:'करंट',b_time:'समय',approx:'लगभग',foot:'NSTI Calicut · PRASAD UM, VI',
+a_tower:'टेलीकॉम टावर',a_solar:'सोलर स्टोरेज',a_inverter:'होम इन्वर्टर',a_ups:'UPS',a_erick:'ई-रिक्शा',a_ev:'इलेक्ट्रिक वाहन',a_tools:'पावर टूल्स',a_light:'इमरजेंसी लाइट',a_robot:'रोबोटिक्स',a_drone:'ड्रोन',a_rc:'RC कार',a_plane:'RC विमान'}
+};
+Object.assign(L.en,{tab_ex:'Worked Examples',tab_quiz:'Quiz',next_step:'Next step',show_all:'Show all',reset:'Reset',try_calc:'Try in calculator',given:'Given',answer:'Answer',check:'Check',
+ex1:'A 12 V, 150 Ah inverter battery is discharged at 0.1C. Find the current and the time.',
+ex2:'A 2200 mAh LiPo pack is rated 25C. Find the maximum current and the shortest run time.',
+ex3:'A 100 Ah battery supplies a steady 20 A load. Find the C-rate and the time.',
+ex4:'A UPS must supply 50 A for 30 minutes. Find the C-rate and the minimum (ideal) capacity.',
+ex4_note:'2C is too high for lead-acid. Choose a bigger battery or Li-ion.',
+question:'Question',score:'Score',next:'Next',restart:'Restart',correct:'Correct!',wrong:'Wrong. Answer:',finished:'Finished',
+q1:'A 60 Ah battery at 1C. Current = ?',q2:'At 0.5C, a full battery lasts:',q3:'At 10C, the discharge time is:',q4:'"C10" on an inverter battery means:',q4o:['Current of 10C','Capacity when emptied in 10 h','10 cells inside','10-year life'],
+q5:'Which battery suits 20C?',q6:'A 100 Ah battery gives 25 A. C-rate = ?',q7:'Current is doubled. Internal heat becomes:',q7o:['Same','2×','4×','Half'],q8:'At high C, the usable Ah of a lead-acid battery:',q8o:['Increases','Decreases','Stays the same']});
+Object.assign(L.ml,{tab_ex:'ഉദാഹരണങ്ങൾ',tab_quiz:'ക്വിസ്',next_step:'അടുത്ത ഘട്ടം',show_all:'എല്ലാം കാണിക്കുക',reset:'റീസെറ്റ്',try_calc:'കാൽക്കുലേറ്ററിൽ നോക്കുക',given:'നൽകിയത്',answer:'ഉത്തരം',check:'പരിശോധന',
+ex1:'12 V, 150 Ah ഇൻവെർട്ടർ ബാറ്ററി 0.1C-യിൽ ഡിസ്ചാർജ് ചെയ്യുന്നു. കറന്റും സമയവും കണ്ടെത്തുക.',
+ex2:'2200 mAh LiPo പാക്കിന്റെ റേറ്റിംഗ് 25C ആണ്. പരമാവധി കറന്റും ഏറ്റവും കുറഞ്ഞ പ്രവർത്തന സമയവും കണ്ടെത്തുക.',
+ex3:'100 Ah ബാറ്ററി 20 A സ്ഥിര ലോഡ് നൽകുന്നു. C-റേറ്റും സമയവും കണ്ടെത്തുക.',
+ex4:'ഒരു UPS 30 മിനിറ്റ് 50 A നൽകണം. C-റേറ്റും ഏറ്റവും കുറഞ്ഞ (ആദർശ) കപ്പാസിറ്റിയും കണ്ടെത്തുക.',
+ex4_note:'ലെഡ്-ആസിഡിന് 2C വളരെ കൂടുതലാണ്. വലിയ ബാറ്ററി അല്ലെങ്കിൽ Li-ion തിരഞ്ഞെടുക്കുക.',
+question:'ചോദ്യം',score:'സ്കോർ',next:'അടുത്തത്',restart:'വീണ്ടും തുടങ്ങുക',correct:'ശരി!',wrong:'തെറ്റ്. ഉത്തരം:',finished:'പൂർത്തിയായി',
+q1:'60 Ah ബാറ്ററി 1C-യിൽ. കറന്റ് = ?',q2:'0.5C-യിൽ ഫുൾ ബാറ്ററി നിലനിൽക്കുന്നത്:',q3:'10C-യിൽ ഡിസ്ചാർജ് സമയം:',q4:'ഇൻവെർട്ടർ ബാറ്ററിയിലെ "C10" എന്നാൽ:',q4o:['10C കറന്റ്','10 മണിക്കൂറിൽ തീരുമ്പോഴുള്ള കപ്പാസിറ്റി','ഉള്ളിൽ 10 സെല്ലുകൾ','10 വർഷം ആയുസ്സ്'],
+q5:'20C-ക്ക് യോജിച്ച ബാറ്ററി ഏത്?',q6:'100 Ah ബാറ്ററി 25 A നൽകുന്നു. C-റേറ്റ് = ?',q7:'കറന്റ് ഇരട്ടിയാക്കി. ഉള്ളിലെ ചൂട്:',q7o:['മാറില്ല','2×','4×','പകുതി'],q8:'ഉയർന്ന C-യിൽ ലെഡ്-ആസിഡ് ബാറ്ററിയുടെ ലഭ്യമായ Ah:',q8o:['കൂടും','കുറയും','മാറില്ല']});
+Object.assign(L.hi,{tab_ex:'हल किए उदाहरण',tab_quiz:'क्विज़',next_step:'अगला चरण',show_all:'सब दिखाएँ',reset:'रीसेट',try_calc:'कैलकुलेटर में देखें',given:'दिया है',answer:'उत्तर',check:'जाँच',
+ex1:'12 V, 150 Ah इन्वर्टर बैटरी 0.1C पर डिस्चार्ज होती है। करंट और समय ज्ञात करें।',
+ex2:'2200 mAh LiPo पैक की रेटिंग 25C है। अधिकतम करंट और न्यूनतम चलने का समय ज्ञात करें।',
+ex3:'100 Ah बैटरी 20 A का स्थिर लोड देती है। C-रेट और समय ज्ञात करें।',
+ex4:'एक UPS को 30 मिनट तक 50 A देना है। C-रेट और न्यूनतम (आदर्श) क्षमता ज्ञात करें।',
+ex4_note:'लेड-एसिड के लिए 2C बहुत अधिक है। बड़ी बैटरी या Li-ion चुनें।',
+question:'प्रश्न',score:'स्कोर',next:'अगला',restart:'फिर से शुरू करें',correct:'सही!',wrong:'गलत। उत्तर:',finished:'पूरा हुआ',
+q1:'60 Ah बैटरी 1C पर। करंट = ?',q2:'0.5C पर पूरी बैटरी चलेगी:',q3:'10C पर डिस्चार्ज समय:',q4:'इन्वर्टर बैटरी पर "C10" का अर्थ:',q4o:['10C का करंट','10 घंटे में खाली होने पर क्षमता','अंदर 10 सेल','10 साल का जीवन'],
+q5:'20C के लिए कौन-सी बैटरी?',q6:'100 Ah बैटरी 25 A देती है। C-रेट = ?',q7:'करंट दोगुना किया। अंदर की गर्मी:',q7o:['वही','2×','4×','आधी'],q8:'उच्च C पर लेड-एसिड बैटरी का उपयोगी Ah:',q8o:['बढ़ता है','घटता है','वही रहता है']});
+let lang='en';
+const t=k=>(L[lang]&&L[lang][k])||L.en[k]||k;
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- icons (48x48 line art) ---------- */
+const P={
+ tower:'<path d="M24 8 L15 42 M24 8 L33 42 M18 31 H30 M20 22 H28 M17 37 L31 27 M31 37 L17 27"/><path d="M14 8 q-5 7 0 14 M34 8 q5 7 0 14"/><circle cx="24" cy="8" r="2.5"/>',
+ solar:'<path d="M6 34 L13 14 H42 L35 34 Z M9.5 24 H38.5 M22.7 14 L18.7 34 M32.3 14 L28.3 34 M20 34 V42 M32 34 V42 M16 42 H36"/>',
+ inverter:'<rect x="7" y="10" width="34" height="28" rx="3"/><path d="M13 24 q3.5 -9 7 0 t7 0 t7 0"/><path d="M14 44 V38 M34 44 V38"/>',
+ ups:'<rect x="13" y="5" width="22" height="38" rx="3"/><circle cx="24" cy="16" r="5"/><path d="M24 11 V16 M18 29 H30 M18 34 H30"/>',
+ erick:'<circle cx="12" cy="36" r="5"/><circle cx="36" cy="36" r="5"/><path d="M17 36 H31 M7 30 V16 Q7 11 12 11 H30 L39 22 V31"/><path d="M7 20 H28 V11"/>',
+ ev:'<path d="M5 32 V26 L11 17 H35 L43 26 V32 Z"/><circle cx="14" cy="34" r="4"/><circle cx="34" cy="34" r="4"/><path d="M25 19 l-4 6 h6 l-4 6"/>',
+ tools:'<path d="M6 15 H32 V26 H6 Z M32 18.5 H43 M32 22.5 H39 M17 26 L14 42 H24 L26 26"/><path d="M10 15 V12 H28 V15"/>',
+ light:'<rect x="7" y="14" width="34" height="12" rx="4"/><path d="M12 31 L9 38 M24 31 V40 M36 31 L39 38 M18 31 L16.5 37 M30 31 L31.5 37"/>',
+ robot:'<rect x="12" y="15" width="24" height="20" rx="4"/><circle cx="19" cy="24" r="2.5"/><circle cx="29" cy="24" r="2.5"/><path d="M19 30 H29 M24 15 V9 M8 22 V28 M40 22 V28 M18 35 V41 M30 35 V41"/><circle cx="24" cy="7" r="2"/>',
+ drone:'<rect x="19" y="19" width="10" height="10" rx="2"/><path d="M19 19 L11 11 M29 19 L37 11 M19 29 L11 37 M29 29 L37 37"/><ellipse cx="11" cy="11" rx="7" ry="2.5"/><ellipse cx="37" cy="11" rx="7" ry="2.5"/><ellipse cx="11" cy="37" rx="7" ry="2.5"/><ellipse cx="37" cy="37" rx="7" ry="2.5"/>',
+ rc:'<path d="M4 31 L8 23 H22 L28 18 H38 L44 26 V31 Z M38 18 V13 H44"/><circle cx="13" cy="33" r="4.5"/><circle cx="36" cy="33" r="4.5"/>',
+ plane:'<path d="M6 26 L42 24 Q46 24 42 22 L6 21 Z M24 22 L17 8 H21 L31 22 M24 25 L18 39 H22 L31 25 M8 21 L5 14 H9 L13 21"/>'
+};
+const icon=(n,s=48)=>`<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+
+/* battery pictures */
+const BP={
+ la:'<rect x="4" y="14" width="56" height="34" rx="3" style="fill:var(--ink)"/><rect x="12" y="8" width="10" height="7" style="fill:var(--bad)"/><rect x="42" y="8" width="10" height="7" style="fill:var(--muted)"/><text x="32" y="37" text-anchor="middle" style="fill:#fff;font:700 12px var(--f-disp)">12V</text>',
+ alk:'<rect x="6" y="22" width="48" height="18" rx="4" style="fill:var(--warn)"/><rect x="54" y="27" width="5" height="8" rx="1" style="fill:var(--muted)"/><rect x="6" y="22" width="16" height="18" rx="4" style="fill:var(--ink)"/>',
+ nimh:'<rect x="6" y="22" width="48" height="18" rx="4" style="fill:var(--ok)"/><rect x="54" y="27" width="5" height="8" rx="1" style="fill:var(--muted)"/><text x="30" y="35" text-anchor="middle" style="fill:#fff;font:700 10px var(--f-disp)">AA</text>',
+ lfp:'<rect x="8" y="16" width="48" height="34" rx="3" style="fill:var(--time)"/><rect x="16" y="10" width="8" height="7" style="fill:var(--bad)"/><rect x="40" y="10" width="8" height="7" style="fill:var(--muted)"/><text x="32" y="38" text-anchor="middle" style="fill:#fff;font:700 10px var(--f-disp)">3.2V</text>',
+ li:'<rect x="20" y="6" width="22" height="50" rx="5" style="fill:var(--amp)"/><rect x="27" y="3" width="8" height="4" rx="1" style="fill:var(--muted)"/><text x="31" y="35" text-anchor="middle" transform="rotate(-90 31 31)" style="fill:#fff;font:700 9px var(--f-disp)">18650</text>',
+ lipo:'<rect x="4" y="18" width="46" height="28" rx="6" style="fill:var(--time)"/><path d="M50 26 H60 M50 32 H60 M50 38 H60" style="stroke:var(--bad)" stroke-width="3"/>'
+};
+const bpic=(k,s=56)=>`<svg width="${s}" height="${s}" viewBox="0 0 64 64" aria-hidden="true">${BP[k]}</svg>`;
+const BN={la:'Lead-acid',alk:'Alkaline',nimh:'NiMH',lfp:'LiFePO₄',li:'Li-ion',lipo:'LiPo'};
+
+/* ---------- data ---------- */
+const RATES=[{c:0.05,s:'C/20'},{c:0.1,s:'C/10'},{c:0.2,s:'C/5'},{c:0.5,s:'C/2'},{c:1,s:''},{c:2,s:''},{c:10,s:''},{c:20,s:''}];
+const APPS={0.05:['tower','solar','ups'],0.1:['solar','inverter','ups'],0.2:['ups','erick','inverter'],0.5:['erick','ev','tools'],1:['ev','robot','light'],2:['drone','rc','tools'],10:['drone','plane'],20:['drone','rc']};
+const BATS={0.05:['la','alk'],0.1:['la','alk'],0.2:['la','nimh','lfp'],0.5:['la','nimh','lfp','li'],1:['li','lfp','nimh'],2:['lipo','li','nimh'],10:['lipo','li'],20:['lipo']};
+const fmt=(v,d=2)=>{const r=Math.round(v*Math.pow(10,d))/Math.pow(10,d);return r.toLocaleString('en-IN',{maximumFractionDigits:d})};
+const fmtTime=h=>{if(h>=1){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return mm?`${hh} h ${mm} min`:`${hh} h`}const m=h*60;return m>=1?`${fmt(m,1)} min`:`${fmt(m*60,0)} s`};
+const cLab=c=>`${c}C`;
+
+/* ---------- tanks ---------- */
+function tankSVG(c,id){
+  const sw=Math.min(4+c*8,34);
+  return `<svg class="tank" id="${id||''}" width="170" height="230" viewBox="0 0 170 230" style="--d:${(4/c).toFixed(2)}s;max-width:100%" aria-hidden="true">
+    <rect class="shell" x="20" y="14" width="100" height="150" rx="8"/>
+    <rect class="water" x="24" y="30" width="92" height="130" rx="4"/>
+    <rect class="pipe" x="110" y="148" width="40" height="12" rx="2"/>
+    <rect class="pipe" x="140" y="140" width="12" height="8"/>
+    <line class="stream" x1="146" y1="160" x2="146" y2="226" stroke-width="${sw}"/>
+    <text x="70" y="104" text-anchor="middle" style="fill:var(--ink);font:700 18px var(--f-disp)">100 Ah</text>
+  </svg>`;
+}
+const TANKS=[{c:0.5,k:'slow'},{c:1,k:'normal'},{c:2,k:'fast'}];
+let simRAF=null;
+function buildTanks(){
+  $('tanks').innerHTML=TANKS.map((x,i)=>`<div class="tankcard"><div class="rate">${cLab(x.c)} <span class="muted" style="font-size:1rem">${t(x.k)}</span></div>${tankSVG(x.c,'tk'+i)}<div class="vals"><span class="acol">${fmt(100*x.c)} A</span><span class="tcol">${fmtTime(1/x.c)}</span></div><div class="sim" id="sim${i}"></div></div>`).join('');
+}
+function runTanks(){
+  if(reduce)return;
+  const els=TANKS.map((x,i)=>$('tk'+i));
+  els.forEach(e=>{e.classList.remove('run');e.getBoundingClientRect();e.classList.add('run')});
+  cancelAnimationFrame(simRAF);
+  const t0=performance.now();
+  const tick=now=>{
+    const sec=(now-t0)/1000; let live=false;
+    TANKS.forEach((x,i)=>{const dur=4/x.c;const s=Math.min(sec,dur);if(sec<dur)live=true;const h=s/4;const el=$('sim'+i);if(el)el.textContent='⏱ '+(h<1?Math.round(h*60)+' min':Math.floor(h)+' h '+Math.round((h%1)*60)+' min')});
+    if(live)simRAF=requestAnimationFrame(tick);
+  };
+  simRAF=requestAnimationFrame(tick);
+}
+
+/* ---------- calculator ---------- */
+let unit='Ah',rate=1;
+function arc(cx,cy,r,f){
+  if(f>=0.999)return `<circle cx="${cx}" cy="${cy}" r="${r}"/>`;
+  const a=f*2*Math.PI,ex=cx+r*Math.sin(a),ey=cy-r*Math.cos(a);
+  return `<path d="M${cx} ${cy-r} A${r} ${r} 0 ${f>0.5?1:0} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}"/>`;
+}
+function dialSVG(h){
+  const cx=100,cy=100,minScale=h<=1,f=minScale?h:h/12;
+  let ticks='';for(let i=0;i<12;i++){const a=i/12*2*Math.PI,r1=86,r2=i%3?80:76;ticks+=`<line class="tick" x1="${cx+r1*Math.sin(a)}" y1="${cy-r1*Math.cos(a)}" x2="${cx+r2*Math.sin(a)}" y2="${cy-r2*Math.cos(a)}"/>`}
+  const labs=minScale?['0','15','30','45']:['12','3','6','9'];
+  const lp=[[cx,cy-58],[cx+60,cy+4],[cx,cy+66],[cx-60,cy+4]];
+  const lt=labs.map((l,i)=>`<text class="tl" x="${lp[i][0]}" y="${lp[i][1]}" text-anchor="middle">${l}</text>`).join('');
+  const r1=Math.min(f,1),r2=f>1?f-1:0;
+  return `<svg class="dial" width="200" height="200" viewBox="0 0 200 200" style="max-width:100%" role="img" aria-label="${fmtTime(h)}">
+   <circle class="face" cx="${cx}" cy="${cy}" r="94"/>${ticks}
+   <circle class="rbg" cx="${cx}" cy="${cy}" r="66"/>
+   <g class="r1">${arc(cx,cy,66,r1)}</g>${r2>0?`<g class="r2">${arc(cx,cy,50,Math.min(r2,1))}</g>`:''}
+   ${lt}<text class="ct" x="${cx}" y="${cy+8}" text-anchor="middle">${fmtTime(h)}</text>
+   <text class="tl" x="${cx}" y="${cy+28}" text-anchor="middle">${minScale?'60 min':'12 h'}</text></svg>`;
+}
+const LMIN=Math.log10(0.05),LMAX=Math.log10(20);
+const gpos=c=>(Math.log10(c)-LMIN)/(LMAX-LMIN);
+function gaugeSVG(){
+  const cx=130,cy=138,r=100;
+  const pt=(p,rr)=>{const th=Math.PI-p*Math.PI;return[cx+rr*Math.cos(th),cy-rr*Math.sin(th)]};
+  const seg=(a,b,cl)=>{const[x1,y1]=pt(a,r),[x2,y2]=pt(b,r);return `<path class="z ${cl}" d="M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}"/>`};
+  const labs=RATES.map(x=>{const[x1,y1]=pt(gpos(x.c),r+20);return `<text class="gl" x="${x1.toFixed(1)}" y="${(y1+4).toFixed(1)}" text-anchor="middle">${x.s||cLab(x.c)}</text>`}).join('');
+  return `<svg class="gauge" width="260" height="160" viewBox="0 0 260 160" style="max-width:100%" aria-hidden="true">
+   ${seg(0,gpos(0.5),'zok')}${seg(gpos(0.5),gpos(1),'zw')}${seg(gpos(1),1,'zb')}${labs}
+   <line class="needle" id="needle" x1="${cx}" y1="${cy}" x2="${cx-r+18}" y2="${cy}" style="transform-origin:${cx}px ${cy}px"/>
+   <circle class="hub" cx="${cx}" cy="${cy}" r="9"/></svg>`;
+}
+function buildChips(){
+  $('chips').innerHTML=RATES.map(x=>`<button type="button" class="chip" data-c="${x.c}" aria-pressed="${x.c===rate}"><b>${cLab(x.c)}</b><span>${x.s}</span></button>`).join('');
+}
+function setRate(c){rate=c;document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.c===c)));store.set('crate',String(c));calc()}
+function calc(){
+  const raw=parseFloat($('cap').value);
+  if(!(raw>0)){$('dial').innerHTML='';$('iBig').textContent='--';$('iSub').textContent='';$('tSub').textContent='';$('steps').innerHTML=`<div>${t('err')}</div>`;return}
+  const ah=unit==='Ah'?raw:raw/1000, I=ah*rate, h=1/rate;
+  $('dial').innerHTML=dialSVG(h);
+  $('tSub').textContent=`${fmt(h,2)} h = ${fmt(h*60,1)} min`;
+  $('iBig').textContent=unit==='Ah'?`${fmt(I)} A`:`${fmt(I*1000,0)} mA`;
+  $('iSub').textContent=unit==='Ah'?(I<1?`= ${fmt(I*1000,0)} mA`:''):`= ${fmt(I,3)} A`;
+  const n=$('needle');if(n)n.style.transform=`rotate(${(gpos(rate)*180).toFixed(1)}deg)`;
+  const capTxt=unit==='Ah'?`${fmt(raw)} Ah`:`${fmt(raw,0)} mAh = ${fmt(ah,3)} Ah`;
+  $('steps').innerHTML=
+   `<div>${t('capacity')}: <b>${capTxt}</b></div>`+
+   `<div><span class="acol"><b>I</b></span> = C × Ah = ${rate} × ${fmt(ah,3)} = <b class="acol">${fmt(I,3)} A</b></div>`+
+   `<div><span class="tcol"><b>t</b></span> = 1 ÷ C = 1 ÷ ${rate} = <b class="tcol">${fmt(h,2)} h</b> = ${fmt(h*60,1)} min</div>`+
+   `<div>✓ Ah ÷ I = ${fmt(ah,3)} ÷ ${fmt(I,3)} = ${fmt(ah/I,2)} h</div>`;
+  $('apps').innerHTML=APPS[rate].map(a=>`<div class="ic">${icon(a,56)}<span>${t('a_'+a)}</span></div>`).join('');
+  $('bats').innerHTML=BATS[rate].map(b=>`<span class="bchip">${BN[b]}</span>`).join('');
+  const st=rate<=0.5?['ok','la_ok','✔']:rate<=1?['warn','la_warn','!']:['bad','la_bad','✖'];
+  $('laBadge').innerHTML=`<span class="pill ${st[0]}">${st[2]} ${t(st[1])}</span>`;
+}
+
+/* ---------- scale (butterfly) ---------- */
+function buildScale(){
+  const Tmin=Math.log10(1/20),Tmax=Math.log10(20),Imin=Math.log10(5),Imax=Math.log10(2000);
+  const w=(v,a,b)=>(22+78*(Math.log10(v)-a)/(b-a)).toFixed(1);
+  let h=`<div class="hd l">← ${t('s_time')}</div><div></div><div class="hd r">${t('s_cur')} →</div>`;
+  RATES.forEach(x=>{const tm=1/x.c,I=100*x.c;
+    h+=`<div class="frow" data-c="${x.c}"><div class="bar bl" style="width:${w(tm,Tmin,Tmax)}%">${fmtTime(tm)}</div><button type="button" class="mid" data-c="${x.c}"><b>${cLab(x.c)}</b><span>${x.s||'&nbsp;'}</span></button><div class="bar br" style="width:${w(I,Imin,Imax)}%">${fmt(I)} A</div></div>`});
+  $('fly').innerHTML=h;
+}
+
+/* ---------- types chart ---------- */
+const TD=[{k:'alk',d:'d_alk',t:[0.05,0.1],p:[0.1,0.2]},{k:'la',d:'d_la',t:[0.05,0.5],p:[0.5,1]},{k:'nimh',d:'d_nimh',t:[0.2,1],p:[1,3]},{k:'lfp',d:'d_lfp',t:[0.2,1],p:[1,3]},{k:'li',d:'d_li',t:[0.2,1],p:[1,10]},{k:'lipo',d:'d_lipo',t:[1,20],p:[20,30]}];
+const XA=Math.log10(0.05),XB=Math.log10(30),xp=c=>((Math.log10(c)-XA)/(XB-XA)*100);
+const TICKS=[[0.05,'C/20'],[0.1,'C/10'],[0.2,'C/5'],[0.5,'C/2'],[1,'1C'],[2,'2C'],[5,'5C'],[10,'10C'],[20,'20C']];
+function buildTypes(){
+  const grid=TICKS.map(([c])=>`<span class="g" style="left:${xp(c)}%"></span>`).join('');
+  let h=`<div></div><div class="axis">${TICKS.map(([c,l])=>`<span style="left:${xp(c)}%">${l}</span>`).join('')}</div>`;
+  TD.forEach(r=>{const tl=xp(r.t[0]),tw=xp(r.t[1])-tl,pl=Math.max(0,xp(r.p[0])-1.5),pw=xp(r.p[1])-xp(r.p[0])+1.5;
+    h+=`<div class="tname">${bpic(r.k)}<div><b>${BN[r.k]}</b><span>${t(r.d)}</span></div></div><div class="track">${grid}<span class="poss" style="left:${pl}%;width:${pw}%"></span><span class="typ" style="left:${tl}%;width:${tw}%"></span></div>`});
+  $('tchart').innerHTML=h;
+}
+
+/* ---------- loss ---------- */
+const EFF=[
+ ['e_cap','<rect x="8" y="14" width="44" height="28" rx="4" fill="none" style="stroke:var(--ink)" stroke-width="3"/><rect x="52" y="22" width="5" height="12" rx="1" style="fill:var(--ink)"/><rect x="12" y="18" width="14" height="20" style="fill:var(--bad)"/><path d="M30 28 H46 M40 22 l6 6 -6 6" fill="none" style="stroke:var(--muted)" stroke-width="2.5"/>'],
+ ['e_heat','<rect x="25" y="6" width="10" height="34" rx="5" fill="none" style="stroke:var(--ink)" stroke-width="3"/><circle cx="30" cy="46" r="9" style="fill:var(--bad)"/><rect x="28" y="16" width="4" height="28" style="fill:var(--bad)"/><path d="M44 14 q4 5 0 10 q-4 5 0 10 M50 18 q3 4 0 8" fill="none" style="stroke:var(--amp)" stroke-width="2.5"/>'],
+ ['e_volt','<path d="M6 50 H56 M8 52 V6" style="stroke:var(--muted)" stroke-width="2"/><path d="M10 14 Q30 15 34 20 T54 44" fill="none" style="stroke:var(--bad)" stroke-width="3.5"/><path d="M10 12 H54" style="stroke:var(--ok)" stroke-width="2.5" stroke-dasharray="4 3"/><text x="14" y="34" style="fill:var(--ink);font:700 12px var(--f-disp)">V</text>'],
+ ['e_life','<path d="M30 8 a22 22 0 1 1 -19 11" fill="none" style="stroke:var(--ink)" stroke-width="3.5"/><path d="M6 12 l5 8 8 -4" fill="none" style="stroke:var(--ink)" stroke-width="3.5"/><path d="M24 30 H36" style="stroke:var(--bad)" stroke-width="4"/><path d="M30 24 l0 12" style="stroke:none"/>']
+];
+function buildLoss(){
+  $('effects').innerHTML=EFF.map(([k,s])=>`<div class="card eff"><svg width="72" height="72" viewBox="0 0 60 60" aria-hidden="true">${s}</svg><span>${t(k)}</span></div>`).join('');
+  const X=['C/20','C/10','C/5','C/2','1C','2C'],LA=[100,93,85,72,60,50],LI=[100,99,98,97,95,92];
+  const W=620,H=330,l=50,r=90,tp=20,b=40,xs=i=>l+i*(W-l-r)/(X.length-1),ys=v=>tp+(100-v)/(100-40)*(H-tp-b);
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Usable capacity falls faster for lead-acid">`;
+  [40,60,80,100].forEach(v=>s+=`<line class="gl" x1="${l}" x2="${W-r}" y1="${ys(v)}" y2="${ys(v)}"/><text class="ax" x="${l-8}" y="${ys(v)+4}" text-anchor="end">${v}%</text>`);
+  X.forEach((x,i)=>s+=`<text class="ax" x="${xs(i)}" y="${H-12}" text-anchor="middle">${x}</text>`);
+  const line=(arr,cl)=>`<polyline class="${cl}" points="${arr.map((v,i)=>xs(i)+','+ys(v)).join(' ')}"/>`;
+  s+=line(LI,'li')+line(LA,'la');
+  LA.forEach((v,i)=>s+=`<circle class="dla" cx="${xs(i)}" cy="${ys(v)}" r="5"/><text class="vl" x="${xs(i)}" y="${ys(v)+22}" text-anchor="middle" style="fill:var(--amp)">${v}%</text>`);
+  LI.forEach((v,i)=>s+=`<circle class="dli" cx="${xs(i)}" cy="${ys(v)}" r="4"/>`);
+  s+=`<text class="vl" x="${xs(5)+10}" y="${ys(92)+5}" style="fill:var(--time)">Li-ion</text><text class="vl" x="${xs(5)+10}" y="${ys(50)+5}" style="fill:var(--amp)">Lead-acid</text></svg>`;
+  $('capChart').innerHTML=s;
+  const HB=[[0.1,10],[0.5,50],[1,100],[2,200]],HW=520,HH=290,hl=20,hb=50,ht=30,max=200*200*0.005;
+  let q=`<svg class="ch" viewBox="0 0 ${HW} ${HH}" width="100%" role="img" aria-label="Heat rises with square of current">`;
+  const bw=80,gap=(HW-hl*2-bw*4)/3;
+  HB.forEach(([c,I],i)=>{const P=I*I*0.005,hh=Math.max(3,P/max*(HH-hb-ht)),x=hl+i*(bw+gap),y=HH-hb-hh;
+    q+=`<rect class="hb" x="${x}" y="${y}" width="${bw}" height="${hh}" rx="4"/><text class="vl" x="${x+bw/2}" y="${y-8}" text-anchor="middle" style="fill:var(--ink)">${fmt(P,1)} W</text><text class="ax" x="${x+bw/2}" y="${HH-28}" text-anchor="middle" style="font-weight:700;fill:var(--ink)">${c}C</text><text class="ax" x="${x+bw/2}" y="${HH-10}" text-anchor="middle">${I} A</text>`});
+  $('heatChart').innerHTML=q+'</svg>';
+}
+
+/* ---------- label tank pair ---------- */
+function buildNE(){$('neA').innerHTML=tankSVG(0.1).replace('100 Ah','150 Ah');$('neB').innerHTML=tankSVG(10).replace('100 Ah','150 Ah')}
+
+/* ---------- worked examples ---------- */
+const EX=[
+ {p:'ex1',pic:()=>bpic('la',120),calc:{cap:150,c:0.1},s:[['given','Ah = 150 Ah,&nbsp; C = 0.1C'],['current','<span class="acol"><b>I</b></span> = C × Ah = 0.1 × 150 = <b>15 A</b>'],['time','<span class="tcol"><b>t</b></span> = 1 ÷ C = 1 ÷ 0.1 = <b>10 h</b>'],['answer','<b>I = 15 A,&nbsp; t = 10 h</b>','ans'],['check','150 Ah ÷ 15 A = 10 h ✓']]},
+ {p:'ex2',pic:()=>bpic('lipo',120),calc:null,s:[['given','2200 mAh = 2.2 Ah,&nbsp; C = 25C'],['current','<span class="acol"><b>I</b></span> = 25 × 2.2 = <b>55 A</b>'],['time','<span class="tcol"><b>t</b></span> = 1 ÷ 25 = 0.04 h = <b>2.4 min</b>'],['answer','<b>I<sub>max</sub> = 55 A,&nbsp; t<sub>min</sub> = 2.4 min</b>','ans'],['check','2.2 Ah ÷ 55 A = 0.04 h ✓']]},
+ {p:'ex3',pic:()=>bpic('la',120),calc:{cap:100,c:0.2},s:[['given','Ah = 100 Ah,&nbsp; I = 20 A'],['crate','C = I ÷ Ah = 20 ÷ 100 = <b>0.2C</b> (C/5)'],['time','<span class="tcol"><b>t</b></span> = 1 ÷ 0.2 = <b>5 h</b>'],['answer','<b>0.2C,&nbsp; t = 5 h</b>','ans'],['check','100 Ah ÷ 20 A = 5 h ✓']]},
+ {p:'ex4',pic:()=>icon('ups',120),calc:{cap:25,c:2},s:[['given','I = 50 A,&nbsp; t = 30 min = 0.5 h'],['crate','C = 1 ÷ t = 1 ÷ 0.5 = <b>2C</b>'],['capacity','Ah = I ÷ C = 50 ÷ 2 = <b>25 Ah</b>'],['answer','<b>2C,&nbsp; 25 Ah</b>','ans'],['!',()=>'⚠ '+t('ex4_note'),'note']]}
+];
+let exI=0,exN=1;
+function renderEx(anim){
+  const e=EX[exI];
+  $('exNav').innerHTML=EX.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===exI}" aria-label="Example ${i+1}">${i+1}</button>`).join('');
+  $('exPic').innerHTML=e.pic();$('exProb').textContent=t(e.p);
+  $('exSteps').innerHTML=e.s.slice(0,exN).map((s,i)=>{const lab=s[0]==='crate'?'C-rate':s[0]==='!'?'':t(s[0]);const body=typeof s[1]==='function'?s[1]():s[1];
+    return `<li class="${s[2]||''}${anim&&i===exN-1?' in':''}"><span class="k">${lab}</span><span>${body}</span></li>`}).join('');
+  $('exNext').disabled=exN>=e.s.length;$('exAll').disabled=exN>=e.s.length;
+  $('exTry').hidden=!e.calc;
+}
+$('exNav').addEventListener('click',e=>{const b=e.target.closest('button');if(b){exI=+b.dataset.i;exN=1;renderEx()}});
+$('exNext').addEventListener('click',()=>{exN=Math.min(exN+1,EX[exI].s.length);renderEx(true)});
+$('exAll').addEventListener('click',()=>{exN=EX[exI].s.length;renderEx()});
+$('exReset').addEventListener('click',()=>{exN=1;renderEx()});
+$('exTry').addEventListener('click',()=>{const c=EX[exI].calc;if(!c)return;if(unit!=='Ah')setUnit('Ah');$('cap').value=c.cap;setRate(c.c);show('calc');window.scrollTo({top:0})});
+
+/* ---------- quiz ---------- */
+const Q=[
+ {q:'q1',o:['30 A','60 A','120 A','6 A'],a:1,pic:()=>bpic('la',80)},
+ {q:'q2',o:['30 min','1 h','2 h','5 h'],a:2},
+ {q:'q3',o:['10 h','1 h','10 min','6 min'],a:3,pic:()=>icon('drone',72)},
+ {q:'q4',o:'q4o',a:1},
+ {q:'q5',o:['la','alk','lipo','nimh'],bat:1,a:2},
+ {q:'q6',o:['0.25C','4C','25C','2.5C'],a:0},
+ {q:'q7',o:'q7o',a:2},
+ {q:'q8',o:'q8o',a:1}
+];
+let qi=0,qPick=Array(Q.length).fill(null);
+const qOpts=x=>typeof x.o==='string'?t(x.o):x.o;
+const optHTML=(x,v)=>x.bat?`${bpic(v,44)}${BN[v]}`:v;
+function renderQuiz(){
+  const sc=qPick.filter((p,i)=>p===Q[i].a).length;
+  $('qScore').textContent=`${t('score')}: ${sc} / ${Q.length}`;
+  $('qDots').innerHTML=Q.map((x,i)=>`<i class="${qPick[i]===null?'':qPick[i]===x.a?'y':'n'}${i===qi?' cur':''}"></i>`).join('');
+  if(qi>=Q.length){
+    $('qCount').textContent=t('finished');
+    const pc=sc/Q.length,cl=pc>=0.75?'ok':pc>=0.5?'warn':'bad';
+    $('qCard').innerHTML=`<div class="qend"><div class="big" style="font-size:4rem;color:var(--${cl})">${sc} / ${Q.length}</div><button class="btn pri" type="button" id="qRestart">${t('restart')}</button></div>`;
+    $('qRestart').onclick=()=>{qi=0;qPick.fill(null);renderQuiz()};return;
+  }
+  const x=Q[qi],opts=qOpts(x),p=qPick[qi],L4='ABCD';
+  $('qCount').textContent=`${t('question')} ${qi+1} / ${Q.length}`;
+  let h=`<div class="qq">${x.pic?x.pic():''}<span>${t(x.q)}</span></div><div class="qopts">`;
+  opts.forEach((v,i)=>{const cl=p===null?'':i===x.a?'y':i===p?'n':'';h+=`<button type="button" class="qopt ${cl}" data-i="${i}" ${p!==null?'disabled':''}><span class="lt">${L4[i]}</span>${optHTML(x,v)}</button>`});
+  h+='</div><div class="qfb">';
+  if(p!==null){h+=p===x.a?`<span class="pill ok" style="font-size:1.2rem">✔ ${t('correct')}</span>`:`<span class="pill bad" style="font-size:1.2rem">✖ ${t('wrong')} ${L4[x.a]}</span>`;
+    h+=`<button class="btn pri" type="button" id="qNext">${t('next')} →</button>`}
+  $('qCard').innerHTML=h+'</div>';
+  const nb=$('qNext');if(nb){nb.onclick=()=>{qi++;renderQuiz()};nb.focus({preventScroll:true})}
+}
+$('qCard').addEventListener('click',e=>{const b=e.target.closest('.qopt');if(b&&qPick[qi]===null){qPick[qi]=+b.dataset.i;renderQuiz()}});
+
+/* ---------- tabs & i18n ---------- */
+const ORDER=['concept','calc','scale','types','loss','label','ex','quiz'];
+let cur='concept';
+function show(id){
+  if(!ORDER.includes(id))id='concept';cur=id;
+  ORDER.forEach(k=>{$('p-'+k).hidden=k!==id;const b=$('t-'+k);b.setAttribute('aria-selected',String(k===id));b.tabIndex=k===id?0:-1});
+  store.set('tab',id);
+  try{$('t-'+id).scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  if(id==='concept')runTanks();
+}
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{e.textContent=t(e.dataset.i18n)});
+  buildTanks();buildScale();buildTypes();buildLoss();calc();renderEx();renderQuiz();
+  if(cur==='concept')runTanks();
+}
+
+/* events */
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)show(b.dataset.tab)});
+document.addEventListener('keydown',e=>{
+  if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
+  const i=ORDER.indexOf(cur);
+  if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();show(ORDER[(i+1)%ORDER.length])}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(ORDER[(i-1+ORDER.length)%ORDER.length])}
+});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)setRate(+b.dataset.c)});
+$('fly').addEventListener('click',e=>{const r=e.target.closest('[data-c]');if(r){setRate(+r.dataset.c);show('calc');window.scrollTo({top:0})}});
+$('cap').addEventListener('input',calc);
+function setUnit(u){
+  if(u===unit)return;const v=parseFloat($('cap').value);
+  if(v>0)$('cap').value=u==='mAh'?+(v*1000).toFixed(3):+(v/1000).toFixed(6);
+  unit=u;$('uAh').setAttribute('aria-pressed',String(u==='Ah'));$('umAh').setAttribute('aria-pressed',String(u==='mAh'));calc();
+}
+$('uAh').addEventListener('click',()=>setUnit('Ah'));
+$('umAh').addEventListener('click',()=>setUnit('mAh'));
+$('replay').addEventListener('click',runTanks);
+$('lang').addEventListener('change',e=>{lang=e.target.value;store.set('lang',lang);applyLang()});
+$('fsBtn').addEventListener('click',()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}});
+
+/* init */
+const sl=store.get('lang');if(sl&&L[sl]){lang=sl;$('lang').value=sl}
+const sc=parseFloat(store.get('crate'));if(RATES.some(x=>x.c===sc))rate=sc;
+$('gauge').innerHTML=gaugeSVG();
+buildChips();buildNE();
+applyLang();
+const hs=(location.hash||'').slice(1);
+show(ORDER.includes(hs)?hs:(store.get('tab')||'concept'));
+})();
+</script>
+
+</body>
+</html>

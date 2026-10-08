@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Off-Grid Solar Sizing Trainer</title>
+<style>
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;margin:0;padding:16px clamp(12px,2.5vw,32px) 28px;background:#f7f8fa;color:#222}
+  h1,h2{color:#0B62FE}
+  h1{font-size:clamp(20px,3vw,28px);margin:4px 0 14px}
+  h2{font-size:clamp(17px,2.4vw,21px);margin:6px 0 10px}
+  .container{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+  .left,.right{background:#fff;border-radius:10px;box-shadow:0 2px 10px #cfd6e4;padding:18px;min-width:0}
+  .right{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+  .nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .nav button{border:0;background:#eef3ff;color:#135df8;padding:9px 12px;border-radius:7px;cursor:pointer;font:inherit;font-weight:bold}
+  .nav button.on{background:#0B62FE;color:#fff}
+  .page{display:none}.page.active{display:block}
+  label{margin-top:12px;display:block;font-weight:600}
+  input,select{padding:8px 10px;border:1px solid #cfd6e4;border-radius:6px;width:90px;font-size:15px;margin:4px 6px 0 0}
+  select{width:auto}
+  .grid,.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 18px;align-items:end}
+  .info{background:#eaf0fc;border-left:6px solid #0B62FE;padding:12px 15px;margin:10px 0;border-radius:6px}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+  th,td{text-align:left;padding:6px 8px;border:1px solid #ccc}
+  th{background:#f0f4ff}
+  .summary-area p{margin:6px 0}
+  .pill{display:inline-block;padding:4px 10px;border-radius:18px;background:#eef3ff;color:#135df8;font-weight:bold;margin-top:6px}
+  #ccFeedback{color:#e67e22;font-weight:600;margin:8px 0}
+  .note{display:block;font-size:12px;color:#777}
+  .muted{color:#555}
+  .stepnav{display:flex;justify-content:space-between;margin-top:16px}
+  .stepnav button{font:inherit;font-weight:bold;padding:8px 14px;border-radius:7px;border:1px solid #0B62FE;background:#fff;color:#0B62FE;cursor:pointer}
+  @media (max-width:860px){.container{grid-template-columns:1fr}.right{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<h1>Off-Grid Solar Sizing Trainer</h1>
+<div class="container">
+ <div class="left">
+  <div class="nav" id="nav">
+   <button data-p="1" class="on">1. Loads</button>
+   <button data-p="2">2. Hours</button>
+   <button data-p="3">3. Inverter</button>
+   <button data-p="4">4. Battery</button>
+   <button data-p="5">5. PV array</button>
+   <button data-p="6">6. Charge controller</button>
+   <button data-p="0">All results</button>
+  </div>
+
+  <section id="p1" class="page active">
+   <h2>Step 1 — Define electrical loads</h2>
+   <div class="info"><strong>Objective:</strong> List every appliance with its wattage and quantity. Default wattages are filled in; type your own value to override.</div>
+   <div class="grid">
+    <div><label>Fans (default 80 W)</label><input type="number" id="fansW" min="1" value="80" aria-label="Watt per fan"><input type="number" id="fansN" min="0" value="2" aria-label="Number of fans"><span class="note">Watt × quantity</span></div>
+    <div><label>Tube lights (default 40 W)</label><input type="number" id="tubesW" min="1" value="40"><input type="number" id="tubesN" min="0" value="2"><span class="note">Watt × quantity</span></div>
+    <div><label>LED lights (default 5 W)</label><input type="number" id="ledW" min="1" value="5"><input type="number" id="ledN" min="0" value="4"><span class="note">Watt × quantity</span></div>
+    <div><label>TV (default 100 W)</label><input type="number" id="tvW" min="1" value="100"><input type="number" id="tvN" min="0" value="1"><span class="note">Watt × quantity</span></div>
+    <div><label>Computer (default 100 W)</label><input type="number" id="pcW" min="1" value="100"><input type="number" id="pcN" min="0" value="1"><span class="note">Watt × quantity</span></div>
+   </div>
+  </section>
+
+  <section id="p2" class="page">
+   <h2>Step 2 — Daily usage hours</h2>
+   <div class="info"><strong>Objective:</strong> Enter how many hours per day each load is used.</div>
+   <div class="grid">
+    <div><label>Fans (hours/day)</label><input type="number" id="fansH" min="0" step="0.1" value="6"></div>
+    <div><label>Tube lights (hours/day)</label><input type="number" id="tubesH" min="0" step="0.1" value="6"></div>
+    <div><label>LED lights (hours/day)</label><input type="number" id="ledH" min="0" step="0.1" value="4"></div>
+    <div><label>TV (hours/day)</label><input type="number" id="tvH" min="0" step="0.1" value="5"></div>
+    <div><label>Computer (hours/day)</label><input type="number" id="pcH" min="0" step="0.1" value="4"></div>
+   </div>
+  </section>
+
+  <section id="p3" class="page">
+   <h2>Step 3 — Inverter sizing</h2>
+   <div class="info"><strong>Objective:</strong> Calculate the inverter VA rating using power factor and load headroom.</div>
+   <div class="row">
+    <div><label>Inverter efficiency (%)</label><input type="number" id="invEff" min="50" max="100" value="90"></div>
+    <div><label>Power factor</label><select id="pf"><option value="0.8">0.8 (typical)</option><option value="0.9">0.9 (efficient)</option><option value="1">1.0 (resistive)</option></select></div>
+    <div><label>Headroom factor</label><select id="headroom"><option value="1.25">1.25 (recommended)</option><option value="1.15">1.15</option><option value="1.30">1.30</option></select></div>
+   </div>
+   <p class="muted">Formula: VA = Watts ÷ PF × Headroom</p>
+  </section>
+
+  <section id="p4" class="page">
+   <h2>Step 4 — Battery bank</h2>
+   <div class="info"><strong>Objective:</strong> Calculate battery capacity for the chosen system voltage, days of autonomy and depth of discharge.</div>
+   <div class="row">
+    <div><label>System voltage (V)</label><select id="sysV"><option value="12">12</option><option value="24">24</option><option value="48">48</option><option value="96">96</option><option value="120">120</option><option value="240">240</option></select></div>
+    <div><label>Recommended voltage</label><span id="voltRec" class="pill">—</span></div>
+   </div>
+   <div class="row">
+    <div><label>Autonomy (days)</label><input type="number" id="autonomy" min="1" max="7" value="2"></div>
+    <div><label>Depth of discharge, DoD (%)</label><input type="number" id="dod" min="30" max="95" value="60"></div>
+    <div><label>Single battery capacity (Ah)</label><input type="number" id="battAh" min="50" value="150"></div>
+   </div>
+   <div class="tw" style="margin-top:14px"><table>
+    <thead><tr><th>System size (kW)</th><th>Recommended battery voltage</th></tr></thead>
+    <tbody><tr><td>&lt; 1 kW</td><td>12 V</td></tr><tr><td>1 – 3 kW</td><td>24 V</td></tr><tr><td>3 – 8 kW</td><td>48 – 96 V</td></tr><tr><td>10 – 20 kW</td><td>120 – 240 V</td></tr></tbody>
+   </table></div>
+   <p class="muted">Higher voltage reduces current and improves efficiency for bigger systems. Battery count assumes 12 V batteries.</p>
+  </section>
+
+  <section id="p5" class="page">
+   <h2>Step 5 — PV array sizing</h2>
+   <div class="info"><strong>Objective:</strong> Estimate the PV array size needed to recharge the battery each day.</div>
+   <div class="row">
+    <div><label>Peak sun hours (h/day)</label><input type="number" id="psh" min="2" step="0.1" value="5"></div>
+    <div><label>System derating (%)</label><input type="number" id="derate" min="50" max="95" value="75"></div>
+    <div><label>Panel rating (Wp)</label><select id="panelWp"><option value="250">250</option><option value="335">335</option><option value="450" selected>450</option><option value="550">550</option></select></div>
+    <div><label>Total number of panels</label><input type="number" id="totalPanels" min="1" value="6" readonly></div>
+   </div>
+  </section>
+
+  <section id="p6" class="page">
+   <h2>Step 6 — Charge controller sizing</h2>
+   <div class="info"><strong>Objective:</strong> Calculate the charge controller voltage and current ratings.</div>
+   <div class="row">
+    <div><label>Panel Voc (V)</label><input type="number" id="panelVoc" min="0" step="0.1" value="21.6"></div>
+    <div><label>Panel Isc (A)</label><input type="number" id="panelIsc" min="0" step="0.01" value="6.32"></div>
+    <div><label>Modules in series</label><input type="number" id="seriesCount" min="1" step="1" value="1"></div>
+    <div><label>Parallel strings</label><input type="number" id="parallelCount" min="1" step="1" value="6"></div>
+    <div><label>Safety factor (%)</label><input type="number" id="ccSafety" min="10" max="50" step="1" value="20"></div>
+   </div>
+   <div id="ccFeedback"></div>
+   <p class="muted">Voltage rating = string Voc × safety factor.<br>Current rating = total Isc × safety factor.</p>
+  </section>
+
+  <section id="p0" class="page">
+   <h2>All results</h2>
+   <p class="muted">The calculations for all six steps are shown together on the right (below on a phone).</p>
+  </section>
+
+  <div class="stepnav"><button type="button" id="prevB">◀ Previous step</button><button type="button" id="nextB">Next step ▶</button></div>
+ </div>
+
+ <div class="right summary-area">
+  <h2>Calculations</h2>
+  <div id="calcOutput"><p>No data entered yet.</p></div>
+ </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const val=id=>+$(id).value;
+const LOADS=[["Fans","fans",80],["Tube lights","tubes",40],["LED lights","led",5],["TV","tv",100],["Computer","pc",100]];
+function loads(){return LOADS.map(([name,k,def])=>({name,watt:val(k+'W')||def,count:val(k+'N')||0,hours:val(k+'H')||0}));}
+function computeTotalLoad(){return loads().reduce((s,l)=>s+l.watt*l.count,0);}
+function computeDailyEnergy(){return loads().reduce((s,l)=>s+l.watt*l.count*l.hours,0);}
+function invInput(){return Math.floor(computeDailyEnergy()/(val('invEff')/100));}
+let cur=1,lastPVPanelCount=6;
+
+function calc(page){
+  if(page===1){
+    let rows='',g=0;loads().forEach((l,i)=>{const t=l.watt*l.count;g+=t;rows+=`<tr><td>${i+1}</td><td>${l.name}</td><td>${l.watt}</td><td>${l.count}</td><td>${t}</td></tr>`;});
+    return `<div class="tw"><table><thead><tr><th>Sl. No.</th><th>Load</th><th>Wattage (W)</th><th>Qty</th><th>Total (W)</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th colspan="4">Grand total (W)</th><th>${g}</th></tr></tfoot></table></div>`;
+  }
+  if(page===2){
+    let rows='',g=0;loads().forEach((l,i)=>{const e=l.watt*l.count*l.hours;g+=e;rows+=`<tr><td>${i+1}</td><td>${l.name}</td><td>${l.watt}</td><td>${l.count}</td><td>${l.hours}</td><td>${e.toFixed(2)}</td></tr>`;});
+    return `<div class="tw"><table><thead><tr><th>Sl. No.</th><th>Load</th><th>W</th><th>Qty</th><th>Hours/day</th><th>Energy (Wh/day)</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th colspan="5">Grand total energy</th><th>${g.toFixed(2)}</th></tr></tfoot></table></div>`;
+  }
+  if(page===3){
+    const L=computeTotalLoad(),pf=val('pf'),hd=val('headroom'),va=Math.ceil(L/pf*hd);
+    return `<p><strong>Total load (W):</strong> ${L}</p><p><strong>Power factor (PF):</strong> ${pf}</p><p><strong>Headroom multiplier:</strong> ${hd}</p><p><strong>Calculated inverter rating:</strong> ${va} VA</p><p><strong>Estimated input energy to inverter:</strong> ${invInput()} Wh/day (adjusted for efficiency)</p>`;
+  }
+  if(page===4){
+    const E=invInput(),aut=val('autonomy'),dod=val('dod')/100,bAh=val('battAh'),V=val('sysV');
+    const need=E*aut,cap=need/(V*dod),par=Math.ceil(cap/bAh),ser=Math.max(1,Math.round(V/12));
+    return `<p><strong>Energy needed for autonomy (${aut} days):</strong> ${need} Wh</p><p><strong>System voltage:</strong> ${V} V</p><p><strong>Depth of discharge (DoD):</strong> ${Math.round(dod*100)}%</p><p><strong>Total battery capacity required:</strong> ${cap.toFixed(1)} Ah</p><p><strong>Batteries in series:</strong> ${ser}</p><p><strong>Batteries in parallel:</strong> ${par}</p><p><strong>Total batteries required:</strong> ${ser*par}</p>`;
+  }
+  if(page===5){
+    const E=invInput(),psh=val('psh'),der=val('derate')/100,wp=val('panelWp');
+    const pv=E/(psh*der),n=Math.ceil(pv/wp);$('totalPanels').value=n;
+    return `<p><strong>Peak sun hours:</strong> ${psh} h/day</p><p><strong>System derating:</strong> ${Math.round(der*100)}%</p><p><strong>Energy to replenish daily:</strong> ${E} Wh</p><p><strong>Estimated PV array size required:</strong> ${Math.ceil(pv)} Wp</p><p><strong>Using ${wp} Wp panels:</strong> ${n} panels</p>`;
+  }
+  if(page===6){
+    const voc=val('panelVoc'),isc=val('panelIsc'),s=val('seriesCount'),p=val('parallelCount'),sf=val('ccSafety')/100;
+    const sv=voc*s,svs=sv*(1+sf),ti=isc*p,tis=ti*(1+sf);
+    return `<div class="tw"><table><tr><th>Parameter</th><th>Calculation</th><th>Value</th></tr><tr><td>String Voc</td><td>${s} × ${voc}</td><td>${sv.toFixed(2)} V</td></tr><tr><td>With safety margin</td><td>${sv.toFixed(2)} × ${(1+sf).toFixed(2)}</td><td>${svs.toFixed(2)} V</td></tr><tr><td>Total Isc</td><td>${p} × ${isc}</td><td>${ti.toFixed(2)} A</td></tr><tr><td>With safety margin</td><td>${ti.toFixed(2)} × ${(1+sf).toFixed(2)}</td><td>${tis.toFixed(2)} A</td></tr></table></div><p><strong>Required controller voltage:</strong> ${svs.toFixed(2)} V</p><p><strong>Required controller current:</strong> ${tis.toFixed(2)} A</p><p><em>Always select a controller rated above these values.</em></p>`;
+  }
+  return '';
+}
+const TITLES=['','Loads','Hours','Inverter','Battery','PV array','Charge controller'];
+function render(){
+  if(cur===0){let h='';for(let i=1;i<=6;i++)h+=`<h3>Step ${i} — ${TITLES[i]}</h3>${calc(i)}<hr>`;$('calcOutput').innerHTML=h;}
+  else $('calcOutput').innerHTML=calc(cur);
+}
+function updateVoltageRecommendation(){
+  const w=computeTotalLoad();
+  $('voltRec').textContent=w<1000?'12 V':w<3000?'24 V':w<8000?'48 – 96 V':w<=20000?'120 – 240 V':'≥ 240 V (engineer review)';
+}
+function linkPanelCount(){
+  calc(5);const n=val('totalPanels');$('parallelCount').value=n;lastPVPanelCount=n;$('ccFeedback').textContent='';
+}
+$('parallelCount').addEventListener('input',function(){
+  $('ccFeedback').textContent=(+this.value!==lastPVPanelCount)?`You selected ${lastPVPanelCount} panels in the PV array step.`:'';
+});
+function show(n){
+  cur=n;
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='p'+n));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',+b.dataset.p===n));
+  if(n===6)linkPanelCount();
+  $('prevB').disabled=n===1;$('nextB').disabled=n===0;
+  $('nextB').textContent=n===6?'All results ▶':'Next step ▶';
+  render();
+}
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>show(+b.dataset.p)));
+$('prevB').onclick=()=>show(cur===0?6:Math.max(1,cur-1));
+$('nextB').onclick=()=>show(cur===6?0:cur+1);
+document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',()=>{updateVoltageRecommendation();render();}));
+updateVoltageRecommendation();show(1);
+</script>
+</body>
+</html>

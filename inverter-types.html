@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar Inverter Types</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Baloo+Chettan+2:wght@600;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky header + pill tab rail; one wide teaching canvas per tab — diagram first, short caption under, then flowchart + pros/cons */
+:root{
+--bg:#F4F7FB;--surface:#FFFFFF;--surface2:#E9EFF7;--ink:#0D1B2E;--muted:#4B5B72;--line:#C9D3E0;
+--sun:#C27C00;--sun-soft:#FFF0D1;--grid:#1C5BAE;--grid-soft:#E0EBFA;--batt:#16824A;--batt-soft:#DCF2E4;
+--hyb:#6942B0;--hyb-soft:#ECE5F9;--exp:#B0397A;--danger:#C4291F;--danger-soft:#FCE1DE;
+--pv:#1C365F;--pvcell:#6C98DA;--roof:#8A5A44;
+--f-display:"Baloo 2","Baloo Chettan 2","Nirmala UI",system-ui,sans-serif;
+--f-body:"Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif;
+--scale:1;--acc:var(--ink);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}
+:root[lang="ml"]{--f-display:"Baloo Chettan 2","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif}
+
+html{font-size:calc(clamp(15px,0.5vw + 10.5px,21px) * var(--scale))}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.5;margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:2.15rem;font-weight:800}
+h3{font-size:1.35rem;font-weight:800}
+p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:clamp(16px,3vw,40px)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1rem;padding-block:.55rem}
+.brand{display:flex;align-items:center;gap:.7rem;min-width:0}
+.brand svg{width:2.4rem;height:2.4rem;flex:none}
+.brand h1{font-size:1.45rem;font-weight:800}
+.brand .sub{font-size:.85rem;color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.tools select,.tools button{font:600 .95rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:.4rem .7rem;cursor:pointer;min-height:2.3rem}
+.tools select{padding-right:1.6rem}
+.tools button:hover,.tools select:hover{border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tabs{display:flex;gap:.4rem;overflow-x:auto;padding-block:.15rem .6rem;scrollbar-width:thin}
+.tab{flex:none;font:700 1rem var(--f-display);padding:.42rem 1rem .32rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:.45rem}
+.tab .no{font:600 .75rem var(--f-body);color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] .no{color:var(--bg);opacity:.7}
+
+/* panels */
+.panel{padding-block:1.4rem 3rem;display:grid;gap:1.3rem}
+.head{display:grid;gap:.35rem}
+.head h2{color:var(--acc)}
+.lead{font-size:1.18rem;color:var(--muted);max-width:68ch}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(.5rem,1.4vw,1.2rem);overflow-x:auto;min-width:0}
+.fig svg{display:block;width:100%;height:auto;min-width:620px}
+.fig svg.dia{max-height:64vh}
+.fig h3{margin-bottom:.6rem}
+.row2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.3rem;align-items:start}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.row2,.row3{grid-template-columns:minmax(0,1fr)}}
+
+/* scene controls */
+.scene{display:grid;gap:.8rem}
+.sbtns{display:flex;flex-wrap:wrap;gap:.5rem}
+.sbtn{font:700 1.02rem var(--f-display);padding:.45rem 1.1rem .35rem;border-radius:10px;border:2px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer}
+.sbtn[aria-pressed="true"]{background:var(--acc);color:var(--bg)}
+.cap{font-size:1.16rem;background:var(--surface2);border-radius:12px;padding:.8rem 1.1rem}
+[data-show].off:not(.flow){display:none}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-size:.92rem;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:30px;border-top:5px dashed;vertical-align:middle;margin-right:.35rem}
+
+/* svg vocabulary */
+.wire{fill:none;stroke:var(--line);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke-width:5;stroke-dasharray:14 10;stroke-linecap:round;stroke-linejoin:round;animation:flow .9s linear infinite;transition:opacity .3s}
+.flow.dc{stroke:var(--sun)}.flow.ac{stroke:var(--grid)}.flow.bt{stroke:var(--batt)}.flow.ex{stroke:var(--exp)}.flow.dg{stroke:var(--danger);stroke-width:6}
+.flow.rev{animation-direction:reverse}
+.flow.off{opacity:.07;animation:none}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+.lbl{font:600 15px var(--f-body);fill:var(--ink)}
+.lbs{font:500 13px var(--f-body);fill:var(--muted)}
+.c{text-anchor:middle}.s{text-anchor:start}.e{text-anchor:end}
+.tg{font:800 17px var(--f-display)}
+.t-dg{fill:var(--danger)}.t-ok{fill:var(--batt)}.t-ex{fill:var(--exp)}.t-ac{fill:var(--grid)}
+.fo{font:600 14px/1.25 var(--f-body);color:var(--ink);display:flex;align-items:center;justify-content:center;text-align:center;width:100%;height:100%;padding:2px 5px}
+.fo.l{justify-content:flex-start;text-align:left}
+.fo.mut{color:var(--muted);font-weight:500;font-size:13px}
+.fo.dg{color:var(--danger)}.fo.ok{color:var(--batt)}
+.fo.big{font:800 19px/1.15 var(--f-display)}
+.fo.ttl{font:800 20px/1.15 var(--f-display);justify-content:flex-start;text-align:left}
+.fo.pdg{background:var(--danger-soft);border:2px solid var(--danger);border-radius:10px;color:var(--danger);font-weight:700}
+.fo.pok{background:var(--batt-soft);border:2px solid var(--batt);border-radius:10px;color:var(--batt);font-weight:700}
+.box{fill:var(--surface);stroke:var(--ink);stroke-width:4}
+.box2{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-sun{fill:var(--sun)}.s-sun{stroke:var(--sun);fill:none}
+.f-pv{fill:var(--pv);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}.s-cell{stroke:var(--pvcell);stroke-width:2;fill:none}
+.s-ink{stroke:var(--ink);fill:none}.f-ink{fill:var(--ink)}.f-muted{fill:var(--muted)}.f-surf{fill:var(--surface)}
+.f-batt{fill:var(--batt)}.s-grid{stroke:var(--grid);fill:none}.f-roof{fill:var(--roof)}
+.s-dg{stroke:var(--danger);fill:none}.f-dg{fill:var(--danger)}.s-ok{stroke:var(--batt);fill:none}.s-mut{stroke:var(--muted);fill:none}
+.f-scr{fill:var(--grid-soft);stroke:var(--ink);stroke-width:2}
+.f-moon{fill:var(--muted)}.f-cloud{fill:var(--muted);opacity:.55}
+.dim{fill:#000;opacity:.5}
+.absent{opacity:.14}
+.mono{font:700 13px ui-monospace,Consolas,monospace;fill:var(--ink)}
+
+/* flowcharts */
+.fc .nd{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.fc .st{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.fc .dq{fill:var(--surface2);stroke:var(--muted);stroke-width:2}
+.fc .ok{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.fc .bad{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+.fc .og{fill:var(--batt-soft);stroke:var(--batt);stroke-width:3}
+.fc .hy{fill:var(--hyb-soft);stroke:var(--hyb);stroke-width:3}
+.fc .on{fill:var(--grid-soft);stroke:var(--grid);stroke-width:3}
+.fc .ar{stroke:var(--ink);stroke-width:2.2;fill:none;marker-end:url(#arw)}
+.yn{font:700 14px var(--f-body);fill:var(--muted)}
+.ch1{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.ch2{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.ch3{fill:var(--grid-soft);stroke:var(--grid);stroke-width:2}
+.ch4{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+
+/* overview */
+.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.types{grid-template-columns:minmax(0,1fr)}}
+.type{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--acc);border-radius:16px;padding:1rem 1.1rem;display:grid;gap:.5rem;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.type:hover{box-shadow:0 6px 20px rgb(0 0 0 / .08)}
+.type h3{color:var(--acc);font-size:1.6rem}
+.type svg{width:100%;height:auto}
+.type p{font-size:1.08rem}
+.chip{display:inline-block;justify-self:start;font:700 .9rem var(--f-body);padding:.25rem .7rem;border-radius:999px}
+.chip.no{background:var(--danger-soft);color:var(--danger)}
+.chip.yes{background:var(--batt-soft);color:var(--batt)}
+.blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:.9rem}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem;display:grid;gap:.35rem;justify-items:center;text-align:center}
+.blk svg{width:84px;height:84px}
+.blk h4{font-size:1.08rem}
+.blk p{font-size:.92rem;color:var(--muted)}
+
+/* pros & cons */
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1rem}
+.pc>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.7rem;align-content:start}
+.pc h3.pro{color:var(--batt)}.pc h3.con{color:var(--danger)}
+.pc ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.pc li{position:relative;padding-left:2.3rem;font-size:1.08rem;min-height:1.7rem}
+.pc li::before{content:"+";position:absolute;left:0;top:.05rem;display:grid;place-items:center;width:1.65rem;height:1.65rem;border-radius:50%;background:var(--batt-soft);color:var(--batt);font-weight:800}
+.pc .cons li::before{content:"\2212";background:var(--danger-soft);color:var(--danger)}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:1.03rem}
+th,td{padding:.7rem .95rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child>*{border-bottom:0}
+thead th{font-family:var(--f-display);font-size:1.2rem;background:var(--surface2)}
+tbody th{font-weight:700;color:var(--muted);width:22%}
+.k-on{color:var(--grid)}.k-off{color:var(--batt)}.k-hy{color:var(--hyb)}
+.y{color:var(--batt);font-weight:700}.n{color:var(--danger);font-weight:700}
+.hl{background:var(--batt-soft)}
+
+/* cards */
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;display:grid;grid-template-columns:3.3rem minmax(0,1fr);gap:.15rem .85rem;align-content:start}
+.badge{grid-row:1 / span 3;width:3.3rem;height:3.3rem;border-radius:12px;display:grid;place-items:center;font:800 1.02rem var(--f-display);background:var(--grid-soft);color:var(--grid)}
+.badge.in{background:var(--hyb-soft);color:var(--hyb)}
+.badge.dg{background:var(--danger-soft);color:var(--danger)}
+.pcard h4{font-size:1.1rem}
+.pcard p{color:var(--muted);font-size:.97rem}
+.where{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.6rem;align-content:start}
+.card h3{font-size:1.25rem}
+.card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem}
+.card .foot{font-size:.95rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.5rem}
+.card.dgc{background:var(--danger-soft);border-color:var(--danger)}
+.card.okc{background:var(--batt-soft);border-color:var(--batt)}
+.card.dgc h3{color:var(--danger)}.card.okc h3{color:var(--batt)}
+.stds{display:flex;flex-wrap:wrap;gap:.5rem}
+.stds span{font:600 .92rem var(--f-body);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}
+.chain span{font:700 1rem var(--f-body);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:.5rem .8rem}
+.chain i{font-style:normal;color:var(--muted);font-weight:800}
+.chain span.k{border-color:var(--batt);background:var(--batt-soft)}
+.encl{display:flex;flex-wrap:wrap;gap:.5rem}
+.encl span{font:600 .95rem var(--f-body);padding:.3rem .75rem;border-radius:999px;background:var(--danger-soft);color:var(--danger)}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem}
+@media (max-width:760px){.calc{grid-template-columns:minmax(0,1fr)}}
+.inp{display:grid;gap:.6rem}
+.inp label{display:grid;grid-template-columns:minmax(0,1fr) 7.5rem;align-items:center;gap:.6rem;font-size:1rem}
+.inp input{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%;font-variant-numeric:tabular-nums}
+.out{display:grid;gap:.6rem}
+.res{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;background:var(--surface2);border-radius:10px;padding:.6rem .9rem}
+.res b{font:800 1.6rem var(--f-display);font-variant-numeric:tabular-nums}
+.res.big{background:var(--batt-soft)}
+.res.big b{color:var(--batt);font-size:2.1rem}
+.steps{font:600 .98rem ui-monospace,Consolas,monospace;color:var(--muted);display:grid;gap:.2rem}
+
+footer{border-top:1px solid var(--line);padding-block:1rem;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}
+
+:root{--pos:#7A3B1A;--neg:#6E7887;--acid:#D3E8F8;--sulf:#F7F6EE;--mat:#E6EFD9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}}
+:root[data-theme="dark"]{--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}
+.f-pos{fill:var(--pos);stroke:var(--ink);stroke-width:1.2}.f-neg{fill:var(--neg);stroke:var(--ink);stroke-width:1.2}
+.f-acid{fill:var(--acid)}.f-sulf{fill:var(--sulf)}.f-mat{fill:var(--mat)}
+.f-case{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-red{fill:var(--danger)}
+.lead-ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.nb circle{fill:var(--acc)}.nb text{font:800 20px var(--f-display);fill:var(--bg);text-anchor:middle}
+.vline{fill:none;stroke:var(--grid);stroke-width:4;stroke-linejoin:round}
+.iline{fill:none;stroke:var(--sun);stroke-width:4;stroke-linejoin:round;stroke-dasharray:10 6}
+.flow.e{stroke:var(--hyb)}
+.eqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:.9rem}
+.eq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem;display:grid;gap:.35rem}
+.eq .t{font:700 .85rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.eq .f{font:700 clamp(1.05rem,1.6vw,1.45rem)/1.35 "Noto Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+.eq.big{border:2px solid var(--acc);grid-column:1/-1}
+.eq.big .f{font-size:clamp(1.2rem,2.2vw,1.9rem)}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.mini .card svg{width:100%;height:auto;background:var(--surface2);border-radius:10px}
+.prob{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.prob .card svg{width:100%;height:auto;max-height:260px}
+.cer{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.35rem .7rem;align-items:start;font-size:1.02rem}
+.cer b{font:700 .78rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;padding:.15rem .5rem;border-radius:6px;text-align:center;margin-top:.15rem}
+.cer .c1{background:var(--sun-soft);color:var(--sun)}.cer .c2{background:var(--danger-soft);color:var(--danger)}.cer .c3{background:var(--batt-soft);color:var(--batt)}
+ol.steps2{margin:0;padding-left:0;list-style:none;display:grid;gap:.6rem;counter-reset:s}
+ol.steps2 li{counter-increment:s;position:relative;padding-left:3rem;font-size:1.12rem;min-height:2.2rem}
+ol.steps2 li::before{content:counter(s);position:absolute;left:0;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font:800 1.1rem var(--f-display)}
+.src{font-size:.85rem;color:var(--muted)}.src a{color:var(--grid)}
+select.inpsel{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%}
+.calc .res b{font-size:1.3rem}.calc .res.big b{font-size:1.7rem}
+.simgrid{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.simctl{display:grid;gap:.45rem}
+.simctl label{display:flex;justify-content:space-between;gap:.5rem;font-weight:600}
+.simctl output{font:800 1.2rem var(--f-display);color:var(--grid);font-variant-numeric:tabular-nums}
+.simctl input[type=range]{width:100%;accent-color:var(--grid);height:1.6rem}
+.simbtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-block:.4rem}
+.simviz{display:grid;gap:.6rem;min-width:0;overflow-x:auto}
+.simviz svg{min-width:560px}
+#smSun{transition:opacity .2s}
+
+:root{--cu:#B4662F;--al:#A9B4C2;--gra:#3A3D45;--lfp:#5D6F86;--ion:#7B4BC9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}}
+:root[data-theme="dark"]{--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}
+.f-cu{fill:var(--cu)}.f-al{fill:var(--al)}.f-gra{fill:var(--gra)}.f-lfp{fill:var(--lfp)}.f-ion{fill:var(--ion)}
+.ion{animation:ionR 2.4s linear infinite}
+.ion.l{animation-name:ionL}
+@keyframes ionR{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(150px);opacity:0}}
+@keyframes ionL{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(-150px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.ion{animation:none}}
+.dots{letter-spacing:.12em;color:var(--batt);font-size:1.15rem;white-space:nowrap}
+.dots i{font-style:normal;color:var(--line)}
+.bmsgrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.bmsgrid{grid-template-columns:minmax(0,1fr)}}
+.chipsrow{display:flex;flex-wrap:wrap;gap:.4rem}
+.pchip{font:800 .95rem var(--f-display);padding:.3rem .7rem;border-radius:8px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.pchip.on{background:var(--danger);color:#fff;border-color:var(--danger)}
+.pchip.bal.on{background:var(--sun);border-color:var(--sun)}
+.pchip.ok.on{background:var(--batt);border-color:var(--batt)}
+.msgs{display:grid;gap:.35rem}
+.msgs p{padding:.5rem .8rem;border-radius:10px;font-weight:600;background:var(--danger-soft);color:var(--danger)}
+.msgs p.okm{background:var(--batt-soft);color:var(--batt)}
+.msgs p.balm{background:var(--sun-soft);color:var(--sun)}
+.glow{fill:var(--sun);filter:drop-shadow(0 0 6px var(--sun))}
+.fet-on{stroke:var(--batt)}.fet-off{stroke:var(--danger)}
+.dodo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.dodo .card ul{list-style:none;padding:0}
+.dodo .card li{position:relative;padding-left:2.1rem;font-size:1.05rem}
+.dodo .card li::before{position:absolute;left:0;top:.05rem;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font-weight:800}
+.dodo .do li::before{content:"✓";background:var(--batt-soft);color:var(--batt)}
+.dodo .dont li::before{content:"✗";background:var(--danger-soft);color:var(--danger)}
+.glowr{stroke:var(--sun);stroke-width:4;fill:none;filter:drop-shadow(0 0 5px var(--sun))}
+.fet-on,.fet-off{fill:none;stroke-width:6;stroke-linecap:round}
+.calc input,.tw td input{font:700 1.05rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;width:100%;max-width:9rem}
+.zone-t{font:700 13px var(--f-body)}
+.pass{background:var(--batt-soft)!important;color:var(--batt)!important;border-color:var(--batt)!important}
+.fail{background:var(--danger-soft)!important;color:var(--danger)!important;border-color:var(--danger)!important}
+.bigres{font:800 clamp(1.6rem,3vw,2.6rem) var(--f-display);color:var(--batt);font-variant-numeric:tabular-nums}
+.wingrid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:960px){.wingrid{grid-template-columns:minmax(0,1fr)}}
+.inp2{display:grid;grid-template-columns:minmax(0,1fr) 6.5rem;gap:.35rem .6rem;align-items:center;font-size:.95rem}
+.inp2 input{font:700 1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;width:100%;font-variant-numeric:tabular-nums}
+.inp2 h4{grid-column:1/-1;margin-top:.5rem;color:var(--acc)}
+.ds{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ds .grp{background:var(--ink);color:var(--bg);font:800 1rem var(--f-display);padding:.45rem 1rem;letter-spacing:.04em}
+.ds .row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.7fr) minmax(0,1.6fr);gap:.8rem;padding:.55rem 1rem;border-bottom:1px solid var(--line);align-items:start}
+.ds .row b{font-weight:700}.ds .row code{font:700 1rem ui-monospace,Consolas,monospace;color:var(--grid)}
+.ds .row span{color:var(--muted);font-size:.95rem}
+@media (max-width:760px){.ds .row{grid-template-columns:minmax(0,1fr)}}
+.type{cursor:pointer}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-ink"/></marker>
+<symbol id="s-sun" viewBox="0 0 100 100"><g class="s-sun" stroke-width="6" stroke-linecap="round"><path d="M50 4V18M50 82V96M4 50H18M82 50H96M17 17L27 27M73 73L83 83M83 17L73 27M17 83L27 73"/></g><circle cx="50" cy="50" r="22" class="f-sun"/></symbol>
+<symbol id="s-pv" viewBox="0 0 120 100"><polygon class="f-pv" points="20,10 110,10 95,70 5,70"/><path class="s-cell" d="M42.5 10L27.5 70M65 10L50 70M87.5 10L72.5 70M15 30H105M10 50H100"/><path class="s-ink" stroke-width="4" d="M50 70V92M30 92H70"/></symbol>
+<symbol id="s-inv" viewBox="0 0 100 100"><rect class="box" x="5" y="5" width="90" height="90" rx="10"/><path class="s-ink" stroke-width="3" d="M5 95L95 5"/><path class="s-sun" stroke-width="5" d="M16 26H42M16 37H42"/><path class="s-grid" stroke-width="5" d="M56 72q6 -12 12 0t12 0"/></symbol>
+<symbol id="s-micro" viewBox="0 0 100 60"><rect class="box" x="4" y="4" width="92" height="52" rx="8"/><path class="s-sun" stroke-width="4" d="M16 22H34M16 30H34"/><path class="s-grid" stroke-width="4" d="M58 34q6 -12 12 0t12 0"/></symbol>
+<symbol id="s-batt" viewBox="0 0 100 100"><rect class="f-red" x="20" y="12" width="14" height="11" rx="2"/><rect class="f-ink" x="66" y="12" width="14" height="11" rx="2"/><rect class="box" x="8" y="22" width="84" height="66" rx="7"/><rect class="f-batt" x="18" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="41" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="64" y="40" width="18" height="38" rx="3"/></symbol>
+<symbol id="s-grid" viewBox="0 0 100 120"><path class="s-grid" stroke-width="5" stroke-linejoin="round" d="M50 6L28 116M50 6L72 116M42 36H58M37 60H63M33 86H67M12 26H88M18 48H82M42 36L63 60M58 36L37 60M37 60L67 86M63 60L33 86"/><circle class="f-ink" cx="12" cy="26" r="4"/><circle class="f-ink" cx="88" cy="26" r="4"/><circle class="f-ink" cx="18" cy="48" r="4"/><circle class="f-ink" cx="82" cy="48" r="4"/></symbol>
+<symbol id="s-home" viewBox="0 0 100 100"><polygon class="f-roof" points="50,6 94,45 6,45"/><rect class="box2" x="18" y="45" width="64" height="48"/><rect class="f-ink" x="42" y="63" width="16" height="30"/><rect class="f-scr" x="24" y="54" width="12" height="12"/><circle class="f-sun" cx="69" cy="60" r="7"/></symbol>
+<symbol id="s-meter" viewBox="0 0 100 100"><rect class="box" x="10" y="5" width="80" height="90" rx="10"/><rect class="f-scr" x="20" y="16" width="60" height="26" rx="3"/><text x="50" y="35" class="mono c">kWh</text><path class="s-ink" stroke-width="4" d="M24 60H76M68 53L76 60L68 67M32 73L24 80L32 87M24 80H76"/></symbol>
+</defs>
+</svg>
+
+<header class="top">
+ <div class="wrap bar">
+  <div class="brand">
+   <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#s-inv"/></svg>
+   <div>
+    <h1 data-en="Solar Inverters" data-hi="सोलर इन्वर्टर" data-ml="സോളാർ ഇൻവെർട്ടറുകൾ"></h1>
+    <p class="sub" data-en="Types · Specifications · MPPT · String voltage window" data-hi="प्रकार · विनिर्देश · MPPT · स्ट्रिंग वोल्टेज विंडो" data-ml="തരങ്ങൾ · സ്പെസിഫിക്കേഷൻ · MPPT · സ്ട്രിങ് വോൾട്ടേജ് വിൻഡോ"></p>
+   </div>
+  </div>
+  <div class="tools">
+   <label for="lang" class="sr">Language</label>
+   <select id="lang"><option value="en">English</option><option value="hi">हिन्दी</option><option value="ml">മലയാളം</option></select>
+   <button id="fdn" type="button" aria-label="Smaller text">A−</button>
+   <button id="fup" type="button" aria-label="Larger text">A+</button>
+   <button id="thm" type="button" aria-label="Switch light or dark theme">◐</button>
+   <button id="fsc" type="button" aria-label="Full screen">⛶</button>
+  </div>
+ </div>
+ <nav class="wrap tabs" role="tablist" aria-label="Topics">
+  <button class="tab" role="tab" data-tab="basics" aria-controls="basics"><span class="no">1</span><span data-en="Basics" data-hi="मूल बातें" data-ml="അടിസ്ഥാനം"></span></button>
+  <button class="tab" role="tab" data-tab="types" aria-controls="types"><span class="no">2</span><span data-en="Types" data-hi="प्रकार" data-ml="തരങ്ങൾ"></span></button>
+  <button class="tab" role="tab" data-tab="off" aria-controls="off"><span class="no">3</span><span data-en="Off-grid" data-hi="ऑफ-ग्रिड" data-ml="ഓഫ്-ഗ്രിഡ്"></span></button>
+  <button class="tab" role="tab" data-tab="on" aria-controls="on"><span class="no">4</span><span data-en="On-grid" data-hi="ऑन-ग्रिड" data-ml="ഓൺ-ഗ്രിഡ്"></span></button>
+  <button class="tab" role="tab" data-tab="hyb" aria-controls="hyb"><span class="no">5</span><span data-en="Hybrid" data-hi="हाइब्रिड" data-ml="ഹൈബ്രിഡ്"></span></button>
+  <button class="tab" role="tab" data-tab="micro" aria-controls="micro"><span class="no">6</span><span data-en="Micro" data-hi="माइक्रो" data-ml="മൈക്രോ"></span></button>
+  <button class="tab" role="tab" data-tab="spec" aria-controls="spec"><span class="no">7</span><span data-en="Datasheet" data-hi="डेटाशीट" data-ml="ഡാറ്റാഷീറ്റ്"></span></button>
+  <button class="tab" role="tab" data-tab="mppt" aria-controls="mppt"><span class="no">8</span><span data-en="MPPTs &amp; strings" data-hi="MPPT व स्ट्रिंग" data-ml="MPPT, സ്ട്രിങ്"></span></button>
+  <button class="tab" role="tab" data-tab="win" aria-controls="win"><span class="no">9</span><span data-en="String voltage window" data-hi="स्ट्रिंग वोल्टेज विंडो" data-ml="സ്ട്രിങ് വോൾട്ടേജ് വിൻഡോ"></span></button>
+  <button class="tab" role="tab" data-tab="sel" aria-controls="sel"><span class="no">10</span><span data-en="Selection" data-hi="चयन" data-ml="തിരഞ്ഞെടുപ്പ്"></span></button>
+ </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1 BASICS ============ -->
+<section class="panel" id="basics" role="tabpanel" style="--acc:var(--grid)">
+ <div class="head">
+  <h2 data-en="What happens inside a solar inverter" data-hi="सोलर इन्वर्टर के अंदर क्या होता है" data-ml="സോളാർ ഇൻവെർട്ടറിനുള്ളിൽ എന്ത് സംഭവിക്കുന്നു"></h2>
+ </div>
+ <div class="fig">
+  <svg class="dia" viewBox="0 0 990 360" role="img" aria-label="Inverter power stages"><path class="wire" style="stroke-width:7" d="M125 170H170M300 170H335M345 170H390M520 170H560M670 170H710M780 170H835"/>
+<path class="flow dc" d="M125 170H170M300 170H335M345 170H390"/><path class="flow ac" d="M520 170H560M670 170H710M780 170H835"/>
+<use href="#s-pv" x="5" y="120" width="120" height="100"/>
+<rect class="box" x="170" y="135" width="130" height="70" rx="10"/>
+<foreignObject x="170" y="135" width="130" height="70"><div class="fo" data-en="DC/DC boost + MPPT" data-hi="DC/DC बूस्ट + MPPT" data-ml="DC/DC ബൂസ്റ്റ് + MPPT"></div></foreignObject>
+<path class="s-ink" stroke-width="4" d="M335 145V195M345 145V195"/>
+<foreignObject x="300" y="205" width="80" height="40"><div class="fo mut" style="font-size:12px" data-en="DC link" data-hi="DC लिंक" data-ml="DC ലിങ്ക്"></div></foreignObject>
+<rect class="box" x="390" y="135" width="130" height="70" rx="10"/>
+<foreignObject x="390" y="135" width="130" height="70"><div class="fo" data-en="H-bridge (IGBT / MOSFET)" data-hi="H-ब्रिज (IGBT / MOSFET)" data-ml="H-ബ്രിഡ്ജ് (IGBT / MOSFET)"></div></foreignObject>
+<rect class="box" x="560" y="135" width="110" height="70" rx="10"/>
+<foreignObject x="560" y="135" width="110" height="70"><div class="fo" data-en="LC filter" data-hi="LC फ़िल्टर" data-ml="LC ഫിൽട്ടർ"></div></foreignObject>
+<rect class="box" x="710" y="145" width="70" height="50" rx="8"/><circle class="f-ink" cx="725" cy="170" r="3"/><circle class="f-ink" cx="765" cy="170" r="3"/><path class="s-ink" stroke-width="3" d="M725 170L760 160"/>
+<foreignObject x="690" y="197" width="110" height="34"><div class="fo mut" style="font-size:12px" data-en="Grid relay" data-hi="ग्रिड रिले" data-ml="ഗ്രിഡ് റിലേ"></div></foreignObject>
+<use href="#s-grid" x="830" y="100" width="100" height="120"/>
+<path d="M180 95H290" style="stroke:var(--sun);stroke-width:4"/><text class="mono c" x="235" y="85" style="fill:var(--sun)">DC</text>
+<path d="M400 105V75H411V105H419V75H430V105H438V75H449V105H457V75H468V105H476V75H487V105H495V75H506V105H514" style="fill:none;stroke:var(--hyb);stroke-width:3"/><text class="mono c" x="455" y="66" style="fill:var(--hyb)">PWM</text>
+<path d="M570.0 90.0L571.5 86.3L573.0 82.7L574.5 79.4L576.0 76.6L577.5 74.4L579.0 72.9L580.5 72.1L582.0 72.1L583.5 72.9L585.0 74.4L586.5 76.6L588.0 79.4L589.5 82.7L591.0 86.3L592.5 90.0L594.0 93.7L595.5 97.3L597.0 100.6L598.5 103.4L600.0 105.6L601.5 107.1L603.0 107.9L604.5 107.9L606.0 107.1L607.5 105.6L609.0 103.4L610.5 100.6L612.0 97.3L613.5 93.7L615.0 90.0L616.5 86.3L618.0 82.7L619.5 79.4L621.0 76.6L622.5 74.4L624.0 72.9L625.5 72.1L627.0 72.1L628.5 72.9L630.0 74.4L631.5 76.6L633.0 79.4L634.5 82.7L636.0 86.3L637.5 90.0L639.0 93.7L640.5 97.3L642.0 100.6L643.5 103.4L645.0 105.6L646.5 107.1L648.0 107.9L649.5 107.9L651.0 107.1L652.5 105.6L654.0 103.4L655.5 100.6L657.0 97.3L658.5 93.7L660.0 90.0" style="fill:none;stroke:var(--grid);stroke-width:4"/><text class="mono c" x="615" y="62" style="fill:var(--grid)">50 Hz</text>
+<rect class="box2" x="330" y="280" width="360" height="64" rx="10"/>
+<foreignObject x="330" y="280" width="360" height="64"><div class="fo" data-en="DSP controller: MPPT · grid sync (PLL) · protection" data-hi="DSP कंट्रोलर: MPPT · ग्रिड सिंक (PLL) · सुरक्षा" data-ml="DSP കൺട്രോളർ: MPPT · ഗ്രിഡ് സിങ്ക് (PLL) · സംരക്ഷണം"></div></foreignObject>
+<path class="s-mut" stroke-width="2" stroke-dasharray="5 4" d="M235 205V312H330M455 205V280M690 312H745V195"/></svg>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge">AC</span><h4 data-en="Convert" data-hi="रूपांतरण" data-ml="പരിവർത്തനം"></h4><p data-en="Changes panel DC into 50 Hz AC" data-hi="पैनल DC को 50 Hz AC में बदलता है" data-ml="പാനൽ DC-യെ 50 Hz AC ആക്കുന്നു"></p></div>
+  <div class="pcard"><span class="badge in">MPPT</span><h4 data-en="Track maximum power" data-hi="अधिकतम पावर ट्रैक" data-ml="പരമാവധി പവർ ട്രാക്ക്"></h4><p data-en="Keeps the array at its best voltage" data-hi="ऐरे को सर्वोत्तम वोल्टेज पर रखता है" data-ml="അറേയെ ഏറ്റവും നല്ല വോൾട്ടേജിൽ നിർത്തുന്നു"></p></div>
+  <div class="pcard"><span class="badge">PLL</span><h4 data-en="Synchronise" data-hi="सिंक्रोनाइज़" data-ml="സിങ്ക്രണൈസ്"></h4><p data-en="Matches grid voltage, frequency and phase" data-hi="ग्रिड वोल्टेज, फ्रीक्वेंसी व फेज़ से मिलान" data-ml="ഗ്രിഡ് വോൾട്ടേജ്, ഫ്രീക്വൻസി, ഫേസ് എന്നിവയുമായി യോജിപ്പിക്കുന്നു"></p></div>
+  <div class="pcard"><span class="badge dg">AI</span><h4 data-en="Protect" data-hi="सुरक्षा" data-ml="സംരക്ഷണം"></h4><p data-en="Anti-islanding, insulation, over/under V and f" data-hi="एंटी-आइलैंडिंग, इन्सुलेशन, ओवर/अंडर V व f" data-ml="ആന്റി-ഐലൻഡിങ്, ഇൻസുലേഷൻ, ഓവർ/അണ്ടർ V, f"></p></div>
+ </div>
+ <div class="fig">
+  <h3 data-en="Output waveform" data-hi="आउटपुट तरंग" data-ml="ഔട്ട്പുട്ട് തരംഗം"></h3>
+  <svg viewBox="0 0 990 220" role="img" aria-label="Square, modified sine and pure sine waves" style="min-width:700px"><path d="M20 100H300" class="s-mut" stroke-width="1"/><path d="M350 100H630" class="s-mut" stroke-width="1"/><path d="M680 100H960" class="s-mut" stroke-width="1"/>
+<path d="M20 100V50H90V150H160V50H230V150H300V100" style="fill:none;stroke:var(--danger);stroke-width:4"/>
+<path d="M350 100H362V50H408V100H432V150H478V100H502V50H548V100H572V150H618V100H630" style="fill:none;stroke:var(--sun);stroke-width:4"/>
+<path d="M680.0 100.0L684.7 89.6L689.3 79.7L694.0 70.6L698.7 62.8L703.3 56.7L708.0 52.4L712.7 50.3L717.3 50.3L722.0 52.4L726.7 56.7L731.3 62.8L736.0 70.6L740.7 79.7L745.3 89.6L750.0 100.0L754.7 110.4L759.3 120.3L764.0 129.4L768.7 137.2L773.3 143.3L778.0 147.6L782.7 149.7L787.3 149.7L792.0 147.6L796.7 143.3L801.3 137.2L806.0 129.4L810.7 120.3L815.3 110.4L820.0 100.0L824.7 89.6L829.3 79.7L834.0 70.6L838.7 62.8L843.3 56.7L848.0 52.4L852.7 50.3L857.3 50.3L862.0 52.4L866.7 56.7L871.3 62.8L876.0 70.6L880.7 79.7L885.3 89.6L890.0 100.0L894.7 110.4L899.3 120.3L904.0 129.4L908.7 137.2L913.3 143.3L918.0 147.6L922.7 149.7L927.3 149.7L932.0 147.6L936.7 143.3L941.3 137.2L946.0 129.4L950.7 120.3L955.3 110.4L960.0 100.0" style="fill:none;stroke:var(--batt);stroke-width:4"/>
+<foreignObject x="10" y="160" width="300" height="60"><div class="fo dg" data-en="Square ✗ — old, motors hum and heat" data-hi="स्क्वेयर ✗ — पुराना, मोटर गुनगुनाती व गर्म होती है" data-ml="സ്ക്വയർ ✗ — പഴയത്, മോട്ടോർ മൂളുകയും ചൂടാകുകയും ചെയ്യും"></div></foreignObject>
+<foreignObject x="340" y="160" width="300" height="60"><div class="fo" style="color:var(--sun)" data-en="Modified sine — lights OK, some loads trouble" data-hi="मॉडिफ़ाइड साइन — लाइट ठीक, कुछ लोड में समस्या" data-ml="മോഡിഫൈഡ് സൈൻ — ലൈറ്റുകൾ ശരി, ചില ലോഡുകൾക്ക് പ്രശ്നം"></div></foreignObject>
+<foreignObject x="670" y="160" width="300" height="60"><div class="fo ok" data-en="Pure sine ✓ — all solar inverters today" data-hi="प्योर साइन ✓ — आज के सभी सोलर इन्वर्टर" data-ml="പ്യുവർ സൈൻ ✓ — ഇന്നത്തെ എല്ലാ സോളാർ ഇൻവെർട്ടറുകളും"></div></foreignObject></svg>
+ </div>
+</section>
+
+<!-- ============ 2 TYPES ============ -->
+<section class="panel" id="types" role="tabpanel" style="--acc:var(--hyb)" hidden>
+ <div class="head">
+  <h2 data-en="Four types of solar inverter" data-hi="सोलर इन्वर्टर के चार प्रकार" data-ml="നാല് തരം സോളാർ ഇൻവെർട്ടറുകൾ"></h2>
+ </div>
+ <div class="fig">
+  <svg viewBox="0 0 990 250" role="img" aria-label="Inverter classification tree" class="fc" style="min-width:720px"><path class="ar" d="M495 58V84H160V108"/><path class="ar" d="M495 58V108"/><path class="ar" d="M495 58V84H830V108"/>
+<path class="ar" d="M495 160V178H325V198"/><path class="ar" d="M495 160V198"/><path class="ar" d="M495 160V178H665V198"/>
+<rect class="st" x="385" y="8" width="220" height="50" rx="25"/><foreignObject x="385" y="8" width="220" height="50"><div class="fo big" data-en="Solar inverters" data-hi="सोलर इन्वर्टर" data-ml="സോളാർ ഇൻവെർട്ടറുകൾ"></div></foreignObject>
+<rect class="og" x="60" y="110" width="200" height="50" rx="10"/><foreignObject x="60" y="110" width="200" height="50"><div class="fo big" data-en="Off-grid" data-hi="ऑफ-ग्रिड" data-ml="ഓഫ്-ഗ്രിഡ്"></div></foreignObject>
+<rect class="on" x="395" y="110" width="200" height="50" rx="10"/><foreignObject x="395" y="110" width="200" height="50"><div class="fo big" data-en="On-grid" data-hi="ऑन-ग्रिड" data-ml="ഓൺ-ഗ്രിഡ്"></div></foreignObject>
+<rect class="hy" x="730" y="110" width="200" height="50" rx="10"/><foreignObject x="730" y="110" width="200" height="50"><div class="fo big" data-en="Hybrid" data-hi="हाइब्रिड" data-ml="ഹൈബ്രിഡ്"></div></foreignObject>
+<rect class="nd" x="250" y="200" width="150" height="46" rx="8"/><foreignObject x="250" y="200" width="150" height="46"><div class="fo" data-en="String" data-hi="स्ट्रिंग" data-ml="സ്ട്രിങ്"></div></foreignObject>
+<rect class="nd" x="420" y="200" width="150" height="46" rx="8"/><foreignObject x="420" y="200" width="150" height="46"><div class="fo" data-en="Central" data-hi="सेंट्रल" data-ml="സെൻട്രൽ"></div></foreignObject>
+<rect class="nd" x="590" y="200" width="150" height="46" rx="8"/><foreignObject x="590" y="200" width="150" height="46"><div class="fo" data-en="Micro" data-hi="माइक्रो" data-ml="മൈക്രോ"></div></foreignObject></svg>
+ </div>
+ <div class="types" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))">
+  <button class="type" type="button" data-go="off" style="--acc:var(--batt)">
+   <svg viewBox="0 0 330 110" aria-hidden="true"><use href="#s-pv" x="0" y="8" width="105" height="88"/><use href="#s-batt" x="118" y="10" width="90" height="90"/><use href="#s-home" x="230" y="10" width="90" height="90"/></svg>
+   <h3 data-en="Off-grid" data-hi="ऑफ-ग्रिड" data-ml="ഓഫ്-ഗ്രിഡ്"></h3><p data-en="PV + battery, no grid" data-hi="PV + बैटरी, ग्रिड नहीं" data-ml="PV + ബാറ്ററി, ഗ്രിഡ് ഇല്ല"></p>
+  </button>
+  <button class="type" type="button" data-go="on" style="--acc:var(--grid)">
+   <svg viewBox="0 0 330 110" aria-hidden="true"><use href="#s-pv" x="0" y="8" width="105" height="88"/><use href="#s-inv" x="125" y="15" width="80" height="80"/><use href="#s-grid" x="235" y="4" width="85" height="102"/></svg>
+   <h3 data-en="On-grid (string)" data-hi="ऑन-ग्रिड (स्ट्रिंग)" data-ml="ഓൺ-ഗ്രിഡ് (സ്ട്രിങ്)"></h3><p data-en="PV + grid, no battery" data-hi="PV + ग्रिड, बैटरी नहीं" data-ml="PV + ഗ്രിഡ്, ബാറ്ററി ഇല്ല"></p>
+  </button>
+  <button class="type" type="button" data-go="hyb" style="--acc:var(--hyb)">
+   <svg viewBox="0 0 330 110" aria-hidden="true"><use href="#s-pv" x="0" y="8" width="105" height="88"/><use href="#s-batt" x="118" y="10" width="90" height="90"/><use href="#s-grid" x="235" y="4" width="85" height="102"/></svg>
+   <h3 data-en="Hybrid" data-hi="हाइब्रिड" data-ml="ഹൈബ്രിഡ്"></h3><p data-en="PV + battery + grid" data-hi="PV + बैटरी + ग्रिड" data-ml="PV + ബാറ്ററി + ഗ്രിഡ്"></p>
+  </button>
+  <button class="type" type="button" data-go="micro" style="--acc:var(--sun)">
+   <svg viewBox="0 0 330 110" aria-hidden="true"><use href="#s-pv" x="0" y="0" width="100" height="83"/><use href="#s-pv" x="110" y="0" width="100" height="83"/><use href="#s-pv" x="220" y="0" width="100" height="83"/><use href="#s-micro" x="25" y="80" width="50" height="30"/><use href="#s-micro" x="135" y="80" width="50" height="30"/><use href="#s-micro" x="245" y="80" width="50" height="30"/></svg>
+   <h3 data-en="Micro" data-hi="माइक्रो" data-ml="മൈക്രോ"></h3><p data-en="One small inverter per panel" data-hi="हर पैनल पर एक छोटा इन्वर्टर" data-ml="ഓരോ പാനലിനും ഒരു ചെറിയ ഇൻവെർട്ടർ"></p>
+  </button>
+ </div>
+</section>
+
+<!-- ============ 3 OFF-GRID ============ -->
+<section class="panel" id="off" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="Off-grid inverter (solar PCU)" data-hi="ऑफ-ग्रिड इन्वर्टर (सोलर PCU)" data-ml="ഓഫ്-ഗ്രിഡ് ഇൻവെർട്ടർ (സോളാർ PCU)"></h2>
+  <p class="lead" data-en="Builds its own AC from the battery. A built-in PWM or MPPT charger fills the battery from PV; mains or a DG set can also charge it." data-hi="बैटरी से अपना AC बनाता है। अंतर्निहित PWM या MPPT चार्जर PV से बैटरी भरता है; मेन्स या DG सेट भी चार्ज कर सकता है।" data-ml="ബാറ്ററിയിൽ നിന്ന് സ്വന്തം AC ഉണ്ടാക്കുന്നു. ഉൾച്ചേർന്ന PWM/MPPT ചാർജർ PV-യിൽ നിന്ന് ബാറ്ററി നിറയ്ക്കുന്നു; മെയിൻസോ DG സെറ്റോ കൊണ്ടും ചാർജ് ചെയ്യാം."></p>
+ </div>
+ <div class="fig"><svg class="dia" viewBox="0 0 990 340" role="img" aria-label="Off-grid inverter block diagram"><path class="wire" style="stroke-width:7" d="M150 100H250M390 100H460M420 100V262M610 100H760M610 185H790"/>
+<path class="flow dc" d="M150 100H250M390 100H420"/><path class="flow bt" d="M420 100V262"/><path class="flow dc" d="M420 100H450"/><path class="flow ac" d="M610 100H760"/>
+<path d="M610 185H790" style="fill:none;stroke:var(--grid);stroke-width:4;stroke-dasharray:8 6"/>
+<rect x="230" y="40" width="400" height="200" rx="14" style="fill:none;stroke:var(--batt);stroke-width:3;stroke-dasharray:10 6"/>
+<foreignObject x="230" y="205" width="180" height="34"><div class="fo l ok" data-en="Solar PCU" data-hi="सोलर PCU" data-ml="സോളാർ PCU"></div></foreignObject>
+<use href="#s-pv" x="10" y="50" width="140" height="117"/>
+<rect class="box" x="250" y="70" width="140" height="60" rx="10"/><foreignObject x="250" y="70" width="140" height="60"><div class="fo" data-en="PWM / MPPT charger" data-hi="PWM / MPPT चार्जर" data-ml="PWM / MPPT ചാർജർ"></div></foreignObject>
+<rect class="box" x="450" y="70" width="160" height="60" rx="10"/><foreignObject x="450" y="70" width="160" height="60"><div class="fo" data-en="Inverter DC → AC" data-hi="इन्वर्टर DC → AC" data-ml="ഇൻവെർട്ടർ DC → AC"></div></foreignObject>
+<rect class="box" x="450" y="155" width="160" height="60" rx="10"/><foreignObject x="450" y="155" width="160" height="60"><div class="fo" data-en="AC charger" data-hi="AC चार्जर" data-ml="AC ചാർജർ"></div></foreignObject>
+<circle class="f-ink" cx="420" cy="100" r="7"/>
+<use href="#s-batt" x="375" y="250" width="90" height="90"/>
+<foreignObject x="470" y="285" width="190" height="44"><div class="fo l" data-en="Battery 12 / 24 / 48 V" data-hi="बैटरी 12 / 24 / 48 V" data-ml="ബാറ്ററി 12 / 24 / 48 V"></div></foreignObject>
+<use href="#s-home" x="760" y="30" width="140" height="140"/>
+<foreignObject x="900" y="70" width="90" height="60"><div class="fo l" data-en="Loads" data-hi="लोड" data-ml="ലോഡുകൾ"></div></foreignObject>
+<use href="#s-grid" x="790" y="170" width="80" height="96"/>
+<foreignObject x="870" y="190" width="120" height="60"><div class="fo l mut" style="font-size:13px" data-en="Mains / DG (optional)" data-hi="मेन्स / DG (वैकल्पिक)" data-ml="മെയിൻസ് / DG (ഐച്ഛികം)"></div></foreignObject></svg></div>
+ <h3 data-en="Key specifications (typical)" data-hi="मुख्य विनिर्देश (सामान्य)" data-ml="പ്രധാന സ്പെസിഫിക്കേഷനുകൾ (സാധാരണ)"></h3>
+ <div class="pcards">
+  <div class="pcard"><span class="badge">VA</span><h4 data-en="Rating" data-hi="रेटिंग" data-ml="റേറ്റിങ്"></h4><p>1 – 10 kVA</p></div>
+  <div class="pcard"><span class="badge in">V<sub>bat</sub></span><h4 data-en="Battery voltage" data-hi="बैटरी वोल्टेज" data-ml="ബാറ്ററി വോൾട്ടേജ്"></h4><p>12 / 24 / 48 V</p></div>
+  <div class="pcard"><span class="badge in">CC</span><h4 data-en="Solar charger" data-hi="सोलर चार्जर" data-ml="സോളാർ ചാർജർ"></h4><p data-en="PWM or MPPT, 30–100 A" data-hi="PWM या MPPT, 30–100 A" data-ml="PWM / MPPT, 30–100 A"></p></div>
+  <div class="pcard"><span class="badge">PV</span><h4 data-en="PV input (MPPT models)" data-hi="PV इनपुट (MPPT मॉडल)" data-ml="PV ഇൻപുട്ട് (MPPT മോഡലുകൾ)"></h4><p data-en="Max ≈ 145–500 V DC" data-hi="अधिकतम ≈ 145–500 V DC" data-ml="പരമാവധി ≈ 145–500 V DC"></p></div>
+  <div class="pcard"><span class="badge">∿</span><h4 data-en="Waveform" data-hi="तरंग" data-ml="തരംഗം"></h4><p data-en="Pure sine wave" data-hi="प्योर साइन वेव" data-ml="പ്യുവർ സൈൻ വേവ്"></p></div>
+  <div class="pcard"><span class="badge dg">2×</span><h4 data-en="Surge" data-hi="सर्ज" data-ml="സർജ്"></h4><p data-en="About 2 × rating for a few seconds (motors)" data-hi="कुछ सेकंड के लिए लगभग 2 × रेटिंग (मोटर)" data-ml="കുറച്ച് സെക്കൻഡ് ഏകദേശം 2 × റേറ്റിങ് (മോട്ടോർ)"></p></div>
+  <div class="pcard"><span class="badge">ms</span><h4 data-en="Transfer time" data-hi="ट्रांसफर समय" data-ml="ട്രാൻസ്ഫർ സമയം"></h4><p data-en="&lt; 10–20 ms (UPS mode)" data-hi="&lt; 10–20 ms (UPS मोड)" data-ml="&lt; 10–20 ms (UPS മോഡ്)"></p></div>
+  <div class="pcard"><span class="badge">η</span><h4 data-en="Efficiency" data-hi="दक्षता" data-ml="കാര്യക്ഷമത"></h4><p>≈ 85 – 93 %</p></div>
+ </div>
+</section>
+
+<!-- ============ 4 ON-GRID ============ -->
+<section class="panel" id="on" role="tabpanel" style="--acc:var(--grid)" hidden>
+ <div class="head">
+  <h2 data-en="On-grid (grid-tie) string inverter" data-hi="ऑन-ग्रिड (ग्रिड-टाई) स्ट्रिंग इन्वर्टर" data-ml="ഓൺ-ഗ്രിഡ് (ഗ്രിഡ്-ടൈ) സ്ട്രിങ് ഇൻവെർട്ടർ"></h2>
+  <p class="lead" data-en="Panels are wired in series strings to reach a high DC voltage. The inverter follows the grid and stops when the grid fails." data-hi="पैनल श्रेणी स्ट्रिंग में जोड़े जाते हैं ताकि उच्च DC वोल्टेज मिले। इन्वर्टर ग्रिड का अनुसरण करता है और ग्रिड जाने पर रुक जाता है।" data-ml="ഉയർന്ന DC വോൾട്ടേജ് ലഭിക്കാൻ പാനലുകൾ സീരീസ് സ്ട്രിങ്ങുകളായി ബന്ധിപ്പിക്കുന്നു. ഇൻവെർട്ടർ ഗ്രിഡിനെ പിന്തുടരുന്നു; ഗ്രിഡ് പോയാൽ നിലയ്ക്കുന്നു."></p>
+ </div>
+ <div class="fig"><svg class="dia" viewBox="0 0 990 340" role="img" aria-label="On-grid string inverter block diagram"><use href="#s-pv" x="10" y="40" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M55 70Q70 88 72 70"/>
+<use href="#s-pv" x="72" y="40" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M117 70Q132 88 134 70"/>
+<use href="#s-pv" x="134" y="40" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M179 70Q194 88 196 70"/>
+<use href="#s-pv" x="196" y="40" width="60" height="50"/>
+<use href="#s-pv" x="10" y="200" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M55 230Q70 248 72 230"/>
+<use href="#s-pv" x="72" y="200" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M117 230Q132 248 134 230"/>
+<use href="#s-pv" x="134" y="200" width="60" height="50"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M179 230Q194 248 196 230"/>
+<use href="#s-pv" x="196" y="200" width="60" height="50"/>
+<path class="wire" style="stroke-width:6" d="M250 70H300V140H360M250 230H300V180H360M450 160H480M620 160H650M720 160H730M790 160H830"/>
+<path class="flow dc" d="M250 70H300V140H360M250 230H300V180H360M450 160H480"/><path class="flow ac" d="M620 160H650M720 160H730M790 160H830"/>
+<rect class="box" x="360" y="115" width="90" height="90" rx="8"/><foreignObject x="360" y="115" width="90" height="90"><div class="fo" style="font-size:12px" data-en="DC SPD + isolator" data-hi="DC SPD + आइसोलेटर" data-ml="DC SPD + ഐസൊലേറ്റർ"></div></foreignObject>
+<use href="#s-inv" x="480" y="90" width="140" height="140"/>
+<text class="mono c" x="550" y="248" style="font-size:13px">MPPT1 · MPPT2</text>
+<rect class="box" x="650" y="130" width="70" height="60" rx="8"/><text class="mono c" x="685" y="165" style="font-size:12px">ACDB</text>
+<use href="#s-meter" x="725" y="120" width="70" height="80"/>
+<use href="#s-grid" x="830" y="90" width="110" height="132"/>
+<foreignObject x="0" y="95" width="260" height="30"><div class="fo l" style="font-size:13px" data-en="String 1 → MPPT 1" data-hi="स्ट्रिंग 1 → MPPT 1" data-ml="സ്ട്രിങ് 1 → MPPT 1"></div></foreignObject>
+<foreignObject x="0" y="255" width="260" height="30"><div class="fo l" style="font-size:13px" data-en="String 2 → MPPT 2" data-hi="स्ट्रिंग 2 → MPPT 2" data-ml="സ്ട്രിങ് 2 → MPPT 2"></div></foreignObject>
+<foreignObject x="250" y="280" width="400" height="56"><div class="fo dg" data-en="High DC voltage (up to 600–1100 V) from series strings" data-hi="श्रेणी स्ट्रिंग से उच्च DC वोल्टेज (600–1100 V तक)" data-ml="സീരീസ് സ്ട്രിങ്ങുകളിൽ നിന്ന് ഉയർന്ന DC വോൾട്ടേജ് (600–1100 V വരെ)"></div></foreignObject>
+<foreignObject x="700" y="250" width="280" height="56"><div class="fo" data-en="Net meter → KSEB grid" data-hi="नेट मीटर → KSEB ग्रिड" data-ml="നെറ്റ് മീറ്റർ → KSEB ഗ്രിഡ്"></div></foreignObject></svg></div>
+ <div class="fig">
+  <h3 data-en="Size classes" data-hi="आकार श्रेणियाँ" data-ml="വലിപ്പ വിഭാഗങ്ങൾ"></h3>
+  <svg viewBox="0 0 990 200" role="img" aria-label="Inverter size classes" style="min-width:700px"><use href="#s-inv" x="100.0" y="85" width="40" height="40"/>
+<text class="tg c" x="120" y="150">0.3–2 kVA</text>
+<foreignObject x="0" y="0" width="240" height="30"><div class="fo big" style="font-size:17px" data-en="Micro" data-hi="माइक्रो" data-ml="മൈക്രോ"></div></foreignObject>
+<foreignObject x="0" y="158" width="240" height="36"><div class="fo mut" data-en="Per panel" data-hi="प्रति पैनल" data-ml="ഓരോ പാനലിനും"></div></foreignObject>
+<use href="#s-inv" x="340.0" y="65" width="60" height="60"/>
+<text class="tg c" x="370" y="150">1–10 kW</text>
+<foreignObject x="250" y="0" width="240" height="30"><div class="fo big" style="font-size:17px" data-en="String 1φ" data-hi="स्ट्रिंग 1φ" data-ml="സ്ട്രിങ് 1φ"></div></foreignObject>
+<foreignObject x="250" y="158" width="240" height="36"><div class="fo mut" data-en="Homes" data-hi="घर" data-ml="വീടുകൾ"></div></foreignObject>
+<use href="#s-inv" x="580.0" y="45" width="80" height="80"/>
+<text class="tg c" x="620" y="150">10–250 kW</text>
+<foreignObject x="500" y="0" width="240" height="30"><div class="fo big" style="font-size:17px" data-en="String 3φ" data-hi="स्ट्रिंग 3φ" data-ml="സ്ട്രിങ് 3φ"></div></foreignObject>
+<foreignObject x="500" y="158" width="240" height="36"><div class="fo mut" data-en="Shops, factories" data-hi="दुकानें, कारखाने" data-ml="കടകൾ, ഫാക്ടറികൾ"></div></foreignObject>
+<use href="#s-inv" x="815.0" y="15" width="110" height="110"/>
+<text class="tg c" x="870" y="150">0.5–5 MW</text>
+<foreignObject x="750" y="0" width="240" height="30"><div class="fo big" style="font-size:17px" data-en="Central" data-hi="सेंट्रल" data-ml="സെൻട്രൽ"></div></foreignObject>
+<foreignObject x="750" y="158" width="240" height="36"><div class="fo mut" data-en="Solar parks" data-hi="सोलर पार्क" data-ml="സോളാർ പാർക്കുകൾ"></div></foreignObject></svg>
+ </div>
+ <h3 data-en="Key specifications (typical)" data-hi="मुख्य विनिर्देश (सामान्य)" data-ml="പ്രധാന സ്പെസിഫിക്കേഷനുകൾ (സാധാരണ)"></h3>
+ <div class="pcards">
+  <div class="pcard"><span class="badge dg">V<sub>max</sub></span><h4 data-en="Max DC input voltage" data-hi="अधिकतम DC इनपुट वोल्टेज" data-ml="പരമാവധി DC ഇൻപുട്ട് വോൾട്ടേജ്"></h4><p data-en="600 V (1-phase) · 1000–1100 V (3-phase)" data-hi="600 V (1-फेज़) · 1000–1100 V (3-फेज़)" data-ml="600 V (1-ഫേസ്) · 1000–1100 V (3-ഫേസ്)"></p></div>
+  <div class="pcard"><span class="badge in">MPPT</span><h4 data-en="MPPT voltage range" data-hi="MPPT वोल्टेज रेंज" data-ml="MPPT വോൾട്ടേജ് റേഞ്ച്"></h4><p>≈ 80–550 V · 180–1000 V</p></div>
+  <div class="pcard"><span class="badge in">n</span><h4 data-en="Number of MPPTs" data-hi="MPPT की संख्या" data-ml="MPPT-കളുടെ എണ്ണം"></h4><p data-en="1–2 (home) · 2–12 (commercial)" data-hi="1–2 (घर) · 2–12 (व्यावसायिक)" data-ml="1–2 (വീട്) · 2–12 (വാണിജ്യം)"></p></div>
+  <div class="pcard"><span class="badge">A</span><h4 data-en="Max current per MPPT" data-hi="प्रति MPPT अधिकतम करंट" data-ml="ഓരോ MPPT-ക്കും പരമാവധി കറന്റ്"></h4><p>13 – 32 A</p></div>
+  <div class="pcard"><span class="badge">AC</span><h4 data-en="Output" data-hi="आउटपुट" data-ml="ഔട്ട്പുട്ട്"></h4><p>230 V 1φ · 415 V 3φ, 50 Hz</p></div>
+  <div class="pcard"><span class="badge">η</span><h4 data-en="Max efficiency" data-hi="अधिकतम दक्षता" data-ml="പരമാവധി കാര്യക്ഷമത"></h4><p>97 – 99 %</p></div>
+  <div class="pcard"><span class="badge">IP65</span><h4 data-en="Enclosure" data-hi="एनक्लोज़र" data-ml="എൻക്ലോഷർ"></h4><p data-en="Outdoor rated, natural cooling or fans" data-hi="आउटडोर रेटेड, प्राकृतिक या फैन कूलिंग" data-ml="ഔട്ട്ഡോർ റേറ്റഡ്, സ്വാഭാവിക/ഫാൻ കൂളിങ്"></p></div>
+  <div class="pcard"><span class="badge">Wi-Fi</span><h4 data-en="Monitoring" data-hi="निगरानी" data-ml="നിരീക്ഷണം"></h4><p data-en="App / web portal, energy logs" data-hi="ऐप / वेब पोर्टल, ऊर्जा लॉग" data-ml="ആപ്പ് / വെബ് പോർട്ടൽ, ഊർജ ലോഗ്"></p></div>
+ </div>
+</section>
+
+<!-- ============ 5 HYBRID ============ -->
+<section class="panel" id="hyb" role="tabpanel" style="--acc:var(--hyb)" hidden>
+ <div class="head">
+  <h2 data-en="Hybrid inverter" data-hi="हाइब्रिड इन्वर्टर" data-ml="ഹൈബ്രിഡ് ഇൻവെർട്ടർ"></h2>
+  <p class="lead" data-en="Grid-tie inverter + battery charger + backup inverter in one box, with three ports: PV, battery and AC (grid + backup)." data-hi="ग्रिड-टाई इन्वर्टर + बैटरी चार्जर + बैकअप इन्वर्टर एक ही बॉक्स में; तीन पोर्ट: PV, बैटरी और AC (ग्रिड + बैकअप)।" data-ml="ഗ്രിഡ്-ടൈ ഇൻവെർട്ടർ + ബാറ്ററി ചാർജർ + ബാക്കപ്പ് ഇൻവെർട്ടർ ഒരു പെട്ടിയിൽ; മൂന്ന് പോർട്ടുകൾ: PV, ബാറ്ററി, AC (ഗ്രിഡ് + ബാക്കപ്പ്)."></p>
+ </div>
+ <div class="fig"><svg class="dia" viewBox="0 0 990 360" role="img" aria-label="Hybrid inverter ports"><path class="wire" style="stroke-width:7" d="M180 90H330V130H400M485 250V262M570 120H720M790 95H840M570 220H720"/>
+<path class="flow dc" d="M180 90H330V130H400"/><path class="flow bt" d="M485 250V262"/><path class="flow ex" d="M570 120H720M790 95H840"/><path class="flow ac" d="M570 220H720"/>
+<use href="#s-pv" x="30" y="30" width="150" height="125"/>
+<use href="#s-inv" x="400" y="80" width="170" height="170"/>
+<use href="#s-batt" x="440" y="262" width="90" height="90"/>
+<use href="#s-meter" x="720" y="55" width="70" height="80"/><use href="#s-grid" x="840" y="20" width="100" height="120"/>
+<circle cx="690" cy="120" r="12" style="fill:none;stroke:var(--ion);stroke-width:4"/><text class="mono c" x="690" y="150" style="fill:var(--ion);font-size:12px">CT</text>
+<use href="#s-home" x="720" y="160" width="120" height="120"/>
+<foreignObject x="250" y="140" width="150" height="50"><div class="fo l" style="font-size:14px;font-weight:700" data-en="PV port" data-hi="PV पोर्ट" data-ml="PV പോർട്ട്"></div></foreignObject>
+<foreignObject x="540" y="290" width="180" height="50"><div class="fo l" style="font-size:14px;font-weight:700" data-en="Battery port" data-hi="बैटरी पोर्ट" data-ml="ബാറ്ററി പോർട്ട്"></div></foreignObject>
+<foreignObject x="575" y="70" width="105" height="50"><div class="fo l" style="font-size:14px;font-weight:700" data-en="Grid port" data-hi="ग्रिड पोर्ट" data-ml="ഗ്രിഡ് പോർട്ട്"></div></foreignObject>
+<foreignObject x="840" y="200" width="150" height="70"><div class="fo l" style="font-size:14px;font-weight:700" data-en="Backup (EPS) port: essential loads" data-hi="बैकअप (EPS) पोर्ट: आवश्यक लोड" data-ml="ബാക്കപ്പ് (EPS) പോർട്ട്: അത്യാവശ്യ ലോഡുകൾ"></div></foreignObject></svg></div>
+ <div class="row2">
+  <div class="fig">
+   <h3 data-en="Low-voltage vs high-voltage battery" data-hi="लो-वोल्टेज बनाम हाई-वोल्टेज बैटरी" data-ml="ലോ-വോൾട്ടേജ് vs ഹൈ-വോൾട്ടേജ് ബാറ്ററി"></h3>
+   <svg viewBox="0 0 600 260" role="img" aria-label="LV and HV battery compared" style="min-width:460px"><use href="#s-batt" x="40" y="70" width="130" height="130"/><path d="M170 120H280" style="stroke:var(--danger);stroke-width:16"/>
+<text class="tg c" x="225" y="105" style="fill:var(--danger)">≈ 100 A</text>
+<rect x="360" y="60" width="120" height="34" rx="5" class="box"/><text class="mono c" x="420" y="82" style="font-size:12px">HV module</text>
+<rect x="360" y="98" width="120" height="34" rx="5" class="box"/><text class="mono c" x="420" y="120" style="font-size:12px">HV module</text>
+<rect x="360" y="136" width="120" height="34" rx="5" class="box"/><text class="mono c" x="420" y="158" style="font-size:12px">HV module</text>
+<rect x="360" y="174" width="120" height="34" rx="5" class="box"/><text class="mono c" x="420" y="196" style="font-size:12px">HV module</text>
+<path d="M480 130H580" style="stroke:var(--danger);stroke-width:5"/><text class="tg c" x="530" y="115" style="fill:var(--batt)">≈ 25 A</text>
+<foreignObject x="0" y="0" width="290" height="56"><div class="fo l" style="font-weight:700" data-en="LV 48 V: thick cables, high current" data-hi="LV 48 V: मोटी केबल, अधिक करंट" data-ml="LV 48 V: കട്ടിയുള്ള കേബിൾ, കൂടിയ കറന്റ്"></div></foreignObject>
+<foreignObject x="310" y="0" width="290" height="56"><div class="fo l" style="font-weight:700" data-en="HV 200–400 V: thin cables, higher efficiency" data-hi="HV 200–400 V: पतली केबल, अधिक दक्षता" data-ml="HV 200–400 V: നേർത്ത കേബിൾ, കൂടിയ കാര്യക്ഷമത"></div></foreignObject>
+<foreignObject x="0" y="215" width="600" height="40"><div class="fo mut" data-en="Same 5 kW of power: P = V × I" data-hi="समान 5 kW पावर: P = V × I" data-ml="ഒരേ 5 kW പവർ: P = V × I"></div></foreignObject></svg>
+  </div>
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))">
+   <div class="pcard"><span class="badge in">V<sub>bat</sub></span><h4 data-en="Battery voltage" data-hi="बैटरी वोल्टेज" data-ml="ബാറ്ററി വോൾട്ടേജ്"></h4><p>LV 40–60 V · HV 150–600 V</p></div>
+   <div class="pcard"><span class="badge in">A</span><h4 data-en="Charge / discharge current" data-hi="चार्ज / डिस्चार्ज करंट" data-ml="ചാർജ് / ഡിസ്ചാർജ് കറന്റ്"></h4><p>LV ≈ 100–190 A · HV ≈ 25–50 A</p></div>
+   <div class="pcard"><span class="badge">ms</span><h4 data-en="Backup switchover" data-hi="बैकअप स्विचओवर" data-ml="ബാക്കപ്പ് സ്വിച്ചോവർ"></h4><p>&lt; 10 – 20 ms</p></div>
+   <div class="pcard"><span class="badge in">CAN</span><h4 data-en="BMS communication" data-hi="BMS संचार" data-ml="BMS ആശയവിനിമയം"></h4><p>CAN / RS485</p></div>
+   <div class="pcard"><span class="badge">0→</span><h4 data-en="Export limit" data-hi="निर्यात सीमा" data-ml="എക്സ്പോർട്ട് പരിധി"></h4><p data-en="With CT / smart meter" data-hi="CT / स्मार्ट मीटर के साथ" data-ml="CT / സ്മാർട്ട് മീറ്ററോടെ"></p></div>
+   <div class="pcard"><span class="badge">1.5×</span><h4 data-en="PV oversizing" data-hi="PV ओवरसाइज़िंग" data-ml="PV ഓവർസൈസിങ്"></h4><p data-en="Often allowed up to 1.3–1.5 × AC rating" data-hi="प्रायः AC रेटिंग का 1.3–1.5 × तक अनुमत" data-ml="സാധാരണ AC റേറ്റിങ്ങിന്റെ 1.3–1.5 × വരെ"></p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 6 MICRO ============ -->
+<section class="panel" id="micro" role="tabpanel" style="--acc:var(--sun)" hidden>
+ <div class="head">
+  <h2 data-en="Micro-inverter" data-hi="माइक्रो-इन्वर्टर" data-ml="മൈക്രോ-ഇൻവെർട്ടർ"></h2>
+  <p class="lead" data-en="A small inverter under each panel (or pair of panels). AC leaves the roof; DC stays below 60 V." data-hi="हर पैनल (या पैनल-जोड़ी) के नीचे एक छोटा इन्वर्टर। छत से AC निकलता है; DC 60 V से कम रहता है।" data-ml="ഓരോ പാനലിനും (അല്ലെങ്കിൽ ജോഡിക്ക്) താഴെ ഒരു ചെറിയ ഇൻവെർട്ടർ. മേൽക്കൂരയിൽ നിന്ന് AC പുറത്തുവരുന്നു; DC 60 V-ൽ താഴെ."></p>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="sun" data-en="All panels in sun" data-hi="सभी पैनल धूप में" data-ml="എല്ലാ പാനലും വെയിലിൽ"></button>
+   <button class="sbtn" type="button" data-scene="shade" data-en="One panel shaded" data-hi="एक पैनल छाया में" data-ml="ഒരു പാനൽ തണലിൽ"></button>
+  </div>
+  <div class="fig"><svg class="dia" viewBox="0 0 990 420" role="img" aria-label="String versus micro inverter under shade"><foreignObject x="0" y="0" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="String inverter: panels in series" data-hi="स्ट्रिंग इन्वर्टर: पैनल श्रेणी में" data-ml="സ്ട്രിങ് ഇൻവെർട്ടർ: പാനലുകൾ സീരീസിൽ"></div></foreignObject>
+<foreignObject x="0" y="205" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="Micro-inverters: panels independent" data-hi="माइक्रो-इन्वर्टर: पैनल स्वतंत्र" data-ml="മൈക്രോ-ഇൻവെർട്ടർ: പാനലുകൾ സ്വതന്ത്രം"></div></foreignObject>
+<use href="#s-pv" x="10" y="40" width="84" height="70"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M80 82Q95 100 107 82"/>
+<use href="#s-pv" x="10" y="240" width="84" height="70"/>
+<use href="#s-micro" x="30" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M52 344V360"/>
+<use href="#s-pv" x="100" y="40" width="84" height="70"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M170 82Q185 100 197 82"/>
+<use href="#s-pv" x="100" y="240" width="84" height="70"/>
+<use href="#s-micro" x="120" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M142 344V360"/>
+<use href="#s-pv" x="190" y="40" width="84" height="70"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M260 82Q275 100 287 82"/>
+<use href="#s-pv" x="190" y="240" width="84" height="70"/>
+<use href="#s-micro" x="210" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M232 344V360"/>
+<use href="#s-pv" x="280" y="40" width="84" height="70"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M350 82Q365 100 377 82"/>
+<use href="#s-pv" x="280" y="240" width="84" height="70"/>
+<use href="#s-micro" x="300" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M322 344V360"/>
+<use href="#s-pv" x="370" y="40" width="84" height="70"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M440 82Q455 100 467 82"/>
+<use href="#s-pv" x="370" y="240" width="84" height="70"/>
+<use href="#s-micro" x="390" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M412 344V360"/>
+<use href="#s-pv" x="460" y="40" width="84" height="70"/>
+<use href="#s-pv" x="460" y="240" width="84" height="70"/>
+<use href="#s-micro" x="480" y="318" width="44" height="26"/><path class="s-ink" stroke-width="2" d="M502 344V360"/>
+<path class="wire" style="stroke-width:6" d="M545 82H580M42 360H580"/><path class="flow dc" d="M545 82H580"/><path class="flow ac" d="M42 360H580"/>
+<use href="#s-inv" x="580" y="47" width="70" height="70"/>
+<rect class="box" x="580" y="340" width="70" height="40" rx="6"/><text class="mono c" x="615" y="365" style="font-size:12px">ACDB</text>
+<foreignObject x="150" y="365" width="420" height="30"><div class="fo mut" style="font-size:13px" data-en="AC trunk cable" data-hi="AC ट्रंक केबल" data-ml="AC ട്രങ്ക് കേബിൾ"></div></foreignObject>
+<g data-show="shade"><rect x="190" y="48" width="84" height="56" style="fill:#000;opacity:.45"/><ellipse cx="232" cy="38" rx="40" ry="14" class="f-cloud"/></g>
+<g data-show="shade"><rect x="190" y="248" width="84" height="56" style="fill:#000;opacity:.45"/><ellipse cx="232" cy="238" rx="40" ry="14" class="f-cloud"/></g>
+<rect x="680" y="60" width="280" height="40" rx="6" data-show="sun" style="fill:var(--batt)"/><text class="tg c" x="820.0" y="87" data-show="sun" style="fill:#fff">100 %</text>
+<rect x="680" y="60" width="168" height="40" rx="6" data-show="shade" style="fill:var(--danger)"/><text class="tg s" x="858" y="87" data-show="shade">≈ 60 %</text>
+<rect x="680" y="260" width="280" height="40" rx="6" data-show="sun" style="fill:var(--batt)"/><text class="tg c" x="820.0" y="287" data-show="sun" style="fill:#fff">100 %</text>
+<rect x="680" y="260" width="245" height="40" rx="6" data-show="shade" style="fill:var(--sun)"/><text class="tg s" x="935" y="287" data-show="shade">≈ 87 %</text>
+<foreignObject x="680" y="105" width="300" height="30"><div class="fo l mut" data-en="Energy output" data-hi="ऊर्जा आउटपुट" data-ml="ഊർജ ഔട്ട്പുട്ട്"></div></foreignObject>
+<foreignObject x="680" y="305" width="300" height="30"><div class="fo l mut" data-en="Energy output" data-hi="ऊर्जा आउटपुट" data-ml="ഊർജ ഔട്ട്പുട്ട്"></div></foreignObject></svg></div>
+  <p class="cap" data-show="sun" data-en="In full sun, string and micro systems give about the same energy." data-hi="पूरी धूप में स्ट्रिंग और माइक्रो दोनों लगभग समान ऊर्जा देते हैं।" data-ml="മുഴുവൻ വെയിലിൽ സ്ട്രിങ്ങും മൈക്രോയും ഏകദേശം തുല്യ ഊർജം നൽകുന്നു."></p>
+  <p class="cap" data-show="shade" data-en="One shaded panel pulls down the whole series string, but with micro-inverters only that one panel loses output." data-hi="एक छायादार पैनल पूरी श्रेणी स्ट्रिंग को घटा देता है, पर माइक्रो-इन्वर्टर में केवल वही पैनल कम देता है।" data-ml="ഒരു തണലുള്ള പാനൽ സീരീസ് സ്ട്രിങ്ങിനെ മുഴുവൻ കുറയ്ക്കുന്നു; മൈക്രോ-ഇൻവെർട്ടറിൽ ആ ഒരു പാനൽ മാത്രം കുറയുന്നു."></p>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge">DC</span><h4 data-en="DC input" data-hi="DC इनपुट" data-ml="DC ഇൻപുട്ട്"></h4><p data-en="16–60 V per panel; MPPT ≈ 25–55 V" data-hi="प्रति पैनल 16–60 V; MPPT ≈ 25–55 V" data-ml="ഓരോ പാനലിനും 16–60 V; MPPT ≈ 25–55 V"></p></div>
+  <div class="pcard"><span class="badge in">1–4</span><h4 data-en="Panels per unit" data-hi="प्रति यूनिट पैनल" data-ml="ഒരു യൂണിറ്റിൽ പാനലുകൾ"></h4><p data-en="One MPPT per panel" data-hi="हर पैनल का अपना MPPT" data-ml="ഓരോ പാനലിനും ഒരു MPPT"></p></div>
+  <div class="pcard"><span class="badge">VA</span><h4 data-en="Output per unit" data-hi="प्रति यूनिट आउटपुट" data-ml="ഒരു യൂണിറ്റിന്റെ ഔട്ട്പുട്ട്"></h4><p>300 – 2000 VA, 230 V</p></div>
+  <div class="pcard"><span class="badge">η</span><h4 data-en="Efficiency" data-hi="दक्षता" data-ml="കാര്യക്ഷമത"></h4><p>≈ 95 – 97 %</p></div>
+  <div class="pcard"><span class="badge">IP67</span><h4 data-en="Roof mounted" data-hi="छत पर" data-ml="മേൽക്കൂരയിൽ"></h4><p data-en="Sealed, under the module" data-hi="सील्ड, मॉड्यूल के नीचे" data-ml="സീൽഡ്, മൊഡ്യൂളിന് താഴെ"></p></div>
+  <div class="pcard"><span class="badge dg">&lt;60V</span><h4 data-en="Safety" data-hi="सुरक्षा" data-ml="സുരക്ഷ"></h4><p data-en="No high-voltage DC on the roof" data-hi="छत पर उच्च-वोल्टेज DC नहीं" data-ml="മേൽക്കൂരയിൽ ഉയർന്ന വോൾട്ടേജ് DC ഇല്ല"></p></div>
+ </div>
+</section>
+
+<!-- ============ 7 DATASHEET ============ -->
+<section class="panel" id="spec" role="tabpanel" style="--acc:var(--grid)" hidden>
+ <div class="head">
+  <h2 data-en="Reading an inverter datasheet" data-hi="इन्वर्टर डेटाशीट पढ़ना" data-ml="ഇൻവെർട്ടർ ഡാറ്റാഷീറ്റ് വായിക്കൽ"></h2>
+  <p class="lead" data-en="Example: 5 kW single-phase on-grid string inverter with 2 MPPTs (typical values)." data-hi="उदाहरण: 2 MPPT वाला 5 kW सिंगल-फेज़ ऑन-ग्रिड स्ट्रिंग इन्वर्टर (सामान्य मान)।" data-ml="ഉദാഹരണം: 2 MPPT ഉള്ള 5 kW സിംഗിൾ-ഫേസ് ഓൺ-ഗ്രിഡ് സ്ട്രിങ് ഇൻവെർട്ടർ (സാധാരണ മൂല്യങ്ങൾ)."></p>
+ </div>
+ <div class="fig"><svg class="dia" viewBox="0 0 990 260" role="img" aria-label="Where each datasheet value applies"><path class="wire" style="stroke-width:7" d="M150 130H420M570 130H840"/><path class="flow dc" d="M150 130H420"/><path class="flow ac" d="M570 130H840"/>
+<use href="#s-pv" x="10" y="80" width="140" height="117"/><use href="#s-inv" x="420" y="55" width="150" height="150"/><use href="#s-grid" x="840" y="70" width="110" height="132"/>
+<rect x="160" y="150" width="250" height="100" rx="10" style="fill:var(--sun-soft);stroke:var(--sun);stroke-width:2"/>
+<foreignObject x="160" y="150" width="250" height="100"><div class="fo" style="font-size:13px" data-en="DC side: max voltage, MPPT range, start-up, current per MPPT, no. of MPPTs" data-hi="DC पक्ष: अधिकतम वोल्टेज, MPPT रेंज, स्टार्ट-अप, प्रति MPPT करंट, MPPT संख्या" data-ml="DC ഭാഗം: പരമാവധി വോൾട്ടേജ്, MPPT റേഞ്ച്, സ്റ്റാർട്ട്-അപ്, ഓരോ MPPT-ക്കും കറന്റ്, MPPT എണ്ണം"></div></foreignObject>
+<rect x="580" y="150" width="250" height="100" rx="10" style="fill:var(--grid-soft);stroke:var(--grid);stroke-width:2"/>
+<foreignObject x="580" y="150" width="250" height="100"><div class="fo" style="font-size:13px" data-en="AC side: power, voltage, frequency, current, PF, THD" data-hi="AC पक्ष: पावर, वोल्टेज, फ्रीक्वेंसी, करंट, PF, THD" data-ml="AC ഭാഗം: പവർ, വോൾട്ടേജ്, ഫ്രീക്വൻസി, കറന്റ്, PF, THD"></div></foreignObject>
+<foreignObject x="400" y="0" width="190" height="50"><div class="fo" style="font-size:13px;color:var(--hyb);font-weight:700" data-en="Efficiency, protection, IP rating" data-hi="दक्षता, सुरक्षा, IP रेटिंग" data-ml="കാര്യക്ഷമത, സംരക്ഷണം, IP റേറ്റിങ്"></div></foreignObject></svg></div>
+ <div class="ds">
+  <div class="grp" data-en="INPUT (DC)" data-hi="इनपुट (DC)" data-ml="ഇൻപുട്ട് (DC)"></div>
+  <div class="row"><b data-en="Max. PV input power" data-hi="अधिकतम PV इनपुट पावर" data-ml="പരമാവധി PV ഇൻപുട്ട് പവർ"></b><code>7500 Wp</code><span data-en="Largest array allowed (DC/AC ratio 1.5)" data-hi="अनुमत सबसे बड़ा ऐरे (DC/AC अनुपात 1.5)" data-ml="അനുവദനീയമായ ഏറ്റവും വലിയ അറേ (DC/AC അനുപാതം 1.5)"></span></div>
+  <div class="row"><b data-en="Max. DC input voltage" data-hi="अधिकतम DC इनपुट वोल्टेज" data-ml="പരമാവധി DC ഇൻപുട്ട് വോൾട്ടേജ്"></b><code>600 V</code><span data-en="String Voc on the coldest morning must stay below this" data-hi="सबसे ठंडी सुबह स्ट्रिंग Voc इससे कम रहे" data-ml="ഏറ്റവും തണുത്ത പ്രഭാതത്തിലെ സ്ട്രിങ് Voc ഇതിൽ താഴെ ആയിരിക്കണം"></span></div>
+  <div class="row"><b data-en="Start-up voltage" data-hi="स्टार्ट-अप वोल्टेज" data-ml="സ്റ്റാർട്ട്-അപ് വോൾട്ടേജ്"></b><code>100 V</code><span data-en="Inverter wakes up above this" data-hi="इसके ऊपर इन्वर्टर चालू होता है" data-ml="ഇതിന് മുകളിൽ ഇൻവെർട്ടർ ഉണരുന്നു"></span></div>
+  <div class="row"><b data-en="Rated input voltage" data-hi="रेटेड इनपुट वोल्टेज" data-ml="റേറ്റഡ് ഇൻപുട്ട് വോൾട്ടേജ്"></b><code>360 V</code><span data-en="Best efficiency around this voltage" data-hi="इस वोल्टेज के आसपास सर्वोत्तम दक्षता" data-ml="ഈ വോൾട്ടേജിനടുത്ത് ഏറ്റവും നല്ല കാര്യക്ഷമത"></span></div>
+  <div class="row"><b data-en="MPPT voltage range" data-hi="MPPT वोल्टेज रेंज" data-ml="MPPT വോൾട്ടേജ് റേഞ്ച്"></b><code>90 – 550 V</code><span data-en="String Vmp must stay inside, hot or cold" data-hi="गर्मी हो या ठंड, स्ट्रिंग Vmp इसके भीतर रहे" data-ml="ചൂടിലും തണുപ്പിലും സ്ട്രിങ് Vmp ഇതിനുള്ളിൽ"></span></div>
+  <div class="row"><b data-en="Number of MPPTs / strings per MPPT" data-hi="MPPT संख्या / प्रति MPPT स्ट्रिंग" data-ml="MPPT എണ്ണം / ഓരോ MPPT-ക്കും സ്ട്രിങ്"></b><code>2 / 1</code><span data-en="Two independent inputs, one string each" data-hi="दो स्वतंत्र इनपुट, हर एक में एक स्ट्रिंग" data-ml="രണ്ട് സ്വതന്ത്ര ഇൻപുട്ടുകൾ, ഓരോന്നിലും ഒരു സ്ട്രിങ്"></span></div>
+  <div class="row"><b data-en="Max. input current per MPPT" data-hi="प्रति MPPT अधिकतम इनपुट करंट" data-ml="ഓരോ MPPT-ക്കും പരമാവധി ഇൻപുട്ട് കറന്റ്"></b><code>16 A</code><span data-en="Module Imp × strings in parallel must not exceed" data-hi="मॉड्यूल Imp × समानांतर स्ट्रिंग इससे अधिक न हो" data-ml="മൊഡ്യൂൾ Imp × പാരലൽ സ്ട്രിങ്ങുകൾ ഇത് കവിയരുത്"></span></div>
+  <div class="row"><b data-en="Max. short-circuit current per MPPT" data-hi="प्रति MPPT अधिकतम शॉर्ट-सर्किट करंट" data-ml="ഓരോ MPPT-ക്കും പരമാവധി ഷോർട്ട്-സർക്യൂട്ട് കറന്റ്"></b><code>20 A</code><span data-en="Module Isc × strings must stay below" data-hi="मॉड्यूल Isc × स्ट्रिंग इससे कम रहे" data-ml="മൊഡ്യൂൾ Isc × സ്ട്രിങ് ഇതിൽ താഴെ"></span></div>
+  <div class="grp" data-en="OUTPUT (AC)" data-hi="आउटपुट (AC)" data-ml="ഔട്ട്പുട്ട് (AC)"></div>
+  <div class="row"><b data-en="Rated AC power" data-hi="रेटेड AC पावर" data-ml="റേറ്റഡ് AC പവർ"></b><code>5000 W</code><span data-en="Continuous output to the grid" data-hi="ग्रिड को निरंतर आउटपुट" data-ml="ഗ്രിഡിലേക്കുള്ള തുടർച്ചയായ ഔട്ട്പുട്ട്"></span></div>
+  <div class="row"><b data-en="Grid voltage / frequency" data-hi="ग्रिड वोल्टेज / फ्रीक्वेंसी" data-ml="ഗ്രിഡ് വോൾട്ടേജ് / ഫ്രീക്വൻസി"></b><code>230 V / 50 Hz</code><span data-en="Operating window set by grid code" data-hi="ग्रिड कोड द्वारा निर्धारित परिचालन सीमा" data-ml="ഗ്രിഡ് കോഡ് നിശ്ചയിക്കുന്ന പ്രവർത്തന പരിധി"></span></div>
+  <div class="row"><b data-en="Max. AC current" data-hi="अधिकतम AC करंट" data-ml="പരമാവധി AC കറന്റ്"></b><code>22.7 A</code><span data-en="Size the AC MCB and cable from this" data-hi="AC MCB व केबल इसी से चुनें" data-ml="AC MCB-യും കേബിളും ഇതനുസരിച്ച്"></span></div>
+  <div class="row"><b data-en="Power factor / THD" data-hi="पावर फैक्टर / THD" data-ml="പവർ ഫാക്ടർ / THD"></b><code>0.8 lead–0.8 lag / &lt; 3 %</code><span data-en="Clean, adjustable output" data-hi="स्वच्छ, समायोज्य आउटपुट" data-ml="ശുദ്ധമായ, ക്രമീകരിക്കാവുന്ന ഔട്ട്പുട്ട്"></span></div>
+  <div class="grp" data-en="EFFICIENCY &amp; PROTECTION" data-hi="दक्षता व सुरक्षा" data-ml="കാര്യക്ഷമതയും സംരക്ഷണവും"></div>
+  <div class="row"><b data-en="Max. efficiency" data-hi="अधिकतम दक्षता" data-ml="പരമാവധി കാര്യക്ഷമത"></b><code>97.8 %</code><span data-en="Peak value; weighted (Euro) value is slightly lower" data-hi="शिखर मान; भारित (यूरो) मान थोड़ा कम" data-ml="ഉച്ച മൂല്യം; വെയ്റ്റഡ് (യൂറോ) മൂല്യം അല്പം കുറവ്"></span></div>
+  <div class="row"><b data-en="Protections" data-hi="सुरक्षाएँ" data-ml="സംരക്ഷണങ്ങൾ"></b><code>AI · RCMU · Riso · SPD</code><span data-en="Anti-islanding, residual current, insulation test, surge" data-hi="एंटी-आइलैंडिंग, अवशिष्ट करंट, इन्सुलेशन जाँच, सर्ज" data-ml="ആന്റി-ഐലൻഡിങ്, റെസിഡ്യൂവൽ കറന്റ്, ഇൻസുലേഷൻ ടെസ്റ്റ്, സർജ്"></span></div>
+  <div class="row"><b data-en="Enclosure / cooling" data-hi="एनक्लोज़र / कूलिंग" data-ml="എൻക്ലോഷർ / കൂളിങ്"></b><code>IP65 / natural</code><span data-en="Outdoor wall mounting, shaded side preferred" data-hi="आउटडोर दीवार माउंटिंग, छायादार तरफ़ बेहतर" data-ml="ഔട്ട്ഡോർ ചുമർ ഘടിപ്പിക്കൽ, തണലുള്ള വശം നല്ലത്"></span></div>
+ </div>
+</section>
+
+<!-- ============ 8 MPPT & STRINGS ============ -->
+<section class="panel" id="mppt" role="tabpanel" style="--acc:var(--ion)" hidden>
+ <div class="head">
+  <h2 data-en="How many MPPTs do you need?" data-hi="कितने MPPT चाहिए?" data-ml="എത്ര MPPT വേണം?"></h2>
+  <p class="lead" data-en="Each MPPT holds its strings at one voltage. Strings that see different sun or have different lengths need separate MPPTs." data-hi="हर MPPT अपनी स्ट्रिंग को एक वोल्टेज पर रखता है। अलग धूप या अलग लंबाई वाली स्ट्रिंग को अलग MPPT चाहिए।" data-ml="ഓരോ MPPT-യും അതിന്റെ സ്ട്രിങ്ങുകളെ ഒരു വോൾട്ടേജിൽ നിർത്തുന്നു. വ്യത്യസ്ത വെയിലോ നീളമോ ഉള്ള സ്ട്രിങ്ങുകൾക്ക് വെവ്വേറെ MPPT വേണം."></p>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="two" data-en="East + west roof: 2 MPPTs" data-hi="पूर्व + पश्चिम छत: 2 MPPT" data-ml="കിഴക്ക് + പടിഞ്ഞാറ് മേൽക്കൂര: 2 MPPT"></button>
+   <button class="sbtn" type="button" data-scene="one" data-en="Same roof on 1 MPPT" data-hi="वही छत 1 MPPT पर" data-ml="അതേ മേൽക്കൂര 1 MPPT-ൽ"></button>
+   <button class="sbtn" type="button" data-scene="par" data-en="2 strings in parallel on 1 MPPT" data-hi="1 MPPT पर 2 स्ट्रिंग समानांतर" data-ml="1 MPPT-ൽ 2 സ്ട്രിങ് പാരലൽ"></button>
+  </div>
+  <div class="fig"><svg class="dia" viewBox="0 0 990 380" role="img" aria-label="Strings connected to MPPT inputs"><use href="#s-pv" x="40" y="30" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M116 75Q130 92 146 75"/>
+<use href="#s-pv" x="140" y="30" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M216 75Q230 92 246 75"/>
+<use href="#s-pv" x="240" y="30" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M316 75Q330 92 346 75"/>
+<use href="#s-pv" x="340" y="30" width="90" height="75"/>
+<use href="#s-pv" x="40" y="200" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M116 245Q130 262 146 245"/>
+<use href="#s-pv" x="140" y="200" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M216 245Q230 262 246 245"/>
+<use href="#s-pv" x="240" y="200" width="90" height="75"/>
+<path class="s-ink" stroke-width="3" fill="none" d="M316 245Q330 262 346 245"/>
+<use href="#s-pv" x="340" y="200" width="90" height="75"/>
+<use href="#s-sun" x="0" y="0" width="40" height="40" data-show="two one"/><use href="#s-sun" x="0" y="0" width="40" height="40" data-show="par"/>
+<use href="#s-sun" x="0" y="170" width="40" height="40"/>
+<foreignObject data-show="two one" x="40" y="105" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="String A · East roof" data-hi="स्ट्रिंग A · पूर्वी छत" data-ml="സ്ട്രിങ് A · കിഴക്കൻ മേൽക്കൂര"></div></foreignObject>
+<foreignObject data-show="two one" x="40" y="275" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="String B · West roof" data-hi="स्ट्रिंग B · पश्चिमी छत" data-ml="സ്ട്രിങ് B · പടിഞ്ഞാറൻ മേൽക്കൂര"></div></foreignObject>
+<foreignObject data-show="par" x="40" y="105" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="String A · South roof" data-hi="स्ट्रिंग A · दक्षिणी छत" data-ml="സ്ട്രിങ് A · തെക്കൻ മേൽക്കൂര"></div></foreignObject>
+<foreignObject data-show="par" x="40" y="275" width="400" height="30"><div class="fo l" style="font-weight:700" data-en="String B · South roof (same length)" data-hi="स्ट्रिंग B · दक्षिणी छत (समान लंबाई)" data-ml="സ്ട്രിങ് B · തെക്കൻ മേൽക്കൂര (ഒരേ നീളം)"></div></foreignObject>
+<path class="wire" style="stroke-width:6" d="M440 70H560V150H650M440 240H560V230H650"/>
+<path class="flow dc" data-show="two" d="M440 70H560V150H650"/><path class="flow dc" data-show="two" d="M440 240H560V230H650"/>
+<path class="flow dc" data-show="one par" d="M440 70H560V150H650"/><path class="flow dc" data-show="one par" d="M440 240H580V150"/>
+<path data-show="one par" d="M440 240H580V150" style="fill:none;stroke:var(--ink);stroke-width:4"/><circle data-show="one par" cx="580" cy="150" r="7" class="f-ink"/>
+<use href="#s-inv" x="650" y="100" width="180" height="180"/>
+<text class="mono e" x="644" y="140" style="font-size:14px">MPPT 1</text><text class="mono e" x="644" y="222" style="font-size:14px">MPPT 2</text>
+<text class="tg s" x="455" y="62" data-show="two" style="fill:var(--batt)">380 V ✓</text><text class="tg s" x="455" y="232" data-show="two" style="fill:var(--batt)">350 V ✓</text>
+<foreignObject data-show="one" x="840" y="120" width="150" height="90"><div class="fo pdg" data-en="Mismatch: energy lost" data-hi="मिसमैच: ऊर्जा हानि" data-ml="മിസ്മാച്ച്: ഊർജ നഷ്ടം"></div></foreignObject>
+<foreignObject data-show="par" x="840" y="120" width="150" height="90"><div class="fo mut" data-en="MPPT 2 unused" data-hi="MPPT 2 खाली" data-ml="MPPT 2 ഉപയോഗിക്കുന്നില്ല"></div></foreignObject>
+<text class="tg s" x="590" y="300" data-show="par" style="fill:var(--batt)">13 A + 13 A = 26 A ≤ 32 A ✓</text>
+<text class="tg s" x="590" y="300" data-show="one" style="fill:var(--danger)">E ≠ W</text></svg></div>
+  <p class="cap" data-show="two" data-en="Each roof face gets its own MPPT; each string runs at its own best voltage. No mismatch loss." data-hi="हर छत-मुख का अपना MPPT; हर स्ट्रिंग अपने सर्वोत्तम वोल्टेज पर। कोई मिसमैच हानि नहीं।" data-ml="ഓരോ മേൽക്കൂര മുഖത്തിനും സ്വന്തം MPPT; ഓരോ സ്ട്രിങ്ങും സ്വന്തം മികച്ച വോൾട്ടേജിൽ. മിസ്മാച്ച് നഷ്ടമില്ല."></p>
+  <p class="cap" data-show="one" data-en="Strings facing different directions forced to one voltage: the MPPT finds a compromise and some energy is lost." data-hi="अलग दिशा वाली स्ट्रिंग एक ही वोल्टेज पर मजबूर: MPPT समझौता करता है और कुछ ऊर्जा व्यर्थ होती है।" data-ml="വ്യത്യസ്ത ദിശയിലുള്ള സ്ട്രിങ്ങുകൾ ഒരേ വോൾട്ടേജിൽ: MPPT ഒത്തുതീർപ്പ് കണ്ടെത്തുന്നു, കുറച്ച് ഊർജം നഷ്ടപ്പെടുന്നു."></p>
+  <p class="cap" data-show="par" data-en="Identical strings (same length, same direction) can share one MPPT with a Y-connector. Currents add: check the MPPT current limit." data-hi="समान स्ट्रिंग (समान लंबाई, समान दिशा) Y-कनेक्टर से एक MPPT साझा कर सकती हैं। करंट जुड़ता है: MPPT करंट सीमा जाँचें।" data-ml="ഒരേപോലുള്ള സ്ട്രിങ്ങുകൾക്ക് (ഒരേ നീളം, ഒരേ ദിശ) Y-കണക്ടർ വഴി ഒരു MPPT പങ്കിടാം. കറന്റ് കൂടുന്നു: MPPT കറന്റ് പരിധി പരിശോധിക്കുക."></p>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge in">1</span><h4 data-en="One MPPT is enough when…" data-hi="एक MPPT पर्याप्त जब…" data-ml="ഒരു MPPT മതി എപ്പോൾ…"></h4><p data-en="One roof face, no shade, one string" data-hi="एक छत-मुख, छाया नहीं, एक स्ट्रिंग" data-ml="ഒരു മേൽക്കൂര മുഖം, തണലില്ല, ഒരു സ്ട്രിങ്"></p></div>
+  <div class="pcard"><span class="badge in">2+</span><h4 data-en="Use 2 or more MPPTs when…" data-hi="2 या अधिक MPPT जब…" data-ml="2-ഓ അതിലധികമോ MPPT എപ്പോൾ…"></h4><p data-en="Two roof directions, partial shade, unequal string lengths" data-hi="दो छत दिशाएँ, आंशिक छाया, असमान स्ट्रिंग लंबाई" data-ml="രണ്ട് മേൽക്കൂര ദിശകൾ, ഭാഗിക തണൽ, അസമ സ്ട്രിങ് നീളം"></p></div>
+  <div class="pcard"><span class="badge dg">A</span><h4 data-en="Current check" data-hi="करंट जाँच" data-ml="കറന്റ് പരിശോധന"></h4><p data-en="Strings in parallel × Imp ≤ max MPPT current" data-hi="समानांतर स्ट्रिंग × Imp ≤ अधिकतम MPPT करंट" data-ml="പാരലൽ സ്ട്രിങ് × Imp ≤ പരമാവധി MPPT കറന്റ്"></p></div>
+ </div>
+</section>
+
+<!-- ============ 9 STRING WINDOW ============ -->
+<section class="panel" id="win" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="String sizing: the voltage selection window" data-hi="स्ट्रिंग साइज़िंग: वोल्टेज चयन विंडो" data-ml="സ്ട്രിങ് സൈസിങ്: വോൾട്ടേജ് തിരഞ്ഞെടുപ്പ് വിൻഡോ"></h2>
+  <p class="lead" data-en="Panel voltage rises in cold and falls in heat. The string must stay below the inverter maximum on the coldest morning and inside the MPPT range on the hottest afternoon." data-hi="पैनल वोल्टेज ठंड में बढ़ता और गर्मी में घटता है। स्ट्रिंग सबसे ठंडी सुबह इन्वर्टर अधिकतम से नीचे और सबसे गर्म दोपहर MPPT रेंज के भीतर रहनी चाहिए।" data-ml="പാനൽ വോൾട്ടേജ് തണുപ്പിൽ കൂടുകയും ചൂടിൽ കുറയുകയും ചെയ്യുന്നു. ഏറ്റവും തണുത്ത പ്രഭാതത്തിൽ ഇൻവെർട്ടർ പരമാവധിക്ക് താഴെയും ഏറ്റവും ചൂടുള്ള ഉച്ചയ്ക്ക് MPPT റേഞ്ചിനുള്ളിലും സ്ട്രിങ് ആയിരിക്കണം."></p>
+ </div>
+ <div class="fig">
+  <div class="wingrid">
+   <div class="inp2">
+    <h4 data-en="Module (datasheet, STC)" data-hi="मॉड्यूल (डेटाशीट, STC)" data-ml="മൊഡ്യൂൾ (ഡാറ്റാഷീറ്റ്, STC)"></h4>
+    <label for="mW">Pmax (Wp)</label><input id="mW" type="number" value="545">
+    <label for="mVoc">Voc (V)</label><input id="mVoc" type="number" step="0.1" value="49.6">
+    <label for="mVmp">Vmp (V)</label><input id="mVmp" type="number" step="0.1" value="41.8">
+    <label for="mImp">Imp (A)</label><input id="mImp" type="number" step="0.01" value="13.04">
+    <label for="mIsc">Isc (A)</label><input id="mIsc" type="number" step="0.01" value="13.9">
+    <label for="kVoc" data-en="Temp. coeff. of Voc (%/°C)" data-hi="Voc तापमान गुणांक (%/°C)" data-ml="Voc താപനില ഗുണാങ്കം (%/°C)"></label><input id="kVoc" type="number" step="0.01" value="-0.27">
+    <label for="kVmp" data-en="Temp. coeff. of Vmp (%/°C)" data-hi="Vmp तापमान गुणांक (%/°C)" data-ml="Vmp താപനില ഗുണാങ്കം (%/°C)"></label><input id="kVmp" type="number" step="0.01" value="-0.35">
+    <h4 data-en="Site temperatures" data-hi="स्थल तापमान" data-ml="സൈറ്റ് താപനില"></h4>
+    <label for="tMin" data-en="Lowest cell temp. (°C)" data-hi="न्यूनतम सेल तापमान (°C)" data-ml="ഏറ്റവും കുറഞ്ഞ സെൽ താപനില (°C)"></label><input id="tMin" type="number" value="10">
+    <label for="tMax" data-en="Highest cell temp. (°C)" data-hi="अधिकतम सेल तापमान (°C)" data-ml="ഏറ്റവും കൂടിയ സെൽ താപനില (°C)"></label><input id="tMax" type="number" value="70">
+    <h4 data-en="Inverter (one MPPT)" data-hi="इन्वर्टर (एक MPPT)" data-ml="ഇൻവെർട്ടർ (ഒരു MPPT)"></h4>
+    <label for="iVmax" data-en="Max DC voltage (V)" data-hi="अधिकतम DC वोल्टेज (V)" data-ml="പരമാവധി DC വോൾട്ടേജ് (V)"></label><input id="iVmax" type="number" value="600">
+    <label for="iStart" data-en="Start-up voltage (V)" data-hi="स्टार्ट-अप वोल्टेज (V)" data-ml="സ്റ്റാർട്ട്-അപ് വോൾട്ടേജ് (V)"></label><input id="iStart" type="number" value="100">
+    <label for="iMin">MPPT min (V)</label><input id="iMin" type="number" value="90">
+    <label for="iMax">MPPT max (V)</label><input id="iMax" type="number" value="550">
+    <label for="iImax" data-en="Max current per MPPT (A)" data-hi="प्रति MPPT अधिकतम करंट (A)" data-ml="ഓരോ MPPT-ക്കും പരമാവധി കറന്റ് (A)"></label><input id="iImax" type="number" value="16">
+    <label for="iPar" data-en="Strings in parallel" data-hi="समानांतर स्ट्रिंग" data-ml="പാരലൽ സ്ട്രിങ്ങുകൾ"></label><input id="iPar" type="number" min="1" value="1">
+   </div>
+   <div class="simviz">
+    <div class="res big"><span data-en="Allowed modules per string" data-hi="प्रति स्ट्रिंग अनुमत मॉड्यूल" data-ml="ഓരോ സ്ട്രിങ്ങിനും അനുവദനീയ മൊഡ്യൂളുകൾ"></span><b id="wRange">–</b></div>
+    <label for="wN" style="display:flex;justify-content:space-between;font-weight:700"><span data-en="Try modules in series" data-hi="श्रेणी में मॉड्यूल आज़माएँ" data-ml="സീരീസിൽ മൊഡ്യൂളുകൾ പരീക്ഷിക്കുക"></span><output id="wNo" class="bigres" style="font-size:1.6rem">8</output></label>
+    <input type="range" id="wN" min="1" max="24" step="1" value="8" style="width:100%;accent-color:var(--batt);height:1.8rem">
+    <svg viewBox="0 0 900 300" role="img" aria-label="String voltage window">
+     <rect id="zA" y="40" height="70" style="fill:var(--surface2)"/>
+     <rect id="zB" y="40" height="70" style="fill:var(--batt-soft)"/>
+     <rect id="zC" y="40" height="70" style="fill:var(--sun-soft)"/>
+     <rect id="zD" y="40" height="70" style="fill:var(--danger-soft)"/>
+     <foreignObject id="fA" y="40" height="70" width="10"><div class="fo mut" style="font-size:12px" data-en="Below MPPT" data-hi="MPPT से नीचे" data-ml="MPPT-ക്ക് താഴെ"></div></foreignObject>
+     <foreignObject id="fB" y="40" height="70" width="10"><div class="fo ok" data-en="MPPT window" data-hi="MPPT विंडो" data-ml="MPPT വിൻഡോ"></div></foreignObject>
+     <foreignObject id="fC" y="40" height="70" width="10"><div class="fo" style="font-size:12px;color:var(--sun)" data-en="Above MPPT (derate)" data-hi="MPPT से ऊपर (डीरेट)" data-ml="MPPT-ക്ക് മുകളിൽ (ഡീറേറ്റ്)"></div></foreignObject>
+     <foreignObject id="fD" y="40" height="70" width="10"><div class="fo dg" style="font-size:12px" data-en="Damage" data-hi="क्षति" data-ml="കേടുപാട്"></div></foreignObject>
+     <path id="lStart" class="s-mut" stroke-width="2" stroke-dasharray="5 4"/>
+     <text id="tStart" class="lbs c" y="32">start</text>
+     <path id="lVmax" class="s-dg" stroke-width="3"/>
+     <text id="tVmax" class="lbl c" y="32" style="fill:var(--danger)">Vmax</text>
+     <rect id="bVmp" y="150" height="34" rx="6" style="fill:var(--grid)"/>
+     <text id="tHot" class="mono e" y="210" style="fill:var(--sun)"></text>
+     <text id="tCold" class="mono s" y="210" style="fill:var(--grid)"></text>
+     <polygon id="pVoc" class="f-dg"/>
+     <text id="tVoc" class="mono c" y="250" style="fill:var(--danger)"></text>
+     <path class="s-ink" stroke-width="2" d="M60 120H860"/>
+     <g id="axis"></g>
+     <foreignObject x="0" y="135" width="60" height="60"><div class="fo" style="font-size:12px">Vmp</div></foreignObject>
+     <foreignObject x="0" y="225" width="60" height="40"><div class="fo dg" style="font-size:12px">Voc</div></foreignObject>
+    </svg>
+    <div class="chipsrow">
+     <span class="pchip" id="k1" data-en="Voc (cold) &lt; Vmax" data-hi="Voc (ठंड) &lt; Vmax" data-ml="Voc (തണുപ്പ്) &lt; Vmax"></span>
+     <span class="pchip" id="k2" data-en="Vmp (hot) &gt; MPPT min" data-hi="Vmp (गर्म) &gt; MPPT min" data-ml="Vmp (ചൂട്) &gt; MPPT min"></span>
+     <span class="pchip" id="k3" data-en="Vmp (cold) &lt; MPPT max" data-hi="Vmp (ठंड) &lt; MPPT max" data-ml="Vmp (തണുപ്പ്) &lt; MPPT max"></span>
+     <span class="pchip" id="k4" data-en="Voc (hot) &gt; start-up" data-hi="Voc (गर्म) &gt; स्टार्ट-अप" data-ml="Voc (ചൂട്) &gt; സ്റ്റാർട്ട്-അപ്"></span>
+     <span class="pchip" id="k5" data-en="Current within MPPT limit" data-hi="करंट MPPT सीमा में" data-ml="കറന്റ് MPPT പരിധിക്കുള്ളിൽ"></span>
+    </div>
+    <div class="res"><span data-en="String power" data-hi="स्ट्रिंग पावर" data-ml="സ്ട്രിങ് പവർ"></span><b id="wP">–</b></div>
+    <div class="steps"><span id="ws1"></span><span id="ws2"></span><span id="ws3"></span><span id="ws4"></span></div>
+   </div>
+  </div>
+ </div>
+ <div class="eqs">
+  <div class="eq"><span class="t" data-en="Cold morning (lowest cell temperature)" data-hi="ठंडी सुबह (न्यूनतम सेल तापमान)" data-ml="തണുത്ത പ്രഭാതം (ഏറ്റവും കുറഞ്ഞ സെൽ താപനില)"></span><span class="f">Voc,cold = Voc × [1 + β·(Tmin − 25)]<br>N<sub>max</sub> = Vmax(inv) ÷ Voc,cold ↓</span></div>
+  <div class="eq"><span class="t" data-en="Hot afternoon (highest cell temperature)" data-hi="गर्म दोपहर (अधिकतम सेल तापमान)" data-ml="ചൂടുള്ള ഉച്ച (ഏറ്റവും കൂടിയ സെൽ താപനില)"></span><span class="f">Vmp,hot = Vmp × [1 + γ·(Tmax − 25)]<br>N<sub>min</sub> = MPPT min ÷ Vmp,hot ↑</span></div>
+ </div>
+</section>
+
+<!-- ============ 10 SELECTION ============ -->
+<section class="panel" id="sel" role="tabpanel" style="--acc:var(--hyb)" hidden>
+ <div class="head">
+  <h2 data-en="Choosing the right inverter" data-hi="सही इन्वर्टर चुनना" data-ml="ശരിയായ ഇൻവെർട്ടർ തിരഞ്ഞെടുക്കൽ"></h2>
+ </div>
+ <div class="fig"><svg viewBox="0 0 990 430" role="img" aria-label="Inverter selection flowchart" class="fc" style="min-width:720px"><polygon class="dq" points="250,10 400,60 250,110 100,60"/><foreignObject x="150" y="35" width="200" height="50"><div class="fo" data-en="Is grid supply available?" data-hi="क्या ग्रिड सप्लाई उपलब्ध है?" data-ml="ഗ്രിഡ് സപ്ലൈ ലഭ്യമാണോ?"></div></foreignObject>
+<path class="ar" d="M400 60H478"/><text class="yn s" x="410" y="50" data-en="No" data-hi="नहीं" data-ml="ഇല്ല"></text>
+<rect class="og" x="480" y="30" width="250" height="60" rx="14"/><foreignObject x="480" y="30" width="250" height="60"><div class="fo big" data-en="OFF-GRID" data-hi="ऑफ-ग्रिड" data-ml="ഓഫ്-ഗ്രിഡ്"></div></foreignObject>
+<path class="ar" d="M250 110V138"/><text class="yn s" x="260" y="130" data-en="Yes" data-hi="हाँ" data-ml="അതെ"></text>
+<polygon class="dq" points="250,140 400,190 250,240 100,190"/><foreignObject x="150" y="165" width="200" height="50"><div class="fo" data-en="Need backup in power cuts?" data-hi="कटौती में बैकअप चाहिए?" data-ml="മുടക്കത്തിൽ ബാക്കപ്പ് വേണോ?"></div></foreignObject>
+<path class="ar" d="M400 190H478"/><text class="yn s" x="410" y="180" data-en="Yes" data-hi="हाँ" data-ml="അതെ"></text>
+<rect class="hy" x="480" y="160" width="250" height="60" rx="14"/><foreignObject x="480" y="160" width="250" height="60"><div class="fo big" data-en="HYBRID" data-hi="हाइब्रिड" data-ml="ഹൈബ്രിഡ്"></div></foreignObject>
+<path class="ar" d="M250 240V268"/><text class="yn s" x="260" y="260" data-en="No" data-hi="नहीं" data-ml="ഇല്ല"></text>
+<polygon class="dq" points="250,270 400,320 250,370 100,320"/><foreignObject x="140" y="292" width="220" height="56"><div class="fo" style="font-size:13px" data-en="Heavy shade or many roof faces, small system?" data-hi="भारी छाया या कई छत-मुख, छोटा सिस्टम?" data-ml="കനത്ത തണൽ / പല മേൽക്കൂര മുഖം, ചെറിയ സിസ്റ്റം?"></div></foreignObject>
+<path class="ar" d="M400 320H478"/><text class="yn s" x="410" y="310" data-en="Yes" data-hi="हाँ" data-ml="അതെ"></text>
+<rect class="st" x="480" y="290" width="250" height="60" rx="14"/><foreignObject x="480" y="290" width="250" height="60"><div class="fo big" data-en="MICRO" data-hi="माइक्रो" data-ml="മൈക്രോ"></div></foreignObject>
+<path class="ar" d="M250 370V388"/><text class="yn s" x="260" y="384" data-en="No" data-hi="नहीं" data-ml="ഇല്ല"></text>
+<rect class="on" x="100" y="390" width="300" height="38" rx="12"/><foreignObject x="100" y="390" width="300" height="38"><div class="fo big" style="font-size:17px" data-en="ON-GRID STRING" data-hi="ऑन-ग्रिड स्ट्रिंग" data-ml="ഓൺ-ഗ്രിഡ് സ്ട്രിങ്"></div></foreignObject>
+<rect x="760" y="120" width="220" height="250" rx="12" style="fill:var(--surface2);stroke:var(--line)"/>
+<foreignObject x="770" y="125" width="200" height="240"><div class="fo l" data-en="Then: 1) size by DC/AC ratio  2) count MPPTs by roof faces  3) check the string voltage window" data-hi="फिर: 1) DC/AC अनुपात से आकार  2) छत-मुख अनुसार MPPT गिनें  3) स्ट्रिंग वोल्टेज विंडो जाँचें" data-ml="തുടർന്ന്: 1) DC/AC അനുപാതം വഴി വലിപ്പം  2) മേൽക്കൂര മുഖം അനുസരിച്ച് MPPT എണ്ണം  3) സ്ട്രിങ് വോൾട്ടേജ് വിൻഡോ പരിശോധിക്കുക"></div></foreignObject></svg></div>
+ <div class="tw">
+  <table>
+   <thead><tr><th></th><th class="k-off" data-en="Off-grid" data-hi="ऑफ-ग्रिड" data-ml="ഓഫ്-ഗ്രിഡ്"></th><th class="k-on" data-en="On-grid string" data-hi="ऑन-ग्रिड स्ट्रिंग" data-ml="ഓൺ-ഗ്രിഡ് സ്ട്രിങ്"></th><th class="k-hy" data-en="Hybrid" data-hi="हाइब्रिड" data-ml="ഹൈബ്രിഡ്"></th><th style="color:var(--sun)" data-en="Micro" data-hi="माइक्रो" data-ml="മൈക്രോ"></th></tr></thead>
+   <tbody>
+    <tr><th data-en="Grid needed" data-hi="ग्रिड आवश्यक" data-ml="ഗ്രിഡ് ആവശ്യം"></th><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><th data-en="Battery" data-hi="बैटरी" data-ml="ബാറ്ററി"></th><td class="y">✓</td><td class="n">✗</td><td class="y">✓</td><td class="n">✗</td></tr>
+    <tr><th data-en="Backup in power cut" data-hi="कटौती में बैकअप" data-ml="മുടക്കത്തിൽ ബാക്കപ്പ്"></th><td class="y">✓</td><td class="n">✗</td><td class="y">✓</td><td class="n">✗</td></tr>
+    <tr><th data-en="DC voltage" data-hi="DC वोल्टेज" data-ml="DC വോൾട്ടേജ്"></th><td data-en="Battery 12–48 V; PV up to ≈ 500 V" data-hi="बैटरी 12–48 V; PV ≈ 500 V तक" data-ml="ബാറ്ററി 12–48 V; PV ≈ 500 V വരെ"></td><td>600 – 1100 V</td><td>500 – 1000 V</td><td>&lt; 60 V</td></tr>
+    <tr><th data-en="MPPTs" data-hi="MPPT" data-ml="MPPT"></th><td>1</td><td>1 – 12</td><td>2 – 4</td><td data-en="1 per panel" data-hi="प्रति पैनल 1" data-ml="ഓരോ പാനലിനും 1"></td></tr>
+    <tr><th data-en="Shade tolerance" data-hi="छाया सहनशीलता" data-ml="തണൽ സഹിഷ്ണുത"></th><td data-en="Medium" data-hi="मध्यम" data-ml="ഇടത്തരം"></td><td data-en="Medium" data-hi="मध्यम" data-ml="ഇടത്തരം"></td><td data-en="Medium" data-hi="मध्यम" data-ml="ഇടത്തരം"></td><td class="y" data-en="High" data-hi="उच्च" data-ml="ഉയർന്നത്"></td></tr>
+    <tr><th data-en="Cost per kW" data-hi="प्रति kW लागत" data-ml="ഓരോ kW-നും ചെലവ്"></th><td data-en="Medium (+ battery)" data-hi="मध्यम (+ बैटरी)" data-ml="ഇടത്തരം (+ ബാറ്ററി)"></td><td class="y" data-en="Lowest" data-hi="सबसे कम" data-ml="ഏറ്റവും കുറവ്"></td><td class="n" data-en="Highest" data-hi="सबसे अधिक" data-ml="ഏറ്റവും കൂടുതൽ"></td><td data-en="High" data-hi="अधिक" data-ml="കൂടുതൽ"></td></tr>
+    <tr><th data-en="Best for" data-hi="किसके लिए" data-ml="ഏറ്റവും അനുയോജ്യം"></th><td data-en="No grid: farms, remote homes" data-hi="ग्रिड नहीं: खेत, दूरस्थ घर" data-ml="ഗ്രിഡില്ല: കൃഷിയിടം, വിദൂര വീടുകൾ"></td><td data-en="Homes and factories with reliable grid" data-hi="विश्वसनीय ग्रिड वाले घर व कारखाने" data-ml="വിശ്വസനീയ ഗ്രിഡുള്ള വീടുകൾ, ഫാക്ടറികൾ"></td><td data-en="Homes with frequent power cuts" data-hi="बार-बार कटौती वाले घर" data-ml="പതിവ് മുടക്കമുള്ള വീടുകൾ"></td><td data-en="Small, shaded or multi-face roofs" data-hi="छोटी, छायादार या बहु-मुखी छतें" data-ml="ചെറിയ, തണലുള്ള, പല മുഖമുള്ള മേൽക്കൂരകൾ"></td></tr>
+   </tbody>
+  </table>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge in">1.1–1.3</span><h4 data-en="DC/AC ratio" data-hi="DC/AC अनुपात" data-ml="DC/AC അനുപാതം"></h4><p data-en="Array kWp ÷ inverter kW. Example: 6.5 kWp on a 5 kW inverter = 1.3" data-hi="ऐरे kWp ÷ इन्वर्टर kW। उदाहरण: 5 kW इन्वर्टर पर 6.5 kWp = 1.3" data-ml="അറേ kWp ÷ ഇൻവെർട്ടർ kW. ഉദാ: 5 kW ഇൻവെർട്ടറിൽ 6.5 kWp = 1.3"></p></div>
+  <div class="pcard"><span class="badge">1φ/3φ</span><h4 data-en="Phase" data-hi="फेज़" data-ml="ഫേസ്"></h4><p data-en="Match the service connection; 3-phase usually above 5–6 kW" data-hi="सर्विस कनेक्शन से मिलाएँ; 5–6 kW से ऊपर प्रायः 3-फेज़" data-ml="സർവീസ് കണക്ഷനുമായി യോജിപ്പിക്കുക; 5–6 kW-ന് മുകളിൽ സാധാരണ 3-ഫേസ്"></p></div>
+  <div class="pcard"><span class="badge">BIS</span><h4 data-en="Approvals" data-hi="स्वीकृतियाँ" data-ml="അംഗീകാരങ്ങൾ"></h4><p data-en="BIS / IS 16221, IS 16169; on the DISCOM / MNRE approved list" data-hi="BIS / IS 16221, IS 16169; DISCOM / MNRE स्वीकृत सूची में" data-ml="BIS / IS 16221, IS 16169; DISCOM / MNRE അംഗീകൃത പട്ടികയിൽ"></p></div>
+  <div class="pcard"><span class="badge">10 y</span><h4 data-en="Warranty and service" data-hi="वारंटी व सेवा" data-ml="വാറന്റി, സർവീസ്"></h4><p data-en="5–10 years; check local service support" data-hi="5–10 वर्ष; स्थानीय सेवा सहायता जाँचें" data-ml="5–10 വർഷം; പ്രാദേശിക സർവീസ് പിന്തുണ പരിശോധിക്കുക"></p></div>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap"><span>NSTI Calicut · PRASAD UM, VI</span><span data-en="Keys: ← → change tab" data-hi="कुंजी: ← → टैब बदलें" data-ml="കീ: ← → ടാബ് മാറ്റുക"></span></div>
+</footer>
+
+<script>
+(function(){
+ var root=document.documentElement;
+ function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+ function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
+ function $(id){return document.getElementById(id)}
+ function setT(id,t){$(id).textContent=t}
+ var sel=$('lang');
+ function applyLang(l){
+  if(['en','hi','ml'].indexOf(l)<0)l='en';
+  root.lang=l;
+  document.querySelectorAll('[data-en]').forEach(function(el){var v=el.getAttribute('data-'+l);el.textContent=(v!==null&&v!=='')?v:el.getAttribute('data-en')});
+  sel.value=l;sv('inv-lang',l);
+ }
+ window.setLang=applyLang;
+ sel.addEventListener('change',function(){applyLang(sel.value)});
+ var tabs=[].slice.call(document.querySelectorAll('.tab'));
+ var ids=tabs.map(function(t){return t.dataset.tab});
+ function show(id,focus){
+  if(ids.indexOf(id)<0)id=ids[0];
+  tabs.forEach(function(t){var on=t.dataset.tab===id;t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1;$(t.dataset.tab).hidden=!on;if(on&&focus)t.focus();if(on)t.scrollIntoView({block:'nearest',inline:'nearest'})});
+  sv('inv-tab',id);try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo(0,0);
+ }
+ tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.tab)})});
+ document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.go)})});
+ document.addEventListener('keydown',function(e){
+  var tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+  var cur=ids.indexOf((tabs.filter(function(t){return t.getAttribute('aria-selected')==='true'})[0]||tabs[0]).dataset.tab);
+  var n=e.key==='ArrowRight'?Math.min(ids.length-1,cur+1):Math.max(0,cur-1);
+  show(ids[n],e.target.classList&&e.target.classList.contains('tab'));e.preventDefault();
+ });
+ document.querySelectorAll('.scene').forEach(function(sc){
+  var btns=sc.querySelectorAll('[data-scene]');
+  function set(s){btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.scene===s?'true':'false')});sc.querySelectorAll('[data-show]').forEach(function(el){el.classList.toggle('off',el.dataset.show.split(' ').indexOf(s)<0)})}
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.scene)})});set(btns[0].dataset.scene);
+ });
+ var scale=parseFloat(ld('inv-scale'))||1;
+ function setScale(s){scale=Math.min(1.5,Math.max(0.8,Math.round(s*100)/100));root.style.setProperty('--scale',scale);sv('inv-scale',scale)}
+ $('fup').addEventListener('click',function(){setScale(scale+0.1)});$('fdn').addEventListener('click',function(){setScale(scale-0.1)});setScale(scale);
+ $('thm').addEventListener('click',function(){var cur=root.getAttribute('data-theme');if(!cur){cur=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}root.setAttribute('data-theme',cur==='dark'?'light':'dark')});
+ $('fsc').addEventListener('click',function(){try{if(document.fullscreenElement){document.exitFullscreen()}else{var p=root.requestFullscreen&&root.requestFullscreen();if(p&&p.catch)p.catch(function(){})}}catch(e){}});
+ function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0}
+
+ /* ---- string voltage window ---- */
+ function A(id,k,v){$(id).setAttribute(k,v)}
+ function win(){
+  var Voc=num('mVoc'),Vmp=num('mVmp'),Imp=num('mImp'),Isc=num('mIsc'),W=num('mW'),b=num('kVoc')/100,g=num('kVmp')/100;
+  var tmin=num('tMin'),tmax=num('tMax'),Vx=num('iVmax'),Vs=num('iStart'),Mn=num('iMin'),Mx=num('iMax'),Ix=num('iImax'),P=Math.max(1,num('iPar'));
+  var VocC=Voc*(1+b*(tmin-25)),VocH=Voc*(1+b*(tmax-25)),VmpH=Vmp*(1+g*(tmax-25)),VmpC=Vmp*(1+g*(tmin-25));
+  var nMax1=Math.floor(Vx/VocC),nMax2=Math.floor(Mx/VmpC),nMin1=Math.ceil(Mn/VmpH),nMin2=Math.ceil(Vs/VocH);
+  var nMax=Math.min(nMax1,nMax2),nMin=Math.max(nMin1,nMin2);
+  setT('wRange',nMin<=nMax?(nMin+' – '+nMax):'✗');
+  var N=+$('wN').value;setT('wNo',N);
+  var top=Math.max(Vx*1.12,N*VocC*1.05),X=function(v){return 60+Math.min(v,top)/top*800};
+  A('zA','x',X(0));A('zA','width',X(Mn)-X(0));A('zB','x',X(Mn));A('zB','width',X(Mx)-X(Mn));
+  A('zC','x',X(Mx));A('zC','width',Math.max(0,X(Vx)-X(Mx)));A('zD','x',X(Vx));A('zD','width',Math.max(0,X(top)-X(Vx)));
+  [['fA',0,Mn],['fB',Mn,Mx],['fC',Mx,Vx],['fD',Vx,top]].forEach(function(z){A(z[0],'x',X(z[1]));A(z[0],'width',Math.max(1,X(z[2])-X(z[1])))});
+  A('lStart','d','M'+X(Vs)+' 36V120');A('tStart','x',X(Vs));setT('tStart',Vs+' V');
+  A('lVmax','d','M'+X(Vx)+' 36V270');A('tVmax','x',X(Vx));setT('tVmax','Vmax '+Vx+' V');
+  var h=N*VmpH,c=N*VmpC,o=N*VocC;
+  A('bVmp','x',X(h));A('bVmp','width',Math.max(4,X(c)-X(h)));
+  A('tHot','x',X(h)-4);setT('tHot',h.toFixed(0)+' V ('+tmax+'°C)');A('tCold','x',X(c)+4);setT('tCold',c.toFixed(0)+' V ('+tmin+'°C)');
+  var ox=X(o);A('pVoc','points',(ox-10)+',236 '+(ox+10)+',236 '+ox+',222');A('tVoc','x',ox);setT('tVoc','Voc '+o.toFixed(0)+' V');
+  $('bVmp').style.fill=(h>=Mn&&c<=Mx)?'var(--grid)':'var(--sun)';
+  var ok=[o<Vx,h>Mn,c<Mx,N*VocH>Vs,Imp*P<=Ix];
+  ok.forEach(function(v,i){var el=$('k'+(i+1));el.classList.toggle('pass',v);el.classList.toggle('fail',!v)});
+  var ax='';for(var v=0;v<=top;v+=100){ax+='<path class="s-ink" stroke-width="1.5" d="M'+X(v)+' 120V128"/><text class="lbs c" x="'+X(v)+'" y="142">'+v+'</text>'}$('axis').innerHTML=ax;
+  setT('wP',(N*P*W/1000).toFixed(2)+' kWp · '+N+' × '+P);
+  setT('ws1','Voc,cold = '+Voc+' × (1 '+(b>=0?'+':'−')+' '+Math.abs(b).toFixed(4)+' × '+(tmin-25)+') = '+VocC.toFixed(1)+' V → N ≤ '+Vx+' ÷ '+VocC.toFixed(1)+' = '+nMax1);
+  setT('ws2','Vmp,hot = '+Vmp+' × (1 '+(g>=0?'+':'−')+' '+Math.abs(g).toFixed(4)+' × '+(tmax-25)+') = '+VmpH.toFixed(1)+' V → N ≥ '+Mn+' ÷ '+VmpH.toFixed(1)+' = '+nMin1);
+  setT('ws3','Vmp,cold = '+VmpC.toFixed(1)+' V → N ≤ '+Mx+' ÷ '+VmpC.toFixed(1)+' = '+nMax2+'  ·  Voc,hot = '+VocH.toFixed(1)+' V → N ≥ '+nMin2);
+  setT('ws4','I = '+P+' × '+Imp+' = '+(P*Imp).toFixed(1)+' A ≤ '+Ix+' A ?  (Isc '+(P*Isc).toFixed(1)+' A)');
+ }
+ ['mW','mVoc','mVmp','mImp','mIsc','kVoc','kVmp','tMin','tMax','iVmax','iStart','iMin','iMax','iImax','iPar','wN'].forEach(function(id){$(id).addEventListener('input',win)});
+ win();
+
+ applyLang(ld('inv-lang')||'en');
+ var hh=(location.hash||'').replace('#','');
+ show(ids.indexOf(hh)>=0?hh:(ld('inv-tab')||ids[0]));
+})();
+</script>
+
+</body>
+</html>

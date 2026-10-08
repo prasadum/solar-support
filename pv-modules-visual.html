@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar PV Module Technologies</title>
+<style>
+:root{
+  --paper:#F6F8FB; --card:#FFFFFF; --ink:#13202E; --muted:#4B5A6B;
+  --navy:#1B3A66; --poly:#2F6DB5; --sky:#E4EDF7; --line:#C8D3DF;
+  --sun:#B86E00; --sunfill:#F2B233; --leaf:#2D7A4B; --red:#B23A3A;
+  --fs:20px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+    --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+    --sun:#F2B233; --leaf:#6CC08F; --red:#E58080;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+  --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+  --sun:#F2B233; --leaf:#6CC08F; --red:#E58080;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);font-size:var(--fs)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Segoe UI","Nirmala UI","Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif;line-height:1.5}
+h1,h2,h3,.tabbtn,.num,th{font-family:Bahnschrift,"DIN Alternate","Segoe UI Semibold","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif}
+html[lang="hi"] body,html[lang="ml"] body{line-height:1.65}
+h1{font-size:1.55rem;margin:0;font-weight:600}
+h2{font-size:1.55rem;margin:0 0 .3rem;font-weight:600;color:var(--navy)}
+h3{font-size:1.1rem;margin:1.6rem 0 .5rem;font-weight:600}
+p{margin:.3rem 0 .8rem;max-width:72ch}
+header.top{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;align-items:center;justify-content:space-between;
+  padding:.8rem clamp(1rem,3vw,2.2rem) .6rem;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .sub{color:var(--muted);font-size:.8rem}
+.stamp{font-size:.72rem;color:var(--muted);text-align:right;margin-top:.25rem}
+.tools{display:flex;gap:.4rem;align-items:center;justify-content:flex-end}
+.tools button,.tools select{font:inherit;font-size:.8rem;padding:.25rem .6rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:4px;cursor:pointer}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);overflow-x:auto;white-space:nowrap;padding:0 clamp(.5rem,2vw,1.6rem)}
+.tabbtn{display:inline-block;font-size:.85rem;color:#DCE7F5;background:none;border:0;padding:.7rem .85rem .6rem;cursor:pointer;border-bottom:4px solid transparent}
+.tabbtn[aria-selected="true"]{color:#fff;border-bottom-color:var(--sunfill);font-weight:600}
+:focus-visible{outline:3px solid var(--sunfill);outline-offset:2px}
+main{max-width:1260px;margin:0 auto;padding:1.2rem clamp(1rem,3vw,2.2rem) 3rem}
+section.panel{display:none} section.panel.active{display:block}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1rem}
+figure{margin:0 0 1rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:.78rem;color:var(--muted);margin-top:.35rem}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;align-items:start}
+@media (max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;margin:.6rem 0 1rem}
+@media (max-width:800px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fact{border-left:5px solid var(--navy);background:var(--card);padding:.5rem .8rem}
+.fact .num{font-size:1.45rem;font-weight:600;color:var(--navy);display:block;line-height:1.2}
+.fact span:last-child{font-size:.78rem;color:var(--muted)}
+.steps{list-style:none;padding:0;margin:.4rem 0 1rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;counter-reset:s}
+@media (max-width:800px){.steps{grid-template-columns:1fr 1fr}}
+.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem .7rem .5rem 2.6rem;position:relative;font-size:.85rem}
+.steps li::before{content:counter(s);position:absolute;left:.6rem;top:.45rem;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--sunfill);color:#13202E;font-weight:700;text-align:center;line-height:1.5rem;font-size:.85rem}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:700px){.pc{grid-template-columns:1fr}}
+.pc>div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem 1rem;font-size:.88rem}
+.pc h3{margin:.2rem 0 .3rem;font-size:.95rem}
+.pc .pro h3{color:var(--leaf)} .pc .con h3{color:var(--red)}
+ul{margin:.2rem 0 .4rem;padding-left:1.1rem} li{margin:.2rem 0}
+.note{background:var(--sky);border-left:5px solid var(--sun);padding:.6rem 1rem;margin:1rem 0;font-size:.9rem}
+.note b{color:var(--sun)}
+.tablewrap{overflow-x:auto;margin:.8rem 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.8rem}
+th,td{padding:.45rem .6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--sky);font-weight:600}
+td.n{white-space:nowrap}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:5px;overflow:hidden;margin:.2rem 0 .7rem}
+.seg button{font:inherit;font-size:.82rem;border:0;background:var(--card);color:var(--ink);padding:.4rem .8rem;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg.lang{margin:0}.seg.lang button{font-size:.8rem;padding:.25rem .6rem}
+.calc .seg{display:flex;margin:.1rem 0 .3rem}.calc .seg button{flex:1 1 auto;font-size:.78rem;padding:.35rem .4rem}
+.archbox{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1rem;align-items:start}
+@media (max-width:900px){.archbox{grid-template-columns:1fr}}
+.archinfo{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.7rem 1rem;font-size:.92rem}
+.archinfo h3{margin:.1rem 0 .4rem;color:var(--navy)}
+.tag{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:3px;background:var(--sunfill);color:#13202E;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
+.card svg{display:block;width:100%;height:auto;background:#EAF2FA}
+.card .cb{padding:.5rem .75rem .65rem;font-size:.82rem}
+.card .cb b{display:block;font-size:.95rem;margin-bottom:.15rem}
+.card .fit{margin-top:.35rem;color:var(--navy);font-weight:600;font-size:.78rem}
+.tests{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+@media (max-width:800px){.tests{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.test{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.4rem .6rem .6rem;text-align:center;font-size:.8rem}
+.test svg{width:100%;max-width:150px;height:auto}
+.test small{display:block;color:var(--muted);font-size:.72rem}
+.dot{display:inline-block;width:.85rem;height:.85rem;border-radius:50%}
+.d3{background:var(--leaf)} .d2{background:var(--sunfill)} .d1{background:var(--line)}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.9rem 1.1rem;margin:.6rem 0 1.6rem}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+.calc label{display:block;font-size:.8rem;color:var(--muted);margin:.45rem 0 .1rem}
+.calc input,.calc select{font:inherit;font-size:.92rem;width:100%;padding:.3rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.out{background:var(--sky);border-radius:6px;padding:.7rem 1rem}
+.out .big{font-family:Bahnschrift,"Segoe UI",sans-serif;font-size:1.6rem;font-weight:600;color:var(--navy)}
+.out .row{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px dashed var(--line);padding:.2rem 0;font-size:.85rem}
+.worked{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.5rem .9rem;margin:.5rem 0;font-size:.88rem}
+.worked .step{font-family:Consolas,"Cascadia Mono",monospace;font-size:.82rem;background:var(--paper);padding:.45rem .7rem;border-radius:4px;white-space:pre-wrap;overflow-x:auto;margin-top:.35rem}
+.formula{font-family:Consolas,"Cascadia Mono",monospace;font-size:.88rem;background:var(--sky);display:inline-block;padding:.3rem .7rem;border-radius:4px}
+footer{max-width:1260px;margin:0 auto;padding:1rem clamp(1rem,3vw,2.2rem) 2rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--line)}
+svg text{font-family:"Segoe UI","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif}
+.svgtxt{fill:var(--ink)} .svgmuted{fill:var(--muted)}
+@media print{nav.tabs,.tools{display:none} section.panel{display:block;page-break-after:always}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B86E00"/></marker>
+ <marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1B3A66"/></marker>
+ <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6DB5"/></marker>
+</defs></svg>
+<header class="top">
+  <div>
+    <h1 data-t="title"></h1>
+    <div class="sub" data-t="sub"></div>
+  </div>
+  <div>
+    <div class="tools">
+      <div class="seg lang" role="group" aria-label="Language" id="langSeg"><button data-l="en">English</button><button data-l="hi">हिन्दी</button><button data-l="ml">മലയാളം</button></div>
+      <button id="fsDown" title="A−">A−</button><button id="fsUp" title="A+">A+</button>
+      <button id="prevTab" aria-label="Previous">◀</button><button id="nextTab" aria-label="Next">▶</button>
+    </div>
+    <div class="stamp" data-t="stamp"></div>
+  </div>
+</header>
+<nav class="tabs" role="tablist" id="tablist"></nav>
+<main>
+
+<section class="panel" id="overview" data-tab="tab1">
+ <h2 data-t="ov_h"></h2><p class="lead" data-t="ov_l"></p>
+ <div class="g2">
+  <figure><svg id="f_pn" viewBox="0 0 560 380" role="img"></svg></figure>
+  <div>
+   <ol class="steps" style="grid-template-columns:1fr"><li data-t="s1"></li><li data-t="s2"></li><li data-t="s3"></li><li data-t="s4"></li></ol>
+   <div class="facts" style="grid-template-columns:1fr 1fr">
+    <div class="fact"><span class="num">~97%</span><span data-t="f1"></span></div>
+    <div class="fact"><span class="num">~70%</span><span data-t="f2"></span></div>
+    <div class="fact"><span class="num">22–24%</span><span data-t="f3"></span></div>
+    <div class="fact"><span class="num">≈0.7 V</span><span data-t="f4"></span></div>
+   </div>
+  </div>
+ </div>
+ <figure><svg id="f_chain" viewBox="0 0 1000 250" role="img"></svg><figcaption data-t="chain_c"></figcaption></figure>
+ <figure><svg id="f_gen" viewBox="0 0 960 270" role="img"></svg></figure>
+ <div class="note"><b data-t="rem"></b> <span data-t="ov_note"></span></div>
+</section>
+
+<section class="panel" id="mono" data-tab="tab2">
+ <h2 data-t="mono_h"></h2><p class="lead" data-t="mono_l"></p>
+ <figure><svg id="f_cz" viewBox="0 0 1000 280" role="img"></svg><figcaption data-t="cz_c"></figcaption></figure>
+ <div class="g2">
+  <figure><svg id="f_tex" viewBox="0 0 520 270" role="img"></svg></figure>
+  <figure><svg id="f_wafer" viewBox="0 0 520 270" role="img"></svg></figure>
+ </div>
+ <div class="facts">
+  <div class="fact"><span class="num">20.5–24.8%</span><span data-t="mf1"></span></div>
+  <div class="fact"><span class="num">−0.25 … −0.35</span><span data-t="mf2"></span></div>
+  <div class="fact"><span class="num">25–30</span><span data-t="mf3"></span></div>
+  <div class="fact"><span class="num">130–150 µm</span><span data-t="mf4"></span></div>
+ </div>
+ <div class="pc">
+  <div class="pro"><h3 data-t="adv"></h3><ul><li data-t="mp1"></li><li data-t="mp2"></li><li data-t="mp3"></li></ul></div>
+  <div class="con"><h3 data-t="lim"></h3><ul><li data-t="mc1"></li><li data-t="mc2"></li></ul></div>
+ </div>
+ <div class="note"><b data-t="field"></b> <span data-t="mono_note"></span></div>
+</section>
+
+<section class="panel" id="poly" data-tab="tab3">
+ <h2 data-t="poly_h"></h2><p class="lead" data-t="poly_l"></p>
+ <div class="g2">
+  <figure><svg id="f_cast" viewBox="0 0 520 300" role="img"></svg></figure>
+  <figure><svg id="f_share" viewBox="0 0 520 300" role="img"></svg></figure>
+ </div>
+ <figure><svg id="f_mp" viewBox="0 0 960 280" role="img"></svg></figure>
+ <div class="facts">
+  <div class="fact"><span class="num">15–18%</span><span data-t="mf1"></span></div>
+  <div class="fact"><span class="num">−0.40</span><span data-t="mf2"></span></div>
+  <div class="fact"><span class="num">&lt;1%</span><span data-t="pf3"></span></div>
+  <div class="fact"><span class="num">0.7%</span><span data-t="pf4"></span></div>
+ </div>
+ <figure><svg id="f_mm" viewBox="0 0 960 230" role="img"></svg></figure>
+ <div class="pc">
+  <div class="pro"><h3 data-t="still"></h3><ul><li data-t="pp1"></li><li data-t="pp2"></li></ul></div>
+  <div class="con"><h3 data-t="notrec"></h3><ul><li data-t="pc1"></li><li data-t="pc2"></li><li data-t="pc3"></li></ul></div>
+ </div>
+</section>
+
+<section class="panel" id="thin" data-tab="tab4">
+ <h2 data-t="thin_h"></h2><p class="lead" data-t="thin_l"></p>
+ <figure><svg id="f_thick" viewBox="0 0 960 200" role="img"></svg></figure>
+ <div class="g2">
+  <figure><svg id="f_cdte" viewBox="0 0 560 400" role="img"></svg></figure>
+  <figure><svg id="f_thin3" viewBox="0 0 560 400" role="img"></svg></figure>
+ </div>
+ <div class="note"><b data-t="rem"></b> <span data-t="thin_note"></span></div>
+</section>
+
+<section class="panel" id="cells" data-tab="tab5">
+ <h2 data-t="cells_h"></h2><p class="lead" data-t="cells_l"></p>
+ <figure><svg id="f_stairs" viewBox="0 0 960 320" role="img"></svg></figure>
+ <div class="seg" role="group" id="archSeg"></div>
+ <div class="archbox">
+  <figure><svg id="f_arch" viewBox="0 0 620 420" role="img"></svg></figure>
+  <div class="archinfo" id="archInfo"></div>
+ </div>
+ <figure><svg id="f_pass" viewBox="0 0 960 250" role="img"></svg></figure>
+</section>
+
+<section class="panel" id="formats" data-tab="tab6">
+ <h2 data-t="fmt_h"></h2><p class="lead" data-t="fmt_l"></p>
+ <figure><svg id="f_exp" viewBox="0 0 960 380" role="img"></svg></figure>
+ <h3 data-t="hc_h"></h3>
+ <div class="g2">
+  <figure><svg id="f_hc" viewBox="0 0 560 380" role="img"></svg></figure>
+  <figure><svg id="f_shade" viewBox="0 0 560 380" role="img"></svg></figure>
+ </div>
+ <h3 data-t="bif_h"></h3>
+ <div class="g2">
+  <figure><svg id="f_bif" viewBox="0 0 520 330" role="img"></svg></figure>
+  <figure><svg id="f_alb" viewBox="0 0 520 330" role="img"></svg></figure>
+ </div>
+ <h3 data-t="more_h"></h3>
+ <figure><svg id="f_bb" viewBox="0 0 960 265" role="img"></svg></figure>
+ <div class="g2">
+  <figure><svg id="f_gg" viewBox="0 0 520 300" role="img"></svg></figure>
+  <figure><svg id="f_wafer2" viewBox="0 0 520 300" role="img"></svg></figure>
+ </div>
+</section>
+
+<section class="panel" id="compare" data-tab="tab7">
+ <h2 data-t="cmp_h"></h2><p class="lead" data-t="cmp_l"></p>
+ <div class="seg" role="group" id="metricSeg"></div>
+ <figure><svg id="f_cmp" viewBox="0 0 900 465" role="img"></svg></figure>
+ <figure><svg id="f_area" viewBox="0 0 960 290" role="img"></svg></figure>
+ <div class="tablewrap"><table id="cmpTable" style="min-width:900px"></table></div>
+ <p style="font-size:.75rem;color:var(--muted)" data-t="price_n"></p>
+</section>
+
+<section class="panel" id="standards" data-tab="tab8">
+ <h2 data-t="std_h"></h2><p class="lead" data-t="std_l"></p>
+ <figure><svg id="f_cert" viewBox="0 0 1000 210" role="img"></svg></figure>
+ <h3 data-t="tests_h"></h3>
+ <div class="tests" id="tests"></div>
+ <div class="g2" style="margin-top:1rem">
+  <figure><svg id="f_stc" viewBox="0 0 520 330" role="img"></svg></figure>
+  <figure><svg id="f_plate" viewBox="0 0 480 400" role="img"></svg></figure>
+ </div>
+ <div class="tablewrap"><table id="stdTable"></table></div>
+</section>
+
+<section class="panel" id="apps" data-tab="tab9">
+ <h2 data-t="app_h"></h2><p class="lead" data-t="app_l"></p>
+ <div class="cards" id="appCards"></div>
+ <h3 data-t="fit_h"></h3>
+ <div class="tablewrap"><table id="fitTable"></table></div>
+ <p style="font-size:.78rem;color:var(--muted)"><span class="dot d3"></span> <span data-t="pref"></span> &nbsp; <span class="dot d2"></span> <span data-t="suit"></span> &nbsp; <span class="dot d1"></span> <span data-t="nott"></span></p>
+</section>
+
+<section class="panel" id="calc" data-tab="tab10">
+ <h2 data-t="calc_h"></h2><p class="lead" data-t="calc_l"></p>
+
+ <h3 data-t="c1h"></h3>
+ <span class="formula">η = Pmax ÷ (1000 × A) × 100</span>
+ <div class="worked"><b data-t="w1"></b><div class="step">A = 2.278 × 1.134 = 2.583 m²
+η = 580 ÷ (1000 × 2.583) × 100 = 22.45 %</div></div>
+ <div class="calc"><div>
+  <label for="e_p" data-t="l_p"></label><input id="e_p" type="number" value="580">
+  <label for="e_l" data-t="l_len"></label><input id="e_l" type="number" value="2278">
+  <label for="e_w" data-t="l_wid"></label><input id="e_w" type="number" value="1134">
+ </div><div class="out" id="e_out"></div></div>
+
+ <h3 data-t="c2h"></h3>
+ <span class="formula">Tcell = Tamb + (NOCT − 20) ÷ 800 × G ;  P = Pstc × G/1000 × [1 + γ(Tcell − 25)]</span>
+ <div class="worked"><b data-t="w2"></b><div class="step">Tcell = 34 + 25 ÷ 800 × 1000 = 65.25 °C
+TOPCon: P = 580 × (1 − 0.0029 × 40.25) = 512.3 W
+PERC  : P = 580 × (1 − 0.0035 × 40.25) = 498.3 W</div></div>
+ <div class="calc"><div>
+  <label for="t_p" data-t="l_p"></label><input id="t_p" type="number" value="580">
+  <label data-t="l_tg"></label>
+  <input type="hidden" id="t_g" value="-0.29"><div class="seg" role="group" id="t_gSeg"></div>
+  <label for="t_n">NOCT / NMOT (°C)</label><input id="t_n" type="number" value="45">
+  <label for="t_a" data-t="l_amb"></label><input id="t_a" type="number" value="34">
+  <label for="t_i" data-t="l_g"></label><input id="t_i" type="number" value="1000">
+ </div><div><div class="out" id="t_out"></div><svg id="t_svg" viewBox="0 0 420 210" style="width:100%;margin-top:.5rem"></svg></div></div>
+
+ <h3 data-t="c3h"></h3>
+ <span class="formula">kWp = units ÷ (30 × yield) ;  kWh/yr = kWp × yield × 365</span>
+ <div class="worked"><b data-t="w3"></b><div class="step">360 ÷ (30 × 4.0) = 3.0 kWp → 3000 ÷ 580 = 5.2 → 6 × 580 W = 3.48 kWp
+3.48 × 4.0 × 365 = 5,081 kWh/yr ;  area = 6 × 2.583 = 15.5 m²</div></div>
+ <div class="calc"><div>
+  <label for="s_u" data-t="l_units"></label><input id="s_u" type="number" value="360">
+  <label for="s_y" data-t="l_yield"></label><input id="s_y" type="number" value="4.0" step="0.1">
+  <label for="s_m" data-t="l_mod"></label><input id="s_m" type="number" value="580">
+  <label for="s_a" data-t="l_area"></label><input id="s_a" type="number" value="2.583" step="0.001">
+  <label for="s_r" data-t="l_price"></label><input id="s_r" type="number" value="25" step="0.5">
+ </div><div class="out" id="s_out"></div></div>
+
+ <h3 data-t="c4h"></h3>
+ <span class="formula">P = I²R ;  gain = bifaciality × rear ratio</span>
+ <div class="worked"><b data-t="w4"></b><div class="step">13.6² × 0.010 = 1.85 W  →  6.8² × 0.010 = 0.46 W  (÷ 4)
+0.80 × 12 % = 9.6 %  →  580 × 1.096 = 635.7 W</div></div>
+ <div class="calc"><div>
+  <label for="h_i" data-t="l_I"></label><input id="h_i" type="number" value="13.6" step="0.1">
+  <label for="h_r" data-t="l_R"></label><input id="h_r" type="number" value="0.010" step="0.001">
+  <label for="b_p" data-t="l_fp"></label><input id="b_p" type="number" value="580">
+  <label for="b_f" data-t="l_bf"></label><input id="b_f" type="number" value="80">
+  <label data-t="l_surf"></label><input type="hidden" id="b_s" value="12"><div class="seg" role="group" id="b_sSeg" style="flex-wrap:wrap"></div>
+ </div><div class="out" id="hb_out"></div></div>
+</section>
+</main>
+<footer data-t="foot"></footer>
+<script>
+const T={
+title:["Solar PV Module Technologies","सोलर PV मॉड्यूल टेक्नोलॉजी","സോളാർ PV മൊഡ്യൂൾ ടെക്നോളജി"],
+sub:["Types, comparison, standards and real-world use (2026)","प्रकार, तुलना, स्टैंडर्ड और असली उपयोग (2026)","തരങ്ങൾ, താരതമ്യം, സ്റ്റാൻഡേർഡുകൾ, യഥാർത്ഥ ഉപയോഗം (2026)"],
+stamp:["Prepared by PRASAD UM, VI, Vocational Instructor, NSTI Calicut","तैयारकर्ता: PRASAD UM, VI, वोकेशनल इंस्ट्रक्टर, NSTI कालीकट","തയ്യാറാക്കിയത്: PRASAD UM, VI, വൊക്കേഷണൽ ഇൻസ്ട്രക്ടർ, NSTI കോഴിക്കോട്"],
+foot:["Typical values, mid-2026. Confirm prices and ALMM lists before use. Prepared by PRASAD UM, VI, NSTI Calicut.","आम मान, 2026 मध्य। उपयोग से पहले कीमत और ALMM लिस्ट जाँचें। तैयारकर्ता: PRASAD UM, VI, NSTI कालीकट।","സാധാരണ മൂല്യങ്ങൾ, 2026 മധ്യം. ഉപയോഗിക്കുന്നതിന് മുമ്പ് വിലയും ALMM ലിസ്റ്റും പരിശോധിക്കുക. തയ്യാറാക്കിയത്: PRASAD UM, VI, NSTI കോഴിക്കോട്."],
+tab1:["How PV works","PV कैसे काम करता है","PV പ്രവർത്തനം"],
+tab2:["Monocrystalline","मोनोक्रिस्टलाइन","മോണോക്രിസ്റ്റലൈൻ"],
+tab3:["Polycrystalline","पॉलीक्रिस्टलाइन","പോളിക്രിസ്റ്റലൈൻ"],
+tab4:["Thin film","थिन फिल्म","തിൻ ഫിലിം"],
+tab5:["PERC, TOPCon, HJT, BC","PERC, TOPCon, HJT, BC","PERC, TOPCon, HJT, BC"],
+tab6:["Half-cut & bifacial","हाफ-कट और बाइफेशियल","ഹാഫ്-കട്ട് & ബൈഫേഷ്യൽ"],
+tab7:["Comparison","तुलना","താരതമ്യം"],
+tab8:["Standards","स्टैंडर्ड","സ്റ്റാൻഡേർഡുകൾ"],
+tab9:["Applications","उपयोग","ഉപയോഗങ്ങൾ"],
+tab10:["Calculators","कैलकुलेटर","കാൽക്കുലേറ്ററുകൾ"],
+rem:["Remember:","याद रखें:","ഓർക്കുക:"],
+field:["In the field:","फील्ड में:","ഫീൽഡിൽ:"],
+adv:["Advantages","फायदे","ഗുണങ്ങൾ"],
+lim:["Limitations","कमियाँ","പോരായ്മകൾ"],
+still:["Still used for","अब भी उपयोग","ഇപ്പോഴും ഉപയോഗം"],
+notrec:["Not recommended because","सुझाव नहीं, क्योंकि","ശുപാർശ ചെയ്യാത്തത് കാരണം"],
+/* overview */
+ov_h:["Light in, current out","रोशनी अंदर, करंट बाहर","വെളിച്ചം അകത്ത്, കറന്റ് പുറത്ത്"],
+ov_l:["Every PV panel works on the photovoltaic effect at a p–n junction.","हर PV पैनल p–n जंक्शन के फोटोवोल्टाइक प्रभाव पर काम करता है।","എല്ലാ PV പാനലും p–n ജംഗ്ഷനിലെ ഫോട്ടോവോൾട്ടായിക് ഇഫക്ടിലാണ് പ്രവർത്തിക്കുന്നത്."],
+s1:["Photon hits the silicon","फोटॉन सिलिकॉन से टकराता है","ഫോട്ടോൺ സിലിക്കണിൽ പതിക്കുന്നു"],
+s2:["An electron–hole pair is freed","इलेक्ट्रॉन–होल जोड़ी बनती है","ഇലക്ട്രോൺ–ഹോൾ ജോഡി ഉണ്ടാകുന്നു"],
+s3:["Junction field separates them","जंक्शन फील्ड उन्हें अलग करता है","ജംഗ്ഷൻ ഫീൽഡ് അവയെ വേർതിരിക്കുന്നു"],
+s4:["DC current flows through the load","लोड में DC करंट बहता है","ലോഡിലൂടെ DC കറന്റ് ഒഴുകുന്നു"],
+f1:["crystalline silicon share","क्रिस्टलाइन सिलिकॉन का हिस्सा","ക്രിസ്റ്റലൈൻ സിലിക്കൺ പങ്ക്"],
+f2:["of 2025–26 output is TOPCon","2025–26 उत्पादन TOPCon है","2025–26 ഉൽപ്പാദനം TOPCon ആണ്"],
+f3:["typical module efficiency","आम मॉड्यूल एफिशिएंसी","സാധാരണ മൊഡ്യൂൾ എഫിഷ്യൻസി"],
+f4:["per cell (open circuit)","प्रति सेल (ओपन सर्किट)","ഒരു സെല്ലിന് (ഓപ്പൺ സർക്യൂട്ട്)"],
+photons:["Photons (sunlight)","फोटॉन (धूप)","ഫോട്ടോണുകൾ (സൂര്യപ്രകാശം)"],
+load:["Load","लोड","ലോഡ്"],
+electrons:["electrons →","इलेक्ट्रॉन →","ഇലക്ട്രോണുകൾ →"],
+holes:["holes →","होल →","ഹോളുകൾ →"],
+cell:["Cell","सेल","സെൽ"],module:["Module","मॉड्यूल","മൊഡ്യൂൾ"],
+string:["String = series","स्ट्रिंग = सीरीज","സ്ട്രിംഗ് = സീരീസ്"],
+array:["Array = parallel","ऐरे = पैरेलल","അറേ = പാരലൽ"],
+chain_c:["Series adds voltage; parallel adds current.","सीरीज से वोल्टेज बढ़ता है; पैरेलल से करंट।","സീരീസിൽ വോൾട്ടേജ് കൂടുന്നു; പാരലലിൽ കറന്റ് കൂടുന്നു."],
+gen1:["1st generation: silicon wafer","पहली पीढ़ी: सिलिकॉन वेफर","ഒന്നാം തലമുറ: സിലിക്കൺ വേഫർ"],
+gen2:["2nd generation: thin film","दूसरी पीढ़ी: थिन फिल्म","രണ്ടാം തലമുറ: തിൻ ഫിലിം"],
+gen3:["3rd generation: emerging","तीसरी पीढ़ी: नई तकनीक","മൂന്നാം തലമുറ: പുതിയ ടെക്നോളജി"],
+gen1s:["Mono, poly · ~97% of market","मोनो, पॉली · बाजार का ~97%","മോണോ, പോളി · വിപണിയുടെ ~97%"],
+gen2s:["CdTe, CIGS, a-Si · ~3%","CdTe, CIGS, a-Si · ~3%","CdTe, CIGS, a-Si · ~3%"],
+gen3s:["Perovskite, tandem, III–V · lab / pilot","पेरोव्स्काइट, टैंडम, III–V · लैब / पायलट","പെറോവ്സ്കൈറ്റ്, ടാൻഡം, III–V · ലാബ് / പൈലറ്റ്"],
+ov_note:["Mono = how the crystal is grown. TOPCon = how the cell is built. Today's TOPCon, HJT and BC panels are all mono.","मोनो = क्रिस्टल कैसे बनता है। TOPCon = सेल कैसे बनता है। आज के TOPCon, HJT, BC पैनल सब मोनो ही हैं।","മോണോ = ക്രിസ്റ്റൽ എങ്ങനെ ഉണ്ടാക്കുന്നു. TOPCon = സെൽ എങ്ങനെ നിർമ്മിക്കുന്നു. ഇന്നത്തെ TOPCon, HJT, BC പാനലുകൾ എല്ലാം മോണോ തന്നെ."],
+/* mono */
+mono_h:["Monocrystalline: one single crystal","मोनोक्रिस्टलाइन: एक ही क्रिस्टल","മോണോക്രിസ്റ്റലൈൻ: ഒറ്റ ക്രിസ്റ്റൽ"],
+mono_l:["Cut from one continuous crystal, so no grain boundaries and less electron loss.","एक ही क्रिस्टल से कटा, इसलिए ग्रेन बाउंड्री नहीं और इलेक्ट्रॉन कम खोते हैं।","ഒറ്റ ക്രിസ്റ്റലിൽ നിന്ന് മുറിച്ചത്, അതിനാൽ ഗ്രെയിൻ ബൗണ്ടറി ഇല്ല, ഇലക്ട്രോൺ നഷ്ടം കുറവ്."],
+m1:["Pure polysilicon chunks","शुद्ध पॉलीसिलिकॉन टुकड़े","ശുദ്ധമായ പോളിസിലിക്കൺ കഷണങ്ങൾ"],
+m2:["Melt at 1,420 °C","1,420 °C पर पिघलाना","1,420 °C-ൽ ഉരുക്കുന്നു"],
+m3:["Pull ingot with a seed (CZ)","सीड से इंगट खींचना (CZ)","സീഡ് കൊണ്ട് ഇൻഗോട്ട് വലിക്കുന്നു (CZ)"],
+m4:["Square it, slice wafers","चौकोर करके वेफर काटना","ചതുരമാക്കി വേഫറുകൾ മുറിക്കുന്നു"],
+m5:["Texture, dope, print → cell","टेक्सचर, डोपिंग, प्रिंट → सेल","ടെക്സ്ചർ, ഡോപ്പിംഗ്, പ്രിന്റ് → സെൽ"],
+cz_c:["Czochralski (CZ) process: from pure silicon to a finished cell","चोखराल्स्की (CZ) प्रोसेस: सिलिकॉन से तैयार सेल तक","ചോക്രാൽസ്കി (CZ) പ്രോസസ്: സിലിക്കണിൽ നിന്ന് പൂർത്തിയായ സെൽ വരെ"],
+tex:["Surface pyramids trap light","सतह के पिरामिड रोशनी फँसाते हैं","ഉപരിതല പിരമിഡുകൾ വെളിച്ചം പിടിച്ചുനിർത്തുന്നു"],
+tex2:["reflected ray gets a second chance","परावर्तित किरण को दूसरा मौका","പ്രതിഫലിച്ച രശ്മിക്ക് രണ്ടാം അവസരം"],
+waf_h:["Wafer sizes (to scale)","वेफर साइज (स्केल पर)","വേഫർ വലിപ്പങ്ങൾ (സ്കെയിലിൽ)"],
+common:["most common in 2026","2026 में सबसे आम","2026-ൽ ഏറ്റവും സാധാരണം"],
+mf1:["module efficiency","मॉड्यूल एफिशिएंसी","മൊഡ്യൂൾ എഫിഷ്യൻസി"],
+mf2:["%/°C power loss in heat","%/°C गर्मी में पावर नुकसान","%/°C ചൂടിൽ പവർ നഷ്ടം"],
+mf3:["years power warranty","साल पावर वारंटी","വർഷം പവർ വാറന്റി"],
+mf4:["wafer thickness","वेफर मोटाई","വേഫർ കനം"],
+mp1:["Highest efficiency, less roof area","सबसे ज्यादा एफिशिएंसी, कम छत","ഏറ്റവും കൂടിയ എഫിഷ്യൻസി, കുറഞ്ഞ മേൽക്കൂര"],
+mp2:["Better in heat and low light than poly","गर्मी और कम रोशनी में पॉली से बेहतर","ചൂടിലും കുറഞ്ഞ വെളിച്ചത്തിലും പോളിയേക്കാൾ നല്ലത്"],
+mp3:["Base wafer for TOPCon, HJT, BC","TOPCon, HJT, BC का आधार वेफर","TOPCon, HJT, BC-യുടെ അടിസ്ഥാന വേഫർ"],
+mc1:["Crystal growth uses more energy","क्रिस्टल बनाने में ज्यादा ऊर्जा","ക്രിസ്റ്റൽ നിർമ്മാണത്തിന് കൂടുതൽ ഊർജ്ജം"],
+mc2:["Heavy glass module, 25–33 kg","भारी ग्लास मॉड्यूल, 25–33 kg","ഭാരമുള്ള ഗ്ലാസ് മൊഡ്യൂൾ, 25–33 kg"],
+mono_note:["Kerala rooftop (PM Surya Ghar): DCR mono TOPCon, 540–620 Wp. Check ALMM List-I and List-II (DCR cell) certificate.","केरल रूफटॉप (PM सूर्य घर): DCR मोनो TOPCon, 540–620 Wp। ALMM List-I और List-II (DCR सेल) सर्टिफिकेट जाँचें।","കേരള റൂഫ്‌ടോപ്പ് (PM സൂര്യ ഘർ): DCR മോണോ TOPCon, 540–620 Wp. ALMM List-I, List-II (DCR സെൽ) സർട്ടിഫിക്കറ്റ് പരിശോധിക്കുക."],
+/* poly */
+poly_h:["Polycrystalline: many small crystals","पॉलीक्रिस्टलाइन: कई छोटे क्रिस्टल","പോളിക്രിസ്റ്റലൈൻ: അനേകം ചെറിയ ക്രിസ്റ്റലുകൾ"],
+poly_l:["Cast as one block with many crystals. Cheaper once; now almost fully replaced by mono.","कई क्रिस्टल वाले ब्लॉक में ढाला जाता है। पहले सस्ता था; अब लगभग मोनो ने जगह ले ली।","അനേകം ക്രിസ്റ്റലുകളുള്ള ബ്ലോക്കായി വാർക്കുന്നു. മുമ്പ് വില കുറവ്; ഇപ്പോൾ ഏതാണ്ട് മുഴുവനും മോണോ ആയി."],
+molten:["Molten silicon","पिघला सिलिकॉन","ഉരുകിയ സിലിക്കൺ"],
+grow:["Grains grow upward","ग्रेन ऊपर की ओर बढ़ते हैं","ഗ്രെയിനുകൾ മുകളിലേക്ക് വളരുന്നു"],
+heat:["Heat removed from bottom","नीचे से गर्मी निकाली जाती है","താഴെ നിന്ന് ചൂട് നീക്കുന്നു"],
+cast_c:["Square block ~800 kg → bricks → wafers","चौकोर ब्लॉक ~800 kg → ब्रिक → वेफर","ചതുര ബ്ലോക്ക് ~800 kg → ബ്രിക്ക് → വേഫർ"],
+share_h:["Share of world production (approx.)","विश्व उत्पादन में हिस्सा (लगभग)","ലോക ഉൽപ്പാദനത്തിലെ പങ്ക് (ഏകദേശം)"],
+mono:["Mono","मोनो","മോണോ"],poly:["Poly","पॉली","പോളി"],
+monoLook:["Mono: uniform dark","मोनो: एक जैसा गहरा","മോണോ: ഒരേപോലെ ഇരുണ്ടത്"],
+polyLook:["Poly: speckled blue","पॉली: चितकबरा नीला","പോളി: പുള്ളിയുള്ള നീല"],
+gb:["Electrons lost at grain boundaries → lower efficiency","ग्रेन बाउंड्री पर इलेक्ट्रॉन खोते हैं → कम एफिशिएंसी","ഗ്രെയിൻ ബൗണ്ടറിയിൽ ഇലക്ട്രോൺ നഷ്ടം → എഫിഷ്യൻസി കുറവ്"],
+gbz:["zoom: grain boundary","ज़ूम: ग्रेन बाउंड्री","സൂം: ഗ്രെയിൻ ബൗണ്ടറി"],
+pf3:["of production today","आज के उत्पादन में","ഇന്നത്തെ ഉൽപ്പാദനത്തിൽ"],
+pf4:["loss per year","हर साल नुकसान","ഓരോ വർഷവും നഷ്ടം"],
+oldp:["Old poly 8.5 A","पुराना पॉली 8.5 A","പഴയ പോളി 8.5 A"],
+newt:["New TOPCon 13.4 A","नया TOPCon 13.4 A","പുതിയ TOPCon 13.4 A"],
+mm1:["String current is limited to ≈8.5 A → extra capacity of the new module is wasted","स्ट्रिंग करंट ≈8.5 A तक सीमित → नए मॉड्यूल की extra क्षमता बेकार","സ്ട്രിംഗ് കറന്റ് ≈8.5 A ആയി പരിമിതം → പുതിയ മൊഡ്യൂളിന്റെ അധിക ശേഷി പാഴ്"],
+mm_h:["Don't mix: replacement mismatch","मिक्स न करें: बदलाव में मिसमैच","കലർത്തരുത്: മാറ്റുമ്പോഴുള്ള മിസ്‌മാച്ച്"],
+pp1:["Replacing a failed module in an old poly string","पुरानी पॉली स्ट्रिंग में खराब मॉड्यूल बदलना","പഴയ പോളി സ്ട്രിംഗിലെ കേടായ മൊഡ്യൂൾ മാറ്റാൻ"],
+pp2:["Training labs: grains are clearly visible","ट्रेनिंग लैब: ग्रेन साफ दिखते हैं","ട്രെയിനിംഗ് ലാബ്: ഗ്രെയിനുകൾ വ്യക്തമായി കാണാം"],
+pc1:["Needs 20–30% more roof than TOPCon","TOPCon से 20–30% ज्यादा छत चाहिए","TOPCon-നേക്കാൾ 20–30% കൂടുതൽ മേൽക്കൂര വേണം"],
+pc2:["Loses more power in heat","गर्मी में ज्यादा पावर घटती है","ചൂടിൽ കൂടുതൽ പവർ കുറയുന്നു"],
+pc3:["Not competitive for new subsidy projects","नए सब्सिडी प्रोजेक्ट में टिकता नहीं","പുതിയ സബ്സിഡി പ്രോജക്ടുകളിൽ മത്സരിക്കാനാവില്ല"],
+/* thin */
+thin_h:["Thin film: a coating, not a wafer","थिन फिल्म: वेफर नहीं, कोटिंग","തിൻ ഫിലിം: വേഫർ അല്ല, കോട്ടിംഗ്"],
+thin_l:["A light-absorbing layer 1–4 µm thick on glass or foil.","ग्लास या फॉइल पर 1–4 µm मोटी रोशनी सोखने वाली परत।","ഗ്ലാസിലോ ഫോയിലിലോ 1–4 µm കനമുള്ള വെളിച്ചം ആഗിരണം ചെയ്യുന്ന ലെയർ."],
+thk1:["Silicon wafer 130–150 µm","सिलिकॉन वेफर 130–150 µm","സിലിക്കൺ വേഫർ 130–150 µm"],
+thk2:["Human hair ≈70 µm","इंसानी बाल ≈70 µm","മനുഷ്യ മുടി ≈70 µm"],
+thk3:["Thin film 1–4 µm","थिन फिल्म 1–4 µm","തിൻ ഫിലിം 1–4 µm"],
+thk_h:["Thickness, drawn to scale","मोटाई, स्केल पर","കനം, സ്കെയിലിൽ"],
+sunin:["sunlight enters through glass ↓","धूप ग्लास से अंदर आती है ↓","സൂര്യപ്രകാശം ഗ്ലാസിലൂടെ ഉള്ളിൽ ↓"],
+cdte_h:["CdTe module layers","CdTe मॉड्यूल की परतें","CdTe മൊഡ്യൂൾ ലെയറുകൾ"],
+scribe:["Laser scribes cut the sheet into strips joined in series","लेज़र स्क्राइब शीट को सीरीज़ में जुड़ी पट्टियों में बाँटते हैं","ലേസർ സ്ക്രൈബുകൾ ഷീറ്റിനെ സീരീസിൽ ചേർന്ന സ്ട്രിപ്പുകളാക്കുന്നു"],
+cdteU:["Big plants, hot sites","बड़े प्लांट, गर्म जगह","വലിയ പ്ലാന്റുകൾ, ചൂടുള്ള സ്ഥലം"],
+cigsU:["Flexible, BIPV","फ्लेक्सिबल, BIPV","ഫ്ലെക്സിബിൾ, BIPV"],
+asiU:["Calculators, indoor","कैलकुलेटर, इनडोर","കാൽക്കുലേറ്റർ, ഇൻഡോർ"],
+thin3_h:["Three thin-film types","तीन थिन-फिल्म प्रकार","മൂന്ന് തിൻ-ഫിലിം തരങ്ങൾ"],
+thin_note:["Thin film needs more land per kW, but loses less power in heat.","थिन फिल्म को प्रति kW ज्यादा जमीन चाहिए, पर गर्मी में कम पावर घटती है।","തിൻ ഫിലിമിന് ഒരു kW-ന് കൂടുതൽ സ്ഥലം വേണം, പക്ഷേ ചൂടിൽ പവർ കുറച്ചേ കുറയൂ."],
+/* cells */
+cells_h:["PERC, TOPCon, HJT and back contact","PERC, TOPCon, HJT और बैक कॉन्टैक्ट","PERC, TOPCon, HJT, ബാക്ക് കോൺടാക്റ്റ്"],
+cells_l:["Same mono wafer, different ways to stop electron loss at surfaces and contacts.","वही मोनो वेफर, सतह और कॉन्टैक्ट पर इलेक्ट्रॉन नुकसान रोकने के अलग तरीके।","ഒരേ മോണോ വേഫർ, ഉപരിതലത്തിലും കോൺടാക്റ്റിലും ഇലക്ട്രോൺ നഷ്ടം തടയാൻ വ്യത്യസ്ത വഴികൾ."],
+stairs_h:["Cell efficiency in production (tandem: lab record)","उत्पादन में सेल एफिशिएंसी (टैंडम: लैब रिकॉर्ड)","ഉൽപ്പാദനത്തിലെ സെൽ എഫിഷ്യൻസി (ടാൻഡം: ലാബ് റെക്കോർഡ്)"],
+xsec:[" cross-section (not to scale)"," क्रॉस-सेक्शन (स्केल पर नहीं)"," ക്രോസ്-സെക്ഷൻ (സ്കെയിലിൽ അല്ല)"],
+status:["Status 2026","स्थिति 2026","2026 സ്ഥിതി"],
+bc:["Back contact","बैक कॉन्टैक्ट","ബാക്ക് കോൺടാക്റ്റ്"],
+p1:["Rear passivation layer (Al₂O₃) with local Al contacts","पीछे पैसिवेशन परत (Al₂O₃) और लोकल Al कॉन्टैक्ट","പിന്നിൽ പാസിവേഷൻ ലെയർ (Al₂O₃), ലോക്കൽ Al കോൺടാക്റ്റുകൾ"],
+p2:["p-type wafer · cell ≈23% · module 20.5–21.5%","p-type वेफर · सेल ≈23% · मॉड्यूल 20.5–21.5%","p-type വേഫർ · സെൽ ≈23% · മൊഡ്യൂൾ 20.5–21.5%"],
+p3:["Being phased out; cheaper DCR option","बंद हो रहा; सस्ता DCR विकल्प","ഒഴിവാക്കപ്പെടുന്നു; വില കുറഞ്ഞ DCR ഓപ്ഷൻ"],
+t1:["Ultra-thin tunnel oxide + n⁺ poly-Si on the rear","पीछे बहुत पतला टनल ऑक्साइड + n⁺ poly-Si","പിന്നിൽ വളരെ നേർത്ത ടണൽ ഓക്സൈഡ് + n⁺ poly-Si"],
+t2:["n-type · cell 25–26.5% · module 22–23.8% · bifacial 80–85%","n-type · सेल 25–26.5% · मॉड्यूल 22–23.8% · बाइफेशियल 80–85%","n-type · സെൽ 25–26.5% · മൊഡ്യൂൾ 22–23.8% · ബൈഫേഷ്യൽ 80–85%"],
+t3:["Mainstream (~70% of output); most new Indian lines","मुख्य तकनीक (~70% उत्पादन); ज़्यादातर नई भारतीय लाइनें","പ്രധാന ടെക്നോളജി (~70% ഉൽപ്പാദനം); മിക്ക പുതിയ ഇന്ത്യൻ ലൈനുകളും"],
+h1:["Amorphous Si layers on both sides + ITO","दोनों तरफ अमॉर्फस Si परत + ITO","രണ്ട് വശത്തും അമോർഫസ് Si ലെയർ + ITO"],
+h2:["Best temp. coeff. (−0.25 %/°C) · bifacial 85–95%","सबसे अच्छा टेम्प. कोएफ. (−0.25 %/°C) · बाइफेशियल 85–95%","ഏറ്റവും നല്ല ടെംപ്. കോഎഫ്. (−0.25 %/°C) · ബൈഫേഷ്യൽ 85–95%"],
+h3:["Premium, ~5–8%; best for hot sites","प्रीमियम, ~5–8%; गर्म जगह के लिए सबसे अच्छा","പ്രീമിയം, ~5–8%; ചൂടുള്ള സ്ഥലത്തിന് ഏറ്റവും നല്ലത്"],
+b1:["All contacts on the rear – no front shading","सारे कॉन्टैक्ट पीछे – सामने कोई छाया नहीं","എല്ലാ കോൺടാക്റ്റുകളും പിന്നിൽ – മുന്നിൽ നിഴൽ ഇല്ല"],
+b2:["Highest: cell 26–27% · module 23–24.8%","सबसे ज्यादा: सेल 26–27% · मॉड्यूल 23–24.8%","ഏറ്റവും കൂടുതൽ: സെൽ 26–27% · മൊഡ്യൂൾ 23–24.8%"],
+b3:["Premium all-black rooftop, ~10%","प्रीमियम ऑल-ब्लैक रूफटॉप, ~10%","പ്രീമിയം ഓൾ-ബ്ലാക്ക് റൂഫ്‌ടോപ്പ്, ~10%"],
+pass0:["Without passivation: electrons trapped at the surface","पैसिवेशन के बिना: सतह पर इलेक्ट्रॉन फँसते हैं","പാസിവേഷൻ ഇല്ലെങ്കിൽ: ഉപരിതലത്തിൽ ഇലക്ട്രോണുകൾ കുടുങ്ങുന്നു"],
+pass1:["With passivation: electrons reach the contact","पैसिवेशन के साथ: इलेक्ट्रॉन कॉन्टैक्ट तक पहुँचते हैं","പാസിവേഷനോടെ: ഇലക്ട്രോണുകൾ കോൺടാക്റ്റിൽ എത്തുന്നു"],
+dangling:["dangling bonds","खुले बॉन्ड","ഡാംഗ്ലിംഗ് ബോണ്ടുകൾ"],
+passlayer:["passivation layer","पैसिवेशन परत","പാസിവേഷൻ ലെയർ"],
+/* formats */
+fmt_h:["Module design features","मॉड्यूल डिज़ाइन फीचर","മൊഡ്യൂൾ ഡിസൈൻ ഫീച്ചറുകൾ"],
+fmt_l:["Cell technology makes the power; module design delivers it to the cable.","सेल टेक्नोलॉजी पावर बनाती है; मॉड्यूल डिज़ाइन उसे केबल तक पहुँचाता है।","സെൽ ടെക്നോളജി പവർ ഉണ്ടാക്കുന്നു; മൊഡ്യൂൾ ഡിസൈൻ അത് കേബിളിൽ എത്തിക്കുന്നു."],
+ex_h:["Inside a module (exploded view)","मॉड्यूल के अंदर (खुला दृश्य)","മൊഡ്യൂളിനുള്ളിൽ (വേർപിരിച്ച ദൃശ്യം)"],
+x1:["Aluminium frame","एल्युमिनियम फ्रेम","അലുമിനിയം ഫ്രെയിം"],
+x2:["Front glass 2–3.2 mm","सामने का ग्लास 2–3.2 mm","മുൻ ഗ്ലാസ് 2–3.2 mm"],
+x3:["Encapsulant (EVA / POE)","एनकैप्सुलेंट (EVA / POE)","എൻകാപ്സുലന്റ് (EVA / POE)"],
+x4:["Solar cells + ribbons","सोलर सेल + रिबन","സോളാർ സെല്ലുകൾ + റിബൺ"],
+x5:["Encapsulant","एनकैप्सुलेंट","എൻകാപ്സുലന്റ്"],
+x6:["Backsheet or rear glass","बैकशीट या पीछे का ग्लास","ബാക്ക്‌ഷീറ്റ് അല്ലെങ്കിൽ പിൻ ഗ്ലാസ്"],
+x7:["Junction box + bypass diodes","जंक्शन बॉक्स + बाइपास डायोड","ജംഗ്ഷൻ ബോക്സ് + ബൈപാസ് ഡയോഡുകൾ"],
+hc_h:["Half-cut cells","हाफ-कट सेल","ഹാഫ്-കട്ട് സെല്ലുകൾ"],
+full:["Full-cell","फुल-सेल","ഫുൾ-സെൽ"],
+half:["Half-cut","हाफ-कट","ഹാഫ്-കട്ട്"],
+curI:["Current I in each ribbon","हर रिबन में करंट I","ഓരോ റിബണിലും കറന്റ് I"],
+curI2:["Current I/2 → loss I²R ÷ 4","करंट I/2 → नुकसान I²R ÷ 4","കറന്റ് I/2 → നഷ്ടം I²R ÷ 4"],
+upper:["upper half","ऊपरी आधा","മുകൾ പകുതി"],
+lower:["lower half","निचला आधा","താഴെ പകുതി"],
+shade_h:["Bottom row shaded","नीचे की लाइन पर छाया","താഴത്തെ നിരയിൽ നിഴൽ"],
+output:["Output","आउटपुट","ഔട്ട്പുട്ട്"],
+sh1:["All 3 bypass diodes on → ≈0%","तीनों बाइपास डायोड चालू → ≈0%","മൂന്ന് ബൈപാസ് ഡയോഡും ഓൺ → ≈0%"],
+sh2:["Upper half keeps working → ≈50%","ऊपरी आधा चलता रहता है → ≈50%","മുകൾ പകുതി പ്രവർത്തിക്കുന്നു → ≈50%"],
+bif_h:["Bifacial modules","बाइफेशियल मॉड्यूल","ബൈഫേഷ്യൽ മൊഡ്യൂളുകൾ"],
+direct:["Direct sunlight (front)","सीधी धूप (सामने)","നേരിട്ടുള്ള വെയിൽ (മുൻവശം)"],
+refl:["Reflected light (rear)","परावर्तित रोशनी (पीछे)","പ്രതിഫലിച്ച വെളിച്ചം (പിൻവശം)"],
+ground:["Ground surface (albedo)","जमीन की सतह (एल्बिडो)","നിലത്തെ പ്രതലം (ആൽബിഡോ)"],
+alb_h:["Extra energy from the rear (bifaciality 80%)","पीछे से अतिरिक्त ऊर्जा (बाइफेशियलिटी 80%)","പിൻവശത്ത് നിന്ന് അധിക ഊർജ്ജം (ബൈഫേഷ്യാലിറ്റി 80%)"],
+more_h:["Busbars, glass and wafer size","बसबार, ग्लास और वेफर साइज","ബസ്ബാർ, ഗ്ലാസ്, വേഫർ വലിപ്പം"],
+bb_c:["More, thinner wires → less loss, less silver, better crack tolerance","ज्यादा, पतले तार → कम नुकसान, कम चाँदी, क्रैक सहने में बेहतर","കൂടുതൽ, നേർത്ത വയറുകൾ → കുറഞ്ഞ നഷ്ടം, കുറഞ്ഞ വെള്ളി, ക്രാക്ക് സഹിക്കും"],
+gb1:["Glass–backsheet","ग्लास–बैकशीट","ഗ്ലാസ്–ബാക്ക്‌ഷീറ്റ്"],
+gg1:["Glass–glass","ग्लास–ग्लास","ഗ്ലാസ്–ഗ്ലാസ്"],
+gb1s:["Lighter, cheaper","हल्का, सस्ता","ഭാരം കുറവ്, വില കുറവ്"],
+gg1s:["Coast, humidity, bifacial · 30-yr warranty","समुद्र तट, नमी, बाइफेशियल · 30 साल वारंटी","കടലോരം, ഈർപ്പം, ബൈഫേഷ്യൽ · 30 വർഷ വാറന്റി"],
+/* compare */
+cmp_h:["Side-by-side comparison","आमने-सामने तुलना","നേർക്കുനേർ താരതമ്യം"],
+cmp_l:["Typical 2026 values. Prices change every month.","2026 के आम मान। कीमतें हर महीने बदलती हैं।","2026-ലെ സാധാരണ മൂല്യങ്ങൾ. വില എല്ലാ മാസവും മാറും."],
+mb_eff:["Efficiency","एफिशिएंसी","എഫിഷ്യൻസി"],mb_tc:["Heat loss","गर्मी से नुकसान","ചൂട് മൂലമുള്ള നഷ്ടം"],mb_deg:["Degradation","डिग्रेडेशन","ഡീഗ്രഡേഷൻ"],mb_bif:["Bifaciality","बाइफेशियलिटी","ബൈഫേഷ്യാലിറ്റി"],
+m_eff:["Module efficiency range (%) – higher is better","मॉड्यूल एफिशिएंसी रेंज (%) – ज़्यादा बेहतर","മൊഡ്യൂൾ എഫിഷ്യൻസി പരിധി (%) – കൂടുതൽ നല്ലത്"],
+m_tc:["Power loss at 65 °C cell (%) – lower is better","65 °C सेल पर पावर नुकसान (%) – कम बेहतर","65 °C സെല്ലിൽ പവർ നഷ്ടം (%) – കുറവ് നല്ലത്"],
+m_deg:["Loss per year after year 1 (%) – lower is better","पहले साल के बाद हर साल नुकसान (%) – कम बेहतर","ഒന്നാം വർഷത്തിനു ശേഷം വാർഷിക നഷ്ടം (%) – കുറവ് നല്ലത്"],
+m_bif:["Bifaciality (%) – higher = more rear gain","बाइफेशियलिटी (%) – ज़्यादा = पीछे से ज़्यादा फायदा","ബൈഫേഷ്യാലിറ്റി (%) – കൂടുതൽ = പിന്നിൽ നിന്ന് കൂടുതൽ നേട്ടം"],
+legend:["Dark blue: n-type mono · mid blue: p-type silicon · purple: thin film","गहरा नीला: n-type मोनो · नीला: p-type सिलिकॉन · बैंगनी: थिन फिल्म","കടും നീല: n-type മോണോ · നീല: p-type സിലിക്കൺ · വയലറ്റ്: തിൻ ഫിലിം"],
+monofacial:["monofacial","मोनोफेशियल","മോണോഫേഷ്യൽ"],notyet:["not yet known","अभी पता नहीं","ഇനിയും അറിയില്ല"],
+area_h:["Roof area for 5 kWp (modules only)","5 kWp के लिए छत (सिर्फ मॉड्यूल)","5 kWp-ന് വേണ്ട മേൽക്കൂര (മൊഡ്യൂൾ മാത്രം)"],
+th_tech:["Technology","टेक्नोलॉजी","ടെക്നോളജി"],th_eff:["Module efficiency","मॉड्यूल एफिशिएंसी","മൊഡ്യൂൾ എഫിഷ്യൻസി"],th_tc:["Temp. coeff.","टेम्प. कोएफ.","ടെംപ്. കോഎഫ്."],th_deg:["Loss / year","नुकसान / साल","നഷ്ടം / വർഷം"],th_bif:["Bifaciality","बाइफेशियलिटी","ബൈഫേഷ്യാലിറ്റി"],th_price:["Price India 2026 (₹/Wp)","कीमत भारत 2026 (₹/Wp)","വില ഇന്ത്യ 2026 (₹/Wp)"],th_stat:["Status","स्थिति","സ്ഥിതി"],
+price_n:["Module-only prices, India 2026: non-DCR TOPCon ≈₹14–16/Wp, DCR TOPCon ≈₹22–27/Wp (Mercom, SMM, OPIS). Always confirm with a current quote.","सिर्फ मॉड्यूल कीमत, भारत 2026: non-DCR TOPCon ≈₹14–16/Wp, DCR TOPCon ≈₹22–27/Wp (Mercom, SMM, OPIS)। हमेशा ताज़ा कोटेशन लें।","മൊഡ്യൂൾ മാത്രം വില, ഇന്ത്യ 2026: non-DCR TOPCon ≈₹14–16/Wp, DCR TOPCon ≈₹22–27/Wp (Mercom, SMM, OPIS). എപ്പോഴും പുതിയ ക്വട്ടേഷൻ വാങ്ങുക."],
+/* standards */
+std_h:["Standards and certification","स्टैंडर्ड और सर्टिफिकेशन","സ്റ്റാൻഡേർഡുകളും സർട്ടിഫിക്കേഷനും"],
+std_l:["In India every module needs BIS registration; subsidy projects also need ALMM listing.","भारत में हर मॉड्यूल का BIS रजिस्ट्रेशन ज़रूरी; सब्सिडी प्रोजेक्ट में ALMM लिस्टिंग भी।","ഇന്ത്യയിൽ എല്ലാ മൊഡ്യൂളിനും BIS രജിസ്ട്രേഷൻ വേണം; സബ്സിഡി പ്രോജക്ടുകൾക്ക് ALMM ലിസ്റ്റിംഗും."],
+c1:["BIS registration","BIS रजिस्ट्रेशन","BIS രജിസ്ട്രേഷൻ"],
+c2:["ALMM List-I (module)","ALMM List-I (मॉड्यूल)","ALMM List-I (മൊഡ്യൂൾ)"],
+c3:["ALMM List-II (cell)","ALMM List-II (सेल)","ALMM List-II (സെൽ)"],
+c3s:["from 1 June 2026","1 जून 2026 से","2026 ജൂൺ 1 മുതൽ"],
+c4:["Subsidy eligible (DCR)","सब्सिडी योग्य (DCR)","സബ്സിഡിക്ക് അർഹം (DCR)"],
+tests_h:["Tests every module must pass","हर मॉड्यूल को पास करने वाले टेस्ट","ഓരോ മൊഡ്യൂളും വിജയിക്കേണ്ട ടെസ്റ്റുകൾ"],
+te1:["Thermal cycling −40 ↔ +85 °C","थर्मल साइक्लिंग −40 ↔ +85 °C","തെർമൽ സൈക്ലിംഗ് −40 ↔ +85 °C"],
+te2:["Damp heat 85 °C, 85% RH","डैम्प हीट 85 °C, 85% RH","ഡാമ്പ് ഹീറ്റ് 85 °C, 85% RH"],
+te3:["Hail: 25 mm ice at 23 m/s","ओले: 25 mm बर्फ, 23 m/s","ആലിപ്പഴം: 25 mm ഐസ്, 23 m/s"],
+te4:["Mechanical load 5400 / 2400 Pa","मैकेनिकल लोड 5400 / 2400 Pa","മെക്കാനിക്കൽ ലോഡ് 5400 / 2400 Pa"],
+te5:["Salt mist (coast)","नमक धुंध (समुद्र तट)","ഉപ്പ് മഞ്ഞ് (കടലോരം)"],
+te6:["Ammonia (cattle sheds)","अमोनिया (पशु शेड)","അമോണിയ (കാലിത്തൊഴുത്ത്)"],
+te7:["PID: high voltage + humidity","PID: हाई वोल्टेज + नमी","PID: ഹൈ വോൾട്ടേജ് + ഈർപ്പം"],
+te8:["UV exposure","UV एक्सपोज़र","UV എക്സ്പോഷർ"],
+stc1:["STC – nameplate rating","STC – नेमप्लेट रेटिंग","STC – നെയിംപ്ലേറ്റ് റേറ്റിംഗ്"],
+stc2:["NMOT – closer to a real roof","NMOT – असली छत के करीब","NMOT – യഥാർത്ഥ മേൽക്കൂരയോട് അടുത്ത്"],
+sunl:["Sunlight","धूप","സൂര്യപ്രകാശം"],temp:["Temperature","तापमान","താപനില"],wind:["Wind","हवा","കാറ്റ്"],
+cellT:["25 °C cell","25 °C सेल","25 °C സെൽ"],airT:["20 °C air","20 °C हवा","20 °C വായു"],
+kerala:["Kerala terrace in summer: cells at 55–70 °C","केरल की छत, गर्मी: सेल 55–70 °C","വേനലിൽ കേരള ടെറസ്: സെൽ 55–70 °C"],
+code:["Code","कोड","കോഡ്"],covers:["Covers","किसके लिए","എന്തിന്"],
+sd1:["Design qualification of c-Si modules","c-Si मॉड्यूल की डिज़ाइन जाँच","c-Si മൊഡ്യൂളുകളുടെ ഡിസൈൻ പരിശോധന"],
+sd2:["Thin-film module qualification","थिन-फिल्म मॉड्यूल जाँच","തിൻ-ഫിലിം മൊഡ്യൂൾ പരിശോധന"],
+sd3:["Module safety","मॉड्यूल सुरक्षा","മൊഡ്യൂൾ സുരക്ഷ"],
+sd4:["I–V measurement, STC","I–V माप, STC","I–V അളവ്, STC"],
+sd5:["Salt mist corrosion","नमक धुंध से जंग","ഉപ്പ് മഞ്ഞ് തുരുമ്പ്"],
+sd6:["Ammonia corrosion","अमोनिया से जंग","അമോണിയ തുരുമ്പ്"],
+sd7:["Potential-induced degradation","पोटेंशियल-इंड्यूस्ड डिग्रेडेशन","പൊട്ടൻഷ്യൽ-ഇൻഡ്യൂസ്ഡ് ഡീഗ്രഡേഷൻ"],
+sd8:["Array design; commissioning tests","ऐरे डिज़ाइन; कमीशनिंग टेस्ट","അറേ ഡിസൈൻ; കമ്മീഷനിംഗ് ടെസ്റ്റുകൾ"],
+sd9:["Compulsory BIS registration (modules, inverters, batteries)","अनिवार्य BIS रजिस्ट्रेशन (मॉड्यूल, इन्वर्टर, बैटरी)","നിർബന്ധിത BIS രജിസ്ട്രേഷൻ (മൊഡ്യൂൾ, ഇൻവെർട്ടർ, ബാറ്ററി)"],
+sd10:["Safety, earthing, grid connection","सुरक्षा, अर्थिंग, ग्रिड कनेक्शन","സുരക്ഷ, എർത്തിംഗ്, ഗ്രിഡ് കണക്ഷൻ"],
+sd11:["Wiring; earthing","वायरिंग; अर्थिंग","വയറിംഗ്; എർത്തിംഗ്"],
+/* apps */
+app_h:["Real-world applications","असली उपयोग","യഥാർത്ഥ ഉപയോഗങ്ങൾ"],
+app_l:["Choose by site: roof area, heat, shade, surface below, weight and subsidy.","जगह देखकर चुनें: छत, गर्मी, छाया, नीचे की सतह, वजन और सब्सिडी।","സൈറ്റ് നോക്കി തിരഞ്ഞെടുക്കുക: മേൽക്കൂര, ചൂട്, നിഴൽ, താഴെയുള്ള പ്രതലം, ഭാരം, സബ്സിഡി."],
+bestfit:["Best fit: ","सबसे सही: ","ഏറ്റവും അനുയോജ്യം: "],
+a_home:["Home rooftop","घर की छत","വീടിന്റെ മേൽക്കൂര"],a_homeE:["PM Surya Ghar, KSEB net metering","PM सूर्य घर, KSEB नेट मीटरिंग","PM സൂര്യ ഘർ, KSEB നെറ്റ് മീറ്ററിംഗ്"],
+a_fac:["Factory / institution roof","फैक्ट्री / संस्थान की छत","ഫാക്ടറി / സ്ഥാപന മേൽക്കൂര"],a_facE:["50 kW – 2 MW on metal sheet","मेटल शीट पर 50 kW – 2 MW","മെറ്റൽ ഷീറ്റിൽ 50 kW – 2 MW"],
+a_park:["Solar park + tracker","सोलर पार्क + ट्रैकर","സോളാർ പാർക്ക് + ട്രാക്കർ"],a_parkE:["Bhadla (Rajasthan), Pavagada (Karnataka)","भड़ला (राजस्थान), पावागड़ा (कर्नाटक)","ഭദ്‌ല (രാജസ്ഥാൻ), പാവഗഡ (കർണാടക)"],
+a_float:["Floating solar","फ्लोटिंग सोलर","ഫ്ലോട്ടിംഗ് സോളാർ"],a_floatE:["Banasura Sagar (Wayanad), Ramagundam (Telangana)","बाणासुर सागर (वायनाड), रामागुंडम (तेलंगाना)","ബാണാസുര സാഗർ (വയനാട്), രാമഗുണ്ടം (തെലങ്കാന)"],
+a_agri:["Agrivoltaics","एग्रीवोल्टाइक्स","അഗ്രിവോൾട്ടായിക്സ്"],a_agriE:["Crops grow under raised panels","ऊँचे पैनलों के नीचे खेती","ഉയർത്തിയ പാനലുകൾക്കടിയിൽ കൃഷി"],
+a_pump:["Solar pump","सोलर पंप","സോളാർ പമ്പ്"],a_pumpE:["PM-KUSUM farm irrigation","PM-KUSUM खेत सिंचाई","PM-KUSUM കൃഷി ജലസേചനം"],
+a_ferry:["Solar ferry","सोलर फेरी","സോളാർ ഫെറി"],a_ferryE:["Aditya, Vaikom–Thavanakkadavu (2017)","आदित्य, वैकम–तवनक्कडवु (2017)","ആദിത്യ, വൈക്കം–തവണക്കടവ് (2017)"],
+a_air:["Airport & carport","एयरपोर्ट और कारपोर्ट","എയർപോർട്ട് & കാർപോർട്ട്"],a_airE:["CIAL Kochi, fully solar since 2015","CIAL कोच्चि, 2015 से पूरी तरह सोलर","CIAL കൊച്ചി, 2015 മുതൽ പൂർണ്ണ സോളാർ"],
+a_st:["Street light, off-grid","स्ट्रीट लाइट, ऑफ-ग्रिड","സ്ട്രീറ്റ് ലൈറ്റ്, ഓഫ്-ഗ്രിഡ്"],a_stE:["Small 20–400 W module + battery","छोटा 20–400 W मॉड्यूल + बैटरी","ചെറിയ 20–400 W മൊഡ്യൂൾ + ബാറ്ററി"],
+a_sat:["Satellites","सैटेलाइट","ഉപഗ്രഹങ്ങൾ"],a_satE:["ISRO spacecraft, ~30% cells","ISRO अंतरिक्ष यान, ~30% सेल","ISRO ബഹിരാകാശ പേടകം, ~30% സെല്ലുകൾ"],
+a_bipv:["Building façade (BIPV)","बिल्डिंग फसाड (BIPV)","കെട്ടിട ചുവർ (BIPV)"],a_bipvE:["Glass walls and skylights that make power","बिजली बनाने वाली ग्लास दीवारें, स्काइलाइट","വൈദ്യുതി ഉണ്ടാക്കുന്ന ഗ്ലാസ് ചുവരുകൾ, സ്കൈലൈറ്റുകൾ"],
+fit_h:["Which technology fits where","कौन सी तकनीक कहाँ सही","ഏത് ടെക്നോളജി എവിടെ അനുയോജ്യം"],
+appHead:["Application","उपयोग","ഉപയോഗം"],
+pref:["preferred","सबसे अच्छा","ഏറ്റവും നല്ലത്"],suit:["suitable","उपयुक्त","അനുയോജ്യം"],nott:["not typical","आमतौर पर नहीं","സാധാരണ ഇല്ല"],
+fa1:["Home rooftop (subsidy, DCR)","घर की छत (सब्सिडी, DCR)","വീട്ടു മേൽക്കൂര (സബ്സിഡി, DCR)"],
+fa2:["Shaded / complex roof","छाया वाली / जटिल छत","നിഴലുള്ള / സങ്കീർണ്ണ മേൽക്കൂര"],
+fa3:["Metal-sheet factory roof","मेटल-शीट फैक्ट्री छत","മെറ്റൽ-ഷീറ്റ് ഫാക്ടറി മേൽക്കൂര"],
+fa4:["Solar park with tracker","ट्रैकर वाला सोलर पार्क","ട്രാക്കറുള്ള സോളാർ പാർക്ക്"],
+fa5:["Floating solar","फ्लोटिंग सोलर","ഫ്ലോട്ടിംഗ് സോളാർ"],
+fa6:["Coastal site","समुद्र किनारे की जगह","കടലോര സൈറ്റ്"],
+fa7:["Very hot, dusty site","बहुत गर्म, धूल भरी जगह","വളരെ ചൂടും പൊടിയുമുള്ള സൈറ്റ്"],
+fa8:["BIPV façade","BIPV फसाड","BIPV ചുവർ"],
+fa9:["Boat, vehicle, portable","नाव, गाड़ी, पोर्टेबल","ബോട്ട്, വാഹനം, പോർട്ടബിൾ"],
+fa10:["Solar pump (PM-KUSUM)","सोलर पंप (PM-KUSUM)","സോളാർ പമ്പ് (PM-KUSUM)"],
+/* calc */
+calc_h:["Calculators","कैलकुलेटर","കാൽക്കുലേറ്ററുകൾ"],
+calc_l:["Change any value; results update instantly.","कोई भी मान बदलें; नतीजा तुरंत बदलेगा।","ഏത് മൂല്യവും മാറ്റുക; ഫലം ഉടൻ മാറും."],
+c1h:["1. Module efficiency","1. मॉड्यूल एफिशिएंसी","1. മൊഡ്യൂൾ എഫിഷ്യൻസി"],
+c2h:["2. Power at real temperature","2. असली तापमान पर पावर","2. യഥാർത്ഥ താപനിലയിലെ പവർ"],
+c3h:["3. Rooftop sizing and energy","3. रूफटॉप साइज़ और ऊर्जा","3. റൂഫ്‌ടോപ്പ് സൈസിംഗും ഊർജ്ജവും"],
+c4h:["4. Half-cut loss and bifacial gain","4. हाफ-कट नुकसान और बाइफेशियल फायदा","4. ഹാഫ്-കട്ട് നഷ്ടവും ബൈഫേഷ്യൽ നേട്ടവും"],
+w1:["Example: 580 Wp module, 2278 × 1134 mm","उदाहरण: 580 Wp मॉड्यूल, 2278 × 1134 mm","ഉദാഹരണം: 580 Wp മൊഡ്യൂൾ, 2278 × 1134 mm"],
+w2:["Example: 580 Wp, NOCT 45 °C, Kochi noon 34 °C, 1000 W/m²","उदाहरण: 580 Wp, NOCT 45 °C, कोच्चि दोपहर 34 °C, 1000 W/m²","ഉദാഹരണം: 580 Wp, NOCT 45 °C, കൊച്ചി ഉച്ച 34 °C, 1000 W/m²"],
+w3:["Example: 360 units/month, 580 Wp modules, 4.0 kWh/kWp/day","उदाहरण: 360 यूनिट/महीना, 580 Wp मॉड्यूल, 4.0 kWh/kWp/दिन","ഉദാഹരണം: 360 യൂണിറ്റ്/മാസം, 580 Wp മൊഡ്യൂൾ, 4.0 kWh/kWp/ദിവസം"],
+w4:["Example: 13.6 A cell, R = 0.010 Ω; bifacial 80% on white roof (12%)","उदाहरण: 13.6 A सेल, R = 0.010 Ω; सफेद छत पर बाइफेशियल 80% (12%)","ഉദാഹരണം: 13.6 A സെൽ, R = 0.010 Ω; വെള്ള മേൽക്കൂരയിൽ ബൈഫേഷ്യൽ 80% (12%)"],
+l_p:["Rated power Pmax (W)","रेटेड पावर Pmax (W)","റേറ്റഡ് പവർ Pmax (W)"],
+l_len:["Length (mm)","लंबाई (mm)","നീളം (mm)"],l_wid:["Width (mm)","चौड़ाई (mm)","വീതി (mm)"],
+l_g:["Irradiance G (W/m²)","इरेडिएंस G (W/m²)","ഇറേഡിയൻസ് G (W/m²)"],
+l_tg:["Temperature coefficient γ (%/°C)","टेम्प. कोएफिशिएंट γ (%/°C)","ടെംപ്. കോഎഫിഷ്യന്റ് γ (%/°C)"],
+l_amb:["Air temperature (°C)","हवा का तापमान (°C)","വായു താപനില (°C)"],
+l_units:["Monthly units (kWh)","महीने की यूनिट (kWh)","മാസ യൂണിറ്റ് (kWh)"],
+l_yield:["Yield (kWh/kWp/day)","यील्ड (kWh/kWp/दिन)","യീൽഡ് (kWh/kWp/ദിവസം)"],
+l_mod:["Module rating (Wp)","मॉड्यूल रेटिंग (Wp)","മൊഡ്യൂൾ റേറ്റിംഗ് (Wp)"],
+l_area:["Module area (m²)","मॉड्यूल क्षेत्रफल (m²)","മൊഡ്യൂൾ വിസ്തീർണ്ണം (m²)"],
+l_price:["Module price (₹/Wp)","मॉड्यूल कीमत (₹/Wp)","മൊഡ്യൂൾ വില (₹/Wp)"],
+l_I:["Full-cell current I (A)","फुल-सेल करंट I (A)","ഫുൾ-സെൽ കറന്റ് I (A)"],
+l_R:["Conductor resistance R (Ω)","कंडक्टर रेज़िस्टेंस R (Ω)","കണ്ടക്ടർ റെസിസ്റ്റൻസ് R (Ω)"],
+l_fp:["Front power (Wp)","सामने की पावर (Wp)","മുൻവശ പവർ (Wp)"],
+l_bf:["Bifaciality (%)","बाइफेशियलिटी (%)","ബൈഫേഷ്യാലിറ്റി (%)"],
+l_surf:["Surface below","नीचे की सतह","താഴെയുള്ള പ്രതലം"],
+su1:["Dark metal roof (≈5%)","गहरी मेटल छत (≈5%)","ഇരുണ്ട മെറ്റൽ മേൽക്കൂര (≈5%)"],
+su2:["Grass / soil (≈7%)","घास / मिट्टी (≈7%)","പുല്ല് / മണ്ണ് (≈7%)"],
+su3:["Grey concrete (≈9%)","ग्रे कंक्रीट (≈9%)","ചാര കോൺക്രീറ്റ് (≈9%)"],
+su4:["White paint (≈12%)","सफेद पेंट (≈12%)","വെള്ള പെയിന്റ് (≈12%)"],
+su5:["Sand, raised mount (≈15%)","रेत, ऊँचा माउंट (≈15%)","മണൽ, ഉയർത്തിയ മൗണ്ട് (≈15%)"],
+su6:["White gravel + tracker (≈20%)","सफेद बजरी + ट्रैकर (≈20%)","വെള്ള ചരൽ + ട്രാക്കർ (≈20%)"],
+o_eff:["Module efficiency (STC)","मॉड्यूल एफिशिएंसी (STC)","മൊഡ്യൂൾ എഫിഷ്യൻസി (STC)"],o_area:["Area","क्षेत्रफल","വിസ്തീർണ്ണം"],o_den:["Power density","पावर डेंसिटी","പവർ ഡെൻസിറ്റി"],o_apk:["Area per kWp","प्रति kWp क्षेत्रफल","ഓരോ kWp-നും വിസ്തീർണ്ണം"],
+o_t1:["Output at real temperature","असली तापमान पर आउटपुट","യഥാർത്ഥ താപനിലയിലെ ഔട്ട്പുട്ട്"],o_t2:["Cell temperature","सेल तापमान","സെൽ താപനില"],o_t3:["Heat loss","गर्मी से नुकसान","ചൂട് നഷ്ടം"],o_t4:["% of nameplate","नेमप्लेट का %","നെയിംപ്ലേറ്റിന്റെ %"],o_t5:["Same rating, same conditions:","एक ही रेटिंग, एक ही हालात:","ഒരേ റേറ്റിംഗ്, ഒരേ സാഹചര്യം:"],
+o_s1:["Recommended system","सुझाया गया सिस्टम","നിർദ്ദേശിക്കുന്ന സിസ്റ്റം"],o_s2:["kWp needed","ज़रूरी kWp","വേണ്ട kWp"],o_s3:["Energy per year","सालाना ऊर्जा","വാർഷിക ഊർജ്ജം"],o_s4:["Per month","प्रति महीना","പ്രതിമാസം"],o_s5:["Module area","मॉड्यूल क्षेत्रफल","മൊഡ്യൂൾ വിസ്തീർണ്ണം"],o_s6:["Roof incl. 20% spacing","छत (20% खाली जगह सहित)","മേൽക്കൂര (20% ഇടം ഉൾപ്പെടെ)"],o_s7:["Module cost","मॉड्यूल लागत","മൊഡ്യൂൾ ചെലവ്"],
+o_h1:["Half-cut: loss per conductor","हाफ-कट: प्रति कंडक्टर नुकसान","ഹാഫ്-കട്ട്: ഓരോ കണ്ടക്ടറിലെ നഷ്ടം"],o_h2:["Reduction","कमी","കുറവ്"],o_h3:["Bifacial equivalent power","बाइफेशियल बराबर पावर","ബൈഫേഷ്യൽ തുല്യ പവർ"],o_h4:["Bifacial gain","बाइफेशियल फायदा","ബൈഫേഷ്യൽ നേട്ടം"],o_h5:["Extra per module","प्रति मॉड्यूल extra","ഓരോ മൊഡ്യൂളിനും അധികം"],
+/* comparison row text */
+r_poly:["Phased out","बंद हो चुका","നിർത്തലാക്കി"],r_perc:["Declining","घट रहा","കുറയുന്നു"],r_top:["Mainstream","मुख्य धारा","മുഖ്യധാര"],r_hjt:["Premium, hot sites","प्रीमियम, गर्म जगह","പ്രീമിയം, ചൂടുള്ള സ്ഥലം"],r_bc:["Premium rooftop","प्रीमियम छत","പ്രീമിയം മേൽക്കൂര"],r_cdte:["Utility, hot sites","बड़े प्लांट, गर्म जगह","വലിയ പ്ലാന്റ്, ചൂടുള്ള സ്ഥലം"],r_cigs:["Flexible, BIPV","फ्लेक्सिबल, BIPV","ഫ്ലെക്സിബിൾ, BIPV"],r_asi:["Small devices","छोटे डिवाइस","ചെറിയ ഉപകരണങ്ങൾ"],r_tan:["Emerging","नई तकनीक","പുതിയ ടെക്നോളജി"],
+pr_poly:["Old stock only","सिर्फ पुराना स्टॉक","പഴയ സ്റ്റോക്ക് മാത്രം"],pr_hjt:["≈10–15% above TOPCon","TOPCon से ≈10–15% ज़्यादा","TOPCon-നേക്കാൾ ≈10–15% കൂടുതൽ"],pr_bc:["≈10–20% above TOPCon","TOPCon से ≈10–20% ज़्यादा","TOPCon-നേക്കാൾ ≈10–20% കൂടുതൽ"],pr_cdte:["Large contracts only","सिर्फ बड़े कॉन्ट्रैक्ट","വലിയ കരാറുകൾ മാത്രം"],pr_niche:["Niche","खास उपयोग","പ്രത്യേക ഉപയോഗം"],pr_pilot:["Pilot only","सिर्फ पायलट","പൈലറ്റ് മാത്രം"]
+};
+</script>
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg", LI={en:0,hi:1,ml:2};
+let lang="en";try{const s=localStorage.getItem("pvlang");if(s&&LI[s]!==undefined)lang=s}catch(e){}
+const t=k=>{const v=T[k];return v?(v[LI[lang]]||v[0]):k};
+function el(tag,a,p,txt){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;if(p)p.appendChild(e);return e;}
+/* text with wrapping: o={fs,anchor,w(chars),cls,fill,weight,lh} */
+function tx(p,x,y,s,o){o=o||{};const fs=o.fs||14,lh=o.lh||fs*1.25;
+ const a={x:x,y:y,"font-size":fs,"text-anchor":o.anchor||"start"};if(o.fill)a.fill=o.fill;else a.class=o.cls||"svgtxt";if(o.weight)a["font-weight"]=o.weight;
+ const e=el("text",a,p);const words=String(s).split(" ");const lines=[];let cur="";
+ const W=o.w||999;words.forEach(w=>{if((cur+" "+w).trim().length>W&&cur){lines.push(cur);cur=w}else cur=(cur+" "+w).trim()});if(cur)lines.push(cur);
+ lines.forEach((l,i)=>el("tspan",{x:x,dy:i?lh:0},e,l));return lines.length;}
+const C={navy:"#1B3A66",poly:"#2F6DB5",sun:"#F2B233",sunD:"#B86E00",grey:"#9AA3AD",dk:"#6B7480",line:"#C8D3DF",n:"#9FC3E8",p:"#F3C7A0",green:"#B9D7C2",red:"#B23A3A",purple:"#7A5C99",ink:"#13202E"};
+function num(p,x,y,n){el("circle",{cx:x,cy:y,r:12,fill:C.sun},p);tx(p,x,y+5,n,{fs:13,anchor:"middle",weight:700,fill:C.ink});}
+function panel(p,x,y,w,h,cols,rows,fill){el("rect",{x:x,y:y,width:w,height:h,fill:fill||C.navy,stroke:"#DCE3EA","stroke-width":1.5},p);
+ for(let i=1;i<cols;i++)el("line",{x1:x+i*w/cols,y1:y,x2:x+i*w/cols,y2:y+h,stroke:"#5B7CA8","stroke-width":.8},p);
+ for(let j=1;j<rows;j++)el("line",{x1:x,y1:y+j*h/rows,x2:x+w,y2:y+j*h/rows,stroke:"#5B7CA8","stroke-width":.8},p);}
+function sunIcon(p,x,y,r){el("circle",{cx:x,cy:y,r:r,fill:C.sun},p);for(let k=0;k<8;k++){const a=k*Math.PI/4;el("line",{x1:x+Math.cos(a)*(r+4),y1:y+Math.sin(a)*(r+4),x2:x+Math.cos(a)*(r+10),y2:y+Math.sin(a)*(r+10),stroke:C.sun,"stroke-width":3,"stroke-linecap":"round"},p);}}
+function arrow(p,x1,y1,x2,y2,col,mk){el("line",{x1:x1,y1:y1,x2:x2,y2:y2,stroke:col||C.sunD,"stroke-width":2.5,"marker-end":"url(#"+(mk||"arr")+")"},p);}
+function seeded(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}}
+const blues=["#2F6DB5","#3E7CC4","#26599A","#4C8AD0","#1F4E8C","#5B97D8"];
+function polyCell(p,x,y,S,seed){const r=seeded(seed||7),N=8;const g=el("g",{},p);const id="pc"+seed+Math.round(x);const cp=el("clipPath",{id:id},g);el("rect",{x:x,y:y,width:S,height:S},cp);
+ const gg=el("g",{"clip-path":"url(#"+id+")"},g);
+ for(let i=0;i<N;i++)for(let j=0;j<N;j++){const a=x+i*S/N,b=y+j*S/N,J=()=>(r()-.5)*S/12;
+  el("polygon",{points:`${a+J()},${b+J()} ${a+S/N+J()},${b+J()} ${a+S/N+J()},${b+S/N+J()} ${a+J()},${b+S/N+J()}`,fill:blues[Math.floor(r()*6)]},gg);}
+ [.25,.5,.75].forEach(f=>el("line",{x1:x+S*f,y1:y,x2:x+S*f,y2:y+S,stroke:"#E4EDF7","stroke-width":3},g));
+ el("rect",{x:x,y:y,width:S,height:S,fill:"none",stroke:C.grey,"stroke-width":1.5},g);}
+function monoCell(p,x,y,S){const c=S*.06;el("path",{d:`M${x+c},${y} h${S-2*c} l${c},${c} v${S-2*c} l${-c},${c} h${-(S-2*c)} l${-c},${-c} v${-(S-2*c)} z`,fill:"#16294A"},p);
+ for(let k=1;k<12;k++)el("line",{x1:x,y1:y+k*S/12,x2:x+S,y2:y+k*S/12,stroke:"#7D8CA3","stroke-width":.5,opacity:.7},p);
+ [.25,.5,.75].forEach(f=>el("line",{x1:x+S*f,y1:y,x2:x+S*f,y2:y+S,stroke:"#C8D3DF","stroke-width":3},p));}
+/* layer stack with de-collided leader labels */
+function stack(g,x,y,w,layers,lx,fs){fs=fs||14;let yy=y;const labs=[];
+ layers.forEach(L=>{if(L.fingers){for(let k=0;k<L.fingers;k++)el("rect",{x:x+(k+.5)*w/L.fingers-6,y:yy,width:12,height:L.h,fill:L.fill},g);}
+  else if(L.ic){for(let k=0;k<L.ic;k++)el("rect",{x:x+k*w/L.ic,y:yy,width:w/L.ic,height:L.h,fill:k%2?L.fill2:L.fill},g);}
+  else el("rect",{x:x,y:yy,width:w,height:L.h,fill:L.fill,stroke:L.stroke||"none"},g);
+  if(L.label)labs.push({t:L.label,y0:yy+L.h/2});yy+=L.h;});
+ const gap=fs+6;const ly=labs.map(l=>l.y0);for(let i=1;i<ly.length;i++)if(ly[i]-ly[i-1]<gap)ly[i]=ly[i-1]+gap;
+ labs.forEach((l,i)=>{el("polyline",{points:`${x+w+2},${l.y0} ${lx-28},${l.y0} ${lx-6},${ly[i]}`,fill:"none",stroke:C.grey,"stroke-width":1},g);tx(g,lx,ly[i]+fs*.35,l.t,{fs:fs});});
+ return Math.max(yy,ly.length?ly[ly.length-1]+gap:yy);}
+
+const F={};
+/* ---------- OVERVIEW ---------- */
+F.f_pn=s=>{sunIcon(s,55,45,22);
+ [[95,60,"M95,60 q15,-6 30,0 t30,0 t35,40"],[88,80,"M88,80 q15,-6 30,0 t30,0 t45,60"],[82,100,"M82,100 q15,-6 30,0 t30,0 t70,85"]].forEach(r=>el("path",{d:r[2],stroke:C.sunD,"stroke-width":2.5,fill:"none","marker-end":"url(#arr)"},s));
+ tx(s,150,42,t("photons"),{fs:15,weight:600});
+ el("rect",{x:150,y:115,width:280,height:10,fill:C.grey},s);el("rect",{x:215,y:107,width:10,height:8,fill:C.dk},s);el("rect",{x:350,y:107,width:10,height:8,fill:C.dk},s);
+ el("rect",{x:150,y:125,width:280,height:50,fill:C.n},s);el("rect",{x:150,y:175,width:280,height:18,fill:"#C9B6E4"},s);el("rect",{x:150,y:193,width:280,height:95,fill:C.p},s);el("rect",{x:150,y:288,width:280,height:12,fill:C.grey},s);
+ tx(s,438,154,"n-type",{fs:14,weight:600});tx(s,438,189,"junction",{fs:12,cls:"svgmuted"});tx(s,438,244,"p-type",{fs:14,weight:600});
+ el("circle",{cx:255,cy:205,r:8,fill:C.navy},s);tx(s,255,209,"e",{fs:11,anchor:"middle",fill:"#fff"});
+ el("circle",{cx:292,cy:205,r:8,fill:"#fff",stroke:C.red,"stroke-width":2},s);tx(s,292,209,"h",{fs:11,anchor:"middle",fill:C.red});
+ arrow(s,255,196,255,140,C.navy,"arrb");arrow(s,292,214,292,272,C.red,"arrb");
+ tx(s,160,150,t("electrons"),{fs:12});tx(s,305,262,t("holes"),{fs:12});
+ el("path",{d:"M150,120 H110 V345 H520 V294 H430",fill:"none",stroke:C.ink,"stroke-width":2},s);
+ el("circle",{cx:310,cy:345,r:18,fill:"#FFF6D6",stroke:C.ink,"stroke-width":2},s);el("path",{d:"M301,345 q9,-13 18,0",stroke:C.sunD,fill:"none","stroke-width":2.5},s);
+ tx(s,336,372,t("load"),{fs:14,weight:600});tx(s,92,240,"−",{fs:20,weight:700});tx(s,528,325,"+",{fs:20,weight:700});
+ num(s,200,100,"1");num(s,272,232,"2");num(s,140,184,"3");num(s,270,345,"4");};
+F.f_chain=s=>{panel(s,20,80,80,80,4,1,"#16294A");tx(s,60,190,t("cell"),{fs:16,anchor:"middle",weight:600});tx(s,60,210,"≈0.7 V",{fs:13,anchor:"middle",cls:"svgmuted"});
+ tx(s,130,130,"→",{fs:30,cls:"svgmuted"});
+ panel(s,175,40,100,160,5,8);tx(s,225,225,t("module"),{fs:16,anchor:"middle",weight:600});tx(s,225,243,"40–50 V · 550–720 W",{fs:12,anchor:"middle",cls:"svgmuted"});
+ tx(s,300,130,"→",{fs:30,cls:"svgmuted"});
+ for(let k=0;k<5;k++){panel(s,345+k*60,60,50,100,3,5);if(k<4)el("line",{x1:395+k*60,y1:110,x2:405+k*60,y2:110,stroke:C.sunD,"stroke-width":3},s);}
+ tx(s,490,190,t("string"),{fs:16,anchor:"middle",weight:600});tx(s,490,210,"V ↑ (≤1000 / 1500 V DC)",{fs:12,anchor:"middle",cls:"svgmuted"});
+ tx(s,660,130,"→",{fs:30,cls:"svgmuted"});
+ for(let r=0;r<3;r++){for(let k=0;k<5;k++)panel(s,700+k*38,40+r*52,34,44,2,3);el("line",{x1:890,y1:62+r*52,x2:905,y2:62+r*52,stroke:C.sunD,"stroke-width":3},s);}
+ el("line",{x1:905,y1:62,x2:905,y2:166,stroke:C.sunD,"stroke-width":3},s);el("rect",{x:915,y:95,width:60,height:40,rx:4,fill:C.sun},s);tx(s,945,120,"DC→AC",{fs:11,anchor:"middle",weight:700,fill:C.ink});
+ tx(s,800,210,t("array"),{fs:16,anchor:"middle",weight:600});tx(s,800,230,"I ↑",{fs:12,anchor:"middle",cls:"svgmuted"});};
+F.f_gen=s=>{const cols=[{x:20,k:"gen1",d:"gen1s"},{x:340,k:"gen2",d:"gen2s"},{x:660,k:"gen3",d:"gen3s"}];
+ cols.forEach((c,i)=>{el("rect",{x:c.x,y:10,width:290,height:250,rx:6,fill:"#F3F7FB",stroke:C.line},s);
+  tx(s,c.x+145,40,t(c.k),{fs:15,anchor:"middle",weight:600,w:30});
+  if(i===0){monoCell(s,c.x+30,80,100);polyCell(s,c.x+160,80,100,11);}
+  if(i===1){el("rect",{x:c.x+40,y:80,width:210,height:110,fill:"#3B2F4A"},s);for(let k=1;k<30;k++)el("line",{x1:c.x+40+k*7,y1:80,x2:c.x+40+k*7,y2:190,stroke:"#6A5A80","stroke-width":1},s);
+   el("path",{d:`M${c.x+40},80 l14,-10 h210 l-14,10z`,fill:"#D9EEF7",stroke:C.grey},s);}
+  if(i===2){el("rect",{x:c.x+60,y:90,width:170,height:30,fill:"#B5654A"},s);tx(s,c.x+145,110,"perovskite",{fs:12,anchor:"middle",fill:"#fff"});
+   el("rect",{x:c.x+60,y:122,width:170,height:60,fill:C.navy},s);tx(s,c.x+145,157,"silicon",{fs:12,anchor:"middle",fill:"#fff"});
+   tx(s,c.x+145,82,"tandem",{fs:12,anchor:"middle",cls:"svgmuted"});}
+  tx(s,c.x+145,225,t(c.d),{fs:13,anchor:"middle",cls:"svgmuted",w:34});});};
+/* ---------- MONO ---------- */
+F.f_cz=s=>{const xs=[20,215,410,605,800],W=170;
+ xs.forEach((x,i)=>{el("rect",{x:x,y:10,width:W,height:190,rx:6,fill:"#F3F7FB",stroke:C.line},s);num(s,x+18,28,String(i+1));
+  if(i<4)el("path",{d:`M${x+W+3},105 h14`,stroke:C.sunD,"stroke-width":3,"marker-end":"url(#arr)"},s);
+  tx(s,x+W/2,225,t("m"+(i+1)),{fs:14,anchor:"middle",weight:600,w:20});});
+ const r=seeded(3);for(let k=0;k<9;k++){const cx=60+r()*100,cy=90+r()*80;el("polygon",{points:`${cx},${cy-14} ${cx+16},${cy-4} ${cx+10},${cy+14} ${cx-12},${cy+10} ${cx-14},${cy-6}`,fill:["#8E979F","#A8B0B8","#7C858D"][k%3],stroke:"#5F676E"},s);}
+ let x=215;el("path",{d:`M${x+40},90 v80 q50,25 100,0 v-80`,fill:"#F2DCCB",stroke:C.grey,"stroke-width":3},s);el("path",{d:`M${x+43},110 h94 v58 q-47,22 -94,0z`,fill:C.sun},s);
+ el("rect",{x:x+25,y:95,width:8,height:85,fill:C.red,opacity:.6},s);el("rect",{x:x+147,y:95,width:8,height:85,fill:C.red,opacity:.6},s);tx(s,x+90,145,"1420 °C",{fs:13,anchor:"middle",weight:700,fill:C.ink});
+ x=410;el("line",{x1:x+90,y1:40,x2:x+90,y2:62,stroke:C.dk,"stroke-width":3},s);el("path",{d:`M${x+78},55 a12,6 0 1,0 24,0`,fill:"none",stroke:C.sunD,"stroke-width":2},s);
+ el("path",{d:`M${x+84},62 h12 l12,14 v74 h-36 v-74z`,fill:C.navy},s);el("path",{d:`M${x+40},150 v30 q50,18 100,0 v-30`,fill:"#F2DCCB",stroke:C.grey,"stroke-width":3},s);el("rect",{x:x+43,y:156,width:94,height:20,fill:C.sun},s);
+ x=605;el("ellipse",{cx:x+48,cy:110,rx:30,ry:30,fill:C.navy},s);el("rect",{x:x+26,y:86,width:48,height:48,fill:"none",stroke:C.sun,"stroke-dasharray":"4 3","stroke-width":2},s);
+ for(let k=0;k<6;k++)el("rect",{x:x+92+k*6,y:84+k*4,width:36,height:36,fill:k%2?"#203F6E":"#16294A",stroke:"#5B7CA8"},s);
+ monoCell(s,830,60,110);};
+F.f_tex=s=>{tx(s,20,30,t("tex"),{fs:16,weight:600});const base=210,w=70,h=80;
+ for(let k=0;k<7;k++)el("polygon",{points:`${10+k*w},${base} ${10+k*w+w/2},${base-h} ${10+k*w+w},${base}`,fill:k%2?"#203F6E":"#2A4C80",stroke:"#5B7CA8"},s);
+ el("rect",{x:0,y:base,width:520,height:30,fill:"#16294A"},s);
+ el("path",{d:"M120,50 L170,148",stroke:C.sunD,"stroke-width":3,fill:"none","marker-end":"url(#arr)"},s);
+ el("path",{d:"M172,150 L205,165",stroke:C.sunD,"stroke-width":3,fill:"none","stroke-dasharray":"5 4","marker-end":"url(#arr)"},s);
+ el("path",{d:"M172,150 L178,200",stroke:C.navy,"stroke-width":3,fill:"none","marker-end":"url(#arrb)"},s);
+ el("path",{d:"M206,166 L212,205",stroke:C.navy,"stroke-width":3,fill:"none","marker-end":"url(#arrb)"},s);
+ tx(s,250,90,t("tex2"),{fs:14,w:28});tx(s,20,260,"≈ 2–5 µm",{fs:12,cls:"svgmuted"});};
+function wafers(s){tx(s,20,30,t("waf_h"),{fs:16,weight:600});const k=0.78;
+ const W=[["M10","182 × 182 mm",182,182,0],["G12","210 × 210 mm",210,210,0],["G12R","182 × 210 mm",182,210,1]];let x=20;
+ W.forEach(w=>{el("rect",{x:x,y:250-w[3]*k,width:w[2]*k,height:w[3]*k,fill:w[4]?C.navy:"#5B7CA8",stroke:C.ink},s);
+  tx(s,x+w[2]*k/2,250-w[3]*k/2,w[0],{fs:18,anchor:"middle",weight:700,fill:"#fff"});tx(s,x+w[2]*k/2,250-w[3]*k/2+22,w[1],{fs:12,anchor:"middle",fill:"#fff"});
+  if(w[4])tx(s,x+w[2]*k/2,250-w[3]*k-8,"★ "+t("common"),{fs:12,anchor:"middle",fill:C.sunD,weight:600});x+=w[2]*k+18;});}
+F.f_wafer=wafers;F.f_wafer2=s=>{wafers(s);s.setAttribute("viewBox","0 0 520 270");};
+/* ---------- POLY ---------- */
+F.f_cast=s=>{el("rect",{x:30,y:30,width:230,height:220,fill:"#F2DCCB",stroke:C.grey,"stroke-width":4},s);el("rect",{x:36,y:36,width:218,height:70,fill:C.sun},s);
+ const r=seeded(42);for(let x=36;x<254;){const w=12+r()*24;el("rect",{x:x,y:106,width:Math.min(w,254-x),height:138,fill:blues[Math.floor(r()*6)]},s);x+=w;}
+ el("rect",{x:30,y:250,width:230,height:16,fill:"#6FA3E0"},s);
+ arrow(s,290,240,290,120,C.navy,"arrb");
+ tx(s,145,75,t("molten"),{fs:14,anchor:"middle",weight:600,fill:C.ink});tx(s,305,180,t("grow"),{fs:14,w:16});tx(s,30,290,t("heat"),{fs:13,cls:"svgmuted"});
+ tx(s,305,60,t("cast_c"),{fs:13,cls:"svgmuted",w:20});};
+F.f_share=s=>{tx(s,20,26,t("share_h"),{fs:15,weight:600});const yrs=[2015,2017,2019,2021,2023,2025],M=[25,35,65,93,97,98],P=[70,60,32,4,1,.5];
+ const X=i=>60+i*88,Y=v=>250-v*2;for(let v=0;v<=100;v+=25){el("line",{x1:55,y1:Y(v),x2:500,y2:Y(v),stroke:C.line},s);tx(s,48,Y(v)+4,v+"%",{fs:11,anchor:"end",cls:"svgmuted"});}
+ yrs.forEach((y,i)=>tx(s,X(i),272,String(y),{fs:12,anchor:"middle",cls:"svgmuted"}));
+ [[M,C.navy,"mono"],[P,"#5B97D8","poly"]].forEach(d=>{el("polyline",{points:d[0].map((v,i)=>X(i)+","+Y(v)).join(" "),fill:"none",stroke:d[1],"stroke-width":4},s);
+  d[0].forEach((v,i)=>el("circle",{cx:X(i),cy:Y(v),r:5,fill:d[1]},s));});
+ tx(s,X(4)-10,Y(97)-12,t("mono"),{fs:15,weight:700,fill:C.navy,anchor:"end"});tx(s,X(0)+5,Y(70)-12,t("poly"),{fs:15,weight:700,fill:"#2F6DB5"});};
+F.f_mp=s=>{monoCell(s,30,30,190);tx(s,125,250,t("monoLook"),{fs:15,anchor:"middle",weight:600});
+ polyCell(s,280,30,190,9);tx(s,375,250,t("polyLook"),{fs:15,anchor:"middle",weight:600});
+ el("circle",{cx:455,cy:60,r:16,fill:"none",stroke:C.sunD,"stroke-width":3},s);el("line",{x1:470,y1:68,x2:560,y2:110,stroke:C.sunD,"stroke-width":2},s);
+ const cx=700,cy=130,R=105;const cp=el("clipPath",{id:"zc"},s);el("circle",{cx:cx,cy:cy,r:R},cp);const g=el("g",{"clip-path":"url(#zc)"},s);
+ el("rect",{x:cx-R,y:cy-R,width:R,height:2*R,fill:"#3E7CC4"},g);el("rect",{x:cx,y:cy-R,width:R,height:2*R,fill:"#26599A"},g);
+ el("path",{d:`M${cx},${cy-R} q-12,${R/2} 4,${R} t-6,${R}`,stroke:"#F6F8FB","stroke-width":5,fill:"none"},g);
+ [[cx-60,cy-40],[cx+50,cy+30],[cx-45,cy+50]].forEach(p=>{el("circle",{cx:p[0],cy:p[1],r:9,fill:"#fff"},g);tx(g,p[0],p[1]+4,"e",{fs:11,anchor:"middle",fill:C.navy});
+  el("path",{d:`M${p[0]+(p[0]<cx?10:-10)},${p[1]} L${cx+(p[0]<cx?-6:6)},${p[1]-8}`,stroke:"#fff","stroke-width":2,"marker-end":"url(#arr)"},g);});
+ [[cx-4,cy-50],[cx+2,cy+22]].forEach(p=>{tx(g,p[0],p[1]+6,"✕",{fs:22,anchor:"middle",fill:C.sun,weight:700});});
+ el("circle",{cx:cx,cy:cy,r:R,fill:"none",stroke:C.sunD,"stroke-width":3},s);
+ tx(s,cx,22,t("gbz"),{fs:13,anchor:"middle",cls:"svgmuted"});tx(s,cx,258,t("gb"),{fs:14,anchor:"middle",weight:600,w:46});};
+F.f_mm=s=>{tx(s,20,26,t("mm_h"),{fs:16,weight:600});
+ for(let k=0;k<5;k++){const x=40+k*170,isNew=k===2;panel(s,x,50,110,80,4,3,isNew?C.navy:"#5B97D8");tx(s,x+55,152,isNew?t("newt"):t("oldp"),{fs:13,anchor:"middle",weight:isNew?700:400,w:22});
+  if(k<4)el("line",{x1:x+110,y1:90,x2:x+170,y2:90,stroke:C.sunD,"stroke-width":4},s);}
+ arrow(s,60,195,860,195,C.red,"arr");tx(s,460,186,"I ≈ 8.5 A",{fs:15,anchor:"middle",weight:700,fill:C.red});
+ tx(s,460,222,t("mm1"),{fs:14,anchor:"middle",w:90});};
+/* ---------- THIN ---------- */
+F.f_thick=s=>{tx(s,20,26,t("thk_h"),{fs:15,weight:600});const k=4.2;
+ [[t("thk1"),150,C.navy],[t("thk2"),70,"#8A6E4B"],[t("thk3"),3,"#5A4A6E"]].forEach((d,i)=>{const y=50+i*48;el("rect",{x:300,y:y,width:Math.max(d[1]*k,4),height:30,fill:d[2]},s);tx(s,290,y+20,d[0],{fs:14,anchor:"end",weight:600});});};
+F.f_cdte=s=>{tx(s,20,24,t("cdte_h"),{fs:16,weight:600});const g=el("g",{},s);
+ stack(g,30,44,210,[{h:8,fill:C.sun,label:t("sunin")},{h:40,fill:"#D9EEF7",stroke:C.grey,label:"front glass"},{h:12,fill:C.green,label:"TCO"},{h:8,fill:"#E6D27A",label:"CdS buffer"},{h:30,fill:"#5A4A6E",label:"CdTe absorber 2–4 µm"},{h:12,fill:C.grey,label:"back metal"},{h:10,fill:C.dk,label:"encapsulant"},{h:30,fill:"#D9EEF7",stroke:C.grey,label:"back glass"}].map(L=>Object.assign(L,{h:L.h*1.55})),275,14);
+ for(let k=0;k<5;k++){const x=30+k*100;el("rect",{x:x,y:318,width:94,height:6,fill:C.grey},s);el("rect",{x:x,y:324,width:94,height:16,fill:"#5A4A6E"},s);el("rect",{x:x,y:340,width:94,height:6,fill:C.green},s);
+  if(k<4)el("line",{x1:x+97,y1:316,x2:x+97,y2:348,stroke:C.red,"stroke-width":2.5},s);}
+ tx(s,30,375,t("scribe"),{fs:13,w:62});};
+F.f_thin3=s=>{tx(s,20,24,t("thin3_h"),{fs:16,weight:600});
+ el("rect",{x:30,y:60,width:140,height:190,fill:"#3B2F4A"},s);for(let k=1;k<20;k++)el("line",{x1:30+k*7,y1:60,x2:30+k*7,y2:250,stroke:"#6A5A80"},s);
+ el("path",{d:"M210,250 C230,170 300,120 360,90 L380,120 C320,150 255,200 240,265 Z",fill:"#2E3540"},s);for(let k=1;k<10;k++){const f=k/10;el("line",{x1:210+f*150,y1:250-f*160,x2:240+f*140,y2:265-f*145,stroke:"#4F5966"},s);}
+ el("rect",{x:420,y:70,width:110,height:180,rx:10,fill:"#D6DADF",stroke:C.dk,"stroke-width":2},s);el("rect",{x:432,y:80,width:86,height:18,fill:"#6B3E2A"},s);el("rect",{x:432,y:104,width:86,height:30,fill:"#B8C7A8"},s);
+ for(let r=0;r<4;r++)for(let c=0;c<4;c++)el("rect",{x:434+c*22,y:144+r*25,width:16,height:18,rx:3,fill:C.dk},s);
+ [[100,"CdTe","18–19.5%","cdteU"],[290,"CIGS","14–17%","cigsU"],[475,"a-Si","6–9%","asiU"]].forEach(d=>{tx(s,d[0],295,d[1],{fs:17,anchor:"middle",weight:700});tx(s,d[0],318,d[2],{fs:15,anchor:"middle",fill:C.sunD,weight:600});tx(s,d[0],340,t(d[3]),{fs:13,anchor:"middle",cls:"svgmuted",w:18});});};
+/* ---------- CELLS ---------- */
+F.f_stairs=s=>{tx(s,20,26,t("stairs_h"),{fs:15,weight:600});
+ const D=[["Al-BSF",19.5,"≤2017","#8EA5C2"],["PERC",23,"2017–23","#5B97D8"],["TOPCon",25.5,"2023→",C.navy],["HJT",26,"2023→",C.navy],["BC",26.5,"2024→",C.navy],["Tandem",34.8,"lab","#B5654A"]];
+ const base=280,k=6.5;D.forEach((d,i)=>{const x=40+i*150,h=(d[1]-12)*8.5;el("rect",{x:x,y:base-h,width:120,height:h,fill:d[3]},s);
+  tx(s,x+60,base-h-10,d[1]+"%",{fs:17,anchor:"middle",weight:700});tx(s,x+60,base+20,d[0],{fs:15,anchor:"middle",weight:600});tx(s,x+60,base-12,d[2],{fs:12,anchor:"middle",fill:"#fff"});});};
+const ARCH={
+ perc:{n:"PERC",L:[{h:22,fill:C.grey,fingers:6,label:"front Ag fingers"},{h:16,fill:C.poly,label:"SiNₓ anti-reflection"},{h:28,fill:C.n,label:"n⁺ emitter"},{h:170,fill:C.p,label:"p-type wafer (Ga)"},{h:20,fill:C.green,label:"Al₂O₃ / SiNₓ passivation"},{h:34,fill:C.grey,label:"Al rear contact (local)"}],b:["p1","p2","p3"]},
+ topcon:{n:"TOPCon",L:[{h:22,fill:C.grey,fingers:6,label:"front Ag fingers"},{h:16,fill:C.poly,label:"AlOₓ / SiNₓ"},{h:26,fill:C.p,label:"p⁺ boron emitter"},{h:150,fill:C.n,label:"n-type wafer"},{h:8,fill:C.sun,label:"tunnel SiO₂ ≈1.5 nm"},{h:24,fill:"#5B97D8",label:"n⁺ poly-Si"},{h:16,fill:C.poly,label:"rear SiNₓ"},{h:22,fill:C.grey,fingers:6,label:"rear Ag fingers"}],b:["t1","t2","t3"]},
+ hjt:{n:"HJT",L:[{h:22,fill:C.grey,fingers:6,label:"low-temp Ag fingers"},{h:16,fill:C.green,label:"ITO"},{h:12,fill:"#E6A6A6",label:"p⁺ a-Si:H"},{h:10,fill:"#E6D27A",label:"i a-Si:H"},{h:150,fill:C.n,label:"n-type c-Si wafer"},{h:10,fill:"#E6D27A",label:"i a-Si:H"},{h:12,fill:"#5B97D8",label:"n⁺ a-Si:H"},{h:16,fill:C.green,label:"ITO"},{h:22,fill:C.grey,fingers:6,label:"rear fingers"}],b:["h1","h2","h3"]},
+ bc:{n:"BC",L:[{h:14,fill:"#F6F8FB",label:"no front metal"},{h:18,fill:C.poly,label:"textured front + ARC"},{h:10,fill:"#5B97D8",label:"n⁺ front field"},{h:170,fill:C.n,label:"n-type wafer"},{h:28,ic:8,fill:C.p,fill2:"#5B97D8",label:"p⁺ / n⁺ fingers (rear)"},{h:14,fill:C.poly,label:"rear passivation"},{h:24,ic:8,fill:C.sunD,fill2:C.grey,label:"+ / − contacts"}],b:["b1","b2","b3"]}
+};
+let arch="topcon";
+F.f_arch=s=>{const A=ARCH[arch];tx(s,20,26,(arch==="bc"?t("bc"):A.n)+t("xsec"),{fs:16,weight:600});
+ for(let j=0;j<4;j++)el("path",{d:`M${50+j*45},34 l10,22`,stroke:C.sun,"stroke-width":3},s);
+ const g=el("g",{},s);const bottom=stack(g,20,60,220,A.L,300,15);s.setAttribute("viewBox","0 0 620 "+(bottom+15));
+ document.getElementById("archInfo").innerHTML=`<h3>${arch==="bc"?t("bc"):A.n}</h3><ul>${A.b.slice(0,2).map(k=>`<li>${t(k)}</li>`).join("")}</ul><p><span class="tag">${t("status")}</span> ${t(A.b[2])}</p>`;
+ [...document.getElementById("archSeg").children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===arch));};
+F.f_pass=s=>{[[20,"pass0",0],[495,"pass1",1]].forEach(d=>{const x=d[0],ok=d[2];
+ el("rect",{x:x,y:90,width:440,height:110,fill:C.n},s);
+ if(ok){el("rect",{x:x,y:74,width:440,height:16,fill:"#2D7A4B",opacity:.8},s);tx(s,x+440,68,t("passlayer"),{fs:12,anchor:"end",fill:"#2D7A4B",weight:600});}
+ else{for(let k=0;k<20;k++)el("line",{x1:x+12+k*22,y1:90,x2:x+12+k*22,y2:78,stroke:C.red,"stroke-width":2},s);tx(s,x+440,68,t("dangling"),{fs:12,anchor:"end",fill:C.red,weight:600});}
+ el("rect",{x:x+190,y:52,width:60,height:22,fill:C.grey},s);
+ [[x+90,170],[x+220,175],[x+340,165]].forEach((p,i)=>{el("circle",{cx:p[0],cy:p[1],r:9,fill:C.navy},s);tx(s,p[0],p[1]+4,"e",{fs:11,anchor:"middle",fill:"#fff"});
+  if(ok)arrow(s,p[0],p[1]-10,x+205+i*15,78,C.navy,"arrb");else{arrow(s,p[0],p[1]-10,p[0]+(i-1)*10,96,C.navy,"arrb");tx(s,p[0]+(i-1)*10,104,"✕",{fs:20,anchor:"middle",fill:C.red,weight:700});}});
+ tx(s,x+220,232,t(d[1]),{fs:14,anchor:"middle",weight:600,w:50});});};
+/* ---------- FORMATS ---------- */
+F.f_exp=s=>{tx(s,20,26,t("ex_h"),{fs:16,weight:600});
+ const L=[["x1","none",C.grey],["x2","#D9EEF7",C.grey],["x3","#F5F1DE",C.line],["x4","cells",null],["x5","#F5F1DE",C.line],["x6","#EEF0F2",C.grey]];
+ L.forEach((l,i)=>{const y=50+i*48,x0=60;const pts=`${x0},${y+50} ${x0+400},${y+50} ${x0+500},${y} ${x0+100},${y}`;
+  if(l[1]==="cells"){el("polygon",{points:pts,fill:"#16294A"},s);for(let c=1;c<6;c++){const f=c/6;el("line",{x1:x0+f*400,y1:y+50,x2:x0+100+f*400,y2:y,stroke:"#7D8CA3"},s);}el("line",{x1:x0+50,y1:y+25,x2:x0+450,y2:y+25,stroke:"#7D8CA3"},s);}
+  else if(l[1]==="none"){el("polygon",{points:pts,fill:"none",stroke:l[2],"stroke-width":7},s);}
+  else el("polygon",{points:pts,fill:l[1],stroke:l[2],"stroke-width":1.5,opacity:.95},s);
+  el("line",{x1:x0+500,y1:y+5,x2:620,y2:y+12,stroke:C.grey},s);tx(s,628,y+17,t(l[0]),{fs:15,weight:i===3?700:400});});
+ el("rect",{x:300,y:345,width:60,height:24,rx:3,fill:"#222"},s);el("line",{x1:360,y1:357,x2:620,y2:357,stroke:C.grey},s);tx(s,628,362,t("x7"),{fs:15});};
+F.f_hc=s=>{tx(s,20,22,t("full"),{fs:15,weight:600});el("rect",{x:20,y:32,width:180,height:270,fill:C.line},s);
+ for(let r=0;r<12;r++)for(let c=0;c<6;c++)el("rect",{x:24+c*29.3,y:36+r*22,width:27.5,height:20.5,fill:C.navy},s);el("rect",{x:95,y:302,width:30,height:12,fill:"#222"},s);
+ tx(s,20,335,t("curI"),{fs:13,w:24});
+ tx(s,290,22,t("half"),{fs:15,weight:600});el("rect",{x:290,y:32,width:180,height:270,fill:C.line},s);
+ for(let r=0;r<24;r++)for(let c=0;c<6;c++)el("rect",{x:294+c*29.3,y:36+r*10.9+(r>=12?4:0),width:27.5,height:9.8,fill:r<12?C.navy:"#26599A"},s);
+ el("rect",{x:365,y:161,width:30,height:12,fill:"#222"},s);tx(s,478,100,t("upper"),{fs:13,w:8});tx(s,478,235,t("lower"),{fs:13,w:8});
+ tx(s,290,335,t("curI2"),{fs:13,w:28,weight:600});};
+F.f_shade=s=>{tx(s,20,22,t("shade_h"),{fs:15,weight:600});
+ [[30,0],[300,1]].forEach(d=>{const x=d[0],h=d[1];el("rect",{x:x,y:40,width:150,height:230,fill:C.line},s);
+  if(!h){for(let r=0;r<10;r++)for(let c=0;c<6;c++)el("rect",{x:x+3+c*24,y:43+r*22.5,width:22.5,height:21,fill:C.navy},s);}
+  else{for(let r=0;r<20;r++)for(let c=0;c<6;c++)el("rect",{x:x+3+c*24,y:43+r*11.2+(r>=10?2:0),width:22.5,height:10,fill:C.navy},s);}
+  el("rect",{x:x,y:236,width:150,height:34,fill:"#13202E",opacity:.55},s);
+  const out=h?50:1;el("rect",{x:x+170,y:270-out*2.2,width:40,height:out*2.2,fill:C.sun},s);el("rect",{x:x+170,y:50,width:40,height:220,fill:"none",stroke:C.grey},s);
+  tx(s,x+190,44,t("output"),{fs:12,anchor:"middle",cls:"svgmuted"});tx(s,x+190,262-out*2.2,h?"≈50%":"≈0%",{fs:14,anchor:"middle",weight:700});
+  tx(s,x,295,h?t("half"):t("full"),{fs:14,weight:700});tx(s,x,318,h?t("sh2"):t("sh1"),{fs:13,w:28});});};
+F.f_bif=s=>{el("rect",{x:0,y:250,width:520,height:80,fill:"#E9E4D8"},s);sunIcon(s,70,50,24);
+ el("line",{x1:260,y1:250,x2:260,y2:175,stroke:C.dk,"stroke-width":6},s);el("line",{x1:360,y1:250,x2:360,y2:130,stroke:C.dk,"stroke-width":6},s);
+ el("polygon",{points:"200,190 400,110 406,122 206,202",fill:C.navy},s);
+ [[95,68,240,165],[90,85,300,150]].forEach(r=>arrow(s,r[0],r[1],r[2],r[3]));arrow(s,85,100,150,240);
+ [[150,248,250,200],[170,248,300,185],[300,248,330,170]].forEach(r=>arrow(s,r[0],r[1],r[2],r[3],C.poly,"arrg"));
+ tx(s,170,40,t("direct"),{fs:14,weight:600,w:24});tx(s,380,215,t("refl"),{fs:14,fill:C.poly,weight:600,w:18});tx(s,20,300,t("ground"),{fs:14,weight:600});};
+F.f_alb=s=>{tx(s,20,26,t("alb_h"),{fs:15,weight:600,w:60});const D=[["su1",5],["su2",7],["su3",9],["su4",12],["su5",15],["su6",20]];
+ D.forEach((d,i)=>{const y=60+i*42,g=.8*d[1];tx(s,230,y+19,t(d[0]),{fs:12,anchor:"end",w:34});el("rect",{x:240,y:y+4,width:g*14,height:24,fill:i>2?C.navy:"#5B97D8"},s);tx(s,246+g*14,y+21,"+"+g.toFixed(1)+"%",{fs:13,weight:700});});};
+F.f_bb=s=>{const D=[["5BB","≈2015",5,3.5],["9BB","≈2019",9,2],["16BB+","≈2022",16,1.2],["0BB","≈2025",0,0]];
+ D.forEach((d,i)=>{const x=40+i*235,y=15,S=160;el("rect",{x:x,y:y,width:S,height:S,fill:"#16294A"},s);
+  for(let k=1;k<30;k++)el("line",{x1:x,y1:y+k*S/30,x2:x+S,y2:y+k*S/30,stroke:"#8C9AB0","stroke-width":.6},s);
+  if(d[2])for(let k=0;k<d[2];k++){const xx=x+(k+.5)*S/d[2];el("line",{x1:xx,y1:y,x2:xx,y2:y+S,stroke:"#D7DEE6","stroke-width":d[3]*1.6},s);}
+  else for(let k=0;k<18;k++){const xx=x+(k+.5)*S/18;el("line",{x1:xx,y1:y,x2:xx,y2:y+S,stroke:"#D7DEE6","stroke-width":.7,"stroke-dasharray":"2 3"},s);}
+  tx(s,x+S/2,y+S+24,d[0],{fs:17,anchor:"middle",weight:700});tx(s,x+S/2,y+S+42,d[1],{fs:12,anchor:"middle",cls:"svgmuted"});});
+ tx(s,480,252,t("bb_c"),{fs:14,anchor:"middle",weight:600,w:100});};
+F.f_gg=s=>{[[30,"gb1","gb1s",[["glass 3.2 mm","#D9EEF7",28],["EVA","#F5F1DE",10],["cells","#16294A",16],["EVA","#F5F1DE",10],["backsheet","#F0F0F0",10]]],[280,"gg1","gg1s",[["glass 2.0 mm","#D9EEF7",20],["POE","#F5F1DE",10],["cells","#16294A",16],["POE","#F5F1DE",10],["glass 2.0 mm","#D9EEF7",20]]]].forEach(d=>{
+  let y=60;tx(s,d[0]+105,32,t(d[1]),{fs:16,anchor:"middle",weight:700});
+  d[3].forEach(L=>{el("rect",{x:d[0],y:y,width:210,height:L[2]*2,fill:L[1],stroke:C.grey},s);tx(s,d[0]+105,y+L[2]+5,L[0],{fs:12,anchor:"middle",fill:L[1]==="#16294A"?"#fff":C.ink});y+=L[2]*2;});
+  tx(s,d[0]+105,y+28,t(d[2]),{fs:13,anchor:"middle",w:30});});};
+/* ---------- COMPARE ---------- */
+const D=[{s:"Poly",w:"p",eff:[15,18],tc:-0.40,deg:0.70,bif:0,p:"pr_poly",st:"r_poly"},{s:"PERC",w:"p",eff:[20.5,21.5],tc:-0.35,deg:0.55,bif:70,p:"₹12–16 / DCR ₹22–26",st:"r_perc"},
+ {s:"TOPCon",w:"n",eff:[22,23.8],tc:-0.29,deg:0.40,bif:82,p:"₹14–18 / DCR ₹22–27",st:"r_top"},{s:"HJT",w:"n",eff:[22.5,24],tc:-0.25,deg:0.35,bif:90,p:"pr_hjt",st:"r_hjt"},
+ {s:"BC",w:"n",eff:[23,24.8],tc:-0.27,deg:0.35,bif:65,p:"pr_bc",st:"r_bc"},{s:"CdTe",w:"t",eff:[18,19.5],tc:-0.30,deg:0.30,bif:0,p:"pr_cdte",st:"r_cdte"},
+ {s:"CIGS",w:"t",eff:[14,17],tc:-0.34,deg:0.60,bif:0,p:"pr_niche",st:"r_cigs"},{s:"a-Si",w:"t",eff:[6,9],tc:-0.20,deg:1.0,bif:0,p:"pr_niche",st:"r_asi"},
+ {s:"Tandem",w:"n",eff:[24,27],tc:-0.25,deg:null,bif:0,p:"pr_pilot",st:"r_tan"}];
+const MET={eff:{k:"m_eff",v:d=>d.eff,max:28,u:"%"},tc:{k:"m_tc",v:d=>[Math.abs(d.tc)*40],max:18,u:"%"},deg:{k:"m_deg",v:d=>d.deg==null?null:[d.deg],max:1.1,u:"%"},bif:{k:"m_bif",v:d=>[d.bif],max:100,u:"%"}};
+let metric="eff";
+F.f_cmp=s=>{const M=MET[metric],L=150,R=820,T0=40,rh=40;tx(s,L,24,t(M.k),{fs:15,weight:600});const sx=v=>L+(R-L)*v/M.max;
+ for(let k=0;k<=4;k++){const v=M.max*k/4;el("line",{x1:sx(v),y1:T0,x2:sx(v),y2:T0+D.length*rh,stroke:C.line},s);tx(s,sx(v),T0+D.length*rh+18,(Math.round(v*100)/100)+M.u,{fs:11,anchor:"middle",cls:"svgmuted"});}
+ D.forEach((d,i)=>{const y=T0+i*rh;tx(s,L-10,y+24,d.s,{fs:15,anchor:"end",weight:600});const v=M.v(d);
+  if(v==null||(metric==="bif"&&v[0]===0)){tx(s,L+6,y+24,metric==="bif"?t("monofacial"):t("notyet"),{fs:13,cls:"svgmuted"});return;}
+  const col=d.w==="n"?C.navy:d.w==="t"?C.purple:"#5B97D8";
+  if(v.length===2){el("rect",{x:L,y:y+8,width:sx(v[0])-L,height:24,fill:col,opacity:.3},s);el("rect",{x:sx(v[0]),y:y+8,width:sx(v[1])-sx(v[0]),height:24,fill:col},s);tx(s,sx(v[1])+6,y+25,v[0]+"–"+v[1]+"%",{fs:13,weight:600});}
+  else{el("rect",{x:L,y:y+8,width:sx(v[0])-L,height:24,fill:col},s);tx(s,sx(v[0])+6,y+25,(Math.round(v[0]*100)/100)+M.u,{fs:13,weight:600});}});
+ tx(s,L,T0+D.length*rh+42,t("legend"),{fs:12,cls:"svgmuted"});};
+F.f_area=s=>{tx(s,20,26,t("area_h"),{fs:15,weight:600});const A=[["Poly",17],["PERC",21],["TOPCon",23],["HJT",23.5],["BC",24.5]];let x=30;
+ A.forEach(a=>{const m2=5000/(a[1]*10),side=Math.sqrt(m2)*30;el("rect",{x:x,y:250-side,width:side,height:side,fill:a[0]==="Poly"?"#5B97D8":C.navy},s);
+  tx(s,x+side/2,250-side/2,m2.toFixed(1)+" m²",{fs:15,anchor:"middle",weight:700,fill:"#fff"});tx(s,x+side/2,274,a[0]+" "+a[1]+"%",{fs:13,anchor:"middle",weight:600});x+=side+28;});};
+/* ---------- STANDARDS ---------- */
+F.f_cert=s=>{const B=[["c1","IS 14286 + IS/IEC 61730"],["c2","MNRE"],["c3","c3s"],["c4","PM Surya Ghar · PM-KUSUM"]];
+ B.forEach((b,i)=>{const x=15+i*250;el("rect",{x:x,y:40,width:215,height:120,rx:8,fill:i===3?"#2D7A4B":C.navy},s);
+  tx(s,x+107,85,t(b[0]),{fs:16,anchor:"middle",weight:700,fill:"#fff",w:20});tx(s,x+107,135,T[b[1]]?t(b[1]):b[1],{fs:12,anchor:"middle",fill:"#E4EDF7",w:26});
+  if(i<3)el("path",{d:`M${x+220},100 h22`,stroke:C.sunD,"stroke-width":4,"marker-end":"url(#arr)"},s);});};
+const icons={
+ te1:s=>{el("rect",{x:60,y:10,width:12,height:55,rx:6,fill:"#fff",stroke:C.ink,"stroke-width":2},s);el("circle",{cx:66,cy:70,r:10,fill:C.red},s);el("rect",{x:63,y:30,width:6,height:40,fill:C.red},s);
+  el("path",{d:"M20,40 a26,26 0 1,1 10,22",fill:"none",stroke:C.poly,"stroke-width":3,"marker-end":"url(#arrg)"},s);tx(s,108,30,"+85",{fs:12,fill:C.red,weight:700});tx(s,108,72,"−40",{fs:12,fill:C.poly,weight:700});},
+ te2:s=>{el("path",{d:"M40,15 q22,30 22,45 a22,22 0 1,1 -44,0 q0,-15 22,-45z",fill:"#9FC3E8",stroke:C.poly,"stroke-width":2},s);el("rect",{x:88,y:15,width:12,height:50,rx:6,fill:"#fff",stroke:C.ink,"stroke-width":2},s);el("circle",{cx:94,cy:70,r:10,fill:C.red},s);el("rect",{x:91,y:28,width:6,height:42,fill:C.red},s);},
+ te3:s=>{el("polygon",{points:"20,80 130,80 120,62 30,62",fill:C.navy},s);[[45,20],[75,8],[100,28]].forEach(p=>{el("circle",{cx:p[0],cy:p[1],r:9,fill:"#E4EDF7",stroke:C.poly,"stroke-width":2},s);arrow(s,p[0],p[1]+11,p[0],p[1]+30,C.poly,"arrg");});},
+ te4:s=>{el("path",{d:"M15,55 Q75,80 135,55",fill:"none",stroke:C.navy,"stroke-width":10},s);for(let k=0;k<5;k++)arrow(s,30+k*22,8,30+k*22,40,C.red,"arr");el("polygon",{points:"10,80 25,62 40,80",fill:C.dk},s);el("polygon",{points:"110,80 125,62 140,80",fill:C.dk},s);},
+ te5:s=>{for(let k=0;k<3;k++)el("path",{d:`M10,${60+k*10} q15,-10 30,0 t30,0 t30,0 t30,0 t30,0`,fill:"none",stroke:C.poly,"stroke-width":2.5},s);for(let k=0;k<12;k++)el("circle",{cx:20+k*10,cy:20+((k*7)%25),r:2.5,fill:C.dk},s);tx(s,120,22,"NaCl",{fs:12,weight:700,anchor:"end"});},
+ te6:s=>{el("polygon",{points:"20,45 75,12 130,45",fill:C.sunD},s);el("rect",{x:30,y:45,width:90,height:38,fill:"#E9E4D8",stroke:C.dk},s);tx(s,75,72,"NH₃",{fs:16,anchor:"middle",weight:700});},
+ te7:s=>{el("polygon",{points:"70,5 45,48 66,48 55,85 95,35 72,35 85,5",fill:C.sun,stroke:C.sunD,"stroke-width":2},s);[[25,40],[115,55],[30,70]].forEach(p=>el("path",{d:`M${p[0]},${p[1]-10} q7,10 7,15 a7,7 0 1,1 -14,0 q0,-5 7,-15z`,fill:"#9FC3E8"},s));tx(s,125,22,"1500 V",{fs:11,anchor:"end",weight:700});},
+ te8:s=>{sunIcon(s,75,42,22);tx(s,75,48,"UV",{fs:15,anchor:"middle",weight:700,fill:"#5A2D82"});}};
+const TESTS=[["te1","IEC 61215"],["te2","IEC 61215"],["te3","IEC 61215"],["te4","IEC 61215"],["te5","IEC 61701"],["te6","IEC 62716"],["te7","IEC TS 62804-1"],["te8","IEC 61215"]];
+function renderTests(){const box=document.getElementById("tests");box.innerHTML="";TESTS.forEach(d=>{const c=document.createElement("div");c.className="test";const s=el("svg",{viewBox:"0 0 150 90"},c);icons[d[0]](s);
+ const b=document.createElement("div");b.innerHTML=`<b>${t(d[0])}</b><small>${d[1]}</small>`;c.appendChild(b);box.appendChild(c);});}
+F.f_stc=s=>{[[15,"stc1",1000,t("cellT"),"—",30],[270,"stc2",800,t("airT"),"1 m/s",22]].forEach(d=>{const x=d[0];el("rect",{x:x,y:10,width:235,height:250,rx:8,fill:"#F3F7FB",stroke:C.line},s);
+ tx(s,x+117,38,t(d[1]),{fs:14,anchor:"middle",weight:700,w:24});sunIcon(s,x+50,100,d[5]);
+ tx(s,x+100,92,t("sunl"),{fs:12,cls:"svgmuted"});tx(s,x+100,112,d[2]+" W/m²",{fs:15,weight:700});
+ tx(s,x+100,152,t("temp"),{fs:12,cls:"svgmuted"});tx(s,x+100,172,d[3],{fs:15,weight:700});
+ tx(s,x+100,212,t("wind"),{fs:12,cls:"svgmuted"});tx(s,x+100,232,d[4],{fs:15,weight:700});
+ el("rect",{x:x+44,y:145,width:12,height:50,rx:6,fill:"#fff",stroke:C.ink,"stroke-width":2},s);el("circle",{cx:x+50,cy:198,r:9,fill:C.red},s);
+ for(let k=0;k<3;k++)el("path",{d:`M${x+28},${215+k*10} h30 q8,0 8,-6`,fill:"none",stroke:C.poly,"stroke-width":2},s);});
+ tx(s,260,295,t("kerala"),{fs:14,anchor:"middle",weight:600,fill:C.red});tx(s,260,318,"AM 1.5G",{fs:12,anchor:"middle",cls:"svgmuted"});};
+F.f_plate=s=>{el("rect",{x:10,y:10,width:460,height:380,fill:"#fff",stroke:C.ink,"stroke-width":2},s);el("rect",{x:10,y:10,width:460,height:44,fill:C.navy},s);
+ tx(s,24,38,"n-type TOPCon bifacial (sample)",{fs:16,weight:600,fill:"#fff"});
+ const R=[["Pmax (STC)","580 W (0 ~ +5 W)"],["Voc","51.9 V"],["Isc","14.10 A"],["Vmp","43.2 V"],["Imp","13.43 A"],["Efficiency","22.5 %"],["γ Pmax / Voc / Isc","−0.29 / −0.25 / +0.045 %/°C"],["NMOT","42 ± 2 °C"],["Bifaciality","80 ± 5 %"],["Max. system voltage","1500 V DC"],["Series fuse","30 A"],["Size / weight","2278×1134×30 mm / 31.5 kg"]];
+ R.forEach((r,i)=>{tx(s,24,82+i*25,r[0],{fs:13,fill:C.ink});tx(s,230,82+i*25,r[1],{fs:13,fill:C.ink,weight:600});});};
+function renderStd(){const rows=[["IS 14286 / IEC 61215","sd1"],["IS 16077","sd2"],["IS/IEC 61730-1, -2","sd3"],["IEC 60904","sd4"],["IEC 61701","sd5"],["IEC 62716","sd6"],["IEC TS 62804-1","sd7"],["IS/IEC 62548, 62446","sd8"],["BIS CRO 2017 (MeitY)","sd9"],["CEA Safety Regulations 2023","sd10"],["IS 732, IS 3043","sd11"]];
+ document.getElementById("stdTable").innerHTML=`<thead><tr><th>${t("code")}</th><th>${t("covers")}</th></tr></thead><tbody>`+rows.map(r=>`<tr><td class="n"><b>${r[0]}</b></td><td>${t(r[1])}</td></tr>`).join("")+"</tbody>";}
+/* ---------- APPS ---------- */
+function ground(s,col){el("rect",{x:0,y:140,width:300,height:30,fill:col||"#C9D8A8"},s);}
+const SC={
+ home:s=>{sunIcon(s,255,30,14);ground(s);el("rect",{x:70,y:85,width:130,height:55,fill:"#F4E4C8",stroke:C.dk},s);el("polygon",{points:"55,88 135,35 215,88",fill:"#B5654A"},s);
+  {const g=el("g",{transform:"translate(146,44) rotate(33.5)"},s);panel(g,0,0,68,16,4,1);panel(g,0,18,68,16,4,1);}
+  el("rect",{x:120,y:105,width:25,height:35,fill:"#8A6E4B"},s);el("path",{d:"M240,140 v-50 q-20,-5 -25,-20 M240,90 q20,-5 25,-20 M240,95 q-5,-25 5,-35",stroke:"#3E7A3A","stroke-width":4,fill:"none"},s);},
+ fac:s=>{sunIcon(s,40,28,13);ground(s,"#BFC6CC");el("rect",{x:30,y:80,width:240,height:60,fill:"#D6DADF",stroke:C.dk},s);el("polygon",{points:"25,82 150,55 275,82",fill:"#9AA3AD"},s);
+  for(let k=0;k<5;k++){el("polygon",{points:`${45+k*23},${77-k*2.9} ${65+k*23},${72.5-k*2.9} ${65+k*23},${66-k*2.9} ${45+k*23},${70.5-k*2.9}`,fill:C.navy},s);el("polygon",{points:`${160+k*22},${62+k*2.8} ${180+k*22},${66.5+k*2.8} ${180+k*22},${60+k*2.8} ${160+k*22},${55.5+k*2.8}`,fill:C.navy},s);}
+  el("rect",{x:240,y:30,width:14,height:52,fill:"#8A8F96"},s);},
+ park:s=>{sunIcon(s,260,25,13);ground(s,"#E8D6A8");for(let r=0;r<3;r++)for(let c=0;c<4;c++){const x=20+c*70+r*10,y=70+r*25;el("line",{x1:x+25,y1:y+10,x2:x+25,y2:y+28,stroke:C.dk,"stroke-width":3},s);el("polygon",{points:`${x},${y+12} ${x+50},${y+12} ${x+46},${y} ${x+4},${y}`,fill:C.navy},s);}},
+ float:s=>{sunIcon(s,260,25,13);el("rect",{x:0,y:90,width:300,height:80,fill:"#7FB3D9"},s);for(let k=0;k<4;k++)el("path",{d:`M0,${110+k*15} q15,-6 30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0`,fill:"none",stroke:"#B9D8EE","stroke-width":2},s);
+  for(let r=0;r<2;r++)for(let c=0;c<5;c++){const x=20+c*55+r*15,y=88+r*28;el("rect",{x:x,y:y+10,width:40,height:6,fill:"#EEE"},s);el("polygon",{points:`${x},${y+10} ${x+40},${y+10} ${x+36},${y} ${x+4},${y}`,fill:C.navy},s);}},
+ agri:s=>{sunIcon(s,260,25,13);ground(s,"#A87E52");for(let k=0;k<12;k++)el("path",{d:`M${12+k*24},140 q-6,-18 0,-28 q6,10 0,28`,fill:"#4E9A45"},s);
+  [[30,"60"],[160,"60"]].forEach(p=>{el("line",{x1:p[0]+10,y1:140,x2:p[0]+10,y2:62,stroke:C.dk,"stroke-width":4},s);el("line",{x1:p[0]+100,y1:140,x2:p[0]+100,y2:52,stroke:C.dk,"stroke-width":4},s);el("polygon",{points:`${p[0]-5},68 ${p[0]+115},50 ${p[0]+115},44 ${p[0]-5},62`,fill:C.navy},s);});},
+ pump:s=>{sunIcon(s,40,28,13);ground(s,"#B9C98E");el("line",{x1:150,y1:140,x2:150,y2:80,stroke:C.dk,"stroke-width":5},s);el("polygon",{points:"100,90 200,70 200,55 100,75",fill:C.navy},s);
+  el("rect",{x:200,y:112,width:28,height:28,fill:"#2F6DB5"},s);el("path",{d:"M228,120 h25 v25",stroke:"#2F6DB5","stroke-width":6,fill:"none"},s);el("path",{d:"M253,148 q-4,10 -20,12 h-70",stroke:"#7FB3D9","stroke-width":8,fill:"none"},s);el("line",{x1:155,y1:110,x2:200,y2:125,stroke:C.ink,"stroke-width":2},s);},
+ ferry:s=>{sunIcon(s,40,28,13);el("rect",{x:0,y:115,width:300,height:55,fill:"#7FB3D9"},s);el("path",{d:"M50,110 h200 l-25,30 h-150z",fill:"#F4F4F4",stroke:C.dk,"stroke-width":2},s);
+  el("rect",{x:80,y:80,width:140,height:30,fill:"#FFF",stroke:C.dk},s);for(let k=0;k<5;k++)el("rect",{x:88+k*26,y:86,width:18,height:14,fill:"#9FC3E8"},s);el("polygon",{points:"70,80 230,80 225,70 75,70",fill:C.navy},s);},
+ air:s=>{sunIcon(s,260,25,13);ground(s,"#BFC6CC");for(let k=0;k<3;k++){const x=15+k*95;el("line",{x1:x+40,y1:140,x2:x+40,y2:85,stroke:C.dk,"stroke-width":4},s);el("polygon",{points:`${x},88 ${x+85},78 ${x+85},72 ${x},82`,fill:C.navy},s);
+  el("rect",{x:x+15,y:118,width:50,height:18,rx:6,fill:["#B23A3A","#F2B233","#5B97D8"][k]},s);el("circle",{cx:x+25,cy:138,r:5,fill:"#222"},s);el("circle",{cx:x+55,cy:138,r:5,fill:"#222"},s);}
+  el("path",{d:"M150,40 l-30,6 l-4,-4 l12,-3 l-14,-10 l5,-2 l20,8 l16,-4 q8,0 6,4z",fill:"#5B6774"},s);},
+ st:s=>{el("rect",{x:0,y:0,width:300,height:140,fill:"#2B3A55"},s);el("circle",{cx:250,cy:30,r:12,fill:"#F5F1DE"},s);ground(s,"#545B63");el("line",{x1:150,y1:140,x2:150,y2:40,stroke:"#B0B6BD","stroke-width":6},s);
+  el("polygon",{points:"125,45 185,30 185,22 125,37",fill:C.navy,stroke:"#B0B6BD"},s);el("path",{d:"M150,60 h35 v8",stroke:"#B0B6BD","stroke-width":5,fill:"none"},s);el("polygon",{points:"175,68 195,68 205,140 165,140",fill:"#F2B233",opacity:.25},s);el("rect",{x:176,y:66,width:18,height:6,fill:"#FFF6D6"},s);
+  el("rect",{x:138,y:95,width:24,height:18,fill:"#5B6774"},s);},
+ sat:s=>{el("rect",{x:0,y:0,width:300,height:170,fill:"#13202E"},s);for(let k=0;k<25;k++)el("circle",{cx:(k*53)%300,cy:(k*37)%170,r:1.2,fill:"#fff"},s);
+  el("rect",{x:130,y:65,width:40,height:40,fill:"#D9A520",stroke:"#B8860B"},s);panel(s,30,75,90,22,6,2);panel(s,180,75,90,22,6,2);el("line",{x1:120,y1:86,x2:130,y2:86,stroke:"#ccc","stroke-width":3},s);el("line",{x1:170,y1:86,x2:180,y2:86,stroke:"#ccc","stroke-width":3},s);
+  el("path",{d:"M150,65 v-15 m-10,0 h20",stroke:"#ccc","stroke-width":3},s);},
+ bipv:s=>{sunIcon(s,40,28,13);ground(s,"#BFC6CC");el("rect",{x:110,y:20,width:120,height:120,fill:"#C8D3DF",stroke:C.dk},s);for(let r=0;r<5;r++)for(let c=0;c<4;c++)el("rect",{x:116+c*28,y:26+r*22,width:24,height:18,fill:r%2?"#2A4C80":"#3B5F95",opacity:.9},s);
+  el("rect",{x:30,y:80,width:70,height:60,fill:"#E4EDF7",stroke:C.dk},s);for(let c=0;c<3;c++)el("rect",{x:36+c*21,y:86,width:17,height:24,fill:"#9FC3E8"},s);}
+};
+const APPS=[["home","a_home","a_homeE","DCR TOPCon, half-cut"],["fac","a_fac","a_facE","TOPCon, monofacial"],["park","a_park","a_parkE","Bifacial TOPCon / HJT, CdTe"],["float","a_float","a_floatE","Glass–glass, PID-resistant"],["agri","a_agri","a_agriE","Bifacial glass–glass"],["pump","a_pump","a_pumpE","Mono PERC / TOPCon"],["ferry","a_ferry","a_ferryE","Mono, lightweight"],["air","a_air","a_airE","Bifacial glass–glass"],["st","a_st","a_stE","Mono + battery"],["sat","a_sat","a_satE","III–V multi-junction"],["bipv","a_bipv","a_bipvE","CIGS, thin film, BC"]];
+function renderApps(){const box=document.getElementById("appCards");box.innerHTML="";APPS.forEach(a=>{const c=document.createElement("div");c.className="card";const s=el("svg",{viewBox:"0 0 300 170",role:"img","aria-label":t(a[1])},c);
+ el("rect",{x:0,y:0,width:300,height:170,fill:"#EAF2FA"},s);SC[a[0]](s);const b=document.createElement("div");b.className="cb";b.innerHTML=`<b>${t(a[1])}</b>${t(a[2])}<div class="fit">${t("bestfit")}${a[3]}</div>`;c.appendChild(b);box.appendChild(c);});
+ const techs=["Poly","PERC","TOPCon","HJT","BC","CdTe","CIGS"];const Fm=[[1,2,3,2,2,1,1],[1,2,3,3,3,1,1],[1,2,3,2,2,1,2],[1,2,3,3,1,3,1],[1,2,3,3,1,1,1],[1,2,3,3,2,2,1],[1,2,3,3,2,3,1],[1,1,2,2,2,2,3],[1,2,2,2,3,1,3],[1,3,3,2,1,1,1]];
+ document.getElementById("fitTable").innerHTML=`<thead><tr><th>${t("appHead")}</th>`+techs.map(x=>`<th style="text-align:center">${x}</th>`).join("")+"</tr></thead><tbody>"+Fm.map((r,i)=>`<tr><td>${t("fa"+(i+1))}</td>`+r.map(v=>`<td style="text-align:center"><span class="dot d${v}"></span></td>`).join("")+"</tr>").join("")+"</tbody>";}
+function renderCmpTable(){document.getElementById("cmpTable").innerHTML=`<thead><tr>${["th_tech","th_eff","th_tc","th_deg","th_bif","th_price","th_stat"].map(k=>`<th>${t(k)}</th>`).join("")}</tr></thead><tbody>`+
+ D.map(d=>`<tr><td><b>${d.s}</b></td><td class="n">${d.eff[0]}–${d.eff[1]}%</td><td class="n">${d.tc.toFixed(2).replace("-","−")} %/°C</td><td class="n">${d.deg==null?"—":d.deg+"%"}</td><td class="n">${d.bif?"~"+d.bif+"%":"—"}</td><td>${T[d.p]?t(d.p):d.p}</td><td>${t(d.st)}</td></tr>`).join("")+"</tbody>";}
+
+/* ---------- RENDER ---------- */
+function drawAll(){for(const id in F){const s=document.getElementById(id);if(!s)continue;s.innerHTML="";F[id](s);}renderTests();renderStd();renderApps();renderCmpTable();}
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll("[data-t]").forEach(e=>e.innerHTML=t(e.dataset.t));
+ tabs.forEach((b,i)=>b.textContent=t(panels[i].dataset.tab));
+ const ms=document.getElementById("metricSeg");ms.innerHTML="";[["eff","mb_eff"],["tc","mb_tc"],["deg","mb_deg"],["bif","mb_bif"]].forEach(m=>{const b=document.createElement("button");b.textContent=t(m[1]);b.setAttribute("aria-pressed",m[0]===metric);b.onclick=()=>{metric=m[0];applyLang();};ms.appendChild(b);});
+ const as=document.getElementById("archSeg");as.innerHTML="";Object.keys(ARCH).forEach(k=>{const b=document.createElement("button");b.dataset.k=k;b.textContent=k==="bc"?t("bc"):ARCH[k].n;b.onclick=()=>{arch=k;const s=document.getElementById("f_arch");s.innerHTML="";F.f_arch(s);};as.appendChild(b);});
+ segs("b_sSeg","b_s",[["su1",5],["su2",7],["su3",9],["su4",12],["su5",15],["su6",20]].map(o=>[t(o[0]),String(o[1])]),cH);
+ segs("t_gSeg","t_g",[["Poly −0.40","-0.40"],["PERC −0.35","-0.35"],["TOPCon −0.29","-0.29"],["BC −0.27","-0.27"],["HJT −0.25","-0.25"],["CdTe −0.30","-0.30"]],cT);
+ [...document.querySelectorAll("#langSeg button")].forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
+ drawAll();calcAll();}
+/* tabs */
+const panels=[...document.querySelectorAll("section.panel")],tablist=document.getElementById("tablist");
+panels.forEach((p,i)=>{const b=document.createElement("button");b.className="tabbtn";b.setAttribute("role","tab");b.id="tab-"+p.id;b.onclick=()=>show(i);tablist.appendChild(b);p.setAttribute("role","tabpanel");p.setAttribute("aria-labelledby",b.id);});
+const tabs=[...tablist.children];let cur=0;
+function show(i){cur=(i+panels.length)%panels.length;panels.forEach((p,j)=>p.classList.toggle("active",j===cur));tabs.forEach((b,j)=>{b.setAttribute("aria-selected",j===cur);b.tabIndex=j===cur?0:-1});
+ tabs[cur].scrollIntoView({block:"nearest",inline:"nearest"});try{history.replaceState(null,"","#"+panels[cur].id)}catch(e){}window.scrollTo({top:0});}
+document.getElementById("prevTab").onclick=()=>show(cur-1);document.getElementById("nextTab").onclick=()=>show(cur+1);
+document.addEventListener("keydown",e=>{const g=e.target.tagName;if(g==="INPUT"||g==="SELECT")return;if(e.key==="ArrowRight"||e.key==="PageDown"){show(cur+1);e.preventDefault()}if(e.key==="ArrowLeft"||e.key==="PageUp"){show(cur-1);e.preventDefault()}});
+let fs=20;try{const v=localStorage.getItem("pvfs");if(v)fs=+v}catch(e){}
+function setFs(v){fs=Math.max(14,Math.min(30,v));document.documentElement.style.setProperty("--fs",fs+"px");try{localStorage.setItem("pvfs",fs)}catch(e){}}
+setFs(fs);document.getElementById("fsUp").onclick=()=>setFs(fs+2);document.getElementById("fsDown").onclick=()=>setFs(fs-2);
+function setLang(l){if(LI[l]===undefined)return;lang=l;try{localStorage.setItem("pvlang",lang)}catch(e){}applyLang();}
+document.querySelectorAll("#langSeg button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.l)));
+document.addEventListener("keydown",e=>{const g=e.target.tagName;if(g==="INPUT")return;if(e.key==="l"||e.key==="L"){const o=["en","hi","ml"];setLang(o[(o.indexOf(lang)+1)%3]);}});
+function segs(boxId,inpId,opts,fn){const box=document.getElementById(boxId),inp=document.getElementById(inpId);box.innerHTML="";
+ opts.forEach(o=>{const b=document.createElement("button");b.type="button";b.textContent=o[0];b.setAttribute("aria-pressed",o[1]===inp.value);
+  b.addEventListener("click",()=>{inp.value=o[1];[...box.children].forEach(x=>x.setAttribute("aria-pressed",x===b));fn();});box.appendChild(b);});}
+/* calculators */
+const $=id=>document.getElementById(id),nv=id=>parseFloat($(id).value)||0;
+const f=(x,d=2)=>isFinite(x)?x.toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d}):"–";
+const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+function cE(){const P=nv("e_p"),A=nv("e_l")/1000*nv("e_w")/1000;$("e_out").innerHTML=`<div>${t("o_eff")}</div><div class="big">${f(P/(1000*A)*100)} %</div>`+row(t("o_area"),f(A,3)+" m²")+row(t("o_den"),f(P/A,0)+" W/m²")+row(t("o_apk"),f(1000*A/P,2)+" m²");}
+function cT(){const P=nv("t_p"),g=parseFloat($("t_g").value),N=nv("t_n"),Ta=nv("t_a"),G=nv("t_i"),Tc=Ta+(N-20)/800*G,out=x=>P*(G/1000)*(1+x/100*(Tc-25)),Po=out(g);
+ $("t_out").innerHTML=`<div>${t("o_t1")}</div><div class="big">${f(Po,1)} W</div>`+row(t("o_t2"),f(Tc,2)+" °C")+row(t("o_t3"),f(Math.abs(g)*(Tc-25),2)+" %")+row(t("o_t4"),f(Po/P*100,1)+" %");
+ const s=$("t_svg");s.innerHTML="";tx(s,0,14,t("o_t5"),{fs:12,cls:"svgmuted"});const L=[["Poly",-0.40],["PERC",-0.35],["TOPCon",-0.29],["BC",-0.27],["HJT",-0.25]],mx=Math.max(P,1);
+ L.forEach((d,i)=>{const v=out(d[1]),y=24+i*36,w=Math.max(0,280*v/mx);tx(s,62,y+19,d[0],{fs:12,anchor:"end"});el("rect",{x:68,y:y+4,width:w,height:22,fill:Math.abs(d[1]-g)<1e-6?C.sunD:C.navy},s);tx(s,74+w,y+20,f(v,0)+" W",{fs:12});});}
+function cS(){const U=nv("s_u"),Y=nv("s_y")||1,M=nv("s_m")||1,A=nv("s_a"),R=nv("s_r"),need=U/(30*Y),n=Math.ceil(need*1000/M),act=n*M/1000;
+ $("s_out").innerHTML=`<div>${t("o_s1")}</div><div class="big">${n} × ${M} Wp = ${f(act,2)} kWp</div>`+row(t("o_s2"),f(need,2)+" kWp")+row(t("o_s3"),f(act*Y*365,0)+" kWh")+row(t("o_s4"),f(act*Y*30,0)+" kWh")+row(t("o_s5"),f(n*A,1)+" m²")+row(t("o_s6"),f(n*A*1.2,1)+" m²")+row(t("o_s7"),"₹ "+f(act*1000*R,0));}
+function cH(){const I=nv("h_i"),R=nv("h_r"),Pf=nv("b_p"),bf=nv("b_f"),rs=parseFloat($("b_s").value)||0,pf=I*I*R,ph=I*I/4*R,gn=bf/100*rs;
+ $("hb_out").innerHTML=`<div>${t("o_h1")}</div><div class="big">${f(pf,2)} W → ${f(ph,2)} W</div>`+row(t("o_h2"),f(pf?(1-ph/pf)*100:0,0)+" %")+`<div style="margin-top:.8rem">${t("o_h3")}</div><div class="big">${f(Pf*(1+gn/100),1)} W</div>`+row(t("o_h4"),f(gn,1)+" %")+row(t("o_h5"),f(Pf*gn/100,1)+" W");}
+function calcAll(){cE();cT();cS();cH();}
+[["e_p","e_l","e_w"],["t_p","t_n","t_a","t_i"],["s_u","s_y","s_m","s_a","s_r"],["h_i","h_r","b_p","b_f"]].forEach((ids,k)=>ids.forEach(i=>$(i).addEventListener("input",[cE,cT,cS,cH][k])));
+const st=panels.findIndex(p=>"#"+p.id===location.hash);
+applyLang();show(st<0?0:st);
+})();
+</script>
+</body>
+</html>

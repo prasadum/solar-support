@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar Support – NSTI Calicut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Noto+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: fluid full-width home (module bands → card grids); lesson opens in an edge-to-edge viewer with a slim top bar */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#15202b; --muted:#56636f; --line:#d9e0e6;
+  --sun:#e08a00; --sun-soft:#fff3dc; --pv:#0d5c7a; --pv-soft:#e3f0f5; --bar:#0f2533; --bar-ink:#eef4f8;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e161d; --surface:#16212b; --ink:#e6edf2; --muted:#9aa9b5; --line:#263441;
+    --sun:#ffb23e; --sun-soft:#3a2a10; --pv:#62bfe0; --pv-soft:#123142; --bar:#0a1218; --bar-ink:#e6edf2; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e161d; --surface:#16212b; --ink:#e6edf2; --muted:#9aa9b5; --line:#263441;
+  --sun:#ffb23e; --sun-soft:#3a2a10; --pv:#62bfe0; --pv-soft:#123142; --bar:#0a1218; --bar-ink:#e6edf2; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:4px}
+
+/* ---------- home ---------- */
+.wrap{padding-inline:clamp(16px,3.2vw,48px);max-width:1680px;margin:0 auto}
+header.top{background:var(--bar);color:var(--bar-ink);padding-block:28px 26px}
+.eyebrow{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--sun);margin:0 0 6px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,5.4vw,60px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+.lede{margin:12px 0 0;max-width:62ch;color:color-mix(in srgb,var(--bar-ink) 80%,transparent);font-size:16.5px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:14px;color:color-mix(in srgb,var(--bar-ink) 72%,transparent)}
+.meta b{color:var(--bar-ink);font-weight:600}
+.sunline{height:4px;background:linear-gradient(90deg,var(--sun) 0 22%,var(--pv) 22% 100%)}
+
+nav.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.jump .wrap{display:flex;gap:10px;align-items:center;padding-block:10px;overflow-x:auto;scrollbar-width:thin}
+.jump a{flex:none;text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.jump a:hover{border-color:var(--pv);color:var(--pv)}
+.jump .find{flex:0 0 210px;position:sticky;left:0;background:var(--surface);padding-right:4px;z-index:1}
+.find input{width:100%;font:inherit;font-size:14px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+
+main.home{padding-block:8px 48px}
+section.mod{padding-top:30px;scroll-margin-top:64px}
+.modhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:16px}
+.modno{font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--sun);letter-spacing:.08em}
+.modhead h2{font-family:var(--f-display);font-size:clamp(26px,3vw,34px);font-weight:700;margin:0;line-height:1.1}
+.modhead p{margin:0;color:var(--muted);font-size:14.5px;flex-basis:100%}
+@media (min-width:900px){.modhead p{flex-basis:auto;margin-left:auto;text-align:right;max-width:52ch}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+.card{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-content:start;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--pv);transform:translateY(-2px)}
+.num{grid-row:1/4;font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;color:var(--pv);min-width:2ch}
+.card h3{margin:0;font-size:17px;line-height:1.3;font-weight:700;min-width:0}
+.card p{margin:2px 0 0;font-size:14.5px;color:var(--muted);min-width:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-family:var(--f-mono);font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--pv-soft);color:var(--pv)}
+.tag.sun{background:var(--sun-soft);color:var(--sun)}
+
+.mcq{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:12px}
+.mcq a{display:flex;flex-direction:column;gap:2px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:8px;padding:14px 16px}
+.mcq a:hover{border-color:var(--sun)}
+.mcq b{font-family:var(--f-display);font-size:22px;font-weight:700}
+.mcq span{font-size:13.5px;color:var(--muted)}
+h3.sub{font-size:15px;margin:18px 0 8px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.mcq.gen{grid-template-columns:repeat(auto-fill,minmax(min(100%,120px),1fr))}
+.mcq.gen b{font-size:19px}
+.extra{margin-top:18px;font-size:14.5px;color:var(--muted)}
+.extra ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:8px 0 0}
+.extra li a{display:inline-block;text-decoration:none;font-size:14px;padding:5px 11px;border:1px dashed var(--line);border-radius:6px;color:var(--ink)}
+.extra li a:hover{border-color:var(--pv)}
+.empty{color:var(--muted);padding:20px 0}
+footer{border-top:1px solid var(--line);padding-block:20px 28px;color:var(--muted);font-size:13.5px}
+
+/* ---------- lesson viewer ---------- */
+#viewer{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:20}
+.vbar{flex:none;display:flex;align-items:center;gap:6px;background:var(--bar);color:var(--bar-ink);padding:calc(6px + env(safe-area-inset-top,0px)) 8px 6px}
+.vbar a,.vbar button{font:inherit;font-size:14px;font-weight:600;color:var(--bar-ink);background:transparent;border:1px solid color-mix(in srgb,var(--bar-ink) 25%,transparent);border-radius:6px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.vbar a:hover,.vbar button:hover{border-color:var(--sun);color:var(--sun)}
+.vbar button:disabled{opacity:.35;cursor:default;border-color:transparent;color:var(--bar-ink)}
+.vtitle{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px;padding:0 6px;overflow:hidden}
+.vtitle .n{font-family:var(--f-mono);font-size:12.5px;color:var(--sun);flex:none}
+.vtitle .t{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#frame{flex:1;width:100%;border:0;display:block;background:#fff}
+@media (max-width:640px){
+  .vbar .lbl{display:none}
+  .vbar a,.vbar button{padding:6px 9px}
+  .vtitle .t{font-size:13.5px}
+}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<div id="home">
+  <header class="top">
+    <div class="wrap">
+      <p class="eyebrow">Solar Support · PM Surya Ghar Muft Bijli Yojana</p>
+      <h1>Solar PV Learning Path</h1>
+      <p class="lede">Interactive lessons, simulators, sizing trainers and practice quizzes for rooftop solar, arranged in teaching order: from the Sun's movement to sizing a complete plant. Most lessons switch between English, Hindi and Malayalam.</p>
+      <div class="meta">
+        <span>Prepared by <b>PRASAD UM, VI</b></span>
+        <span>Vocational Instructor, <b>NSTI Calicut</b></span>
+        <span>CTS Electrician – Power Distribution</span>
+      </div>
+    </div>
+  </header>
+  <div class="sunline"></div>
+
+  <nav class="jump" aria-label="Modules">
+    <div class="wrap" id="jump">
+      <label class="find"><input id="q" type="search" placeholder="Find a lesson…" aria-label="Find a lesson"></label>
+    </div>
+  </nav>
+
+  <main class="home wrap" id="list"></main>
+
+  <footer class="wrap">
+    <span id="count"></span> lessons · works on phone, tablet and PC. Tap a lesson to open it full width; use ◀ ▶ in the top bar to move through the sequence.
+  </footer>
+</div>
+
+<div id="viewer" hidden>
+  <div class="vbar">
+    <a href="#" id="vhome" title="Back to all lessons">⌂ <span class="lbl">Home</span></a>
+    <div class="vtitle"><span class="n" id="vn"></span><span class="t" id="vt"></span></div>
+    <button id="vprev" type="button" title="Previous lesson">◀ <span class="lbl">Prev</span></button>
+    <button id="vnext" type="button" title="Next lesson"><span class="lbl">Next</span> ▶</button>
+    <a id="vopen" href="#" target="_blank" rel="noopener" title="Open this lesson on its own">↗ <span class="lbl">Open alone</span></a>
+  </div>
+  <iframe id="frame" title="Lesson" allow="fullscreen; autoplay" allowfullscreen></iframe>
+</div>
+
+<script>
+const MODULES=[
+ {id:"sun",title:"The Sun and the sky",note:"Why seasons happen, where the Sun is at any hour, and how tilt changes what a panel receives.",lessons:[
+  {s:"seasons-3d",t:"Why we have seasons in India",d:"3D orbit model: 23.5° axial tilt, equinoxes, solstices, perihelion and aphelion, with IMD season colours.",g:["3D","EN·HI·ML"]},
+  {s:"seasons-step-by-step",t:"Seasons, step by step",d:"Guided lesson with voice narration that walks through the Earth's orbit one position at a time.",g:["Narrated","EN·HI·ML"]},
+  {s:"sun-angles-3d",t:"Sun angles: elevation, azimuth, zenith",d:"Move the Sun over a sky dome and read α, θz and γ. Real-sun mode for Kozhikode, Port Blair and other cities.",g:["3D","Simulator"]},
+  {s:"sun-path-chart",t:"Sun path chart – Kozhikode",d:"Polar and rectangular sun path charts with sunrise, sunset, day length and noon elevation for the 21st of each month.",g:["Chart","IST times"]},
+  {s:"tilt-irradiance-3-panel",t:"Tilt, irradiance and time of day",d:"Three-panel simulation for Port Blair and Kozhikode: sun path by month, recommended tilt, series/parallel, Isc, Voc and daily power curve.",g:["Simulator","Monthly tilt"]}
+ ]},
+ {id:"pv",title:"Solar cells and PV modules",note:"From the silicon atom to the module datasheet, and what shading does to a string.",lessons:[
+  {s:"pn-junction-solar-cell",t:"Semiconductors, PN junction and solar cell",d:"Doping, depletion layer, bias, diode V–I curve, solar cell I–V curve, fill factor, and cell → module → array.",g:["11 steps","EN·HI·ML"]},
+  {s:"iv-curve-lab",t:"Solar cell I-V curve lab",d:"Plot the I-V curve point by point using load resistors at 200, 600 and 1000 W/m², and compare 25 °C with 45 °C.",g:["Lab","Temperature"]},
+  {s:"pv-modules-visual",t:"PV module technologies – visual overview",d:"Mono, poly, thin film, PERC, TOPCon, HJT, half-cut and bifacial explained with diagrams.",g:["Overview","EN·HI·ML"]},
+  {s:"pv-modules-detailed",t:"PV module technologies – detailed reference",d:"Manufacturing, comparison of efficiency and degradation, IS/IEC standards, reading a datasheet, worked numericals.",g:["Reference","Calculators","EN·HI·ML"]},
+  {s:"hotspots-bypass-diodes",t:"Hotspots, bypass and blocking diodes",d:"Shade one cell and watch heating, I–V and P–V curves; bypass and blocking diode action, testing and faults.",g:["Animated","EN·HI·ML"]}
+ ]},
+ {id:"systems",title:"Solar systems and components",note:"On-grid, off-grid and hybrid systems, the inverter, and everything else between panel and grid.",lessons:[
+  {s:"solar-systems-overview",t:"Solar energy systems – classroom slides",d:"On-grid, off-grid, hybrid, islanding and anti-islanding, BESS and IEC standards, comparison table.",g:["Slides","EN·HI·ML"]},
+  {s:"pv-systems-bess",t:"Solar PV systems and BESS",d:"Detailed on-grid, off-grid and hybrid layouts, isolation, protection devices and battery energy storage.",g:["9 steps","EN·HI·ML"]},
+  {s:"inverter-types",t:"Solar inverter types",d:"Inside an inverter, off-grid, on-grid, hybrid and micro inverters, datasheets, MPPT and the string voltage window.",g:["10 steps","EN·HI·ML"]},
+  {s:"balance-of-system",t:"Balance of System (BoS)",d:"Structures, cables and MC4, DCDB and ACDB, earthing and lightning arrester, metering, BoS sizing and testing.",g:["9 steps","EN·HI·ML"]}
+ ]},
+ {id:"storage",title:"Batteries and charge controllers",note:"Storage chemistry, charging, and how fast a battery can safely be discharged.",lessons:[
+  {s:"lead-acid-charge-controllers",t:"Lead-acid batteries and charge controllers",d:"Construction, chemistry, C10/C20 ratings, charging stages, common problems, PWM vs MPPT, connections and pricing.",g:["10 steps","EN·HI·ML"]},
+  {s:"lithium-batteries",t:"Lithium solar batteries",d:"LiFePO₄ types, construction, live BMS demo, settings, pros and cons, care, safety and installation.",g:["9 steps","EN·HI·ML"]},
+  {s:"battery-c-rate",t:"C-rating of battery",d:"What C-rate means, discharge time calculator, battery types, high-C effects, reading labels, worked examples and quiz.",g:["Calculator","Quiz","EN·HI·ML"]},
+  {s:"battery-discharge-calculator",t:"Battery discharge time calculator",d:"Enter Ah or mAh and pick a C-rate from C/20 to 20C to get discharge time, current and typical applications.",g:["Calculator"]}
+ ]},
+ {id:"sizing",title:"System sizing",note:"Work a full design from the load survey, with every number calculated live.",lessons:[
+  {s:"grid-tie-sizing",t:"Grid-tie rooftop PV sizing",d:"Load survey → plant capacity, modules, inverter, string connection, energy exported to the grid and protection.",g:["Step by step","EN·HI·ML"]},
+  {s:"offgrid-sizing-quick",t:"Off-grid sizing – quick trainer",d:"Six short steps with your own wattages: loads, hours, inverter VA, battery bank, PV array and charge controller.",g:["6 steps","Calculator"]},
+  {s:"standalone-sizing",t:"Stand-alone PV sizing trainer",d:"Load survey, watt-hours, inverter VA, system voltage, battery bank, PV array, standard panels and controller rating.",g:["Step by step","EN·HI·ML"]}
+ ]},
+ {id:"practice",title:"Practice and assessment",note:"Self-check quizzes with instant feedback, then the Google Form question banks below.",lessons:[
+  {s:"challenge-1",t:"Solar Smart Technician Challenge",d:"30 questions on irradiance, PV cells, wiring, installation safety and troubleshooting, with a score at the end.",g:["30 MCQ","NSQF 3"]},
+  {s:"challenge-2",t:"Solar Smart Technician – Advanced Challenge",d:"30 harder questions: string sizing, standards, PID, protection devices, temperature loss and performance checks.",g:["30 MCQ","Advanced"]}
+ ]}
+];
+const MCQ=[
+ ["MCQ Module 1","https://forms.gle/K4uoCsBEb8n4R5JG9"],
+ ["MCQ Module 2","https://forms.gle/Bkt5Lus67TMbUe5p8"],
+ ["MCQ Module 3","https://forms.gle/CAQi4N5skrfRuyMy5"],
+ ["MCQ Module 4","https://forms.gle/i2xHzPB66aBeNueW6"],
+ ["MCQ Module 5","https://forms.gle/eCEYjQhG7n3eNt5Y6"]
+];
+const GEN=["opePE4qTTQLVftFJ6", "NwXPB9qhLwxWJ6P48", "7n2FXSAoDBdnHT9n8", "zToDZ8M1DhzfPsZE9", "6KyMxDT787J5VbMWA", "aG5WTYLEHvse8swZ8", "t36hEJ5HawDLka1C7", "yUFUCVA5HqCDnwbK9", "ZETVb4bsvvGNpMfFA", "gm4Jge8BqHeCSyhd9", "5PAK2EJyayuyaxL6A", "kzN1SYnzjybd4JxAA", "45QhSdmCg3CQuCbf9", "agLCycds8i6n1pqh9", "5czCwEUD2MnMEGiK9", "94Lr4ZVf27zoeHtu8", "aqjZkjZ9jgdm8W6a9", "utoNX1PGa6PddQJx7", "Yuhy1RPTLDbRS8ee7", "henkTSVtcvj8rddz8", "qxG4Y3Xs5m1hL89V6", "TMdpZDL4uM4emhMU7", "76pLs8JJz2ELWyqg7", "nYsy8epQw1DEWA4L7", "afNT1FCPrgWNJPAt7", "9BvK77LWmtwSBWB4A", "u6BmB2aan2ku3ZZG9", "ji3hUKBLxy6vdJUE7"];
+
+const FLAT=[];MODULES.forEach((m,mi)=>m.lessons.forEach(l=>{l.m=mi;l.n=String(FLAT.length+1).padStart(2,"0");FLAT.push(l);}));
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// jump chips
+const jump=$("jump");
+MODULES.forEach((m,i)=>{const a=document.createElement("a");a.href="#mod-"+m.id;a.textContent=(i+1)+". "+m.title;a.addEventListener("click",e=>{e.preventDefault();document.getElementById("mod-"+m.id)?.scrollIntoView({behavior:"smooth"});});jump.appendChild(a);});
+{const a=document.createElement("a");a.href="#mod-mcq";a.textContent="MCQ question banks";a.addEventListener("click",e=>{e.preventDefault();document.getElementById("mod-mcq")?.scrollIntoView({behavior:"smooth"});});jump.appendChild(a);}
+
+function card(l){return '<a class="card" href="#'+l.s+'"><span class="num">'+l.n+'</span><h3>'+esc(l.t)+'</h3><p>'+esc(l.d)+'</p><div class="tags">'+l.g.map((g,i)=>'<span class="tag'+(/EN·HI·ML/.test(g)?" sun":"")+'">'+esc(g)+'</span>').join("")+'</div></a>';}
+function render(q){
+  q=(q||"").trim().toLowerCase();let h="",shown=0;
+  MODULES.forEach((m,i)=>{
+    const ls=m.lessons.filter(l=>!q||(l.t+" "+l.d+" "+l.g.join(" ")).toLowerCase().includes(q));
+    if(!ls.length)return;shown+=ls.length;
+    h+='<section class="mod" id="mod-'+m.id+'"><div class="modhead"><span class="modno">MODULE '+(i+1)+'</span><h2>'+esc(m.title)+'</h2><p>'+esc(m.note)+'</p></div><div class="grid">'+ls.map(card).join("")+'</div></section>';
+  });
+  if(q&&!shown)h+='<p class="empty">No lesson matches “'+esc(q)+'”. Try a word like battery, inverter or tilt.</p>';
+  if(!q||"mcq practice quiz test question bank form gen".includes(q)){
+    h+='<section class="mod" id="mod-mcq"><div class="modhead"><span class="modno">QUESTION BANKS</span><h2>MCQ practice – PM Surya Ghar</h2><p>Google Forms. Each opens in a new tab.</p></div>'+
+      '<h3 class="sub">MCQ modules</h3><div class="mcq">'+MCQ.map(([t,u])=>'<a href="'+u+'" target="_blank" rel="noopener"><b>'+t+'</b><span>Google Form ↗</span></a>').join("")+'</div>'+
+      '<h3 class="sub">MCQ Gen practice sets</h3><div class="mcq gen">'+GEN.map((id,i)=>'<a href="https://forms.gle/'+id+'" target="_blank" rel="noopener"><b>Set '+(i+1)+'</b><span>Google Form ↗</span></a>').join("")+'</div></section>';
+  }
+  $("list").innerHTML=h;
+}
+render();
+$("count").textContent=FLAT.length;
+$("q").addEventListener("input",e=>render(e.target.value));
+
+// viewer
+const viewer=$("viewer"),home=$("home"),frame=$("frame");let homeScroll=0,cur=-1;
+function show(idx){
+  const l=FLAT[idx];if(!l)return;
+  if(viewer.hidden)homeScroll=window.scrollY;
+  cur=idx;const src="lessons/"+l.s+".html";
+  if(frame.getAttribute("src")!==src)frame.setAttribute("src",src);
+  $("vn").textContent=l.n+" / "+FLAT.length;$("vt").textContent=l.t;$("vopen").href=src;
+  $("vprev").disabled=idx===0;$("vnext").disabled=idx===FLAT.length-1;
+  document.title=l.t+" · Solar Support";
+  viewer.hidden=false;home.hidden=true;
+}
+function hide(){
+  viewer.hidden=true;home.hidden=false;cur=-1;document.title="Solar Support – NSTI Calicut";
+  window.scrollTo(0,homeScroll);
+}
+function route(){const s=location.hash.slice(1);const i=FLAT.findIndex(l=>l.s===s);if(i>=0)show(i);else if(!viewer.hidden)hide();}
+window.addEventListener("hashchange",route);
+$("vhome").addEventListener("click",e=>{e.preventDefault();if(location.hash)history.pushState(null,"",location.pathname+location.search);hide();});
+$("vprev").addEventListener("click",()=>{if(cur>0)location.hash=FLAT[cur-1].s;});
+$("vnext").addEventListener("click",()=>{if(cur<FLAT.length-1)location.hash=FLAT[cur+1].s;});
+route();
+</script>
+</body>
+</html>

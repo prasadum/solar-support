@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sun path chart — Kozhikode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef2f5; --panel:#ffffff; --ink:#1b2430; --muted:#5b6775; --line:#d6dde4; --grid:#e3e8ee; --accent:#0f4c81; --soft:#f4f7fa; --shade:rgba(120,90,60,.16); --sky:#fbfdff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#0e141c; --panel:#161f2a; --ink:#e7edf3; --muted:#9aa8b6; --line:#2a3644; --grid:#243040; --accent:#7fb6ea; --soft:#1d2834; --shade:rgba(200,160,110,.16); --sky:#121b25;}
+}
+:root[data-theme="dark"]{--bg:#0e141c; --panel:#161f2a; --ink:#e7edf3; --muted:#9aa8b6; --line:#2a3644; --grid:#243040; --accent:#7fb6ea; --soft:#1d2834; --shade:rgba(200,160,110,.16); --sky:#121b25;}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+.app{display:grid;grid-template-columns:1fr 340px;min-height:100%}
+main{padding:18px 20px 30px;min-width:0}
+h1{font-size:21px;margin:0 0 2px}
+.sub{color:var(--muted);margin:0 0 12px;font-size:14px}
+.chartbox{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px}
+canvas{display:block;width:100%;touch-action:none}
+.tip{position:absolute;pointer-events:none;background:#1b2430;color:#fff;font-size:13px;padding:6px 9px;border-radius:6px;white-space:nowrap;display:none;font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.tablewrap{overflow-x:auto;margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{background:var(--soft);color:var(--muted);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.foot{font-size:12.5px;color:var(--muted);margin-top:10px}
+aside{background:var(--panel);border-left:1px solid var(--line);padding:18px;overflow-y:auto}
+h2{font-size:14px;text-transform:none;margin:16px 0 8px;color:var(--ink)}
+h2:first-child{margin-top:0}
+select,input[type=number],input[type=date]{font:inherit;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);width:100%}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:8px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+.months{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.months label{display:flex;align-items:center;gap:6px;font-size:14px;padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.months label:hover{border-color:var(--line)}
+.months .sw{width:14px;height:4px;border-radius:2px;flex:none}
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}
+.presets button{font:inherit;font-size:12.5px;font-weight:600;padding:6px 2px;border:1px solid var(--line);border-radius:6px;background:var(--soft);color:var(--ink);cursor:pointer}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0;cursor:pointer}
+.ctl label.top{display:flex;justify-content:space-between;font-weight:600;font-size:14px;margin:8px 0 4px}
+input[type=range]{width:100%}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+.anim{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.anim button{font:inherit;font-size:13.5px;font-weight:600;padding:8px 6px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+.anim button.on{background:var(--accent);color:#fff}
+.readout{background:var(--soft);border-radius:8px;padding:8px 10px;font-size:13.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+@media (max-width:920px){.app{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="app">
+<main>
+  <h1>Sun path chart: <span id="locTitle">Kozhikode</span></h1>
+  <p class="sub" id="locSub">11.25°N, 75.78°E · each curve is the Sun's path across the sky on the 21st of that month</p>
+  <div class="chartbox" id="box">
+    <canvas id="cv" aria-label="Sun path chart"></canvas>
+    <div class="tip" id="tip"></div>
+  </div>
+  <div class="tablewrap"><table id="tbl"></table></div>
+  <p class="foot">Sunrise and sunset use the standard −0.83° sun altitude (includes refraction and the Sun's half-width). Azimuth is measured clockwise from North (N 0°, E 90°, S 180°, W 270°). IST times include the longitude correction from 82.5°E and the equation of time.</p>
+</main>
+
+<aside>
+  <h2>Location</h2>
+  <select id="locIn">
+    <option value="11.25,75.78,Kozhikode" selected>Kozhikode</option>
+    <option value="8.52,76.94,Thiruvananthapuram">Thiruvananthapuram</option>
+    <option value="9.93,76.27,Kochi">Kochi</option>
+    <option value="11.62,92.73,Port Blair">Port Blair</option>
+    <option value="13.08,80.27,Chennai">Chennai</option>
+    <option value="19.08,72.88,Mumbai">Mumbai</option>
+    <option value="28.61,77.21,New Delhi">New Delhi</option>
+    <option value="custom">Custom…</option>
+  </select>
+  <div class="row" id="customRow" style="margin-top:6px" hidden>
+    <input type="number" id="latIn" step="0.01" value="11.25" aria-label="Latitude °N">
+    <input type="number" id="lonIn" step="0.01" value="75.78" aria-label="Longitude °E">
+  </div>
+
+  <h2>Chart type</h2>
+  <div class="seg" id="typeSeg"><button data-t="polar" class="on">Polar (sky dome)</button><button data-t="cart">Rectangular</button></div>
+  <div class="ctl" id="centerCtl" hidden>
+    <label class="top" for="centerIn">Centre of chart</label>
+    <select id="centerIn"><option value="S">South (180°)</option><option value="N" selected>North (0°) — best for June paths</option></select>
+  </div>
+
+  <h2>Months (21st)</h2>
+  <div class="months" id="months"></div>
+  <div class="presets">
+    <button data-p="all">All</button><button data-p="none">None</button><button data-p="key">Key 4</button><button data-p="half">Jan–Jun</button>
+  </div>
+
+  <h2>Show</h2>
+  <label class="chk"><input type="checkbox" id="oHours" checked> Hour lines</label>
+  <label class="chk"><input type="checkbox" id="oLabels" checked> Month labels</label>
+  <label class="chk"><input type="checkbox" id="oGrid" checked> Grid</label>
+  <label class="chk"><input type="checkbox" id="oZenith" checked> Overhead (zenith) mark</label>
+  <div class="ctl">
+    <label class="top" for="timeBasis">Time basis</label>
+    <select id="timeBasis"><option value="ist" selected>IST (clock time)</option><option value="solar">Local solar time</option></select>
+  </div>
+  <div class="ctl">
+    <label class="top" for="horizIn">Obstruction height (trees, buildings) <span id="horizOut">0°</span></label>
+    <input type="range" id="horizIn" min="0" max="30" value="0">
+  </div>
+
+  <h2>Selected date</h2>
+  <label class="chk"><input type="checkbox" id="oCustom" checked> Show path for this date</label>
+  <input type="date" id="dateIn">
+  <div class="ctl">
+    <label class="top" for="timeIn">Sun position at <span id="timeOut">12:00</span></label>
+    <input type="range" id="timeIn" min="300" max="1200" step="5" value="720">
+  </div>
+  <div class="anim">
+    <button id="playDay">▶ Animate day</button>
+    <button id="playYear">▶ Animate year</button>
+  </div>
+  <div class="ctl">
+    <label class="top" for="speedIn">Speed</label>
+    <select id="speedIn"><option value="0">Slow</option><option value="1" selected>Normal</option><option value="2">Fast</option><option value="3">Very fast</option></select>
+  </div>
+  <label class="chk"><input type="checkbox" id="oTrail" checked> Leave a trail</label>
+  <label class="chk"><input type="checkbox" id="oRay" checked> Show sun ray to observer</label>
+  <p class="foot" style="margin-top:4px">Animate day: the Sun moves along the selected date from sunrise to sunset. Animate year: the clock stays at the set time and the date moves on, so the trail traces the figure-8 (analemma).</p>
+  <div class="readout" id="readout"></div>
+</aside>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const D2R=Math.PI/180;
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ML=[31,28,31,30,31,30,31,31,30,31,30,31];
+const COLS=['#1f5fbf','#2f8fd8','#18a39a','#3aa845','#9bb52a','#e0a100','#f07b12','#e04f2a','#c2306b','#9b3fc0','#6a4fd0','#2b3fa8'];
+const DASH=[false,false,false,false,false,false,true,true,true,true,true,true];
+const st={lat:11.25,lon:75.78,name:'Kozhikode',type:'polar',center:'N',months:[true,false,true,false,false,true,false,false,true,false,false,true],
+  hours:true,labels:true,grid:true,zen:true,basis:'ist',horiz:0,custom:true,doy:0,time:720};
+function doy21(m){let d=20;for(let i=0;i<m;i++)d+=ML[i];return d+1;} // 1-based
+
+// --- solar maths (Spencer) ---
+function gamma(n){return 2*Math.PI*(n-1)/365;}
+function decl(n){const G=gamma(n);return (0.006918-0.399912*Math.cos(G)+0.070257*Math.sin(G)-0.006758*Math.cos(2*G)+0.000907*Math.sin(2*G)-0.002697*Math.cos(3*G)+0.00148*Math.sin(3*G))/D2R;}
+function eot(n){const G=gamma(n);return 229.18*(0.000075+0.001868*Math.cos(G)-0.032077*Math.sin(G)-0.014615*Math.cos(2*G)-0.040849*Math.sin(2*G));}
+function corrH(n){return (4*(st.lon-82.5)+eot(n))/60;} // solar = IST + corr
+function sunAt(n,solarH){
+  const d=decl(n)*D2R,f=st.lat*D2R,H=(solarH-12)*15*D2R;
+  const se=Math.sin(f)*Math.sin(d)+Math.cos(f)*Math.cos(d)*Math.cos(H);
+  const el=Math.asin(Math.max(-1,Math.min(1,se)))/D2R;
+  const x=-Math.cos(d)*Math.sin(H),y=Math.sin(d)*Math.cos(f)-Math.cos(d)*Math.cos(H)*Math.sin(f);
+  let az=Math.atan2(x,y)/D2R;if(az<0)az+=360;return {el,az};
+}
+function toClock(solarH,n){return st.basis==='ist'?solarH-corrH(n):solarH;}
+function fromClock(h,n){return st.basis==='ist'?h+corrH(n):h;}
+function fmt(h){h=((h%24)+24)%24;let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){H++;M=0;}return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');}
+function riseSet(n){
+  const d=decl(n)*D2R,f=st.lat*D2R,h0=-0.833*D2R;
+  const c=(Math.sin(h0)-Math.sin(f)*Math.sin(d))/(Math.cos(f)*Math.cos(d));
+  if(c<=-1||c>=1)return null;
+  const H0=Math.acos(c)/D2R/15;const rise=12-H0,set=12+H0;
+  return {rise,set,len:2*H0,azR:sunAt(n,rise).az,azS:sunAt(n,set).az};
+}
+const pts16=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const cmp=az=>pts16[Math.round(az/22.5)%16];
+
+// --- UI build ---
+const mBox=$('months');
+MN.forEach((m,i)=>{const l=document.createElement('label');
+  l.innerHTML='<input type="checkbox" data-m="'+i+'"'+(st.months[i]?' checked':'')+'><span class="sw" style="background:'+COLS[i]+(DASH[i]?';background:repeating-linear-gradient(90deg,'+COLS[i]+' 0 4px,transparent 4px 7px)':'')+'"></span>'+m;
+  mBox.appendChild(l);});
+mBox.addEventListener('change',e=>{const i=+e.target.dataset.m;st.months[i]=e.target.checked;draw();});
+document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{
+  const p=b.dataset.p;st.months=st.months.map((_,i)=>p==='all'||(p==='key'&&[2,5,8,11].includes(i))||(p==='half'&&i<6));
+  mBox.querySelectorAll('input').forEach((c,i)=>c.checked=st.months[i]);draw();}));
+document.querySelectorAll('#typeSeg button').forEach(b=>b.addEventListener('click',()=>{st.type=b.dataset.t;
+  document.querySelectorAll('#typeSeg button').forEach(x=>x.classList.toggle('on',x===b));$('centerCtl').hidden=st.type!=='cart';resize();}));
+$('centerIn').addEventListener('change',e=>{st.center=e.target.value;draw();});
+[['oHours','hours'],['oLabels','labels'],['oGrid','grid'],['oZenith','zen'],['oCustom','custom']].forEach(([id,k])=>$(id).addEventListener('change',e=>{st[k]=e.target.checked;draw();}));
+$('timeBasis').addEventListener('change',e=>{st.basis=e.target.value;draw();});
+$('horizIn').addEventListener('input',e=>{st.horiz=+e.target.value;$('horizOut').textContent=st.horiz+'°';draw();});
+function setLoc(){const v=$('locIn').value;$('customRow').hidden=v!=='custom';
+  if(v==='custom'){st.lat=+$('latIn').value||0;st.lon=+$('lonIn').value||0;st.name='Custom location';}
+  else{const [a,b,n]=v.split(',');st.lat=+a;st.lon=+b;st.name=n;$('latIn').value=a;$('lonIn').value=b;}
+  $('locTitle').textContent=st.name;
+  $('locSub').textContent=Math.abs(st.lat).toFixed(2)+'°'+(st.lat>=0?'N':'S')+', '+st.lon.toFixed(2)+'°E · each curve is the Sun\'s path across the sky on the 21st of that month';draw();}
+$('locIn').addEventListener('change',setLoc);['latIn','lonIn'].forEach(id=>$(id).addEventListener('input',()=>{if($('locIn').value==='custom')setLoc();}));
+const dIn=$('dateIn');dIn.value=new Date().toISOString().slice(0,10);
+function readDate(){const p=dIn.value.split('-').map(Number);if(!p[0])return;let n=p[2];for(let i=0;i<p[1]-1;i++)n+=ML[i];st.doy=Math.min(365,n);draw();}
+dIn.addEventListener('change',readDate);
+$('timeIn').addEventListener('input',e=>{st.time=+e.target.value;draw();});
+
+// --- drawing ---
+const cv=$('cv'),ctx=cv.getContext('2d'),box=$('box'),tip=$('tip');
+let W=0,H=0,DPR=1,hit=[];
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function resize(){const w=box.clientWidth-16;W=w;H=st.type==='polar'?Math.min(w,720):Math.max(320,Math.min(w*0.62,560));
+  DPR=Math.min(devicePixelRatio||1,2);cv.width=W*DPR;cv.height=H*DPR;cv.style.height=H+'px';draw();}
+new ResizeObserver(resize).observe(box);
+
+let proj; // (az,el)->[x,y]
+function setupProj(){
+  if(st.type==='polar'){
+    const pad=46,R=Math.min(W,H)/2-pad,cx=W/2,cy=H/2;
+    proj=(az,el)=>{const r=R*(90-el)/90;return [cx+r*Math.sin(az*D2R),cy-r*Math.cos(az*D2R)];};
+    proj.R=R;proj.cx=cx;proj.cy=cy;proj.wrap=()=>false;
+  }else{
+    const L=50,Rm=18,T=18,B=44,pw=W-L-Rm,ph=H-T-B;
+    const off=st.center==='N'?180:0; // x-value = az shifted
+    const xv=az=>st.center==='N'?((az+180)%360):az; // 0..360 left->right
+    proj=(az,el)=>[L+pw*xv(az)/360,T+ph*(1-el/90)];
+    proj.L=L;proj.T=T;proj.pw=pw;proj.ph=ph;proj.xv=xv;
+    proj.wrap=(a,b)=>Math.abs(xv(a)-xv(b))>180;
+  }
+}
+function pathLine(points,color,width,dash){ // points: [{az,el}]
+  ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash||[]);ctx.beginPath();
+  let pen=false,prev=null;
+  for(const p of points){
+    if(p.el<0){pen=false;prev=null;continue;}
+    const [x,y]=proj(p.az,p.el);
+    if(!pen||(prev&&proj.wrap(prev.az,p.az))){ctx.moveTo(x,y);pen=true;}else ctx.lineTo(x,y);
+    prev=p;}
+  ctx.stroke();ctx.setLineDash([]);
+}
+function dayPath(n){const out=[];for(let s=4;s<=20.001;s+=1/30){const p=sunAt(n,s);p.s=s;out.push(p);}return out;}
+
+function draw(){
+  if(!W)return;
+  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);setupProj();hit=[];
+  const ink=css('--ink'),muted=css('--muted'),grid=css('--grid'),line=css('--line'),sky=css('--sky'),shade=css('--shade');
+  ctx.font='12px "IBM Plex Sans", Arial, sans-serif';ctx.textBaseline='middle';
+
+  // background + grid
+  if(st.type==='polar'){
+    const {cx,cy,R}=proj;
+    ctx.fillStyle=sky;ctx.beginPath();ctx.arc(cx,cy,R,0,2*Math.PI);ctx.fill();
+    if(st.horiz>0){ctx.fillStyle=shade;ctx.beginPath();ctx.arc(cx,cy,R,0,2*Math.PI);ctx.arc(cx,cy,R*(90-st.horiz)/90,0,2*Math.PI,true);ctx.fill();}
+    if(st.grid){ctx.strokeStyle=grid;ctx.lineWidth=1;
+      for(let e=10;e<90;e+=10){ctx.beginPath();ctx.arc(cx,cy,R*(90-e)/90,0,2*Math.PI);ctx.stroke();}
+      for(let a=0;a<360;a+=15){const [x,y]=proj(a,0);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();}
+      ctx.fillStyle=muted;ctx.textAlign='left';for(let e=10;e<90;e+=20){const [x,y]=proj(0,e);ctx.fillText(e+'°',x+4,y-7);} }
+    ctx.strokeStyle=ink;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,R,0,2*Math.PI);ctx.stroke();
+    ctx.textAlign='center';
+    for(let a=0;a<360;a+=30){const [x,y]=proj(a,-9);ctx.fillStyle=muted;ctx.fillText(a+'°',x,y);}
+    [['N',0],['E',90],['S',180],['W',270]].forEach(([t,a])=>{const [x,y]=proj(a,-20);ctx.font='bold 15px "IBM Plex Sans", Arial';ctx.fillStyle=t==='N'?'#d62828':ink;ctx.fillText(t,x,y);});
+    ctx.font='12px "IBM Plex Sans", Arial, sans-serif';
+  }else{
+    const {L,T,pw,ph}=proj;
+    ctx.fillStyle=sky;ctx.fillRect(L,T,pw,ph);
+    if(st.horiz>0){ctx.fillStyle=shade;ctx.fillRect(L,T+ph*(1-st.horiz/90),pw,ph*st.horiz/90);}
+    if(st.grid){ctx.strokeStyle=grid;ctx.lineWidth=1;
+      for(let e=10;e<90;e+=10){const y=T+ph*(1-e/90);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+pw,y);ctx.stroke();}
+      for(let v=15;v<360;v+=15){const x=L+pw*v/360;ctx.beginPath();ctx.moveTo(x,T);ctx.lineTo(x,T+ph);ctx.stroke();}}
+    ctx.strokeStyle=ink;ctx.lineWidth=1.5;ctx.strokeRect(L,T,pw,ph);
+    ctx.fillStyle=muted;ctx.textAlign='right';for(let e=0;e<=90;e+=10)ctx.fillText(e+'°',L-6,T+ph*(1-e/90));
+    ctx.textAlign='center';
+    for(let v=0;v<=360;v+=30){const az=st.center==='N'?(v+180)%360:v%360;const x=L+pw*v/360;
+      const name={0:'N',90:'E',180:'S',270:'W'}[az];ctx.fillStyle=muted;ctx.fillText(az+'°',x,T+ph+14);
+      if(name){ctx.font='bold 14px "IBM Plex Sans", Arial';ctx.fillStyle=name==='N'?'#d62828':ink;ctx.fillText(name,x,T+ph+31);ctx.font='12px "IBM Plex Sans", Arial, sans-serif';}}
+    ctx.save();ctx.translate(14,T+ph/2);ctx.rotate(-Math.PI/2);ctx.fillStyle=muted;ctx.fillText('Sun elevation (altitude)',0,0);ctx.restore();
+  }
+
+  // hour lines
+  if(st.hours){
+    for(let h=5;h<=20;h++){
+      const pts=[];for(let n=1;n<=366;n+=3){const p=sunAt(Math.min(n,365),fromClock(h,Math.min(n,365)));pts.push(p);}
+      if(!pts.some(p=>p.el>0))continue;
+      pathLine(pts,muted,1,[2,3]);
+      let best=null;pts.forEach(p=>{if(p.el>0&&(!best||p.el>best.el))best=p;});
+      if(best&&best.el>3){const [x,y]=proj(best.az,best.el);ctx.fillStyle=css('--panel');ctx.fillRect(x-14,y-17,28,14);ctx.fillStyle=muted;ctx.textAlign='center';ctx.fillText(String(h).padStart(2,'0')+'h',x,y-10);}
+    }
+  }
+
+  // month curves
+  MN.forEach((m,i)=>{if(!st.months[i])return;const n=doy21(i);const pts=dayPath(n);
+    pathLine(pts,COLS[i],2.4,DASH[i]?[7,4]:null);
+    pts.forEach(p=>{if(p.el>=0)hit.push({p,n,label:'21 '+m,color:COLS[i]});});
+    if(st.labels){ // label near noon
+      const noon=sunAt(n,12);const [x,y]=proj(noon.az,noon.el);
+      ctx.font='bold 12px "IBM Plex Sans", Arial';ctx.textAlign='left';ctx.fillStyle=COLS[i];
+      const dx=st.type==='polar'?6:4, dy=DASH[i]?10:-9;ctx.fillText('21 '+m,x+dx,y+dy);ctx.font='12px "IBM Plex Sans", Arial, sans-serif';}
+  });
+
+  // custom date
+  const n=st.doy||1;
+  if(st.custom){const pts=dayPath(n);pathLine(pts,ink,3,[1,4]);pts.forEach(p=>{if(p.el>=0)hit.push({p,n,label:dateLabel(n),color:ink});});}
+  // sun marker
+  const sH=fromClock(st.time/60,n),sp=sunAt(n,sH);
+  $('timeOut').textContent=fmt(st.time/60)+(st.basis==='ist'?' IST':' solar');
+  // trail
+  if(st.trail&&trail.length){trail.forEach((t,i)=>{const [x,y]=proj(t.az,t.el);const a=.15+.75*(i/trail.length);
+    ctx.fillStyle='rgba(255,170,0,'+a.toFixed(2)+')';ctx.beginPath();ctx.arc(x,y,anim==='year'?3.2:2.6,0,2*Math.PI);ctx.fill();});}
+  if(sp.el>=0){const [x,y]=proj(sp.az,sp.el);
+    if(st.ray){ctx.strokeStyle='rgba(230,150,0,.8)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.beginPath();
+      if(st.type==='polar')ctx.moveTo(proj.cx,proj.cy);else{const [bx,by]=proj(sp.az,0);ctx.moveTo(bx,by);}
+      ctx.lineTo(x,y);ctx.stroke();ctx.setLineDash([]);}
+    const pulse=1+.12*Math.sin(performance.now()/180);
+    const g=ctx.createRadialGradient(x,y,2,x,y,30*pulse);g.addColorStop(0,'rgba(255,214,60,.9)');g.addColorStop(1,'rgba(255,170,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,30*pulse,0,2*Math.PI);ctx.fill();
+    ctx.strokeStyle='rgba(255,170,0,.9)';ctx.lineWidth=2;
+    for(let k=0;k<8;k++){const a=k*Math.PI/4+performance.now()/1500;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*13,y+Math.sin(a)*13);ctx.lineTo(x+Math.cos(a)*19*pulse,y+Math.sin(a)*19*pulse);ctx.stroke();}
+    ctx.fillStyle='#ffc107';ctx.strokeStyle='#8a5a00';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,9,0,2*Math.PI);ctx.fill();ctx.stroke();}
+  // zenith
+  if(st.zen){const [x,y]=proj(0,90);ctx.strokeStyle=ink;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(x-7,y);ctx.lineTo(x+7,y);ctx.moveTo(x,y-7);ctx.lineTo(x,y+7);ctx.stroke();
+    ctx.fillStyle=ink;ctx.textAlign='left';ctx.fillText('Overhead',x+9,y+(st.type==='polar'?12:9));}
+  // readout + table
+  const rs=riseSet(n),dec=decl(n),noonEl=90-Math.abs(st.lat-dec);
+  $('readout').innerHTML='<b>'+dateLabel(n)+'</b><br>'+
+    (sp.el>=0?'Sun at '+fmt(st.time/60)+': elevation <b>'+sp.el.toFixed(1)+'°</b>, azimuth <b>'+sp.az.toFixed(1)+'°</b> ('+cmp(sp.az)+')<br>':'Sun is below the horizon at this time<br>')+
+    (rs?'Sunrise '+fmt(toClock(rs.rise,n))+' ('+cmp(rs.azR)+') · Sunset '+fmt(toClock(rs.set,n))+' ('+cmp(rs.azS)+')<br>':'')+
+    'Noon elevation '+noonEl.toFixed(1)+'° towards the '+(dec>st.lat?'North':'South')+(st.horiz>0?'<br>Sun above '+st.horiz+'° obstruction: '+aboveHours(n).toFixed(1)+' h':'');
+  table();
+}
+function aboveHours(n){let c=0;for(let s=4;s<=20;s+=1/60)if(sunAt(n,s).el>st.horiz)c++;return c/60;}
+function dateLabel(n){let m=0,d=n;while(d>ML[m]){d-=ML[m];m++;}return d+' '+MN[m];}
+let tblKey='';
+function table(){
+  const key=st.months.join()+st.custom+st.doy+st.basis+st.horiz+st.lat+st.lon;if(key===tblKey)return;tblKey=key;
+  const rows=[];MN.forEach((m,i)=>{if(st.months[i])rows.push([doy21(i),'21 '+m,COLS[i]]);});
+  if(st.custom)rows.push([st.doy||1,dateLabel(st.doy||1)+' (selected)',css('--ink')]);
+  const tb=st.basis==='ist'?'IST':'solar';
+  let h='<tr><th>Date</th><th>Sunrise ('+tb+')</th><th>Sunset ('+tb+')</th><th>Day length</th><th>Sunrise azimuth</th><th>Sunset azimuth</th><th>Noon elevation</th><th>Noon sun</th>'+(st.horiz>0?'<th>Hours above '+st.horiz+'°</th>':'')+'</tr>';
+  rows.forEach(([n,lab,col])=>{const rs=riseSet(n),dec=decl(n),ne=90-Math.abs(st.lat-dec);
+    h+='<tr><td><span class="sw" style="background:'+col+'"></span>'+lab+'</td>'+(rs?
+      '<td>'+fmt(toClock(rs.rise,n))+'</td><td>'+fmt(toClock(rs.set,n))+'</td><td>'+Math.floor(rs.len)+' h '+String(Math.round((rs.len%1)*60)).padStart(2,'0')+' m</td><td>'+rs.azR.toFixed(1)+'° '+cmp(rs.azR)+'</td><td>'+rs.azS.toFixed(1)+'° '+cmp(rs.azS)+'</td>':'<td colspan="5">no sunrise/sunset</td>')+
+      '<td>'+ne.toFixed(1)+'°</td><td>'+(Math.abs(dec-st.lat)<0.3?'overhead':dec>st.lat?'North':'South')+'</td>'+(st.horiz>0?'<td>'+aboveHours(n).toFixed(1)+' h</td>':'')+'</tr>';});
+  if(!rows.length)h+='<tr><td colspan="8">Tick some months to see the table.</td></tr>';
+  $('tbl').innerHTML=h;
+}
+
+// hover
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+  let best=null,bd=14*14;for(const hp of hit){const [x,y]=proj(hp.p.az,hp.p.el);const d=(x-mx)**2+(y-my)**2;if(d<bd){bd=d;best=hp;}}
+  if(!best){tip.style.display='none';return;}
+  const t=toClock(best.p.s,best.n);
+  tip.innerHTML='<b>'+best.label+'</b> · '+fmt(t)+(st.basis==='ist'?' IST':' solar')+'<br>Elevation '+best.p.el.toFixed(1)+'° · Azimuth '+best.p.az.toFixed(1)+'° '+cmp(best.p.az);
+  tip.style.display='block';const tw=tip.offsetWidth;
+  tip.style.left=Math.min(mx+16,box.clientWidth-tw-6)+'px';tip.style.top=(my+14)+'px';});
+cv.addEventListener('pointerleave',()=>tip.style.display='none');
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+
+// ---------- animation ----------
+let anim=null,trail=[],lastT=0;
+st.trail=true;st.ray=true;
+$('oTrail').addEventListener('change',e=>{st.trail=e.target.checked;draw();});
+$('oRay').addEventListener('change',e=>{st.ray=e.target.checked;draw();});
+const SPD_DAY=[15,40,90,180];   // clock minutes per second
+const SPD_YEAR=[3,8,20,45];     // days per second
+function setAnim(m){
+  anim=anim===m?null:m;trail=[];
+  $('playDay').textContent=anim==='day'?'❚❚ Pause':'▶ Animate day';$('playDay').classList.toggle('on',anim==='day');
+  $('playYear').textContent=anim==='year'?'❚❚ Pause':'▶ Animate year';$('playYear').classList.toggle('on',anim==='year');
+  if(anim==='day'){const rs=riseSet(st.doy||1);if(rs){st.time=Math.floor(toClock(rs.rise,st.doy||1)*60)-5;}}
+  lastT=performance.now();draw();
+}
+$('playDay').addEventListener('click',()=>setAnim('day'));
+$('playYear').addEventListener('click',()=>setAnim('year'));
+function setDateFromDoy(n){let m=0,d=n;while(d>ML[m]){d-=ML[m];m++;}const y=new Date().getFullYear();dIn.value=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+function frame(t){
+  const dt=Math.min(.1,(t-lastT)/1000);lastT=t;
+  const sp=+$('speedIn').value;
+  if(anim==='day'){
+    const n=st.doy||1;let cur=sunAt(n,fromClock(st.time/60,n));
+    st.time+=dt*SPD_DAY[sp]*(cur.el<0?6:1);
+    const rs=riseSet(n);const end=rs?toClock(rs.set,n)*60+5:1200;
+    if(st.time>end||st.time>1200){const st0=rs?toClock(rs.rise,n)*60-5:300;st.time=st0;trail=[];}
+    cur=sunAt(n,fromClock(st.time/60,n));if(cur.el>=0){trail.push(cur);if(trail.length>400)trail.shift();}
+    $('timeIn').value=Math.round(st.time);
+  }else if(anim==='year'){
+    st.doyF=((st.doyF??(st.doy||1))+dt*SPD_YEAR[sp]);if(st.doyF>=366){st.doyF-=365;}
+    const n=Math.max(1,Math.floor(st.doyF));
+    if(n!==st.doy){st.doy=n;setDateFromDoy(n);const p=sunAt(n,fromClock(st.time/60,n));if(p.el>=0){trail.push(p);if(trail.length>366)trail.shift();}}
+  }else{st.doyF=st.doy;}
+  draw();requestAnimationFrame(frame);
+}
+$('timeIn').addEventListener('input',()=>{if(anim==='day')trail=[];});
+dIn.addEventListener('change',()=>{trail=[];st.doyF=st.doy;});
+readDate();resize();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

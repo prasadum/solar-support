@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Battery Discharge Time Calculator</title>
+<style>
+  :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box}
+  body{font-family:Verdana,Arial,sans-serif;background:#f8f9fa;margin:0;padding:16px clamp(12px,2.5vw,32px) 28px;color:#1d2530}
+  h1{text-align:center;font-size:clamp(20px,3vw,26px);color:#223377;margin:6px 0 16px}
+  .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;max-width:1100px;margin:0 auto}
+  .inputs,.output{background:#fff;padding:22px;border-radius:8px;box-shadow:0 0 6px #bbb;min-width:0}
+  label,select,input{margin:8px 0;display:block;font-size:1.04em}
+  input[type=number],select{width:100%;padding:8px;border:1px solid #c9d1da;border-radius:6px}
+  .unit-toggle{display:flex;gap:8px;align-items:center;margin:8px 0}
+  .unit-toggle input{display:inline;margin:0}
+  .output-title{color:#223377;margin-bottom:16px;font-weight:bold;font-size:1.1em}
+  .result{font-size:1.15em;color:#277b50;margin-bottom:12px}
+  .formula{color:#444;background:#f2f5f8;padding:12px;border-radius:7px;font-size:.96em;line-height:1.6}
+  .info-note{background:#e2eef9;border-left:4px solid #2266bb;padding:12px;margin-top:14px;font-size:.95em;line-height:1.5}
+  .infopanel{background:#f7f3e6;border-left:4px solid #cb9b3c;padding:12px;border-radius:7px;margin-top:12px;font-size:.97em;line-height:1.5}
+  b{color:#245556}
+</style>
+</head>
+<body>
+<h1>Battery Discharge Time Calculator</h1>
+<div class="container">
+  <div class="inputs">
+    <label class="unit-toggle"><input type="radio" name="unit" id="unit_ah" value="Ah" checked> Capacity in Ah (ampere-hour)</label>
+    <label class="unit-toggle"><input type="radio" name="unit" id="unit_mah" value="mAh"> Capacity in mAh (milliampere-hour)</label>
+    <label for="capacity">Battery capacity:</label>
+    <input type="number" id="capacity" value="100" min="1" step="1">
+    <label for="c_rate">C-rate:</label>
+    <select id="c_rate">
+      <option value="0.05">0.05C (C/20)</option>
+      <option value="0.1">0.1C (C/10)</option>
+      <option value="0.2">0.2C (C/5)</option>
+      <option value="0.5">0.5C (C/2)</option>
+      <option value="1">1C</option>
+      <option value="2">2C</option>
+      <option value="10">10C</option>
+      <option value="20">20C</option>
+    </select>
+    <div class="info-note"><b>Note:</b> Lead-acid batteries are designed for low C-rates (C/20 to C/2). Discharging a lead-acid battery above 1C reduces usable capacity, increases heating and shortens battery life. For 2C and above, use Li-ion, NiMH or LiPo chemistries.</div>
+  </div>
+  <div class="output">
+    <div class="output-title">Discharge time output</div>
+    <div class="result" id="result">Discharge time: --</div>
+    <div class="formula" id="calc_formula">Explanation will appear here.</div>
+    <div class="infopanel" id="cinfo">Application and battery information will appear here.</div>
+  </div>
+</div>
+<script>
+const crateInfo={
+  "0.05":{app:"Grid-level energy storage, telecom backup, standby systems.",bat:"Lead-acid (most common), alkaline."},
+  "0.1":{app:"Deep-cycle solar batteries, inverter backup, long-duration UPS.",bat:"Lead-acid, alkaline."},
+  "0.2":{app:"UPS, electric vehicle traction batteries (slow discharge).",bat:"Lead-acid, NiMH."},
+  "0.5":{app:"Power tools, starter batteries, quick charging/discharging.",bat:"Lead-acid, NiMH, some Li-ion."},
+  "1":{app:"Electric vehicle propulsion, robotics, emergency lighting.",bat:"Li-ion, NiMH, special lead-acid (starter)."},
+  "2":{app:"Remote control models, drones, high-power devices.",bat:"LiPo, Li-ion, NiMH."},
+  "10":{app:"Model aircraft, drones (short bursts), special LiPo packs.",bat:"LiPo (lithium polymer), some Li-ion."},
+  "20":{app:"Racing drones, RC cars (burst), specialty LiPo cells.",bat:"LiPo (lithium polymer) only."}
+};
+const $=id=>document.getElementById(id);
+function update(){
+  const unitAh=$('unit_ah').checked,raw=parseFloat($('capacity').value),capAh=unitAh?raw:raw/1000,crate=$('c_rate').value,c=parseFloat(crate);
+  if(capAh>0&&c>0){
+    const h=1/c,m=h*60,I=capAh*c;
+    const Istr=unitAh?I.toFixed(2)+' A':(I*1000).toFixed(0)+' mA <b>('+I.toFixed(2)+' A)</b>';
+    $('result').innerHTML='Discharge time: <b>'+h.toFixed(2)+'</b> hours (<b>'+m.toFixed(0)+'</b> minutes)';
+    $('calc_formula').innerHTML='C-rate is the fraction of battery capacity delivered per hour.<br>Discharge time = 1 / C-rate = 1 / '+crate+' = <b>'+h.toFixed(2)+' hours</b> ('+m.toFixed(0)+' minutes)<br><br>For a battery of '+raw+(unitAh?' Ah':' mAh')+' at '+crate+'C:<br>Discharge current = C-rate × capacity = '+crate+' × '+capAh+' Ah = <b>'+Istr+'</b>';
+    const info=crateInfo[crate];
+    $('cinfo').innerHTML='<b>Typical applications:</b> '+info.app+'<br><b>Common battery types:</b> '+info.bat;
+  }else{
+    $('result').innerHTML='Discharge time: --';
+    $('calc_formula').innerHTML='Enter a valid battery capacity and select a C-rate.';
+    $('cinfo').innerHTML='Application and battery information will appear here.';
+  }
+}
+['capacity','c_rate','unit_ah','unit_mah'].forEach(id=>$(id).addEventListener(id==='capacity'?'input':'change',update));
+update();
+</script>
+</body>
+</html>

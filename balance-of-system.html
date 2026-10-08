@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar Balance of System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Baloo+Chettan+2:wght@600;800&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky header + pill tab rail; one wide teaching canvas per tab — diagram first, short caption under, then flowchart + pros/cons */
+:root{
+--bg:#F4F7FB;--surface:#FFFFFF;--surface2:#E9EFF7;--ink:#0D1B2E;--muted:#4B5B72;--line:#C9D3E0;
+--sun:#C27C00;--sun-soft:#FFF0D1;--grid:#1C5BAE;--grid-soft:#E0EBFA;--batt:#16824A;--batt-soft:#DCF2E4;
+--hyb:#6942B0;--hyb-soft:#ECE5F9;--exp:#B0397A;--danger:#C4291F;--danger-soft:#FCE1DE;
+--pv:#1C365F;--pvcell:#6C98DA;--roof:#8A5A44;
+--f-display:"Baloo 2","Baloo Chettan 2","Nirmala UI",system-ui,sans-serif;
+--f-body:"Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif;
+--scale:1;--acc:var(--ink);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#0B1320;--surface:#121D2E;--surface2:#1A2840;--ink:#E7EEF7;--muted:#A2B2C8;--line:#2D405B;
+--sun:#FFB52E;--sun-soft:#3A2B0C;--grid:#66A6F6;--grid-soft:#12284A;--batt:#45C886;--batt-soft:#0E2F1F;
+--hyb:#B094F0;--hyb-soft:#2A1F45;--exp:#EE7DB8;--danger:#FF6B5D;--danger-soft:#3D1512;
+--pv:#2A4A80;--pvcell:#8DB3EE;--roof:#BD8A70;color-scheme:dark}
+:root[lang="ml"]{--f-display:"Baloo Chettan 2","Noto Sans Malayalam","Nirmala UI",system-ui,sans-serif}
+
+html{font-size:calc(clamp(15px,0.5vw + 10.5px,21px) * var(--scale))}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.5;margin:0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:2.15rem;font-weight:800}
+h3{font-size:1.35rem;font-weight:800}
+p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:clamp(16px,3vw,40px)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1rem;padding-block:.55rem}
+.brand{display:flex;align-items:center;gap:.7rem;min-width:0}
+.brand svg{width:2.4rem;height:2.4rem;flex:none}
+.brand h1{font-size:1.45rem;font-weight:800}
+.brand .sub{font-size:.85rem;color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.tools select,.tools button{font:600 .95rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:.4rem .7rem;cursor:pointer;min-height:2.3rem}
+.tools select{padding-right:1.6rem}
+.tools button:hover,.tools select:hover{border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tabs{display:flex;gap:.4rem;overflow-x:auto;padding-block:.15rem .6rem;scrollbar-width:thin}
+.tab{flex:none;font:700 1rem var(--f-display);padding:.42rem 1rem .32rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:.45rem}
+.tab .no{font:600 .75rem var(--f-body);color:var(--muted);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] .no{color:var(--bg);opacity:.7}
+
+/* panels */
+.panel{padding-block:1.4rem 3rem;display:grid;gap:1.3rem}
+.head{display:grid;gap:.35rem}
+.head h2{color:var(--acc)}
+.lead{font-size:1.18rem;color:var(--muted);max-width:68ch}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(.5rem,1.4vw,1.2rem);overflow-x:auto;min-width:0}
+.fig svg{display:block;width:100%;height:auto;min-width:620px}
+.fig svg.dia{max-height:64vh}
+.fig h3{margin-bottom:.6rem}
+.row2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.3rem;align-items:start}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.row2,.row3{grid-template-columns:minmax(0,1fr)}}
+
+/* scene controls */
+.scene{display:grid;gap:.8rem}
+.sbtns{display:flex;flex-wrap:wrap;gap:.5rem}
+.sbtn{font:700 1.02rem var(--f-display);padding:.45rem 1.1rem .35rem;border-radius:10px;border:2px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer}
+.sbtn[aria-pressed="true"]{background:var(--acc);color:var(--bg)}
+.cap{font-size:1.16rem;background:var(--surface2);border-radius:12px;padding:.8rem 1.1rem}
+[data-show].off:not(.flow){display:none}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-size:.92rem;color:var(--muted);align-items:center}
+.sw{display:inline-block;width:30px;border-top:5px dashed;vertical-align:middle;margin-right:.35rem}
+
+/* svg vocabulary */
+.wire{fill:none;stroke:var(--line);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke-width:5;stroke-dasharray:14 10;stroke-linecap:round;stroke-linejoin:round;animation:flow .9s linear infinite;transition:opacity .3s}
+.flow.dc{stroke:var(--sun)}.flow.ac{stroke:var(--grid)}.flow.bt{stroke:var(--batt)}.flow.ex{stroke:var(--exp)}.flow.dg{stroke:var(--danger);stroke-width:6}
+.flow.rev{animation-direction:reverse}
+.flow.off{opacity:.07;animation:none}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion:reduce){.flow{animation:none}}
+.lbl{font:600 15px var(--f-body);fill:var(--ink)}
+.lbs{font:500 13px var(--f-body);fill:var(--muted)}
+.c{text-anchor:middle}.s{text-anchor:start}.e{text-anchor:end}
+.tg{font:800 17px var(--f-display)}
+.t-dg{fill:var(--danger)}.t-ok{fill:var(--batt)}.t-ex{fill:var(--exp)}.t-ac{fill:var(--grid)}
+.fo{font:600 14px/1.25 var(--f-body);color:var(--ink);display:flex;align-items:center;justify-content:center;text-align:center;width:100%;height:100%;padding:2px 5px}
+.fo.l{justify-content:flex-start;text-align:left}
+.fo.mut{color:var(--muted);font-weight:500;font-size:13px}
+.fo.dg{color:var(--danger)}.fo.ok{color:var(--batt)}
+.fo.big{font:800 19px/1.15 var(--f-display)}
+.fo.ttl{font:800 20px/1.15 var(--f-display);justify-content:flex-start;text-align:left}
+.fo.pdg{background:var(--danger-soft);border:2px solid var(--danger);border-radius:10px;color:var(--danger);font-weight:700}
+.fo.pok{background:var(--batt-soft);border:2px solid var(--batt);border-radius:10px;color:var(--batt);font-weight:700}
+.box{fill:var(--surface);stroke:var(--ink);stroke-width:4}
+.box2{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-sun{fill:var(--sun)}.s-sun{stroke:var(--sun);fill:none}
+.f-pv{fill:var(--pv);stroke:var(--ink);stroke-width:3;stroke-linejoin:round}.s-cell{stroke:var(--pvcell);stroke-width:2;fill:none}
+.s-ink{stroke:var(--ink);fill:none}.f-ink{fill:var(--ink)}.f-muted{fill:var(--muted)}.f-surf{fill:var(--surface)}
+.f-batt{fill:var(--batt)}.s-grid{stroke:var(--grid);fill:none}.f-roof{fill:var(--roof)}
+.s-dg{stroke:var(--danger);fill:none}.f-dg{fill:var(--danger)}.s-ok{stroke:var(--batt);fill:none}.s-mut{stroke:var(--muted);fill:none}
+.f-scr{fill:var(--grid-soft);stroke:var(--ink);stroke-width:2}
+.f-moon{fill:var(--muted)}.f-cloud{fill:var(--muted);opacity:.55}
+.dim{fill:#000;opacity:.5}
+.absent{opacity:.14}
+.mono{font:700 13px ui-monospace,Consolas,monospace;fill:var(--ink)}
+
+/* flowcharts */
+.fc .nd{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.fc .st{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.fc .dq{fill:var(--surface2);stroke:var(--muted);stroke-width:2}
+.fc .ok{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.fc .bad{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+.fc .og{fill:var(--batt-soft);stroke:var(--batt);stroke-width:3}
+.fc .hy{fill:var(--hyb-soft);stroke:var(--hyb);stroke-width:3}
+.fc .on{fill:var(--grid-soft);stroke:var(--grid);stroke-width:3}
+.fc .ar{stroke:var(--ink);stroke-width:2.2;fill:none;marker-end:url(#arw)}
+.yn{font:700 14px var(--f-body);fill:var(--muted)}
+.ch1{fill:var(--sun-soft);stroke:var(--sun);stroke-width:2}
+.ch2{fill:var(--batt-soft);stroke:var(--batt);stroke-width:2}
+.ch3{fill:var(--grid-soft);stroke:var(--grid);stroke-width:2}
+.ch4{fill:var(--danger-soft);stroke:var(--danger);stroke-width:2}
+
+/* overview */
+.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}
+@media (max-width:960px){.types{grid-template-columns:minmax(0,1fr)}}
+.type{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--acc);border-radius:16px;padding:1rem 1.1rem;display:grid;gap:.5rem;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.type:hover{box-shadow:0 6px 20px rgb(0 0 0 / .08)}
+.type h3{color:var(--acc);font-size:1.6rem}
+.type svg{width:100%;height:auto}
+.type p{font-size:1.08rem}
+.chip{display:inline-block;justify-self:start;font:700 .9rem var(--f-body);padding:.25rem .7rem;border-radius:999px}
+.chip.no{background:var(--danger-soft);color:var(--danger)}
+.chip.yes{background:var(--batt-soft);color:var(--batt)}
+.blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:.9rem}
+.blk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem;display:grid;gap:.35rem;justify-items:center;text-align:center}
+.blk svg{width:84px;height:84px}
+.blk h4{font-size:1.08rem}
+.blk p{font-size:.92rem;color:var(--muted)}
+
+/* pros & cons */
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1rem}
+.pc>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.7rem;align-content:start}
+.pc h3.pro{color:var(--batt)}.pc h3.con{color:var(--danger)}
+.pc ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.pc li{position:relative;padding-left:2.3rem;font-size:1.08rem;min-height:1.7rem}
+.pc li::before{content:"+";position:absolute;left:0;top:.05rem;display:grid;place-items:center;width:1.65rem;height:1.65rem;border-radius:50%;background:var(--batt-soft);color:var(--batt);font-weight:800}
+.pc .cons li::before{content:"\2212";background:var(--danger-soft);color:var(--danger)}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:1.03rem}
+th,td{padding:.7rem .95rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child>*{border-bottom:0}
+thead th{font-family:var(--f-display);font-size:1.2rem;background:var(--surface2)}
+tbody th{font-weight:700;color:var(--muted);width:22%}
+.k-on{color:var(--grid)}.k-off{color:var(--batt)}.k-hy{color:var(--hyb)}
+.y{color:var(--batt);font-weight:700}.n{color:var(--danger);font-weight:700}
+.hl{background:var(--batt-soft)}
+
+/* cards */
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;display:grid;grid-template-columns:3.3rem minmax(0,1fr);gap:.15rem .85rem;align-content:start}
+.badge{grid-row:1 / span 3;width:3.3rem;height:3.3rem;border-radius:12px;display:grid;place-items:center;font:800 1.02rem var(--f-display);background:var(--grid-soft);color:var(--grid)}
+.badge.in{background:var(--hyb-soft);color:var(--hyb)}
+.badge.dg{background:var(--danger-soft);color:var(--danger)}
+.pcard h4{font-size:1.1rem}
+.pcard p{color:var(--muted);font-size:.97rem}
+.where{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem;display:grid;gap:.6rem;align-content:start}
+.card h3{font-size:1.25rem}
+.card ul{margin:0;padding-left:1.2rem;display:grid;gap:.35rem}
+.card .foot{font-size:.95rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.5rem}
+.card.dgc{background:var(--danger-soft);border-color:var(--danger)}
+.card.okc{background:var(--batt-soft);border-color:var(--batt)}
+.card.dgc h3{color:var(--danger)}.card.okc h3{color:var(--batt)}
+.stds{display:flex;flex-wrap:wrap;gap:.5rem}
+.stds span{font:600 .92rem var(--f-body);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}
+.chain span{font:700 1rem var(--f-body);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:.5rem .8rem}
+.chain i{font-style:normal;color:var(--muted);font-weight:800}
+.chain span.k{border-color:var(--batt);background:var(--batt-soft)}
+.encl{display:flex;flex-wrap:wrap;gap:.5rem}
+.encl span{font:600 .95rem var(--f-body);padding:.3rem .75rem;border-radius:999px;background:var(--danger-soft);color:var(--danger)}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem}
+@media (max-width:760px){.calc{grid-template-columns:minmax(0,1fr)}}
+.inp{display:grid;gap:.6rem}
+.inp label{display:grid;grid-template-columns:minmax(0,1fr) 7.5rem;align-items:center;gap:.6rem;font-size:1rem}
+.inp input{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%;font-variant-numeric:tabular-nums}
+.out{display:grid;gap:.6rem}
+.res{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;background:var(--surface2);border-radius:10px;padding:.6rem .9rem}
+.res b{font:800 1.6rem var(--f-display);font-variant-numeric:tabular-nums}
+.res.big{background:var(--batt-soft)}
+.res.big b{color:var(--batt);font-size:2.1rem}
+.steps{font:600 .98rem ui-monospace,Consolas,monospace;color:var(--muted);display:grid;gap:.2rem}
+
+footer{border-top:1px solid var(--line);padding-block:1rem;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}
+
+:root{--pos:#7A3B1A;--neg:#6E7887;--acid:#D3E8F8;--sulf:#F7F6EE;--mat:#E6EFD9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}}
+:root[data-theme="dark"]{--pos:#A65E33;--neg:#8F9AAB;--acid:#16395A;--sulf:#ECEBE2;--mat:#2E3D22}
+.f-pos{fill:var(--pos);stroke:var(--ink);stroke-width:1.2}.f-neg{fill:var(--neg);stroke:var(--ink);stroke-width:1.2}
+.f-acid{fill:var(--acid)}.f-sulf{fill:var(--sulf)}.f-mat{fill:var(--mat)}
+.f-case{fill:var(--surface2);stroke:var(--ink);stroke-width:3}
+.f-red{fill:var(--danger)}
+.lead-ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.nb circle{fill:var(--acc)}.nb text{font:800 20px var(--f-display);fill:var(--bg);text-anchor:middle}
+.vline{fill:none;stroke:var(--grid);stroke-width:4;stroke-linejoin:round}
+.iline{fill:none;stroke:var(--sun);stroke-width:4;stroke-linejoin:round;stroke-dasharray:10 6}
+.flow.e{stroke:var(--hyb)}
+.eqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:.9rem}
+.eq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem;display:grid;gap:.35rem}
+.eq .t{font:700 .85rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.eq .f{font:700 clamp(1.05rem,1.6vw,1.45rem)/1.35 "Noto Sans",system-ui,sans-serif;overflow-wrap:anywhere}
+.eq.big{border:2px solid var(--acc);grid-column:1/-1}
+.eq.big .f{font-size:clamp(1.2rem,2.2vw,1.9rem)}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:.9rem}
+.mini .card svg{width:100%;height:auto;background:var(--surface2);border-radius:10px}
+.prob{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.prob .card svg{width:100%;height:auto;max-height:260px}
+.cer{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.35rem .7rem;align-items:start;font-size:1.02rem}
+.cer b{font:700 .78rem var(--f-body);letter-spacing:.05em;text-transform:uppercase;padding:.15rem .5rem;border-radius:6px;text-align:center;margin-top:.15rem}
+.cer .c1{background:var(--sun-soft);color:var(--sun)}.cer .c2{background:var(--danger-soft);color:var(--danger)}.cer .c3{background:var(--batt-soft);color:var(--batt)}
+ol.steps2{margin:0;padding-left:0;list-style:none;display:grid;gap:.6rem;counter-reset:s}
+ol.steps2 li{counter-increment:s;position:relative;padding-left:3rem;font-size:1.12rem;min-height:2.2rem}
+ol.steps2 li::before{content:counter(s);position:absolute;left:0;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font:800 1.1rem var(--f-display)}
+.src{font-size:.85rem;color:var(--muted)}.src a{color:var(--grid)}
+select.inpsel{font:700 1.1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;width:100%}
+.calc .res b{font-size:1.3rem}.calc .res.big b{font-size:1.7rem}
+.simgrid{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.simctl{display:grid;gap:.45rem}
+.simctl label{display:flex;justify-content:space-between;gap:.5rem;font-weight:600}
+.simctl output{font:800 1.2rem var(--f-display);color:var(--grid);font-variant-numeric:tabular-nums}
+.simctl input[type=range]{width:100%;accent-color:var(--grid);height:1.6rem}
+.simbtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-block:.4rem}
+.simviz{display:grid;gap:.6rem;min-width:0;overflow-x:auto}
+.simviz svg{min-width:560px}
+#smSun{transition:opacity .2s}
+
+:root{--cu:#B4662F;--al:#A9B4C2;--gra:#3A3D45;--lfp:#5D6F86;--ion:#7B4BC9}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}}
+:root[data-theme="dark"]{--cu:#D98A55;--al:#8E99A8;--gra:#6A6F7C;--lfp:#7E93AE;--ion:#B795F5}
+.f-cu{fill:var(--cu)}.f-al{fill:var(--al)}.f-gra{fill:var(--gra)}.f-lfp{fill:var(--lfp)}.f-ion{fill:var(--ion)}
+.ion{animation:ionR 2.4s linear infinite}
+.ion.l{animation-name:ionL}
+@keyframes ionR{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(150px);opacity:0}}
+@keyframes ionL{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(-150px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.ion{animation:none}}
+.dots{letter-spacing:.12em;color:var(--batt);font-size:1.15rem;white-space:nowrap}
+.dots i{font-style:normal;color:var(--line)}
+.bmsgrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:900px){.bmsgrid{grid-template-columns:minmax(0,1fr)}}
+.chipsrow{display:flex;flex-wrap:wrap;gap:.4rem}
+.pchip{font:800 .95rem var(--f-display);padding:.3rem .7rem;border-radius:8px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.pchip.on{background:var(--danger);color:#fff;border-color:var(--danger)}
+.pchip.bal.on{background:var(--sun);border-color:var(--sun)}
+.pchip.ok.on{background:var(--batt);border-color:var(--batt)}
+.msgs{display:grid;gap:.35rem}
+.msgs p{padding:.5rem .8rem;border-radius:10px;font-weight:600;background:var(--danger-soft);color:var(--danger)}
+.msgs p.okm{background:var(--batt-soft);color:var(--batt)}
+.msgs p.balm{background:var(--sun-soft);color:var(--sun)}
+.glow{fill:var(--sun);filter:drop-shadow(0 0 6px var(--sun))}
+.fet-on{stroke:var(--batt)}.fet-off{stroke:var(--danger)}
+.dodo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+.dodo .card ul{list-style:none;padding:0}
+.dodo .card li{position:relative;padding-left:2.1rem;font-size:1.05rem}
+.dodo .card li::before{position:absolute;left:0;top:.05rem;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font-weight:800}
+.dodo .do li::before{content:"✓";background:var(--batt-soft);color:var(--batt)}
+.dodo .dont li::before{content:"✗";background:var(--danger-soft);color:var(--danger)}
+.glowr{stroke:var(--sun);stroke-width:4;fill:none;filter:drop-shadow(0 0 5px var(--sun))}
+.fet-on,.fet-off{fill:none;stroke-width:6;stroke-linecap:round}
+.calc input,.tw td input{font:700 1.05rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;width:100%;max-width:9rem}
+.zone-t{font:700 13px var(--f-body)}
+.pass{background:var(--batt-soft)!important;color:var(--batt)!important;border-color:var(--batt)!important}
+.fail{background:var(--danger-soft)!important;color:var(--danger)!important;border-color:var(--danger)!important}
+.bigres{font:800 clamp(1.6rem,3vw,2.6rem) var(--f-display);color:var(--batt);font-variant-numeric:tabular-nums}
+.wingrid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:1.2rem;align-items:start}
+@media (max-width:960px){.wingrid{grid-template-columns:minmax(0,1fr)}}
+.inp2{display:grid;grid-template-columns:minmax(0,1fr) 6.5rem;gap:.35rem .6rem;align-items:center;font-size:.95rem}
+.inp2 input{font:700 1rem var(--f-body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:.3rem .5rem;width:100%;font-variant-numeric:tabular-nums}
+.inp2 h4{grid-column:1/-1;margin-top:.5rem;color:var(--acc)}
+.ds{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ds .grp{background:var(--ink);color:var(--bg);font:800 1rem var(--f-display);padding:.45rem 1rem;letter-spacing:.04em}
+.ds .row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.7fr) minmax(0,1.6fr);gap:.8rem;padding:.55rem 1rem;border-bottom:1px solid var(--line);align-items:start}
+.ds .row b{font-weight:700}.ds .row code{font:700 1rem ui-monospace,Consolas,monospace;color:var(--grid)}
+.ds .row span{color:var(--muted);font-size:.95rem}
+@media (max-width:760px){.ds .row{grid-template-columns:minmax(0,1fr)}}
+.type{cursor:pointer}
+.bos{cursor:pointer}
+.bos:hover{filter:drop-shadow(0 0 4px var(--sun))}
+.bos.sel{filter:drop-shadow(0 0 6px var(--sun)) drop-shadow(0 0 2px var(--sun))}
+.bos .hit{fill:transparent;stroke:none}
+.bos.sel .hit{fill:var(--sun-soft);opacity:.55;stroke:var(--sun);stroke-width:2;stroke-dasharray:6 4}
+.nbx circle{fill:var(--ink)}.nbx text{font:800 14px var(--f-display);fill:var(--bg);text-anchor:middle}
+.bos.sel .nbx circle{fill:var(--sun)}
+.info{display:grid;gap:.5rem}
+.info h3{color:var(--acc)}
+.spec{display:flex;flex-wrap:wrap;gap:.4rem}
+.spec span{font:600 .9rem var(--f-body);padding:.25rem .6rem;border-radius:8px;background:var(--surface2);border:1px solid var(--line)}
+.cklist{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}
+.cklist li{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem;align-items:start;padding:.5rem .7rem;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-size:1.05rem}
+.cklist li b{display:grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:var(--surface2);font:800 1rem var(--f-display)}
+.cklist li.done b{background:var(--batt);color:#fff}
+.cklist li.cur{border-color:var(--sun);box-shadow:0 0 0 2px var(--sun-soft)}
+.cklist li.cur b{background:var(--sun);color:#fff}
+.bom td,.bom th{font-variant-numeric:tabular-nums}
+.tstep.off{display:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="f-ink"/></marker>
+<symbol id="s-sun" viewBox="0 0 100 100"><g class="s-sun" stroke-width="6" stroke-linecap="round"><path d="M50 4V18M50 82V96M4 50H18M82 50H96M17 17L27 27M73 73L83 83M83 17L73 27M17 83L27 73"/></g><circle cx="50" cy="50" r="22" class="f-sun"/></symbol>
+<symbol id="s-pv" viewBox="0 0 120 100"><polygon class="f-pv" points="20,10 110,10 95,70 5,70"/><path class="s-cell" d="M42.5 10L27.5 70M65 10L50 70M87.5 10L72.5 70M15 30H105M10 50H100"/><path class="s-ink" stroke-width="4" d="M50 70V92M30 92H70"/></symbol>
+<symbol id="s-inv" viewBox="0 0 100 100"><rect class="box" x="5" y="5" width="90" height="90" rx="10"/><path class="s-ink" stroke-width="3" d="M5 95L95 5"/><path class="s-sun" stroke-width="5" d="M16 26H42M16 37H42"/><path class="s-grid" stroke-width="5" d="M56 72q6 -12 12 0t12 0"/></symbol>
+<symbol id="s-micro" viewBox="0 0 100 60"><rect class="box" x="4" y="4" width="92" height="52" rx="8"/><path class="s-sun" stroke-width="4" d="M16 22H34M16 30H34"/><path class="s-grid" stroke-width="4" d="M58 34q6 -12 12 0t12 0"/></symbol>
+<symbol id="s-batt" viewBox="0 0 100 100"><rect class="f-red" x="20" y="12" width="14" height="11" rx="2"/><rect class="f-ink" x="66" y="12" width="14" height="11" rx="2"/><rect class="box" x="8" y="22" width="84" height="66" rx="7"/><rect class="f-batt" x="18" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="41" y="40" width="18" height="38" rx="3"/><rect class="f-batt" x="64" y="40" width="18" height="38" rx="3"/></symbol>
+<symbol id="s-grid" viewBox="0 0 100 120"><path class="s-grid" stroke-width="5" stroke-linejoin="round" d="M50 6L28 116M50 6L72 116M42 36H58M37 60H63M33 86H67M12 26H88M18 48H82M42 36L63 60M58 36L37 60M37 60L67 86M63 60L33 86"/><circle class="f-ink" cx="12" cy="26" r="4"/><circle class="f-ink" cx="88" cy="26" r="4"/><circle class="f-ink" cx="18" cy="48" r="4"/><circle class="f-ink" cx="82" cy="48" r="4"/></symbol>
+<symbol id="s-home" viewBox="0 0 100 100"><polygon class="f-roof" points="50,6 94,45 6,45"/><rect class="box2" x="18" y="45" width="64" height="48"/><rect class="f-ink" x="42" y="63" width="16" height="30"/><rect class="f-scr" x="24" y="54" width="12" height="12"/><circle class="f-sun" cx="69" cy="60" r="7"/></symbol>
+<symbol id="s-meter" viewBox="0 0 100 100"><rect class="box" x="10" y="5" width="80" height="90" rx="10"/><rect class="f-scr" x="20" y="16" width="60" height="26" rx="3"/><text x="50" y="35" class="mono c">kWh</text><path class="s-ink" stroke-width="4" d="M24 60H76M68 53L76 60L68 67M32 73L24 80L32 87M24 80H76"/></symbol>
+</defs>
+</svg>
+
+
+<header class="top">
+ <div class="wrap bar">
+  <div class="brand">
+   <svg viewBox="0 0 120 100" aria-hidden="true"><use href="#s-pv"/></svg>
+   <div>
+    <h1 data-en="Solar Balance of System (BoS)" data-hi="सोलर बैलेंस ऑफ सिस्टम (BoS)" data-ml="സോളാർ ബാലൻസ് ഓഫ് സിസ്റ്റം (BoS)"></h1>
+    <p class="sub" data-en="Everything between the panel and the grid" data-hi="पैनल और ग्रिड के बीच सब कुछ" data-ml="പാനലിനും ഗ്രിഡിനും ഇടയിലുള്ളതെല്ലാം"></p>
+   </div>
+  </div>
+  <div class="tools">
+   <label for="lang" class="sr">Language</label>
+   <select id="lang"><option value="en">English</option><option value="hi">हिन्दी</option><option value="ml">മലയാളം</option></select>
+   <button id="fdn" type="button" aria-label="Smaller text">A−</button>
+   <button id="fup" type="button" aria-label="Larger text">A+</button>
+   <button id="thm" type="button" aria-label="Switch light or dark theme">◐</button>
+   <button id="fsc" type="button" aria-label="Full screen">⛶</button>
+  </div>
+ </div>
+ <nav class="wrap tabs" role="tablist" aria-label="Topics">
+  <button class="tab" role="tab" data-tab="over" aria-controls="over"><span class="no">1</span><span data-en="Overview" data-hi="परिचय" data-ml="ആമുഖം"></span></button>
+  <button class="tab" role="tab" data-tab="mnt" aria-controls="mnt"><span class="no">2</span><span data-en="Structures" data-hi="संरचना" data-ml="സ്ട്രക്ചർ"></span></button>
+  <button class="tab" role="tab" data-tab="cab" aria-controls="cab"><span class="no">3</span><span data-en="Cables &amp; MC4" data-hi="केबल व MC4" data-ml="കേബിൾ, MC4"></span></button>
+  <button class="tab" role="tab" data-tab="db" aria-controls="db"><span class="no">4</span><span data-en="DCDB &amp; ACDB" data-hi="DCDB व ACDB" data-ml="DCDB, ACDB"></span></button>
+  <button class="tab" role="tab" data-tab="earth" aria-controls="earth"><span class="no">5</span><span data-en="Earthing &amp; LA" data-hi="अर्थिंग व LA" data-ml="എർത്തിങ്, LA"></span></button>
+  <button class="tab" role="tab" data-tab="mon" aria-controls="mon"><span class="no">6</span><span data-en="Metering &amp; monitoring" data-hi="मीटरिंग व निगरानी" data-ml="മീറ്ററിങ്, നിരീക്ഷണം"></span></button>
+  <button class="tab" role="tab" data-tab="acc" aria-controls="acc"><span class="no">7</span><span data-en="Accessories" data-hi="सहायक सामग्री" data-ml="അനുബന്ധ സാമഗ്രികൾ"></span></button>
+  <button class="tab" role="tab" data-tab="bom" aria-controls="bom"><span class="no">8</span><span data-en="BoS sizing" data-hi="BoS साइज़िंग" data-ml="BoS സൈസിങ്"></span></button>
+  <button class="tab" role="tab" data-tab="test" aria-controls="test"><span class="no">9</span><span data-en="Testing" data-hi="परीक्षण" data-ml="പരിശോധന"></span></button>
+ </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1 OVERVIEW ============ -->
+<section class="panel" id="over" role="tabpanel" style="--acc:var(--sun)">
+ <div class="head">
+  <h2 data-en="What is Balance of System?" data-hi="बैलेंस ऑफ सिस्टम क्या है?" data-ml="ബാലൻസ് ഓഫ് സിസ്റ്റം എന്താണ്?"></h2>
+  <p class="lead" data-en="Every part of a solar plant other than the modules (and usually the inverter): structures, cables, connectors, protection boards, earthing, lightning protection, meters and monitoring. Tap any part, or play the tour." data-hi="मॉड्यूल (और प्रायः इन्वर्टर) को छोड़कर सोलर प्लांट का हर भाग: संरचना, केबल, कनेक्टर, सुरक्षा बोर्ड, अर्थिंग, तड़ित सुरक्षा, मीटर व निगरानी। किसी भी भाग को दबाएँ या टूर चलाएँ।" data-ml="മൊഡ്യൂളുകൾ (സാധാരണ ഇൻവെർട്ടറും) ഒഴികെ സോളാർ പ്ലാന്റിലെ എല്ലാ ഭാഗവും: സ്ട്രക്ചർ, കേബിൾ, കണക്ടർ, സംരക്ഷണ ബോർഡുകൾ, എർത്തിങ്, മിന്നൽ സംരക്ഷണം, മീറ്റർ, നിരീക്ഷണം. ഏതെങ്കിലും ഭാഗം അമർത്തുക, അല്ലെങ്കിൽ ടൂർ പ്ലേ ചെയ്യുക."></p>
+ </div>
+ <div class="sbtns"><button class="sbtn" type="button" id="tourBtn" aria-pressed="false" data-en="▶ Play tour" data-hi="▶ टूर चलाएँ" data-ml="▶ ടൂർ പ്ലേ ചെയ്യുക"></button></div>
+ <div class="row2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+  <div class="fig"><svg class="dia" viewBox="0 0 1000 470" role="img" aria-label="Solar plant with numbered BoS parts"><path class="wire" style="stroke-width:7" d="M300 140H390M490 145H530M640 145H690M780 145H805M875 145H905"/>
+<path class="flow dc" d="M300 140H390M490 145H530"/><path class="flow ac" d="M640 145H690M780 145H805M875 145H905"/>
+<path d="M0 405H1000" class="s-ink" stroke-width="2"/><rect x="0" y="406" width="1000" height="64" style="fill:var(--roof);opacity:.18"/>
+<g class="bos" data-k="1" tabindex="0"><rect class="hit" x="20" y="60" width="285" height="128" rx="10"/><use href="#s-pv" x="30" y="70" width="90" height="75"/><use href="#s-pv" x="120" y="70" width="90" height="75"/><use href="#s-pv" x="210" y="70" width="90" height="75"/><path class="s-mut" stroke-width="5" d="M30 178H300M60 178L75 140M150 178L165 140M240 178L255 140M290 178L280 145"/><g class="nbx"><circle cx="40" cy="55" r="13"/><text x="40" y="60">1</text></g></g>
+<g class="bos" data-k="9" tabindex="0"><rect class="hit" x="305" y="15" width="35" height="170" rx="10"/><path class="s-ink" stroke-width="5" d="M322 180V35"/><path class="f-dg" d="M314 38L322 18L330 38Z"/><path d="M322 30L40 160M322 30L520 120" style="fill:none;stroke:var(--sun);stroke-width:1.5;stroke-dasharray:6 5"/><g class="nbx"><circle cx="348" cy="30" r="13"/><text x="348" y="35">9</text></g></g>
+<g class="bos" data-k="2" tabindex="0"><rect class="hit" x="300" y="125" width="88" height="32" rx="10"/><rect x="335" y="133" width="18" height="14" rx="3" class="f-ink"/><g class="nbx"><circle cx="344" cy="112" r="13"/><text x="344" y="117">2</text></g></g>
+<g class="bos" data-k="3" tabindex="0"><rect class="hit" x="385" y="95" width="110" height="100" rx="10"/><rect class="box" x="390" y="100" width="100" height="90" rx="8"/><text class="mono c" x="440" y="150" style="font-size:16px">DCDB</text><g class="nbx"><circle cx="440" cy="88" r="13"/><text x="440" y="93">3</text></g></g>
+<g class="bos" data-k="4" tabindex="0"><rect class="hit" x="525" y="85" width="120" height="120" rx="10"/><use href="#s-inv" x="530" y="90" width="110" height="110"/><g class="nbx"><circle cx="585" cy="215" r="13"/><text x="585" y="220">4</text></g></g>
+<g class="bos" data-k="10" tabindex="0"><rect class="hit" x="545" y="10" width="110" height="70" rx="10"/><path d="M567 60a26 26 0 0 1 36 0M574 52a16 16 0 0 1 22 0" style="fill:none;stroke:var(--ion);stroke-width:4;stroke-linecap:round"/><circle cx="585" cy="68" r="5" class="f-ion"/><rect x="620" y="18" width="28" height="48" rx="5" class="box" style="stroke-width:2"/><g class="nbx"><circle cx="650" cy="78" r="13"/><text x="650" y="83">10</text></g></g>
+<g class="bos" data-k="11" tabindex="0"><rect class="hit" x="638" y="128" width="54" height="34" rx="10"/><rect x="640" y="136" width="50" height="18" rx="9" style="fill:none;stroke:var(--muted);stroke-width:3"/><g class="nbx"><circle cx="665" cy="175" r="13"/><text x="665" y="180">11</text></g></g>
+<g class="bos" data-k="5" tabindex="0"><rect class="hit" x="685" y="105" width="100" height="80" rx="10"/><rect class="box" x="690" y="110" width="90" height="70" rx="8"/><text class="mono c" x="735" y="150" style="font-size:15px">ACDB</text><g class="nbx"><circle cx="735" cy="98" r="13"/><text x="735" y="103">5</text></g></g>
+<g class="bos" data-k="6" tabindex="0"><rect class="hit" x="800" y="100" width="80" height="90" rx="10"/><use href="#s-meter" x="805" y="105" width="70" height="80"/><g class="nbx"><circle cx="840" cy="200" r="13"/><text x="840" y="205">6</text></g></g>
+<g class="bos" data-k="7" tabindex="0"><rect class="hit" x="895" y="75" width="100" height="120" rx="10"/><use href="#s-grid" x="900" y="80" width="90" height="108"/><g class="nbx"><circle cx="980" cy="70" r="13"/><text x="980" y="75">7</text></g></g>
+<g class="bos" data-k="8" tabindex="0"><rect class="hit" x="120" y="380" width="500" height="80" rx="10"/><path d="M150 178V395M322 180V395M585 200V395" style="fill:none;stroke:var(--batt);stroke-width:3;stroke-dasharray:7 5"/><rect class="box2" x="132" y="396" width="36" height="12" rx="2"/><path class="s-ink" stroke-width="3" d="M150 410V418M136 418H164M141 424H159M146 430H154"/><rect class="box2" x="304" y="396" width="36" height="12" rx="2"/><path class="s-ink" stroke-width="3" d="M322 410V418M308 418H336M313 424H331M318 430H326"/><rect class="box2" x="567" y="396" width="36" height="12" rx="2"/><path class="s-ink" stroke-width="3" d="M585 410V418M571 418H599M576 424H594M581 430H589"/><g class="nbx"><circle cx="110" cy="395" r="13"/><text x="110" y="400">8</text></g></g>
+<foreignObject  x="560" y="418" width="420" height="40"><div class="fo mut" style="justify-content:flex-end" data-en="Tap a numbered part" data-hi="किसी क्रमांकित भाग को दबाएँ" data-ml="നമ്പറിട്ട ഭാഗം അമർത്തുക"></div></foreignObject></svg></div>
+  <div class="card info" id="infoBox">
+   <div class="binfo info" data-k="1" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">1</span><h3 data-en="Mounting structure" data-hi="माउंटिंग संरचना" data-ml="മൗണ്ടിങ് സ്ട്രക്ചർ"></h3><p style="font-size:1.12rem" data-en="Holds modules at the right tilt and direction and must survive cyclone winds." data-hi="मॉड्यूल को सही झुकाव व दिशा में रखती है और तेज़ हवा सहती है।" data-ml="മൊഡ്യൂളുകളെ ശരിയായ ചെരിവിലും ദിശയിലും നിർത്തുന്നു; ശക്തമായ കാറ്റ് താങ്ങണം."></p><div class="spec"><span>HDG ≥ 80 µm / Al</span><span>SS304</span><span>150 km/h · IS 875-3</span></div></div>
+<div class="binfo info" data-k="2" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">2</span><h3 data-en="DC cable &amp; MC4 connectors" data-hi="DC केबल व MC4 कनेक्टर" data-ml="DC കേബിൾ, MC4 കണക്ടർ"></h3><p style="font-size:1.12rem" data-en="Carry DC from the strings; UV-proof and double insulated." data-hi="स्ट्रिंग से DC ले जाते हैं; UV-रोधी व डबल इन्सुलेटेड।" data-ml="സ്ട്രിങ്ങുകളിൽ നിന്ന് DC കൊണ്ടുപോകുന്നു; UV-പ്രതിരോധം, ഡബിൾ ഇൻസുലേറ്റഡ്."></p><div class="spec"><span>4 / 6 mm²</span><span>1.5 kV DC</span><span>IEC 62930</span><span>MC4 IP68</span></div></div>
+<div class="binfo info" data-k="3" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">3</span><h3 data-en="DC distribution box (DCDB)" data-hi="DC वितरण बॉक्स (DCDB)" data-ml="DC ഡിസ്ട്രിബ്യൂഷൻ ബോക്സ് (DCDB)"></h3><p style="font-size:1.12rem" data-en="Protects and isolates the DC side before the inverter." data-hi="इन्वर्टर से पहले DC पक्ष की सुरक्षा व पृथक्करण।" data-ml="ഇൻവെർട്ടറിന് മുമ്പ് DC ഭാഗത്തിന്റെ സംരക്ഷണവും വേർതിരിക്കലും."></p><div class="spec"><span>DC SPD T2</span><span>DC isolator</span><span>gPV fuse</span><span>IP65</span></div></div>
+<div class="binfo info" data-k="4" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">4</span><h3 data-en="Inverter" data-hi="इन्वर्टर" data-ml="ഇൻവെർട്ടർ"></h3><p style="font-size:1.12rem" data-en="Converts DC to AC (covered in the inverter lesson)." data-hi="DC को AC में बदलता है (इन्वर्टर पाठ में)।" data-ml="DC-യെ AC ആക്കുന്നു (ഇൻവെർട്ടർ പാഠത്തിൽ)."></p><div class="spec"><span>MPPT</span><span>IP65</span></div></div>
+<div class="binfo info" data-k="5" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">5</span><h3 data-en="AC distribution box (ACDB)" data-hi="AC वितरण बॉक्स (ACDB)" data-ml="AC ഡിസ്ട്രിബ്യൂഷൻ ബോക്സ് (ACDB)"></h3><p style="font-size:1.12rem" data-en="Protects the AC side between inverter and grid." data-hi="इन्वर्टर व ग्रिड के बीच AC पक्ष की सुरक्षा।" data-ml="ഇൻവെർട്ടറിനും ഗ്രിഡിനും ഇടയിലെ AC ഭാഗത്തിന്റെ സംരക്ഷണം."></p><div class="spec"><span>MCB C-curve</span><span>RCCB</span><span>AC SPD T2</span><span>Isolator</span></div></div>
+<div class="binfo info" data-k="6" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">6</span><h3 data-en="Net and generation meters" data-hi="नेट व उत्पादन मीटर" data-ml="നെറ്റ്, ഉത്പാദന മീറ്ററുകൾ"></h3><p style="font-size:1.12rem" data-en="Net meter records import and export; generation meter records solar output." data-hi="नेट मीटर आयात व निर्यात दर्ज करता है; उत्पादन मीटर सौर उत्पादन।" data-ml="നെറ്റ് മീറ്റർ ഇറക്കുമതിയും കയറ്റുമതിയും; ഉത്പാദന മീറ്റർ സോളാർ ഉത്പാദനം."></p><div class="spec"><span>Bi-directional</span><span>Class 1.0 / 0.5S</span><span>DISCOM sealed</span></div></div>
+<div class="binfo info" data-k="7" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">7</span><h3 data-en="Utility grid" data-hi="यूटिलिटी ग्रिड" data-ml="യൂട്ടിലിറ്റി ഗ്രിഡ്"></h3><p style="font-size:1.12rem" data-en="KSEB LT supply that receives the exported energy." data-hi="KSEB LT सप्लाई जो निर्यात ऊर्जा लेती है।" data-ml="കയറ്റുമതി ഊർജം സ്വീകരിക്കുന്ന KSEB LT സപ്ലൈ."></p><div class="spec"><span>230 V 1φ</span><span>415 V 3φ</span><span>50 Hz</span></div></div>
+<div class="binfo info" data-k="8" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">8</span><h3 data-en="Earthing (3 pits)" data-hi="अर्थिंग (3 पिट)" data-ml="എർത്തിങ് (3 പിറ്റ്)"></h3><p style="font-size:1.12rem" data-en="Separate pits for DC/structure, AC/inverter and the lightning arrester." data-hi="DC/संरचना, AC/इन्वर्टर व लाइटनिंग अरेस्टर हेतु अलग पिट।" data-ml="DC/സ്ട്രക്ചർ, AC/ഇൻവെർട്ടർ, ലൈറ്റ്നിങ് അറസ്റ്റർ എന്നിവയ്ക്ക് വെവ്വേറെ പിറ്റുകൾ."></p><div class="spec"><span>Cu-bonded rod</span><span>&lt; 5 Ω typ.</span><span>IS 3043</span></div></div>
+<div class="binfo info" data-k="9" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">9</span><h3 data-en="Lightning arrester (LA)" data-hi="लाइटनिंग अरेस्टर (LA)" data-ml="ലൈറ്റ്നിങ് അറസ്റ്റർ (LA)"></h3><p style="font-size:1.12rem" data-en="Catches the strike above the array and leads it to its own pit." data-hi="ऐरे के ऊपर प्रहार पकड़कर अपने पिट तक ले जाता है।" data-ml="അറേയ്ക്ക് മുകളിൽ മിന്നൽ പിടിച്ച് സ്വന്തം പിറ്റിലേക്ക് നയിക്കുന്നു."></p><div class="spec"><span>Franklin / ESE</span><span>IS/IEC 62305</span></div></div>
+<div class="binfo info" data-k="10" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">10</span><h3 data-en="Monitoring" data-hi="निगरानी" data-ml="നിരീക്ഷണം"></h3><p style="font-size:1.12rem" data-en="Wi-Fi / 4G logger sends generation and alarms to an app." data-hi="Wi-Fi / 4G लॉगर उत्पादन व अलार्म ऐप पर भेजता है।" data-ml="Wi-Fi / 4G ലോഗർ ഉത്പാദനവും അലാറങ്ങളും ആപ്പിലേക്ക് അയയ്ക്കുന്നു."></p><div class="spec"><span>Wi-Fi / 4G</span><span>RS485</span></div></div>
+<div class="binfo info" data-k="11" hidden><span class="badge" style="width:auto;padding:0 .7rem;justify-self:start">11</span><h3 data-en="Conduits and cable trays" data-hi="कंड्यूट व केबल ट्रे" data-ml="കൺഡ്യൂട്ട്, കേബിൾ ട്രേ"></h3><p style="font-size:1.12rem" data-en="Protect cable runs from sun, rain and damage." data-hi="केबल को धूप, बारिश व क्षति से बचाते हैं।" data-ml="കേബിളുകളെ വെയിൽ, മഴ, കേടുപാട് എന്നിവയിൽ നിന്ന് സംരക്ഷിക്കുന്നു."></p><div class="spec"><span>UPVC / GI</span><span>IP68 glands</span></div></div>
+  </div>
+ </div>
+ <div class="fig">
+  <h3 data-en="Where the money goes (typical 3–10 kW rooftop, indicative)" data-hi="पैसा कहाँ जाता है (सामान्य 3–10 kW रूफटॉप, सांकेतिक)" data-ml="പണം എവിടേക്ക് പോകുന്നു (സാധാരണ 3–10 kW റൂഫ്ടോപ്പ്, ഏകദേശം)"></h3>
+  <svg viewBox="0 0 990 150" role="img" aria-label="Cost share bar" style="min-width:700px"><rect x="10.0" y="10" width="436.5" height="44" style="fill:var(--pv)"/>
+<text class="tg c" x="228.2" y="39" style="fill:#fff">45 %</text>
+<rect x="10" y="74" width="18" height="18" rx="3" style="fill:var(--pv)"/><foreignObject  x="34" y="66" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Modules · 45 %" data-hi="मॉड्यूल · 45 %" data-ml="മൊഡ്യൂളുകൾ · 45 %"></div></foreignObject>
+<rect x="446.5" y="10" width="145.5" height="44" style="fill:var(--grid)"/>
+<text class="tg c" x="519.2" y="39" style="fill:#fff">15 %</text>
+<rect x="255" y="74" width="18" height="18" rx="3" style="fill:var(--grid)"/><foreignObject  x="279" y="66" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Inverter · 15 %" data-hi="इन्वर्टर · 15 %" data-ml="ഇൻവെർട്ടർ · 15 %"></div></foreignObject>
+<rect x="592.0" y="10" width="97.0" height="44" style="fill:var(--muted)"/>
+<text class="tg c" x="640.5" y="39" style="fill:#fff">10 %</text>
+<rect x="500" y="74" width="18" height="18" rx="3" style="fill:var(--muted)"/><foreignObject  x="524" y="66" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Structure · 10 %" data-hi="संरचना · 10 %" data-ml="സ്ട്രക്ചർ · 10 %"></div></foreignObject>
+<rect x="689.0" y="10" width="87.3" height="44" style="fill:var(--danger)"/>
+<text class="tg c" x="732.6" y="39" style="fill:#fff">9 %</text>
+<rect x="745" y="74" width="18" height="18" rx="3" style="fill:var(--danger)"/><foreignObject  x="769" y="66" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Cables &amp; protection · 9 %" data-hi="केबल व सुरक्षा · 9 %" data-ml="കേബിൾ, സംരക്ഷണം · 9 %"></div></foreignObject>
+<rect x="776.3" y="10" width="29.1" height="44" style="fill:var(--batt)"/>
+<rect x="10" y="114" width="18" height="18" rx="3" style="fill:var(--batt)"/><foreignObject  x="34" y="106" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Earthing &amp; LA · 3 %" data-hi="अर्थिंग व LA · 3 %" data-ml="എർത്തിങ്, LA · 3 %"></div></foreignObject>
+<rect x="805.4" y="10" width="29.1" height="44" style="fill:var(--ion)"/>
+<rect x="255" y="114" width="18" height="18" rx="3" style="fill:var(--ion)"/><foreignObject  x="279" y="106" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Meters &amp; monitoring · 3 %" data-hi="मीटर व निगरानी · 3 %" data-ml="മീറ്റർ, നിരീക്ഷണം · 3 %"></div></foreignObject>
+<rect x="834.5" y="10" width="145.5" height="44" style="fill:var(--sun)"/>
+<text class="tg c" x="907.2" y="39" style="fill:#fff">15 %</text>
+<rect x="500" y="114" width="18" height="18" rx="3" style="fill:var(--sun)"/><foreignObject  x="524" y="106" width="215" height="36"><div class="fo l" style="font-size:14px" data-en="Installation &amp; others · 15 %" data-hi="स्थापना व अन्य · 15 %" data-ml="ഇൻസ്റ്റലേഷൻ, മറ്റുള്ളവ · 15 %"></div></foreignObject></svg>
+ </div>
+</section>
+
+<!-- ============ 2 STRUCTURES ============ -->
+<section class="panel" id="mnt" role="tabpanel" style="--acc:var(--grid)" hidden>
+ <div class="head">
+  <h2 data-en="Module mounting structures" data-hi="मॉड्यूल माउंटिंग संरचना" data-ml="മൊഡ്യൂൾ മൗണ്ടിങ് സ്ട്രക്ചറുകൾ"></h2>
+ </div>
+ <div class="fig"><svg viewBox="0 0 990 260" role="img" aria-label="Four structure types" style="min-width:720px"><rect x="10" y="200" width="220" height="18" class="box2"/><rect x="30" y="188" width="20" height="12" class="f-muted"/><rect x="190" y="188" width="20" height="12" class="f-muted"/>
+<path class="s-ink" stroke-width="4" d="M40 188V150M200 188V105M40 150L200 105M40 188L200 150"/><polygon class="f-pv" points="30,152 212,102 212,92 30,142"/>
+<polygon points="260,210 480,140 480,160 260,230" class="f-al" style="stroke:var(--ink);stroke-width:2"/>
+<path class="s-mut" stroke-width="1.5" d="M275 205.0l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M301 196.8l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M327 188.6l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M353 180.4l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M379 172.2l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M405 164.0l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M431 155.8l0 18"/>
+<path class="s-mut" stroke-width="1.5" d="M457 147.60000000000002l0 18"/>
+<path class="s-ink" stroke-width="5" d="M275 196L470 135"/><polygon class="f-pv" points="275,192 470,131 470,122 275,183"/>
+<path class="s-ink" stroke-width="3" d="M510 220H730"/>
+<rect x="532" y="200" width="16" height="22" class="f-muted"/>
+<rect x="682" y="200" width="16" height="22" class="f-muted"/>
+<path class="s-ink" stroke-width="4" d="M540 200V165M690 200V110M530 168L700 108"/><polygon class="f-pv" points="520,170 712,104 712,94 520,160"/>
+<path class="s-ink" stroke-width="6" d="M790 220V120M950 220V120"/><polygon class="f-pv" points="770,125 970,105 970,95 770,115"/>
+<path class="f-ink" d="M820 215h100v-18l-14-14h-70l-16 18z" style="opacity:.6"/><circle cx="840" cy="216" r="8" class="f-ink"/><circle cx="900" cy="216" r="8" class="f-ink"/>
+<foreignObject  x="0" y="226" width="240" height="34"><div class="fo" style="font-size:14px;font-weight:700" data-en="RCC flat roof: elevated tilted frame" data-hi="RCC सपाट छत: ऊँचा झुका फ्रेम" data-ml="RCC പരന്ന മേൽക്കൂര: ഉയർത്തിയ ചെരിഞ്ഞ ഫ്രെയിം"></div></foreignObject>
+<foreignObject  x="250" y="226" width="240" height="34"><div class="fo" style="font-size:14px;font-weight:700" data-en="Metal-sheet roof: rails on purlins" data-hi="धातु-शीट छत: पर्लिन पर रेल" data-ml="മെറ്റൽ-ഷീറ്റ് മേൽക്കൂര: പർലിനിൽ റെയിൽ"></div></foreignObject>
+<foreignObject  x="500" y="226" width="240" height="34"><div class="fo" style="font-size:14px;font-weight:700" data-en="Ground mount: footings or piles" data-hi="ग्राउंड माउंट: फुटिंग या पाइल" data-ml="ഗ്രൗണ്ട് മൗണ്ട്: ഫൂട്ടിങ് / പൈൽ"></div></foreignObject>
+<foreignObject  x="750" y="226" width="240" height="34"><div class="fo" style="font-size:14px;font-weight:700" data-en="Carport / shade structure" data-hi="कारपोर्ट / छाया संरचना" data-ml="കാർപോർട്ട് / തണൽ സ്ട്രക്ചർ"></div></foreignObject>
+<foreignObject  x="0" y="0" width="990" height="30"><div class="fo mut" data-en="Modules face south, tilted about 10–15° in Kerala" data-hi="केरल में मॉड्यूल दक्षिण की ओर, लगभग 10–15° झुके" data-ml="കേരളത്തിൽ മൊഡ്യൂളുകൾ തെക്കോട്ട്, ഏകദേശം 10–15° ചെരിഞ്ഞ്"></div></foreignObject></svg></div>
+ <div class="row2">
+  <div class="fig">
+   <h3 data-en="Rails and clamps" data-hi="रेल और क्लैंप" data-ml="റെയിലും ക്ലാമ്പും"></h3>
+   <svg viewBox="0 0 600 260" role="img" aria-label="Mid clamp and end clamp on rail" style="min-width:460px"><rect x="20" y="170" width="560" height="30" rx="4" class="f-al" style="stroke:var(--ink);stroke-width:2"/>
+<rect x="70" y="128" width="205" height="42" class="f-pv"/><rect x="305" y="128" width="230" height="42" class="f-pv"/>
+<path d="M70 128H275M305 128H535" style="stroke:var(--al);stroke-width:5"/>
+<path class="f-ink" d="M272 118h36v10h-10v42h-16v-42h-10z"/><path d="M290 112V200" style="stroke:var(--grid);stroke-width:4"/>
+<path class="f-ink" d="M48 118h26v10h-6v42h-20z"/><path d="M58 112V200" style="stroke:var(--grid);stroke-width:4"/>
+<path class="f-ink" d="M280 196h20v10h-20z"/><path class="f-ink" d="M48 196h20v10h-20z"/>
+<path class="lead-ln" d="M290 112L390 55"/><circle class="f-ink" cx="290" cy="112" r="4"/><foreignObject  x="330" y="40" width="160" height="32"><div class="fo" style="font-size:14px" data-en="Mid clamp" data-hi="मिड क्लैंप" data-ml="മിഡ് ക്ലാമ്പ്"></div></foreignObject>
+<path class="lead-ln" d="M58 112L80 55"/><circle class="f-ink" cx="58" cy="112" r="4"/><foreignObject  x="20" y="40" width="160" height="32"><div class="fo" style="font-size:14px" data-en="End clamp" data-hi="एंड क्लैंप" data-ml="എൻഡ് ക്ലാമ്പ്"></div></foreignObject>
+<path class="lead-ln" d="M450 185L480 240"/><circle class="f-ink" cx="450" cy="185" r="4"/><foreignObject  x="420" y="225" width="160" height="32"><div class="fo" style="font-size:14px" data-en="Aluminium rail" data-hi="एल्यूमिनियम रेल" data-ml="അലുമിനിയം റെയിൽ"></div></foreignObject>
+<path class="lead-ln" d="M150 150L180 240"/><circle class="f-ink" cx="150" cy="150" r="4"/><foreignObject  x="120" y="225" width="160" height="32"><div class="fo" style="font-size:14px" data-en="Module frame" data-hi="मॉड्यूल फ्रेम" data-ml="മൊഡ്യൂൾ ഫ്രെയിം"></div></foreignObject>
+<path class="lead-ln" d="M290 205L310 240"/><circle class="f-ink" cx="290" cy="205" r="4"/><foreignObject  x="250" y="225" width="160" height="32"><div class="fo" style="font-size:14px" data-en="SS304 T-bolt" data-hi="SS304 T-बोल्ट" data-ml="SS304 T-ബോൾട്ട്"></div></foreignObject></svg>
+  </div>
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))">
+   <div class="pcard"><span class="badge">HDG</span><h4 data-en="Hot-dip galvanised steel" data-hi="हॉट-डिप गैल्वनाइज़्ड स्टील" data-ml="ഹോട്ട്-ഡിപ് ഗാൽവനൈസ്ഡ് സ്റ്റീൽ"></h4><p data-en="Zinc coating ≥ 80 µm; or aluminium rails" data-hi="जिंक कोटिंग ≥ 80 µm; या एल्यूमिनियम रेल" data-ml="സിങ്ക് കോട്ടിങ് ≥ 80 µm; അല്ലെങ്കിൽ അലുമിനിയം റെയിൽ"></p></div>
+   <div class="pcard"><span class="badge">SS304</span><h4 data-en="Fasteners" data-hi="फास्टनर" data-ml="ഫാസ്റ്റനറുകൾ"></h4><p data-en="Stainless steel bolts, nuts and washers" data-hi="स्टेनलेस स्टील बोल्ट, नट व वॉशर" data-ml="സ്റ്റെയിൻലെസ് സ്റ്റീൽ ബോൾട്ട്, നട്ട്, വാഷർ"></p></div>
+   <div class="pcard"><span class="badge dg">km/h</span><h4 data-en="Wind design" data-hi="पवन डिज़ाइन" data-ml="കാറ്റ് ഡിസൈൻ"></h4><p data-en="Typically 150 km/h as per IS 875 (Part 3)" data-hi="सामान्यतः IS 875 (भाग 3) के अनुसार 150 km/h" data-ml="സാധാരണ IS 875 (ഭാഗം 3) പ്രകാരം 150 km/h"></p></div>
+   <div class="pcard"><span class="badge in">S 10°</span><h4 data-en="Orientation" data-hi="दिशा" data-ml="ദിശ"></h4><p data-en="Face south; tilt about equal to latitude (Kerala ≈ 10–15°)" data-hi="दक्षिण की ओर; झुकाव लगभग अक्षांश के बराबर (केरल ≈ 10–15°)" data-ml="തെക്കോട്ട്; ചെരിവ് ഏകദേശം അക്ഷാംശത്തിന് തുല്യം (കേരളം ≈ 10–15°)"></p></div>
+  </div>
+ </div>
+ <div class="fig">
+  <h3 data-en="Row spacing: no shadow from 9 am to 3 pm on the shortest day (21 Dec)" data-hi="पंक्ति दूरी: सबसे छोटे दिन (21 दिसंबर) सुबह 9 से दोपहर 3 बजे तक कोई छाया नहीं" data-ml="നിര അകലം: ഏറ്റവും ചെറിയ ദിവസം (ഡിസം 21) രാവിലെ 9 മുതൽ ഉച്ചയ്ക്ക് 3 വരെ നിഴലില്ല"></h3>
+  <div class="wingrid">
+   <div class="simctl">
+    <label for="rLat"><span data-en="Latitude (° N)" data-hi="अक्षांश (° N)" data-ml="അക്ഷാംശം (° N)"></span><output id="rLatO">11.3</output></label>
+    <input type="range" id="rLat" min="8" max="35" step="0.1" value="11.3">
+    <label for="rTilt"><span data-en="Tilt angle (°)" data-hi="झुकाव कोण (°)" data-ml="ചെരിവ് കോൺ (°)"></span><output id="rTiltO">12</output></label>
+    <input type="range" id="rTilt" min="0" max="35" step="1" value="12">
+    <label for="rLen"><span data-en="Module length up the slope (m)" data-hi="ढलान पर मॉड्यूल लंबाई (m)" data-ml="ചരിവിലെ മൊഡ്യൂൾ നീളം (m)"></span><output id="rLenO">2.28</output></label>
+    <input type="range" id="rLen" min="1" max="4.6" step="0.01" value="2.28">
+    <div class="res"><span data-en="Panel height" data-hi="पैनल ऊँचाई" data-ml="പാനൽ ഉയരം"></span><b id="rH">–</b></div>
+    <div class="res"><span data-en="Gap between rows" data-hi="पंक्तियों के बीच दूरी" data-ml="നിരകൾക്കിടയിലെ അകലം"></span><b id="rG">–</b></div>
+    <div class="res big"><span data-en="Row pitch" data-hi="पंक्ति पिच" data-ml="നിര പിച്ച്"></span><b id="rP">–</b></div>
+   </div>
+   <div class="simviz">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Side view of two module rows and sun shadow">
+     <rect x="0" y="0" width="900" height="300" style="fill:var(--surface)"/>
+     <path class="s-ink" stroke-width="3" d="M20 260H880"/>
+     <text class="lbs s" x="24" y="285">S ←</text><text class="lbs e" x="876" y="285">→ N</text>
+     <use id="rSun" href="#s-sun" width="60" height="60" x="30" y="20"/>
+     <path id="rRay" style="fill:none;stroke:var(--sun);stroke-width:2;stroke-dasharray:6 5"/>
+     <polygon id="rShadow" style="fill:var(--ink);opacity:.15"/>
+     <path id="rRow1" style="stroke:var(--pv);stroke-width:12;stroke-linecap:round"/>
+     <path id="rRow2" style="stroke:var(--pv);stroke-width:12;stroke-linecap:round"/>
+     <path id="rLeg1" class="s-mut" stroke-width="4"/><path id="rLeg2" class="s-mut" stroke-width="4"/>
+     <path id="rGapL" class="s-dg" stroke-width="2"/>
+     <text id="rGapT" class="mono c" y="250" style="fill:var(--danger)"></text>
+     <text id="rAlt" class="mono s" x="100" y="40" style="fill:var(--sun)"></text>
+    </svg>
+    <div class="steps"><span id="rs1"></span><span id="rs2"></span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 3 CABLES ============ -->
+<section class="panel" id="cab" role="tabpanel" style="--acc:var(--danger)" hidden>
+ <div class="head">
+  <h2 data-en="DC solar cables and MC4 connectors" data-hi="DC सोलर केबल और MC4 कनेक्टर" data-ml="DC സോളാർ കേബിളുകളും MC4 കണക്ടറുകളും"></h2>
+ </div>
+ <div class="row2">
+  <div class="fig">
+   <h3 data-en="Solar cable cross-section" data-hi="सोलर केबल अनुप्रस्थ काट" data-ml="സോളാർ കേബിൾ ക്രോസ്-സെക്ഷൻ"></h3>
+   <svg viewBox="0 0 600 300" role="img" aria-label="Solar cable layers" style="min-width:460px"><circle cx="150" cy="140" r="90" style="fill:var(--danger)"/><circle cx="150" cy="140" r="68" style="fill:var(--surface2);stroke:var(--ink)"/><circle cx="150" cy="140" r="48" class="f-al"/>
+<circle cx="130.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="140.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="150.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="160.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="170.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="125.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="135.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="145.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="155.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="165.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="175.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="120.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="130.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="140.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="150.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="160.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="170.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="180.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="115.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="125.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="135.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="145.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="155.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="165.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="175.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="185.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="110.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="120.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="130.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="140.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="150.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="160.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="170.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="180.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="190.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="115.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="125.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="135.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="145.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="155.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="165.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="175.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="185.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="120.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="130.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="140.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="150.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="160.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="170.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="180.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="125.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="135.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="145.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="155.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="165.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="175.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="130.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="140.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="150.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="160.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="170.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<text class="tg c" x="150" y="262" style="font-size:26px">+</text>
+<circle cx="360" cy="140" r="90" style="fill:var(--ink)"/><circle cx="360" cy="140" r="68" style="fill:var(--surface2);stroke:var(--ink)"/><circle cx="360" cy="140" r="48" class="f-al"/>
+<circle cx="340.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="350.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="360.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="370.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="380.0" cy="105.2" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="335.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="345.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="355.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="365.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="375.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="385.0" cy="113.9" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="330.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="340.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="350.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="360.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="370.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="380.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="390.0" cy="122.6" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="325.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="335.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="345.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="355.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="365.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="375.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="385.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="395.0" cy="131.3" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="320.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="330.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="340.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="350.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="360.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="370.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="380.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="390.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="400.0" cy="140.0" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="325.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="335.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="345.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="355.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="365.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="375.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="385.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="395.0" cy="148.7" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="330.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="340.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="350.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="360.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="370.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="380.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="390.0" cy="157.4" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="335.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="345.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="355.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="365.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="375.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="385.0" cy="166.1" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="340.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="350.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="360.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="370.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<circle cx="380.0" cy="174.8" r="4.6" style="fill:var(--surface);stroke:var(--muted);stroke-width:.8"/>
+<text class="tg c" x="360" y="262" style="font-size:26px">−</text>
+<path class="lead-ln" d="M150 140L455 56H462"/><circle class="f-ink" cx="150" cy="140" r="4"/><foreignObject  x="465" y="40" width="135" height="40"><div class="fo l" style="font-size:13px" data-en="Tinned copper strands (class 5)" data-hi="टिन्ड कॉपर तार (क्लास 5)" data-ml="ടിൻഡ് കോപ്പർ ഇഴകൾ (ക്ലാസ് 5)"></div></foreignObject>
+<path class="lead-ln" d="M150 205L455 136H462"/><circle class="f-ink" cx="150" cy="205" r="4"/><foreignObject  x="465" y="120" width="135" height="40"><div class="fo l" style="font-size:13px" data-en="XLPO insulation" data-hi="XLPO इन्सुलेशन" data-ml="XLPO ഇൻസുലേഷൻ"></div></foreignObject>
+<path class="lead-ln" d="M150 226L455 216H462"/><circle class="f-ink" cx="150" cy="226" r="4"/><foreignObject  x="465" y="200" width="135" height="40"><div class="fo l" style="font-size:13px" data-en="UV-proof XLPO sheath" data-hi="UV-रोधी XLPO शीथ" data-ml="UV-പ്രതിരോധ XLPO ഷീത്ത്"></div></foreignObject></svg>
+  </div>
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))">
+   <div class="pcard"><span class="badge">mm²</span><h4 data-en="Size" data-hi="आकार" data-ml="വലിപ്പം"></h4><p data-en="4 mm² or 6 mm² tinned copper, fine stranded" data-hi="4 mm² या 6 mm² टिन्ड कॉपर, महीन तार" data-ml="4 mm² / 6 mm² ടിൻഡ് കോപ്പർ, നേർത്ത ഇഴകൾ"></p></div>
+   <div class="pcard"><span class="badge dg">1.5 kV</span><h4 data-en="Voltage rating" data-hi="वोल्टेज रेटिंग" data-ml="വോൾട്ടേജ് റേറ്റിങ്"></h4><p>1.5 kV DC · IEC 62930 / EN 50618</p></div>
+   <div class="pcard"><span class="badge">UV</span><h4 data-en="Insulation" data-hi="इन्सुलेशन" data-ml="ഇൻസുലേഷൻ"></h4><p data-en="Double insulated XLPO; UV, ozone and 90–120 °C rated" data-hi="डबल इन्सुलेटेड XLPO; UV, ओज़ोन व 90–120 °C रेटेड" data-ml="ഡബിൾ ഇൻസുലേറ്റഡ് XLPO; UV, ഓസോൺ, 90–120 °C റേറ്റഡ്"></p></div>
+   <div class="pcard"><span class="badge">+ −</span><h4 data-en="Colour code" data-hi="रंग कोड" data-ml="നിറ കോഡ്"></h4><p data-en="Red for +, black for −; never household PVC wire" data-hi="+ के लिए लाल, − के लिए काला; घरेलू PVC तार कभी नहीं" data-ml="+ ന് ചുവപ്പ്, − ന് കറുപ്പ്; ഒരിക്കലും സാധാരണ PVC വയർ പാടില്ല"></p></div>
+  </div>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="apart" data-en="MC4 apart" data-hi="MC4 अलग" data-ml="MC4 വേർപെട്ട്"></button>
+   <button class="sbtn" type="button" data-scene="mated" data-en="MC4 mated" data-hi="MC4 जुड़ा" data-ml="MC4 ചേർത്ത്"></button>
+  </div>
+  <div class="fig"><svg class="dia" viewBox="0 0 990 280" role="img" aria-label="MC4 connector parts"><g data-show="apart">
+<rect x="10" y="128" width="120" height="24" class="f-red"/>
+<rect x="130" y="112" width="60" height="56" rx="8" class="box2"/><path class="s-mut" stroke-width="2" d="M145 112V168M160 112V168M175 112V168"/>
+<rect x="190" y="105" width="170" height="70" rx="14" class="f-ink"/><rect x="330" y="126" width="34" height="28" rx="4" class="f-al"/><text class="mono c" x="260" y="145" style="fill:var(--surface)">−</text>
+<rect x="600" y="105" width="170" height="70" rx="14" class="f-ink"/><rect x="560" y="132" width="44" height="16" rx="4" class="f-al"/><path d="M610 105V92H650V105" style="fill:none;stroke:var(--ink);stroke-width:6"/><text class="mono c" x="700" y="145" style="fill:var(--surface)">+</text>
+<rect x="770" y="112" width="60" height="56" rx="8" class="box2"/><path class="s-mut" stroke-width="2" d="M785 112V168M800 112V168M815 112V168"/>
+<rect x="830" y="128" width="150" height="24" class="f-red"/>
+<foreignObject  x="10" y="165" width="120" height="46"><div class="fo" style="font-size:14px" data-en="Cable" data-hi="केबल" data-ml="കേബിൾ"></div></foreignObject>
+<foreignObject  x="100" y="180" width="120" height="46"><div class="fo" style="font-size:14px" data-en="Sealing nut" data-hi="सीलिंग नट" data-ml="സീലിങ് നട്ട്"></div></foreignObject>
+<foreignObject  x="190" y="190" width="170" height="46"><div class="fo" style="font-size:14px" data-en="Female housing" data-hi="फीमेल हाउसिंग" data-ml="ഫീമെയിൽ ഹൗസിങ്"></div></foreignObject>
+<foreignObject  x="520" y="190" width="150" height="46"><div class="fo" style="font-size:14px" data-en="Crimped metal pin" data-hi="क्रिम्प्ड धातु पिन" data-ml="ക്രിമ്പ് ചെയ്ത ലോഹ പിൻ"></div></foreignObject>
+<foreignObject  x="620" y="40" width="150" height="46"><div class="fo" style="font-size:14px" data-en="Locking latch" data-hi="लॉकिंग लैच" data-ml="ലോക്കിങ് ലാച്ച്"></div></foreignObject>
+<foreignObject  x="690" y="190" width="150" height="46"><div class="fo" style="font-size:14px" data-en="Male housing" data-hi="मेल हाउसिंग" data-ml="മെയിൽ ഹൗസിങ്"></div></foreignObject>
+</g><g data-show="mated">
+<rect x="10" y="128" width="230" height="24" class="f-red"/>
+<rect x="240" y="112" width="60" height="56" rx="8" class="box2"/><path class="s-mut" stroke-width="2" d="M255 112V168M270 112V168M285 112V168"/>
+<rect x="300" y="105" width="170" height="70" rx="14" class="f-ink"/><rect x="440" y="126" width="34" height="28" rx="4" class="f-al"/><text class="mono c" x="370" y="145" style="fill:var(--surface)">−</text>
+<rect x="470" y="105" width="170" height="70" rx="14" class="f-ink"/><rect x="430" y="132" width="44" height="16" rx="4" class="f-al"/><path d="M480 105V92H520V105" style="fill:none;stroke:var(--ink);stroke-width:6"/><text class="mono c" x="570" y="145" style="fill:var(--surface)">+</text>
+<rect x="640" y="112" width="60" height="56" rx="8" class="box2"/><path class="s-mut" stroke-width="2" d="M655 112V168M670 112V168M685 112V168"/>
+<rect x="700" y="128" width="280" height="24" class="f-red"/>
+<text class="tg c" x="470" y="215" style="fill:var(--batt)">IP68 · click!</text>
+</g></svg></div>
+  <p class="cap" data-show="apart" data-en="Crimp the metal pin with the proper tool, push it in until it clicks, then tighten the gland nut for IP68 sealing." data-hi="सही औज़ार से धातु पिन क्रिम्प करें, क्लिक होने तक अंदर डालें, फिर IP68 सीलिंग हेतु ग्लैंड नट कसें।" data-ml="ശരിയായ ടൂൾ കൊണ്ട് ലോഹ പിൻ ക്രിമ്പ് ചെയ്യുക, ക്ലിക്ക് ആകുന്നതുവരെ തള്ളുക, തുടർന്ന് IP68 സീലിങ്ങിനായി ഗ്ലാൻഡ് നട്ട് മുറുക്കുക."></p>
+  <p class="cap" data-show="mated" data-en="Mated pair locks; open only with the unlocking tool and never under load. Use the same brand on both halves (IEC 62852)." data-hi="जुड़ा जोड़ा लॉक होता है; केवल अनलॉक टूल से और बिना लोड के खोलें। दोनों भाग एक ही ब्रांड के हों (IEC 62852)।" data-ml="ചേർന്ന ജോഡി ലോക്ക് ആകുന്നു; അൺലോക്ക് ടൂൾ കൊണ്ട് മാത്രം, ലോഡില്ലാതെ മാത്രം തുറക്കുക. രണ്ട് ഭാഗവും ഒരേ ബ്രാൻഡ് (IEC 62852)."></p>
+ </div>
+ <div class="card">
+  <h3 data-en="DC voltage-drop calculator (target ≤ 2 %)" data-hi="DC वोल्टेज-ड्रॉप कैलकुलेटर (लक्ष्य ≤ 2 %)" data-ml="DC വോൾട്ടേജ്-ഡ്രോപ് കാൽക്കുലേറ്റർ (ലക്ഷ്യം ≤ 2 %)"></h3>
+  <div class="calc">
+   <div class="inp">
+    <label for="vL"><span data-en="One-way cable length (m)" data-hi="एक तरफ़ केबल लंबाई (m)" data-ml="ഒരു വശം കേബിൾ നീളം (m)"></span><input id="vL" type="number" min="1" value="30"></label>
+    <label for="vI"><span data-en="String current Imp (A)" data-hi="स्ट्रिंग करंट Imp (A)" data-ml="സ്ട്രിങ് കറന്റ് Imp (A)"></span><input id="vI" type="number" step="0.1" value="13"></label>
+    <label for="vV"><span data-en="String voltage Vmp (V)" data-hi="स्ट्रिंग वोल्टेज Vmp (V)" data-ml="സ്ട്രിങ് വോൾട്ടേജ് Vmp (V)"></span><input id="vV" type="number" value="330"></label>
+   </div>
+   <div class="out">
+    <svg viewBox="0 0 520 210" role="img" aria-label="Voltage drop for 4, 6 and 10 mm2">
+     <path id="vLim" class="s-dg" stroke-width="2" stroke-dasharray="6 4"/>
+     <text id="vLimT" class="lbs" y="18" style="fill:var(--danger)">2 %</text>
+     <g id="vBars"></g>
+    </svg>
+    <div class="steps"><span id="vs1"></span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 4 DCDB / ACDB ============ -->
+<section class="panel" id="db" role="tabpanel" style="--acc:var(--hyb)" hidden>
+ <div class="head">
+  <h2 data-en="DC and AC distribution boxes" data-hi="DC और AC वितरण बॉक्स" data-ml="DC, AC ഡിസ്ട്രിബ്യൂഷൻ ബോക്സുകൾ"></h2>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="norm" data-en="Normal" data-hi="सामान्य" data-ml="സാധാരണം"></button>
+   <button class="sbtn" type="button" data-scene="surge" data-en="Lightning surge" data-hi="तड़ित सर्ज" data-ml="മിന്നൽ സർജ്"></button>
+   <button class="sbtn" type="button" data-scene="fault" data-en="String fault" data-hi="स्ट्रिंग दोष" data-ml="സ്ട്രിങ് തകരാർ"></button>
+   <button class="sbtn" type="button" data-scene="iso" data-en="Maintenance (isolated)" data-hi="रखरखाव (अलग)" data-ml="അറ്റകുറ്റപ്പണി (വേർപെടുത്തി)"></button>
+  </div>
+  <div class="fig"><svg class="dia" viewBox="0 0 990 380" role="img" aria-label="DCDB with fuses, SPD and isolator"><rect x="150" y="40" width="640" height="300" rx="14" style="fill:none;stroke:var(--hyb);stroke-width:3;stroke-dasharray:10 6"/>
+<path class="wire" style="stroke-width:6" d="M70 100H330M70 170H330M70 240H330M330 170H520M580 170H820M430 170V230M430 280V330"/>
+<path class="s-ink" stroke-width="8" d="M330 95V245"/>
+<use href="#s-pv" x="0" y="70" width="64" height="53"/><text class="mono" x="2" y="136" style="font-size:12px">S1</text>
+<rect x="230" y="88" width="40" height="24" rx="4" class="box"/><path class="s-ink" stroke-width="2" d="M230 100H270"/>
+<use href="#s-pv" x="0" y="140" width="64" height="53"/><text class="mono" x="2" y="206" style="font-size:12px">S2</text>
+<rect x="230" y="158" width="40" height="24" rx="4" class="box"/><path class="s-ink" stroke-width="2" d="M230 170H270"/>
+<use href="#s-pv" x="0" y="210" width="64" height="53"/><text class="mono" x="2" y="276" style="font-size:12px">S3</text>
+<rect x="230" y="228" width="40" height="24" rx="4" class="box"/><path class="s-ink" stroke-width="2" d="M230 240H270"/>
+<rect x="405" y="230" width="50" height="50" rx="6" class="box"/><text class="mono c" x="430" y="260" style="font-size:12px">SPD</text>
+<rect x="380" y="330" width="120" height="8" class="f-ink"/><path class="s-ink" stroke-width="3" d="M440 338V346M426 346H454M431 352H449M436 358H444"/>
+<circle class="f-ink" cx="520" cy="170" r="5"/><circle class="f-ink" cx="580" cy="170" r="5"/>
+<path data-show="norm surge fault" class="s-ink" stroke-width="5" stroke-linecap="round" d="M520 170H580"/><path data-show="iso" class="s-dg" stroke-width="5" stroke-linecap="round" d="M520 170L572 146"/>
+<use href="#s-inv" x="820" y="110" width="120" height="120"/>
+<path class="flow dc" data-show="norm" d="M70 100H330M70 170H330M70 240H330M330 170H820"/>
+<path class="flow dc" data-show="surge" d="M70 170H330M70 240H330M330 170H820"/><path class="flow dg" data-show="surge" d="M70 100H330V170H430V330"/>
+<polygon data-show="surge" class="f-sun" style="stroke:var(--danger);stroke-width:2" points="44,0 30,34 44,34 32,66 64,24 48,24 60,0"/>
+<rect data-show="surge" x="400" y="225" width="60" height="60" rx="8" style="fill:none;stroke:var(--danger);stroke-width:4"/>
+<path class="flow dc" data-show="fault" d="M70 100H330M70 240H330M330 170H820"/><path class="flow dg" data-show="fault" d="M330 170H70"/>
+<g data-show="fault"><path class="s-dg" stroke-width="6" stroke-linecap="round" d="M236 158L264 182M264 158L236 182"/><path class="s-dg" stroke-width="5" d="M10 150L54 190M54 150L10 190"/></g>
+<path class="flow dc" data-show="iso" d="M70 100H330M70 170H330M70 240H330M330 170H520"/>
+<foreignObject  x="200" y="45" width="100" height="34"><div class="fo" style="font-size:13px" data-en="gPV fuses" data-hi="gPV फ्यूज़" data-ml="gPV ഫ്യൂസുകൾ"></div></foreignObject>
+<foreignObject  x="275" y="250" width="110" height="34"><div class="fo mut" style="font-size:13px" data-en="Busbar" data-hi="बसबार" data-ml="ബസ്ബാർ"></div></foreignObject>
+<foreignObject  x="462" y="236" width="120" height="40"><div class="fo" style="font-size:13px" data-en="DC SPD" data-hi="DC SPD" data-ml="DC SPD"></div></foreignObject>
+<foreignObject  x="495" y="115" width="120" height="34"><div class="fo" style="font-size:13px" data-en="DC isolator" data-hi="DC आइसोलेटर" data-ml="DC ഐസൊലേറ്റർ"></div></foreignObject>
+<foreignObject  x="505" y="315" width="130" height="34"><div class="fo mut" style="font-size:13px" data-en="Earth bar" data-hi="अर्थ बार" data-ml="എർത്ത് ബാർ"></div></foreignObject>
+<foreignObject  x="520" y="342" width="270" height="34"><div class="fo mut" style="font-size:13px" data-en="DCDB (only + shown; − is similar)" data-hi="DCDB (केवल + दिखाया; − समान)" data-ml="DCDB (+ മാത്രം കാണിച്ചു; − സമാനം)"></div></foreignObject>
+<foreignObject data-show="fault" x="225" y="124" width="70" height="20"><div class="fo dg" style="font-size:11px" data-en="blown" data-hi="उड़ा" data-ml="പൊട്ടി"></div></foreignObject>
+<foreignObject data-show="iso" x="600" y="175" width="150" height="50"><div class="fo pdg" style="font-size:13px" data-en="OFF · lock" data-hi="बंद · ताला" data-ml="ഓഫ് · പൂട്ട്"></div></foreignObject></svg></div>
+  <p class="cap" data-show="norm" data-en="Three strings pass through gPV fuses to a busbar, then through the DC isolator to the inverter. The SPD waits, connected to earth." data-hi="तीन स्ट्रिंग gPV फ्यूज़ से बसबार पर, फिर DC आइसोलेटर से इन्वर्टर तक जाती हैं। SPD अर्थ से जुड़ा प्रतीक्षा करता है।" data-ml="മൂന്ന് സ്ട്രിങ്ങുകൾ gPV ഫ്യൂസുകളിലൂടെ ബസ്ബാറിലേക്കും തുടർന്ന് DC ഐസൊലേറ്റർ വഴി ഇൻവെർട്ടറിലേക്കും. SPD എർത്തുമായി ബന്ധിച്ച് കാത്തിരിക്കുന്നു."></p>
+  <p class="cap" data-show="surge" data-en="A nearby strike induces a voltage spike. The SPD conducts within nanoseconds and sends the surge to earth, protecting the inverter." data-hi="पास की तड़ित से वोल्टेज स्पाइक आता है। SPD नैनोसेकंड में चालू होकर सर्ज को अर्थ में भेजता है और इन्वर्टर बचाता है।" data-ml="സമീപത്തെ മിന്നൽ വോൾട്ടേജ് സ്പൈക്ക് ഉണ്ടാക്കുന്നു. SPD നാനോസെക്കൻഡിൽ പ്രവർത്തിച്ച് സർജ് എർത്തിലേക്ക് അയച്ച് ഇൻവെർട്ടറിനെ സംരക്ഷിക്കുന്നു."></p>
+  <p class="cap" data-show="fault" data-en="String 2 is short-circuited. The other strings push reverse current into it; its gPV fuse blows and the healthy strings keep working." data-hi="स्ट्रिंग 2 शॉर्ट है। अन्य स्ट्रिंग उसमें रिवर्स करंट भेजती हैं; उसका gPV फ्यूज़ उड़ता है और स्वस्थ स्ट्रिंग काम करती रहती हैं।" data-ml="സ്ട്രിങ് 2 ഷോർട്ട് ആയി. മറ്റ് സ്ട്രിങ്ങുകൾ അതിലേക്ക് റിവേഴ്സ് കറന്റ് അയയ്ക്കുന്നു; അതിന്റെ gPV ഫ്യൂസ് പൊട്ടുന്നു, ബാക്കി സ്ട്രിങ്ങുകൾ പ്രവർത്തിക്കുന്നു."></p>
+  <p class="cap" data-show="iso" data-en="The DC isolator (load-break, DC rated) is opened before any work on the inverter. PV side is still live in daylight!" data-hi="इन्वर्टर पर काम से पहले DC आइसोलेटर (लोड-ब्रेक, DC रेटेड) खोला जाता है। दिन में PV पक्ष अब भी चालू रहता है!" data-ml="ഇൻവെർട്ടറിൽ ജോലിക്ക് മുമ്പ് DC ഐസൊലേറ്റർ (ലോഡ്-ബ്രേക്ക്, DC റേറ്റഡ്) തുറക്കുന്നു. പകൽ PV ഭാഗത്ത് ഇപ്പോഴും വൈദ്യുതിയുണ്ട്!"></p>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge dg">gPV</span><h4 data-en="String fuse" data-hi="स्ट्रिंग फ्यूज़" data-ml="സ്ട്രിങ് ഫ്യൂസ്"></h4><p data-en="1000 V DC, ≈ 1.5–2 × Isc; needed when 3 or more strings are in parallel (IEC 60269-6)" data-hi="1000 V DC, ≈ 1.5–2 × Isc; 3 या अधिक समानांतर स्ट्रिंग पर आवश्यक (IEC 60269-6)" data-ml="1000 V DC, ≈ 1.5–2 × Isc; 3-ഓ അതിലധികമോ പാരലൽ സ്ട്രിങ്ങുകൾക്ക് ആവശ്യം (IEC 60269-6)"></p></div>
+  <div class="pcard"><span class="badge dg">SPD</span><h4 data-en="DC surge protector" data-hi="DC सर्ज प्रोटेक्टर" data-ml="DC സർജ് പ്രൊട്ടക്ടർ"></h4><p data-en="Type 2, Ucpv ≥ 1.2 × string Voc, In 20 kA, Up ≤ 4 kV" data-hi="टाइप 2, Ucpv ≥ 1.2 × स्ट्रिंग Voc, In 20 kA, Up ≤ 4 kV" data-ml="ടൈപ്പ് 2, Ucpv ≥ 1.2 × സ്ട്രിങ് Voc, In 20 kA, Up ≤ 4 kV"></p></div>
+  <div class="pcard"><span class="badge">ISO</span><h4 data-en="DC isolator" data-hi="DC आइसोलेटर" data-ml="DC ഐസൊലേറ്റർ"></h4><p data-en="DC-PV2 load-break; voltage ≥ Voc max; current ≥ 1.25 × Isc total" data-hi="DC-PV2 लोड-ब्रेक; वोल्टेज ≥ Voc अधिकतम; करंट ≥ 1.25 × कुल Isc" data-ml="DC-PV2 ലോഡ്-ബ്രേക്ക്; വോൾട്ടേജ് ≥ പരമാവധി Voc; കറന്റ് ≥ 1.25 × മൊത്തം Isc"></p></div>
+  <div class="pcard"><span class="badge">IP65</span><h4 data-en="Enclosure" data-hi="एनक्लोज़र" data-ml="എൻക്ലോഷർ"></h4><p data-en="Polycarbonate or FRP, UV-stable, lockable" data-hi="पॉलीकार्बोनेट या FRP, UV-स्थिर, ताले योग्य" data-ml="പോളികാർബണേറ്റ് / FRP, UV-സ്ഥിരം, പൂട്ടാവുന്നത്"></p></div>
+ </div>
+ <div class="fig">
+  <h3>ACDB</h3>
+  <svg class="dia" viewBox="0 0 990 250" role="img" aria-label="ACDB components"><rect x="170" y="40" width="450" height="190" rx="14" style="fill:none;stroke:var(--grid);stroke-width:3;stroke-dasharray:10 6"/>
+<path class="wire" style="stroke-width:6" d="M120 125H200M240 125H300M360 125H420M490 125H650M730 125H850M560 125V150"/>
+<path class="flow ac" d="M120 125H200M240 125H300M360 125H420M490 125H650M730 125H850"/>
+<use href="#s-inv" x="10" y="70" width="110" height="110"/>
+<circle class="f-ink" cx="200" cy="125" r="4"/><circle class="f-ink" cx="240" cy="125" r="4"/><path class="s-ink" stroke-width="4" d="M200 125H240"/>
+<rect class="box" x="300" y="95" width="60" height="60" rx="6"/><rect x="322" y="103" width="16" height="18" rx="2" class="f-ink"/><text class="mono c" x="330" y="146" style="font-size:11px">MCB</text>
+<rect class="box" x="420" y="95" width="70" height="60" rx="6"/><rect x="432" y="103" width="16" height="18" rx="2" class="f-ink"/><circle cx="472" cy="112" r="6" class="f-sun"/><text class="mono c" x="455" y="146" style="font-size:11px">RCCB</text>
+<rect class="box" x="535" y="150" width="50" height="50" rx="6"/><text class="mono c" x="560" y="180" style="font-size:11px">SPD</text><path class="s-ink" stroke-width="3" d="M560 200V208M546 208H574M551 214H569M556 220H564"/>
+<use href="#s-meter" x="650" y="80" width="80" height="90"/>
+<use href="#s-grid" x="850" y="60" width="110" height="132"/>
+<foreignObject  x="170" y="200" width="100" height="34"><div class="fo" style="font-size:13px" data-en="Isolator" data-hi="आइसोलेटर" data-ml="ഐസൊലേറ്റർ"></div></foreignObject>
+<foreignObject  x="280" y="200" width="100" height="34"><div class="fo" style="font-size:13px" data-en="MCB" data-hi="MCB" data-ml="MCB"></div></foreignObject>
+<foreignObject  x="405" y="200" width="100" height="34"><div class="fo" style="font-size:13px" data-en="RCCB" data-hi="RCCB" data-ml="RCCB"></div></foreignObject>
+<foreignObject  x="595" y="200" width="110" height="34"><div class="fo" style="font-size:13px" data-en="AC SPD" data-hi="AC SPD" data-ml="AC SPD"></div></foreignObject>
+<foreignObject  x="640" y="175" width="100" height="34"><div class="fo" style="font-size:13px" data-en="Meter" data-hi="मीटर" data-ml="മീറ്റർ"></div></foreignObject></svg>
+ </div>
+ <div class="pcards">
+  <div class="pcard"><span class="badge">MCB</span><h4 data-en="AC MCB / MCCB" data-hi="AC MCB / MCCB" data-ml="AC MCB / MCCB"></h4><p data-en="C-curve, ≥ 1.25 × inverter max AC current; 2-pole (1φ) or 4-pole (3φ)" data-hi="C-कर्व, ≥ 1.25 × इन्वर्टर अधिकतम AC करंट; 2-पोल (1φ) या 4-पोल (3φ)" data-ml="C-കർവ്, ≥ 1.25 × ഇൻവെർട്ടർ പരമാവധി AC കറന്റ്; 2-പോൾ (1φ) / 4-പോൾ (3φ)"></p></div>
+  <div class="pcard"><span class="badge">RCCB</span><h4 data-en="Residual current device" data-hi="अवशिष्ट करंट उपकरण" data-ml="റെസിഡ്യൂവൽ കറന്റ് ഉപകരണം"></h4><p data-en="Type A or B and mA rating as the inverter maker states" data-hi="इन्वर्टर निर्माता के अनुसार टाइप A या B व mA रेटिंग" data-ml="ഇൻവെർട്ടർ നിർമ്മാതാവ് പറയുന്ന Type A / B, mA റേറ്റിങ്"></p></div>
+  <div class="pcard"><span class="badge dg">SPD</span><h4 data-en="AC surge protector" data-hi="AC सर्ज प्रोटेक्टर" data-ml="AC സർജ് പ്രൊട്ടക്ടർ"></h4><p data-en="Type 2, 275 V (L–N), In 20 kA" data-hi="टाइप 2, 275 V (L–N), In 20 kA" data-ml="ടൈപ്പ് 2, 275 V (L–N), In 20 kA"></p></div>
+  <div class="pcard"><span class="badge">ISO</span><h4 data-en="AC isolator" data-hi="AC आइसोलेटर" data-ml="AC ഐസൊലേറ്റർ"></h4><p data-en="Lockable, visible break near the meter" data-hi="ताले योग्य, मीटर के पास दिखने वाला ब्रेक" data-ml="മീറ്ററിനടുത്ത് പൂട്ടാവുന്ന, കാണാവുന്ന ബ്രേക്ക്"></p></div>
+ </div>
+</section>
+
+<!-- ============ 5 EARTHING & LA ============ -->
+<section class="panel" id="earth" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="Earthing and lightning protection" data-hi="अर्थिंग और तड़ित सुरक्षा" data-ml="എർത്തിങ്ങും മിന്നൽ സംരക്ഷണവും"></h2>
+ </div>
+ <div class="scene">
+  <div class="sbtns">
+   <button class="sbtn" type="button" data-scene="calm" data-en="Normal" data-hi="सामान्य" data-ml="സാധാരണം"></button>
+   <button class="sbtn" type="button" data-scene="strike" data-en="Lightning strike" data-hi="तड़ित प्रहार" data-ml="മിന്നൽ പതനം"></button>
+   <button class="sbtn" type="button" data-scene="leak" data-en="Insulation fault" data-hi="इन्सुलेशन दोष" data-ml="ഇൻസുലേഷൻ തകരാർ"></button>
+  </div>
+  <div class="fig"><svg class="dia" viewBox="0 0 990 440" role="img" aria-label="Three earth pits and lightning arrester"><rect x="0" y="360" width="990" height="80" style="fill:var(--roof);opacity:.2"/><path class="s-ink" stroke-width="2" d="M0 360H990"/>
+<rect x="300" y="170" width="400" height="190" class="box2"/><rect x="290" y="160" width="420" height="12" class="f-muted"/>
+<use href="#s-pv" x="330" y="88" width="100" height="83"/>
+<use href="#s-pv" x="435" y="88" width="100" height="83"/>
+<use href="#s-pv" x="540" y="88" width="100" height="83"/>
+<path class="s-mut" stroke-width="4" d="M335 160H640"/>
+<path class="s-ink" stroke-width="5" d="M690 160V40"/><path class="f-dg" d="M682 44L690 22L698 44Z"/>
+<path d="M690 32L310 160M690 32L760 160" style="fill:none;stroke:var(--sun);stroke-width:1.5;stroke-dasharray:6 5"/>
+<use href="#s-inv" x="200" y="250" width="70" height="70"/>
+<path d="M335 162H90V372M235 320V372" style="fill:none;stroke:var(--batt);stroke-width:4;stroke-dasharray:8 5"/>
+<path d="M690 160H900V372" style="fill:none;stroke:var(--sun);stroke-width:4;stroke-dasharray:8 5"/>
+<rect class="box2" x="72" y="360" width="36" height="12" rx="2"/><path d="M90 372V420" style="stroke:var(--cu);stroke-width:6"/>
+<rect class="box2" x="217" y="360" width="36" height="12" rx="2"/><path d="M235 372V420" style="stroke:var(--cu);stroke-width:6"/>
+<rect class="box2" x="882" y="360" width="36" height="12" rx="2"/><path d="M900 372V420" style="stroke:var(--cu);stroke-width:6"/>
+<path class="flow dg" data-show="strike" d="M690 40V160H900V420"/>
+<polygon data-show="strike" class="f-sun" style="stroke:var(--danger);stroke-width:2" points="700,-6 684,22 698,22 686,48 716,12 702,12 712,-6"/>
+<g data-show="leak"><path class="s-dg" stroke-width="5" d="M420 120L444 144M444 120L420 144"/></g><path class="flow dg" data-show="leak" d="M432 160H90V420"/>
+<foreignObject data-show="leak" x="150" y="200" width="140" height="46"><div class="fo pok" style="font-size:13px" data-en="Fault detected" data-hi="दोष पकड़ा" data-ml="തകരാർ കണ്ടെത്തി"></div></foreignObject>
+<foreignObject  x="10" y="385" width="170" height="50"><div class="fo" style="font-size:13px;font-weight:700" data-en="Pit 1: frames + DC SPD" data-hi="पिट 1: फ्रेम + DC SPD" data-ml="പിറ്റ് 1: ഫ്രെയിം + DC SPD"></div></foreignObject>
+<foreignObject  x="250" y="385" width="170" height="50"><div class="fo" style="font-size:13px;font-weight:700" data-en="Pit 2: inverter + AC" data-hi="पिट 2: इन्वर्टर + AC" data-ml="പിറ്റ് 2: ഇൻവെർട്ടർ + AC"></div></foreignObject>
+<foreignObject  x="720" y="385" width="170" height="50"><div class="fo" style="font-size:13px;font-weight:700" data-en="Pit 3: LA only" data-hi="पिट 3: केवल LA" data-ml="പിറ്റ് 3: LA മാത്രം"></div></foreignObject>
+<foreignObject  x="710" y="30" width="180" height="50"><div class="fo l" style="font-size:13px" data-en="Lightning arrester + protection zone" data-hi="लाइटनिंग अरेस्टर + सुरक्षा क्षेत्र" data-ml="ലൈറ്റ്നിങ് അറസ്റ്റർ + സംരക്ഷണ മേഖല"></div></foreignObject></svg></div>
+  <p class="cap" data-show="calm" data-en="Three separate earth pits: (1) module frames, structure and DC SPD, (2) inverter and AC SPD, (3) lightning arrester only." data-hi="तीन अलग अर्थ पिट: (1) मॉड्यूल फ्रेम, संरचना व DC SPD, (2) इन्वर्टर व AC SPD, (3) केवल लाइटनिंग अरेस्टर।" data-ml="മൂന്ന് വെവ്വേറെ എർത്ത് പിറ്റുകൾ: (1) മൊഡ്യൂൾ ഫ്രെയിം, സ്ട്രക്ചർ, DC SPD, (2) ഇൻവെർട്ടർ, AC SPD, (3) ലൈറ്റ്നിങ് അറസ്റ്റർ മാത്രം."></p>
+  <p class="cap" data-show="strike" data-en="The strike hits the arrester, not the panels. Its own down-conductor carries the current straight to pit 3, away from the equipment." data-hi="प्रहार अरेस्टर पर होता है, पैनलों पर नहीं। उसका अपना डाउन-कंडक्टर करंट सीधे पिट 3 तक, उपकरण से दूर ले जाता है।" data-ml="മിന്നൽ പാനലുകളിലല്ല, അറസ്റ്ററിലാണ് പതിക്കുന്നത്. അതിന്റെ സ്വന്തം ഡൗൺ-കണ്ടക്ടർ കറന്റ് ഉപകരണങ്ങളിൽ നിന്ന് അകലെ നേരിട്ട് പിറ്റ് 3-ലേക്ക് കൊണ്ടുപോകുന്നു."></p>
+  <p class="cap" data-show="leak" data-en="A damaged cable touches the frame. The frame is bonded to pit 1, so it stays at earth potential and the inverter detects the fault (insulation monitoring) instead of a person getting a shock." data-hi="क्षतिग्रस्त केबल फ्रेम को छूती है। फ्रेम पिट 1 से जुड़ा है, अतः पृथ्वी विभव पर रहता है और इन्वर्टर दोष पकड़ता है, किसी व्यक्ति को झटका नहीं लगता।" data-ml="കേടായ കേബിൾ ഫ്രെയിമിൽ തൊടുന്നു. ഫ്രെയിം പിറ്റ് 1-മായി ബന്ധിച്ചതിനാൽ എർത്ത് പൊട്ടൻഷ്യലിൽ തുടരുന്നു; ഇൻവെർട്ടർ തകരാർ കണ്ടെത്തുന്നു, ആർക്കും ഷോക്ക് ഏൽക്കുന്നില്ല."></p>
+ </div>
+ <div class="row2">
+  <div class="fig">
+   <h3 data-en="Earth pit construction" data-hi="अर्थ पिट निर्माण" data-ml="എർത്ത് പിറ്റ് നിർമാണം"></h3>
+   <svg viewBox="0 0 520 400" role="img" aria-label="Earth pit cross-section" style="min-width:420px"><rect x="0" y="80" width="520" height="320" style="fill:var(--roof);opacity:.2"/><path class="s-ink" stroke-width="2" d="M0 80H520"/>
+<rect x="190" y="80" width="120" height="300" style="fill:var(--muted);opacity:.35"/>
+<circle cx="202" cy="100" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="100" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="100" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="100" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="100" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="120" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="120" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="120" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="120" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="120" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="140" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="140" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="140" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="140" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="140" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="160" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="160" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="160" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="160" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="160" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="180" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="180" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="180" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="180" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="180" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="200" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="200" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="200" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="200" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="200" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="220" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="220" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="220" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="220" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="220" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="240" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="240" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="240" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="240" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="240" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="260" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="260" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="260" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="260" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="260" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="280" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="280" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="280" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="280" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="280" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="300" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="300" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="300" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="300" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="300" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="320" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="320" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="320" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="320" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="320" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="202" cy="340" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="226" cy="340" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="250" cy="340" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="274" cy="340" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="298" cy="340" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="214" cy="360" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="238" cy="360" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="262" cy="360" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="286" cy="360" r="2.5" class="f-ink" opacity=".35"/>
+<circle cx="310" cy="360" r="2.5" class="f-ink" opacity=".35"/>
+<rect x="170" y="48" width="160" height="34" rx="4" class="box2"/><rect x="180" y="40" width="140" height="10" rx="3" class="f-ink"/>
+<path d="M250 60V385" style="stroke:var(--cu);stroke-width:12;stroke-linecap:round"/>
+<path d="M20 64H244" style="stroke:var(--batt);stroke-width:5"/><rect x="238" y="56" width="24" height="16" rx="3" class="f-ink"/>
+<path class="s-ink" stroke-width="2" d="M140 90V380M134 96L140 86L146 96M134 374L140 384L146 374"/><text class="lbl e" x="132" y="240">≈ 3 m</text>
+<path class="lead-ln" d="M300 44L350 28H356"/><circle class="f-ink" cx="300" cy="44" r="4"/><foreignObject  x="358" y="10" width="160" height="40"><div class="fo l" style="font-size:13px" data-en="Inspection chamber with cover" data-hi="ढक्कन सहित निरीक्षण कक्ष" data-ml="മൂടിയോടുകൂടിയ ഇൻസ്പെക്ഷൻ ചേംബർ"></div></foreignObject>
+<path class="lead-ln" d="M250 64L350 113H356"/><circle class="f-ink" cx="250" cy="64" r="4"/><foreignObject  x="358" y="95" width="160" height="40"><div class="fo l" style="font-size:13px" data-en="Clamp + earth conductor" data-hi="क्लैंप + अर्थ कंडक्टर" data-ml="ക്ലാമ്പ് + എർത്ത് കണ്ടക്ടർ"></div></foreignObject>
+<path class="lead-ln" d="M250 220L350 198H356"/><circle class="f-ink" cx="250" cy="220" r="4"/><foreignObject  x="358" y="180" width="160" height="40"><div class="fo l" style="font-size:13px" data-en="Copper-bonded rod" data-hi="कॉपर-बॉन्डेड रॉड" data-ml="കോപ്പർ-ബോണ്ടഡ് റോഡ്"></div></foreignObject>
+<path class="lead-ln" d="M290 300L350 283H356"/><circle class="f-ink" cx="290" cy="300" r="4"/><foreignObject  x="358" y="265" width="160" height="40"><div class="fo l" style="font-size:13px" data-en="Earth enhancement compound" data-hi="अर्थ एन्हांसमेंट कंपाउंड" data-ml="എർത്ത് എൻഹാൻസ്മെന്റ് കോമ്പൗണ്ട്"></div></foreignObject>
+<path class="lead-ln" d="M400 360L350 358H356"/><circle class="f-ink" cx="400" cy="360" r="4"/><foreignObject  x="358" y="340" width="160" height="40"><div class="fo l" style="font-size:13px" data-en="Natural soil" data-hi="प्राकृतिक मिट्टी" data-ml="സ്വാഭാവിക മണ്ണ്"></div></foreignObject></svg>
+  </div>
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))">
+   <div class="pcard"><span class="badge">3</span><h4 data-en="Number of pits" data-hi="पिट की संख्या" data-ml="പിറ്റുകളുടെ എണ്ണം"></h4><p data-en="Typically three for a rooftop plant" data-hi="रूफटॉप प्लांट में सामान्यतः तीन" data-ml="റൂഫ്ടോപ്പ് പ്ലാന്റിന് സാധാരണ മൂന്ന്"></p></div>
+   <div class="pcard"><span class="badge">Ω</span><h4 data-en="Earth resistance" data-hi="अर्थ प्रतिरोध" data-ml="എർത്ത് പ്രതിരോധം"></h4><p data-en="Typically below 5 Ω; check the DISCOM / tender value" data-hi="सामान्यतः 5 Ω से कम; DISCOM / टेंडर मान देखें" data-ml="സാധാരണ 5 Ω-ൽ താഴെ; DISCOM / ടെൻഡർ മൂല്യം പരിശോധിക്കുക"></p></div>
+   <div class="pcard"><span class="badge">Cu</span><h4 data-en="Conductors" data-hi="कंडक्टर" data-ml="കണ്ടക്ടറുകൾ"></h4><p data-en="Cu 6–16 mm² or GI strip 25 × 3 mm; bond every structure row" data-hi="Cu 6–16 mm² या GI पट्टी 25 × 3 mm; हर संरचना पंक्ति बॉन्ड करें" data-ml="Cu 6–16 mm² / GI സ്ട്രിപ് 25 × 3 mm; ഓരോ സ്ട്രക്ചർ നിരയും ബോണ്ട് ചെയ്യുക"></p></div>
+   <div class="pcard"><span class="badge dg">LA</span><h4 data-en="Lightning arrester" data-hi="लाइटनिंग अरेस्टर" data-ml="ലൈറ്റ്നിങ് അറസ്റ്റർ"></h4><p data-en="Franklin rod or ESE above the highest module; IS/IEC 62305" data-hi="उच्चतम मॉड्यूल से ऊपर फ्रैंकलिन रॉड या ESE; IS/IEC 62305" data-ml="ഏറ്റവും ഉയർന്ന മൊഡ്യൂളിന് മുകളിൽ ഫ്രാങ്ക്ലിൻ റോഡ് / ESE; IS/IEC 62305"></p></div>
+   <div class="pcard"><span class="badge">IS</span><h4 data-en="Earthing code" data-hi="अर्थिंग कोड" data-ml="എർത്തിങ് കോഡ്"></h4><p>IS 3043</p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 6 METERING & MONITORING ============ -->
+<section class="panel" id="mon" role="tabpanel" style="--acc:var(--ion)" hidden>
+ <div class="head">
+  <h2 data-en="Metering and monitoring" data-hi="मीटरिंग और निगरानी" data-ml="മീറ്ററിങ്ങും നിരീക്ഷണവും"></h2>
+ </div>
+ <div class="fig"><svg class="dia" viewBox="0 0 990 300" role="img" aria-label="Meters, logger and app data flow"><path class="wire" style="stroke-width:6" d="M130 150H180M290 150H330M400 150H440M510 150H600M670 150H760M475 175V205"/>
+<path class="flow ac" d="M290 150H330M400 150H440M510 150H600M670 150H760"/><path class="flow dc" d="M130 150H180"/>
+<use href="#s-pv" x="10" y="100" width="120" height="100"/><use href="#s-inv" x="180" y="95" width="110" height="110"/>
+<rect x="222" y="75" width="26" height="20" rx="3" style="fill:var(--ion)"/>
+<use href="#s-meter" x="330" y="110" width="70" height="80"/>
+<rect class="box" x="440" y="125" width="70" height="50" rx="6"/><text class="mono c" x="475" y="155" style="font-size:12px">ACDB</text>
+<circle cx="560" cy="150" r="13" style="fill:none;stroke:var(--ion);stroke-width:4"/>
+<use href="#s-meter" x="600" y="110" width="70" height="80"/>
+<use href="#s-grid" x="760" y="85" width="100" height="120"/>
+<use href="#s-home" x="430" y="205" width="90" height="90"/>
+<ellipse cx="560" cy="40" rx="60" ry="24" class="f-cloud"/><ellipse cx="530" cy="30" rx="30" ry="22" class="f-cloud"/><ellipse cx="590" cy="28" rx="26" ry="18" class="f-cloud"/>
+<rect x="910" y="20" width="60" height="105" rx="10" class="box" style="stroke-width:3"/><path d="M920 95Q935 50 950 70T962 60" style="fill:none;stroke:var(--sun);stroke-width:3"/>
+<path class="flow e" d="M235 75V40H500M620 40H910"/>
+<foreignObject  x="300" y="190" width="130" height="34"><div class="fo" style="font-size:13px" data-en="Generation meter" data-hi="उत्पादन मीटर" data-ml="ഉത്പാദന മീറ്റർ"></div></foreignObject>
+<foreignObject  x="590" y="190" width="100" height="34"><div class="fo" style="font-size:13px" data-en="Net meter" data-hi="नेट मीटर" data-ml="നെറ്റ് മീറ്റർ"></div></foreignObject>
+<foreignObject  x="520" y="160" width="80" height="34"><div class="fo" style="font-size:13px" data-en="CT" data-hi="CT" data-ml="CT"></div></foreignObject>
+<foreignObject  x="100" y="70" width="120" height="34"><div class="fo" style="font-size:13px" data-en="Wi-Fi logger" data-hi="Wi-Fi लॉगर" data-ml="Wi-Fi ലോഗർ"></div></foreignObject>
+<foreignObject  x="500" y="58" width="120" height="34"><div class="fo" style="font-size:13px" data-en="Cloud" data-hi="क्लाउड" data-ml="ക്ലൗഡ്"></div></foreignObject>
+<foreignObject  x="880" y="128" width="110" height="34"><div class="fo" style="font-size:13px" data-en="Mobile app" data-hi="मोबाइल ऐप" data-ml="മൊബൈൽ ആപ്പ്"></div></foreignObject>
+<foreignObject  x="760" y="205" width="100" height="34"><div class="fo" style="font-size:13px" data-en="Grid" data-hi="ग्रिड" data-ml="ഗ്രിഡ്"></div></foreignObject></svg></div>
+ <div class="row2">
+  <div class="card">
+   <h3 data-en="Live app dashboard (simulated day)" data-hi="लाइव ऐप डैशबोर्ड (सिम्युलेटेड दिन)" data-ml="ലൈവ് ആപ്പ് ഡാഷ്ബോർഡ് (സിമുലേറ്റഡ് ദിവസം)"></h3>
+   <div class="pcards" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+    <div class="res"><span data-en="Time" data-hi="समय" data-ml="സമയം"></span><b id="dT">–</b></div>
+    <div class="res"><span data-en="Power now" data-hi="वर्तमान पावर" data-ml="ഇപ്പോഴത്തെ പവർ"></span><b id="dP">–</b></div>
+    <div class="res big"><span data-en="Today" data-hi="आज" data-ml="ഇന്ന്"></span><b id="dE">–</b></div>
+   </div>
+   <svg viewBox="0 0 600 220" role="img" aria-label="Today's generation curve" style="width:100%;height:auto">
+    <g id="dGrid"></g>
+    <path id="dArea" style="fill:var(--sun-soft)"/>
+    <path id="dLine" style="fill:none;stroke:var(--sun);stroke-width:3"/>
+    <circle id="dDot" r="7" class="f-sun"/>
+   </svg>
+   <div class="sbtns"><button class="sbtn" type="button" id="dPlay" aria-pressed="true" data-en="⏯ Play / pause" data-hi="⏯ चलाएँ / रोकें" data-ml="⏯ പ്ലേ / പോസ്"></button></div>
+  </div>
+  <div class="pcards" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))">
+   <div class="pcard"><span class="badge">⇄</span><h4 data-en="Net meter" data-hi="नेट मीटर" data-ml="നെറ്റ് മീറ്റർ"></h4><p data-en="Bi-directional, records import and export; supplied and sealed by the DISCOM" data-hi="द्वि-दिशीय, आयात व निर्यात दर्ज; DISCOM द्वारा प्रदत्त व सील" data-ml="ദ്വിദിശ, ഇറക്കുമതിയും കയറ്റുമതിയും; DISCOM നൽകി സീൽ ചെയ്യുന്നു"></p></div>
+   <div class="pcard"><span class="badge">kWh</span><h4 data-en="Generation meter" data-hi="उत्पादन मीटर" data-ml="ഉത്പാദന മീറ്റർ"></h4><p data-en="Records total solar output at the inverter AC side" data-hi="इन्वर्टर AC पक्ष पर कुल सौर उत्पादन दर्ज" data-ml="ഇൻവെർട്ടർ AC ഭാഗത്ത് മൊത്തം സോളാർ ഉത്പാദനം"></p></div>
+   <div class="pcard"><span class="badge in">CT</span><h4 data-en="Current transformer" data-hi="करंट ट्रांसफार्मर" data-ml="കറന്റ് ട്രാൻസ്ഫോർമർ"></h4><p data-en="Clamp sensor for export limit and self-use (hybrid)" data-hi="निर्यात सीमा व स्व-उपयोग हेतु क्लैंप सेंसर (हाइब्रिड)" data-ml="എക്സ്പോർട്ട് പരിധി, സ്വയം ഉപയോഗം എന്നിവയ്ക്ക് ക്ലാമ്പ് സെൻസർ (ഹൈബ്രിഡ്)"></p></div>
+   <div class="pcard"><span class="badge in">Wi-Fi</span><h4 data-en="Data logger" data-hi="डेटा लॉगर" data-ml="ഡാറ്റ ലോഗർ"></h4><p data-en="Wi-Fi / 4G / RS485; sends data to the cloud every few minutes" data-hi="Wi-Fi / 4G / RS485; हर कुछ मिनट क्लाउड पर डेटा" data-ml="Wi-Fi / 4G / RS485; ഏതാനും മിനിറ്റിൽ ക്ലൗഡിലേക്ക് ഡാറ്റ"></p></div>
+   <div class="pcard"><span class="badge dg">!</span><h4 data-en="Alarms" data-hi="अलार्म" data-ml="അലാറങ്ങൾ"></h4><p data-en="Grid fault, low insulation, string loss, offline" data-hi="ग्रिड दोष, कम इन्सुलेशन, स्ट्रिंग हानि, ऑफ़लाइन" data-ml="ഗ്രിഡ് തകരാർ, കുറഞ്ഞ ഇൻസുലേഷൻ, സ്ട്രിങ് നഷ്ടം, ഓഫ്‌ലൈൻ"></p></div>
+   <div class="pcard"><span class="badge">PR</span><h4 data-en="Performance ratio" data-hi="परफॉर्मेंस रेशियो" data-ml="പെർഫോമൻസ് റേഷ്യോ"></h4><p data-en="Good plants: 75–85 %; ≈ 4 kWh per kWp per day in Kerala" data-hi="अच्छे प्लांट: 75–85 %; केरल में ≈ 4 kWh प्रति kWp प्रति दिन" data-ml="നല്ല പ്ലാന്റുകൾ: 75–85 %; കേരളത്തിൽ ≈ 4 kWh/kWp/ദിവസം"></p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 7 ACCESSORIES ============ -->
+<section class="panel" id="acc" role="tabpanel" style="--acc:var(--grid)" hidden>
+ <div class="head">
+  <h2 data-en="Cable routing and site accessories" data-hi="केबल रूटिंग और साइट सहायक सामग्री" data-ml="കേബിൾ റൂട്ടിങ്ങും സൈറ്റ് അനുബന്ധങ്ങളും"></h2>
+ </div>
+ <div class="mini">
+  <div class="card"><h3 data-en="Conduit" data-hi="कंड्यूट" data-ml="കൺഡ്യൂട്ട്"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><rect x="10" y="44" width="180" height="22" rx="11" style="fill:var(--surface);stroke:var(--muted);stroke-width:3"/><path d="M20 55H180" style="stroke:var(--danger);stroke-width:4"/><path d="M60 40V70M140 40V70" style="stroke:var(--ink);stroke-width:6"/></svg><div class="spec"><span>UPVC / GI</span><span>UV-stable</span></div><p data-en="Protects cables on walls and roofs" data-hi="दीवार व छत पर केबल की सुरक्षा" data-ml="ചുമരിലും മേൽക്കൂരയിലും കേബിൾ സംരക്ഷണം"></p></div>
+  <div class="card"><h3 data-en="Cable tray" data-hi="केबल ट्रे" data-ml="കേബിൾ ട്രേ"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><path d="M15 40L30 85H170L185 40" style="fill:var(--al);stroke:var(--ink);stroke-width:3"/><circle cx="40" cy="75" r="4" class="f-surf"/><circle cx="60" cy="75" r="4" class="f-surf"/><circle cx="80" cy="75" r="4" class="f-surf"/><circle cx="100" cy="75" r="4" class="f-surf"/><circle cx="120" cy="75" r="4" class="f-surf"/><circle cx="140" cy="75" r="4" class="f-surf"/><circle cx="160" cy="75" r="4" class="f-surf"/><path d="M35 60H165M38 68H162" style="stroke:var(--danger);stroke-width:5"/><path d="M38 52H162" style="stroke:var(--ink);stroke-width:5"/></svg><div class="spec"><span>Perforated GI</span><span>HDG</span></div><p data-en="Carries many cables with cover; keep DC and AC apart" data-hi="ढक्कन सहित कई केबल; DC व AC अलग रखें" data-ml="കവറോടെ പല കേബിളുകൾ; DC, AC വേർതിരിക്കുക"></p></div>
+  <div class="card"><h3 data-en="Cable ties and clips" data-hi="केबल टाई व क्लिप" data-ml="കേബിൾ ടൈ, ക്ലിപ്പ്"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><path d="M10 50H190M10 58H190M10 66H190" style="stroke:var(--ink);stroke-width:6"/><rect x="50" y="40" width="8" height="36" rx="3" style="fill:var(--muted)"/><rect x="100" y="40" width="8" height="36" rx="3" style="fill:var(--muted)"/><rect x="150" y="40" width="8" height="36" rx="3" style="fill:var(--muted)"/></svg><div class="spec"><span>UV nylon / SS</span></div><p data-en="Keep cables off the roof and away from sharp edges" data-hi="केबल छत से ऊपर व तेज़ किनारों से दूर रखें" data-ml="കേബിളുകൾ മേൽക്കൂരയിൽ നിന്ന് ഉയർത്തി, മൂർച്ചയുള്ള അരികുകളിൽ നിന്ന് അകറ്റി"></p></div>
+  <div class="card"><h3 data-en="Cable gland" data-hi="केबल ग्लैंड" data-ml="കേബിൾ ഗ്ലാൻഡ്"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><polygon points="70,35 130,35 145,55 130,75 70,75 55,55" class="box2"/><path d="M90 30h20v-12H90z" class="f-ink"/><rect x="85" y="75" width="30" height="20" class="f-muted"/><path d="M100 18V0M100 95V110" style="stroke:var(--danger);stroke-width:8"/></svg><div class="spec"><span>IP68</span><span>Nylon / brass</span></div><p data-en="Seals cable entry into DCDB, ACDB and inverter" data-hi="DCDB, ACDB व इन्वर्टर में केबल प्रवेश सील" data-ml="DCDB, ACDB, ഇൻവെർട്ടർ എന്നിവയിൽ കേബിൾ പ്രവേശനം സീൽ ചെയ്യുന്നു"></p></div>
+  <div class="card"><h3 data-en="Lugs and ferrules" data-hi="लग व फेरूल" data-ml="ലഗ്, ഫെറൂൾ"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><circle cx="55" cy="55" r="20" style="fill:none;stroke:var(--cu);stroke-width:8"/><rect x="72" y="47" width="60" height="16" rx="4" class="f-cu"/><rect x="132" y="49" width="50" height="12" style="fill:var(--danger)"/></svg><div class="spec"><span>Tinned Cu</span><span>Crimped</span></div><p data-en="Crimped ends for MCBs, busbars and earth bars" data-hi="MCB, बसबार व अर्थ बार हेतु क्रिम्प्ड सिरे" data-ml="MCB, ബസ്ബാർ, എർത്ത് ബാർ എന്നിവയ്ക്ക് ക്രിമ്പ് ചെയ്ത അറ്റങ്ങൾ"></p></div>
+  <div class="card"><h3 data-en="Labels and signage" data-hi="लेबल व संकेत" data-ml="ലേബലുകൾ, സൂചനകൾ"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><polygon points="100,10 170,100 30,100" style="fill:var(--sun);stroke:var(--ink);stroke-width:4"/><polygon points="104,38 88,70 100,70 92,92 116,60 104,60 112,38" class="f-ink"/></svg><div class="spec"><span>DC ⚠</span><span>SLD</span></div><p data-en="“Solar DC – live in daylight”, string IDs, SLD near the inverter" data-hi="“सोलर DC – दिन में चालू”, स्ट्रिंग ID, इन्वर्टर के पास SLD" data-ml="“സോളാർ DC – പകൽ വൈദ്യുതിയുണ്ട്”, സ്ട്രിങ് ID, ഇൻവെർട്ടറിനടുത്ത് SLD"></p></div>
+  <div class="card"><h3 data-en="Walkway" data-hi="वॉकवे" data-ml="നടപ്പാത"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><rect x="10" y="10" width="70" height="90" class="f-pv"/><rect x="120" y="10" width="70" height="90" class="f-pv"/><rect x="84" y="10" width="32" height="90" class="f-muted"/><path d="M84 14H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 24H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 34H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 44H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 54H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 64H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 74H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 84H116" style="stroke:var(--surface);stroke-width:2"/><path d="M84 94H116" style="stroke:var(--surface);stroke-width:2"/></svg><div class="spec"><span>FRP / GI grating</span></div><p data-en="Safe access for cleaning without stepping on modules" data-hi="मॉड्यूल पर पैर रखे बिना सफ़ाई हेतु सुरक्षित पहुँच" data-ml="മൊഡ്യൂളിൽ ചവിട്ടാതെ ശുചീകരണത്തിന് സുരക്ഷിത പ്രവേശനം"></p></div>
+  <div class="card"><h3 data-en="Cleaning water line" data-hi="सफ़ाई जल लाइन" data-ml="ശുചീകരണ ജലരേഖ"></h3><svg viewBox="0 0 200 110" aria-hidden="true"><path d="M10 80H150V40" style="fill:none;stroke:var(--grid);stroke-width:10"/><rect x="138" y="22" width="26" height="18" rx="4" class="f-ink"/><circle cx="150" cy="56" r="3" style="fill:var(--grid)"/><circle cx="159" cy="63" r="3" style="fill:var(--grid)"/><circle cx="168" cy="70" r="3" style="fill:var(--grid)"/><circle cx="177" cy="77" r="3" style="fill:var(--grid)"/><circle cx="186" cy="84" r="3" style="fill:var(--grid)"/></svg><div class="spec"><span>UPVC + taps</span></div><p data-en="Soft water and a soft brush; clean early morning" data-hi="मृदु जल व नरम ब्रश; सुबह जल्दी साफ़ करें" data-ml="മൃദുജലം, മൃദുവായ ബ്രഷ്; അതിരാവിലെ വൃത്തിയാക്കുക"></p></div>
+ </div>
+</section>
+
+<!-- ============ 8 BoS SIZING ============ -->
+<section class="panel" id="bom" role="tabpanel" style="--acc:var(--batt)" hidden>
+ <div class="head">
+  <h2 data-en="BoS sizing for a rooftop plant" data-hi="रूफटॉप प्लांट हेतु BoS साइज़िंग" data-ml="റൂഫ്ടോപ്പ് പ്ലാന്റിനുള്ള BoS സൈസിങ്"></h2>
+  <p class="lead" data-en="Enter the plant details. Ratings follow common rules of thumb; confirm with datasheets and the DISCOM / MNRE specification." data-hi="प्लांट विवरण डालें। रेटिंग सामान्य नियमों पर आधारित; डेटाशीट व DISCOM / MNRE विनिर्देश से पुष्टि करें।" data-ml="പ്ലാന്റ് വിവരങ്ങൾ നൽകുക. റേറ്റിങ്ങുകൾ സാധാരണ നിയമങ്ങൾ പ്രകാരം; ഡാറ്റാഷീറ്റും DISCOM / MNRE സ്പെസിഫിക്കേഷനും ഉപയോഗിച്ച് ഉറപ്പാക്കുക."></p>
+ </div>
+ <div class="row2" style="grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)">
+  <div class="card">
+   <div class="inp">
+    <label for="bK"><span data-en="Plant size (kWp)" data-hi="प्लांट आकार (kWp)" data-ml="പ്ലാന്റ് വലിപ്പം (kWp)"></span><input id="bK" type="number" min="1" step="0.5" value="5"></label>
+    <label for="bW"><span data-en="Module rating (Wp)" data-hi="मॉड्यूल रेटिंग (Wp)" data-ml="മൊഡ്യൂൾ റേറ്റിങ് (Wp)"></span><input id="bW" type="number" value="545"></label>
+    <label for="bVoc"><span>Module Voc (V)</span><input id="bVoc" type="number" step="0.1" value="49.6"></label>
+    <label for="bIsc"><span>Module Isc (A)</span><input id="bIsc" type="number" step="0.1" value="13.9"></label>
+    <label for="bS"><span data-en="Number of strings" data-hi="स्ट्रिंग संख्या" data-ml="സ്ട്രിങ്ങുകളുടെ എണ്ണം"></span><input id="bS" type="number" min="1" value="1"></label>
+    <label for="bPh"><span data-en="AC phase" data-hi="AC फेज़" data-ml="AC ഫേസ്"></span><select id="bPh" class="inpsel"><option value="1">1φ 230 V</option><option value="3">3φ 415 V</option></select></label>
+    <label for="bD"><span data-en="Roof to inverter distance (m)" data-hi="छत से इन्वर्टर दूरी (m)" data-ml="മേൽക്കൂരയിൽ നിന്ന് ഇൻവെർട്ടർ ദൂരം (m)"></span><input id="bD" type="number" min="1" value="15"></label>
+   </div>
+  </div>
+  <div class="tw">
+   <table class="bom" style="min-width:560px">
+    <thead><tr><th data-en="Item" data-hi="वस्तु" data-ml="ഇനം"></th><th data-en="Quantity / rating" data-hi="मात्रा / रेटिंग" data-ml="അളവ് / റേറ്റിങ്"></th><th data-en="Rule used" data-hi="प्रयुक्त नियम" data-ml="ഉപയോഗിച്ച നിയമം"></th></tr></thead>
+    <tbody>
+     <tr><th data-en="Modules" data-hi="मॉड्यूल" data-ml="മൊഡ്യൂളുകൾ"></th><td id="o1"></td><td>kWp × 1000 ÷ Wp</td></tr>
+     <tr><th data-en="Modules per string" data-hi="प्रति स्ट्रिंग मॉड्यूल" data-ml="ഓരോ സ്ട്രിങ്ങിലും മൊഡ്യൂൾ"></th><td id="o2"></td><td data-en="Check in the inverter string window tool" data-hi="इन्वर्टर स्ट्रिंग विंडो टूल में जाँचें" data-ml="ഇൻവെർട്ടർ സ്ട്രിങ് വിൻഡോ ടൂളിൽ പരിശോധിക്കുക"></td></tr>
+     <tr><th data-en="Inverter" data-hi="इन्वर्टर" data-ml="ഇൻവെർട്ടർ"></th><td id="o3"></td><td>kWp ÷ 1.1–1.2</td></tr>
+     <tr><th data-en="Mounting structure" data-hi="माउंटिंग संरचना" data-ml="മൗണ്ടിങ് സ്ട്രക്ചർ"></th><td id="o4"></td><td>HDG ≥ 80 µm / Al</td></tr>
+     <tr><th data-en="DC cable 4 mm² (red + black)" data-hi="DC केबल 4 mm² (लाल + काला)" data-ml="DC കേബിൾ 4 mm² (ചുവപ്പ് + കറുപ്പ്)"></th><td id="o5"></td><td data-en="2 × distance × strings + 10 % " data-hi="2 × दूरी × स्ट्रिंग + 10 %" data-ml="2 × ദൂരം × സ്ട്രിങ് + 10 %"></td></tr>
+     <tr><th data-en="MC4 connector pairs" data-hi="MC4 कनेक्टर जोड़े" data-ml="MC4 കണക്ടർ ജോഡികൾ"></th><td id="o6"></td><td data-en="2 per string + 2 spare" data-hi="प्रति स्ट्रिंग 2 + 2 अतिरिक्त" data-ml="ഓരോ സ്ട്രിങ്ങിനും 2 + 2 അധികം"></td></tr>
+     <tr><th data-en="DC SPD Ucpv" data-hi="DC SPD Ucpv" data-ml="DC SPD Ucpv"></th><td id="o7"></td><td>≥ 1.2 × N × Voc</td></tr>
+     <tr><th data-en="DC isolator" data-hi="DC आइसोलेटर" data-ml="DC ഐസൊലേറ്റർ"></th><td id="o8"></td><td>≥ 1.25 × Isc × strings</td></tr>
+     <tr><th data-en="gPV fuses" data-hi="gPV फ्यूज़" data-ml="gPV ഫ്യൂസുകൾ"></th><td id="o9"></td><td data-en="Only if 3 or more strings in parallel" data-hi="केवल 3 या अधिक समानांतर स्ट्रिंग पर" data-ml="3-ഓ അതിലധികമോ പാരലൽ സ്ട്രിങ്ങിന് മാത്രം"></td></tr>
+     <tr><th data-en="AC MCB" data-hi="AC MCB" data-ml="AC MCB"></th><td id="o10"></td><td>≥ 1.25 × I<sub>AC</sub></td></tr>
+     <tr><th data-en="AC SPD" data-hi="AC SPD" data-ml="AC SPD"></th><td id="o11"></td><td>Type 2, 275 V</td></tr>
+     <tr><th data-en="Earth pits + LA" data-hi="अर्थ पिट + LA" data-ml="എർത്ത് പിറ്റ് + LA"></th><td>3 + 1</td><td data-en="DC / AC / LA separate" data-hi="DC / AC / LA अलग" data-ml="DC / AC / LA വെവ്വേറെ"></td></tr>
+     <tr><th data-en="Meters" data-hi="मीटर" data-ml="മീറ്ററുകൾ"></th><td data-en="Net meter + generation meter" data-hi="नेट मीटर + उत्पादन मीटर" data-ml="നെറ്റ് മീറ്റർ + ഉത്പാദന മീറ്റർ"></td><td>DISCOM</td></tr>
+     <tr><th data-en="Expected energy" data-hi="अपेक्षित ऊर्जा" data-ml="പ്രതീക്ഷിത ഊർജം"></th><td id="o12"></td><td>≈ 4 kWh / kWp / day</td></tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+</section>
+
+<!-- ============ 9 TESTING ============ -->
+<section class="panel" id="test" role="tabpanel" style="--acc:var(--sun)" hidden>
+ <div class="head">
+  <h2 data-en="Testing and commissioning (IEC 62446-1)" data-hi="परीक्षण और कमीशनिंग (IEC 62446-1)" data-ml="പരിശോധനയും കമ്മീഷനിങ്ങും (IEC 62446-1)"></h2>
+ </div>
+ <div class="sbtns">
+  <button class="sbtn" type="button" id="tPrev" data-en="◀ Back" data-hi="◀ पीछे" data-ml="◀ പിന്നോട്ട്"></button>
+  <button class="sbtn" type="button" id="tNext" data-en="Next ▶" data-hi="आगे ▶" data-ml="മുന്നോട്ട് ▶"></button>
+  <button class="sbtn" type="button" id="tAuto" aria-pressed="false" data-en="⏯ Auto play" data-hi="⏯ ऑटो प्ले" data-ml="⏯ ഓട്ടോ പ്ലേ"></button>
+ </div>
+ <div class="row2">
+  <ol class="cklist" id="tList">
+   <li><b>1</b><span data-en="Visual check: structure bolts tight, modules undamaged, cables dressed and clipped" data-hi="दृश्य जाँच: संरचना बोल्ट कसे, मॉड्यूल सही, केबल व्यवस्थित व क्लिप" data-ml="ദൃശ്യ പരിശോധന: സ്ട്രക്ചർ ബോൾട്ടുകൾ മുറുക്കം, മൊഡ്യൂളുകൾ കേടില്ല, കേബിളുകൾ ക്രമീകരിച്ച് ക്ലിപ്പ് ചെയ്തു"></span></li>
+   <li><b>2</b><span data-en="Polarity of every string at the DCDB" data-hi="DCDB पर हर स्ट्रिंग की पोलैरिटी" data-ml="DCDB-യിൽ ഓരോ സ്ട്രിങ്ങിന്റെയും പോളാരിറ്റി"></span></li>
+   <li><b>3</b><span data-en="String Voc: within ± 5 % of expected" data-hi="स्ट्रिंग Voc: अपेक्षित से ± 5 % के भीतर" data-ml="സ്ട്രിങ് Voc: പ്രതീക്ഷിച്ചതിന്റെ ± 5 %-നുള്ളിൽ"></span></li>
+   <li><b>4</b><span data-en="String current with clamp meter" data-hi="क्लैंप मीटर से स्ट्रिंग करंट" data-ml="ക്ലാമ്പ് മീറ്റർ ഉപയോഗിച്ച് സ്ട്രിങ് കറന്റ്"></span></li>
+   <li><b>5</b><span data-en="Insulation resistance: + and − to earth with megger (≥ 1 MΩ)" data-hi="इन्सुलेशन प्रतिरोध: मेगर से + व − का अर्थ से (≥ 1 MΩ)" data-ml="ഇൻസുലേഷൻ പ്രതിരോധം: മെഗർ ഉപയോഗിച്ച് +, − എർത്തിലേക്ക് (≥ 1 MΩ)"></span></li>
+   <li><b>6</b><span data-en="Earth resistance of each pit and bonding continuity" data-hi="हर पिट का अर्थ प्रतिरोध व बॉन्डिंग निरंतरता" data-ml="ഓരോ പിറ്റിന്റെയും എർത്ത് പ്രതിരോധം, ബോണ്ടിങ് തുടർച്ച"></span></li>
+   <li><b>7</b><span data-en="Verify ratings of fuses, SPDs, isolators, MCB and RCCB" data-hi="फ्यूज़, SPD, आइसोलेटर, MCB व RCCB की रेटिंग जाँचें" data-ml="ഫ്യൂസ്, SPD, ഐസൊലേറ്റർ, MCB, RCCB റേറ്റിങ്ങുകൾ പരിശോധിക്കുക"></span></li>
+   <li><b>8</b><span data-en="Switch on in sequence: AC breaker, then DC isolator, then inverter (or as the maker states)" data-hi="क्रम से चालू: AC ब्रेकर, फिर DC आइसोलेटर, फिर इन्वर्टर (या निर्माता अनुसार)" data-ml="ക്രമത്തിൽ ഓൺ: AC ബ്രേക്കർ, പിന്നെ DC ഐസൊലേറ്റർ, പിന്നെ ഇൻവെർട്ടർ (അല്ലെങ്കിൽ നിർമ്മാതാവ് പറയുന്നതുപോലെ)"></span></li>
+   <li><b>9</b><span data-en="Anti-islanding: switch off the mains; the inverter must stop within 2 s" data-hi="एंटी-आइलैंडिंग: मेन्स बंद करें; इन्वर्टर 2 s में रुकना चाहिए" data-ml="ആന്റി-ഐലൻഡിങ്: മെയിൻസ് ഓഫ് ചെയ്യുക; ഇൻവെർട്ടർ 2 s-നുള്ളിൽ നിലയ്ക്കണം"></span></li>
+   <li><b>10</b><span data-en="Monitoring online, labels fixed, hand over SLD, test report and warranties" data-hi="निगरानी ऑनलाइन, लेबल लगे, SLD, परीक्षण रिपोर्ट व वारंटी सौंपें" data-ml="നിരീക്ഷണം ഓൺലൈൻ, ലേബലുകൾ പതിപ്പിച്ചു, SLD, ടെസ്റ്റ് റിപ്പോർട്ട്, വാറന്റികൾ കൈമാറുക"></span></li>
+  </ol>
+  <div class="fig">
+   <svg viewBox="0 0 520 420" role="img" aria-label="Test instrument for the current step" style="min-width:380px"><g class="tstep" data-i="0"><use href="#s-pv" x="90" y="80" width="300" height="250"/><circle cx="330" cy="150" r="60" style="fill:var(--surface);opacity:.35;stroke:var(--ink);stroke-width:8"/><path d="M372 192L440 260" style="stroke:var(--ink);stroke-width:14;stroke-linecap:round"/></g>
+<g class="tstep" data-i="1"><rect x="130" y="40" width="260" height="260" rx="22" class="box"/><rect x="160" y="70" width="200" height="80" rx="8" class="f-scr"/><text class="c" x="260" y="125" style="font:800 34px var(--f-display);fill:var(--ink)">+ / −</text><path d="M200 300Q180 360 120 380M320 300Q340 360 400 380" style="fill:none;stroke:var(--danger);stroke-width:5"/><path d="M320 300Q340 360 400 380" style="fill:none;stroke:var(--ink);stroke-width:5"/><circle cx="260" cy="230" r="40" class="box2"/></g>
+<g class="tstep" data-i="2"><rect x="130" y="40" width="260" height="260" rx="22" class="box"/><rect x="160" y="70" width="200" height="80" rx="8" class="f-scr"/><text class="c" x="260" y="125" style="font:800 34px var(--f-display);fill:var(--grid)">412 V</text><path d="M200 300Q180 360 120 380M320 300Q340 360 400 380" style="fill:none;stroke:var(--danger);stroke-width:5"/><path d="M320 300Q340 360 400 380" style="fill:none;stroke:var(--ink);stroke-width:5"/><circle cx="260" cy="230" r="40" class="box2"/></g>
+<g class="tstep" data-i="3"><rect x="130" y="40" width="260" height="260" rx="22" class="box"/><rect x="160" y="70" width="200" height="80" rx="8" class="f-scr"/><text class="c" x="260" y="125" style="font:800 34px var(--f-display);fill:var(--sun)">12.8 A</text><path d="M200 300V360M320 300V360" style="stroke:var(--ink);stroke-width:8"/><circle cx="260" cy="390" r="30" style="fill:none;stroke:var(--ink);stroke-width:8"/></g>
+<g class="tstep" data-i="4"><rect x="130" y="40" width="260" height="260" rx="22" class="box"/><rect x="160" y="70" width="200" height="80" rx="8" class="f-scr"/><text class="c" x="260" y="125" style="font:800 34px var(--f-display);fill:var(--batt)">≥ 1 MΩ</text><path d="M200 300Q180 360 120 380M320 300Q340 360 400 380" style="fill:none;stroke:var(--danger);stroke-width:5"/><path d="M320 300Q340 360 400 380" style="fill:none;stroke:var(--ink);stroke-width:5"/><text class="mono c" x="260" y="240" style="font-size:22px">1000 V</text></g>
+<g class="tstep" data-i="5"><rect x="130" y="40" width="260" height="260" rx="22" class="box"/><rect x="160" y="70" width="200" height="80" rx="8" class="f-scr"/><text class="c" x="260" y="125" style="font:800 34px var(--f-display);fill:var(--batt)">2.4 Ω</text><path d="M150 300L60 380M260 300V380M370 300L460 380" style="stroke:var(--batt);stroke-width:4;stroke-dasharray:6 4"/><path d="M60 380V410M260 380V410M460 380V410" style="stroke:var(--cu);stroke-width:8"/></g>
+<g class="tstep" data-i="6"><rect x="80" y="80" width="90" height="60" rx="6" class="box"/><text class="mono c" x="125" y="117">gPV</text><rect x="215" y="80" width="90" height="60" rx="6" class="box"/><text class="mono c" x="260" y="117">SPD</text><rect x="350" y="80" width="90" height="60" rx="6" class="box"/><text class="mono c" x="395" y="117">MCB</text><path d="M110 200l15 15 30-30M245 200l15 15 30-30M380 200l15 15 30-30" style="fill:none;stroke:var(--batt);stroke-width:8"/></g>
+<g class="tstep" data-i="7"><rect x="60" y="120" width="100" height="120" rx="10" class="box"/><circle cx="110" cy="160" r="18" style="fill:var(--batt)"/><text class="tg c" x="110" y="225">1</text><rect x="210" y="120" width="100" height="120" rx="10" class="box"/><circle cx="260" cy="160" r="18" style="fill:var(--batt)"/><text class="tg c" x="260" y="225">2</text><rect x="360" y="120" width="100" height="120" rx="10" class="box"/><circle cx="410" cy="160" r="18" style="fill:var(--batt)"/><text class="tg c" x="410" y="225">3</text><text class="mono c" x="110" y="280">AC</text><text class="mono c" x="260" y="280">DC</text><text class="mono c" x="410" y="280">INV</text></g>
+<g class="tstep" data-i="8"><use href="#s-grid" x="40" y="100" width="150" height="180"/><path class="s-dg" stroke-width="10" d="M60 120L170 260M170 120L60 260"/><use href="#s-inv" x="290" y="110" width="170" height="170"/><text class="tg c" x="375" y="320" style="fill:var(--batt);font-size:24px">OFF ≤ 2 s ✓</text></g>
+<g class="tstep" data-i="9"><rect x="80" y="60" width="150" height="270" rx="18" class="box"/><path d="M100 250Q130 120 160 180T210 150" style="fill:none;stroke:var(--sun);stroke-width:5"/><rect x="280" y="80" width="170" height="230" rx="8" class="box2"/><path d="M300 120H430" style="stroke:var(--muted);stroke-width:6"/><path d="M300 156H430" style="stroke:var(--muted);stroke-width:6"/><path d="M300 192H430" style="stroke:var(--muted);stroke-width:6"/><path d="M300 228H430" style="stroke:var(--muted);stroke-width:6"/><path d="M300 264H430" style="stroke:var(--muted);stroke-width:6"/></g></svg>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap"><span>NSTI Calicut · PRASAD UM, VI</span><span data-en="Keys: ← → change tab" data-hi="कुंजी: ← → टैब बदलें" data-ml="കീ: ← → ടാബ് മാറ്റുക"></span></div>
+</footer>
+
+<script>
+(function(){
+ var root=document.documentElement;
+ function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+ function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
+ function $(id){return document.getElementById(id)}
+ function setT(id,t){$(id).textContent=t}
+ function A(id,k,v){$(id).setAttribute(k,v)}
+ var sel=$('lang');
+ function applyLang(l){
+  if(['en','hi','ml'].indexOf(l)<0)l='en';
+  root.lang=l;
+  document.querySelectorAll('[data-en]').forEach(function(el){var v=el.getAttribute('data-'+l);el.textContent=(v!==null&&v!=='')?v:el.getAttribute('data-en')});
+  sel.value=l;sv('bos-lang',l);
+ }
+ window.setLang=applyLang;
+ sel.addEventListener('change',function(){applyLang(sel.value)});
+ var tabs=[].slice.call(document.querySelectorAll('.tab'));
+ var ids=tabs.map(function(t){return t.dataset.tab});
+ function show(id,focus){
+  if(ids.indexOf(id)<0)id=ids[0];
+  tabs.forEach(function(t){var on=t.dataset.tab===id;t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1;$(t.dataset.tab).hidden=!on;if(on&&focus)t.focus();if(on)t.scrollIntoView({block:'nearest',inline:'nearest'})});
+  sv('bos-tab',id);try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo(0,0);
+ }
+ tabs.forEach(function(t){t.addEventListener('click',function(){show(t.dataset.tab)})});
+ document.addEventListener('keydown',function(e){
+  var tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+  var cur=ids.indexOf((tabs.filter(function(t){return t.getAttribute('aria-selected')==='true'})[0]||tabs[0]).dataset.tab);
+  var n=e.key==='ArrowRight'?Math.min(ids.length-1,cur+1):Math.max(0,cur-1);
+  show(ids[n],e.target.classList&&e.target.classList.contains('tab'));e.preventDefault();
+ });
+ document.querySelectorAll('.scene').forEach(function(sc){
+  var btns=sc.querySelectorAll('[data-scene]');
+  function set(s){btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.scene===s?'true':'false')});sc.querySelectorAll('[data-show]').forEach(function(el){el.classList.toggle('off',el.dataset.show.split(' ').indexOf(s)<0)})}
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.scene)})});set(btns[0].dataset.scene);
+ });
+ var scale=parseFloat(ld('bos-scale'))||1;
+ function setScale(s){scale=Math.min(1.5,Math.max(0.8,Math.round(s*100)/100));root.style.setProperty('--scale',scale);sv('bos-scale',scale)}
+ $('fup').addEventListener('click',function(){setScale(scale+0.1)});$('fdn').addEventListener('click',function(){setScale(scale-0.1)});setScale(scale);
+ $('thm').addEventListener('click',function(){var cur=root.getAttribute('data-theme');if(!cur){cur=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}root.setAttribute('data-theme',cur==='dark'?'light':'dark')});
+ $('fsc').addEventListener('click',function(){try{if(document.fullscreenElement){document.exitFullscreen()}else{var p=root.requestFullscreen&&root.requestFullscreen();if(p&&p.catch)p.catch(function(){})}}catch(e){}});
+ function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0}
+
+ /* ---- overview tour ---- */
+ var parts=[].slice.call(document.querySelectorAll('.bos')),cur=1,tourT=null;
+ function pick(k){cur=k;parts.forEach(function(g){g.classList.toggle('sel',+g.dataset.k===k)});document.querySelectorAll('.binfo').forEach(function(d){d.hidden=+d.dataset.k!==k})}
+ parts.forEach(function(g){g.addEventListener('click',function(){stopTour();pick(+g.dataset.k)})});
+ function stopTour(){if(tourT){clearInterval(tourT);tourT=null;$('tourBtn').setAttribute('aria-pressed','false')}}
+ $('tourBtn').addEventListener('click',function(){if(tourT){stopTour();return}$('tourBtn').setAttribute('aria-pressed','true');pick(1);tourT=setInterval(function(){if($('over').hidden)return;pick(cur%11+1)},3200)});
+ pick(1);
+
+ /* ---- row spacing ---- */
+ function rows(){
+  var lat=num('rLat'),tilt=num('rTilt'),L=num('rLen'),r=Math.PI/180;
+  setT('rLatO',lat.toFixed(1));setT('rTiltO',tilt);setT('rLenO',L.toFixed(2));
+  var d=-23.45*r,H=-45*r,f=lat*r;
+  var sa=Math.sin(f)*Math.sin(d)+Math.cos(f)*Math.cos(d)*Math.cos(H),al=Math.asin(sa);
+  var cz=(sa*Math.sin(f)-Math.sin(d))/(Math.cos(al)*Math.cos(f)),k=cz/Math.tan(al);
+  var h=L*Math.sin(tilt*r),fp=L*Math.cos(tilt*r),g=h*k,p=fp+g;
+  setT('rH',h.toFixed(2)+' m');setT('rG',g.toFixed(2)+' m');setT('rP',p.toFixed(2)+' m');
+  var S=Math.min(150,700/(fp*2+g+0.3)),x0=90,y0=260;
+  var x1=x0+fp*S,y1=y0-h*S,x2=x1+g*S,x3=x2+fp*S;
+  A('rRow1','d','M'+x0+' '+(y0-8)+'L'+x1+' '+(y1-8));A('rRow2','d','M'+x2+' '+(y0-8)+'L'+x3+' '+(y1-8));
+  A('rLeg1','d','M'+x1+' '+(y1-2)+'V'+y0);A('rLeg2','d','M'+x3+' '+(y1-2)+'V'+y0);
+  A('rShadow','points',x1+','+(y1-8)+' '+x2+','+y0+' '+x1+','+y0);
+  var dx=Math.max(40,Math.min(260,(y1-40)/Math.tan(al)*0.9));A('rRay','d','M'+(x1-dx)+' 40L'+x2+' '+y0);
+  A('rSun','x',x1-dx-30);A('rSun','y',10);A('rAlt','x',x1-dx+36);setT('rAlt','α '+(al/r).toFixed(1)+'° @ 9:00');
+  A('rGapL','d','M'+x1+' '+(y0-10)+'H'+x2);A('rGapT','x',(x1+x2)/2);setT('rGapT',g.toFixed(2)+' m');
+  setT('rs1','sin α = sin φ·sin δ + cos φ·cos δ·cos 45° → α = '+(al/r).toFixed(1)+'° ; shadow factor = '+k.toFixed(2));
+  setT('rs2','h = '+L.toFixed(2)+' × sin '+tilt+'° = '+h.toFixed(2)+' m ; gap = h × '+k.toFixed(2)+' = '+g.toFixed(2)+' m ; pitch = '+fp.toFixed(2)+' + '+g.toFixed(2)+' = '+p.toFixed(2)+' m');
+ }
+ ['rLat','rTilt','rLen'].forEach(function(id){$(id).addEventListener('input',rows)});rows();
+
+ /* ---- voltage drop ---- */
+ function vdrop(){
+  var L=num('vL'),I=num('vI'),V=num('vV'),rho=0.021,s='',X=function(p){return 90+Math.min(p,4)/4*400};
+  [4,6,10].forEach(function(a,i){var vd=2*L*I*rho/a,p=V>0?vd/V*100:0,y=30+i*58,c=p<=2?'var(--batt)':'var(--danger)';
+   s+='<text class="lbl e" x="80" y="'+(y+27)+'">'+a+' mm²</text><rect x="90" y="'+y+'" width="'+(X(p)-90).toFixed(1)+'" height="40" rx="5" style="fill:'+c+'"/><text class="tg s" x="'+(X(p)+8).toFixed(1)+'" y="'+(y+27)+'">'+p.toFixed(2)+' % · '+vd.toFixed(1)+' V</text>'});
+  $('vBars').innerHTML=s;A('vLim','d','M'+X(2)+' 22V200');A('vLimT','x',X(2)+4);
+  setT('vs1','Vd = 2 × L × I × ρ ÷ A ; ρ ≈ 0.021 Ω·mm²/m (Cu, hot)');
+ }
+ ['vL','vI','vV'].forEach(function(id){$(id).addEventListener('input',vdrop)});vdrop();
+
+ /* ---- dashboard ---- */
+ var t=6,E=0,Pk=4.2,dPlay=true,X2=function(h){return 50+(h-6)/12*530},Y2=function(p){return 190-p/5*170};
+ var gg='';[0,1,2,3,4,5].forEach(function(p){gg+='<path class="s-mut" stroke-width="1" opacity=".5" d="M50 '+Y2(p)+'H580"/><text class="lbs e" x="44" y="'+(Y2(p)+4)+'">'+p+' kW</text>'});
+ [6,9,12,15,18].forEach(function(h){gg+='<text class="lbs c" x="'+X2(h)+'" y="210">'+h+':00</text>'});$('dGrid').innerHTML=gg;
+ function pw(h){var s=Math.sin(Math.PI*(h-6)/12);return s>0?Pk*Math.pow(s,1.3)*(0.94+0.06*Math.sin(h*7)):0}
+ function dash(){
+  var d='M'+X2(6)+' '+Y2(0),h;for(h=6;h<=t;h+=0.1)d+='L'+X2(h).toFixed(1)+' '+Y2(pw(h)).toFixed(1);
+  A('dLine','d',d);A('dArea','d',d+'L'+X2(t).toFixed(1)+' '+Y2(0)+'Z');A('dDot','cx',X2(t));A('dDot','cy',Y2(pw(t)));
+  var hh=Math.floor(t),mm=Math.floor((t-hh)*60);setT('dT',(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm);
+  setT('dP',pw(t).toFixed(2)+' kW');setT('dE',E.toFixed(1)+' kWh');
+ }
+ setInterval(function(){if(!dPlay||$('mon').hidden)return;t+=0.05;E+=pw(t)*0.05;if(t>18){t=6;E=0}dash()},120);
+ $('dPlay').addEventListener('click',function(){dPlay=!dPlay;$('dPlay').setAttribute('aria-pressed',dPlay?'true':'false')});dash();
+
+ /* ---- BoS sizing ---- */
+ function std(x,list){for(var i=0;i<list.length;i++)if(list[i]>=x)return list[i];return Math.ceil(x)}
+ function bom(){
+  var k=num('bK'),W=num('bW'),Voc=num('bVoc'),Isc=num('bIsc'),S=Math.max(1,num('bS')),ph=num('bPh'),D=num('bD');
+  var n=Math.ceil(k*1000/W),per=Math.ceil(n/S),inv=k/1.15,Iac=ph===1?inv*1000/230:inv*1000/(1.732*415);
+  setT('o1',n+' × '+W+' Wp = '+(n*W/1000).toFixed(2)+' kWp');setT('o2',per+' (× '+S+')');
+  setT('o3','≈ '+std(inv,[1,2,3,3.3,4,5,6,8,10,12,15,20,25,30,40,50])+' kW · '+(ph===1?'1φ':'3φ'));
+  setT('o4','1 set · '+n+' modules');setT('o5','≈ '+Math.ceil(2*D*S*1.1)+' m + '+Math.ceil(2*D*S*1.1)+' m');
+  setT('o6',(2*S+2)+'');var uc=1.2*per*Voc;setT('o7','≥ '+uc.toFixed(0)+' V → '+(uc<=600?'600 V':uc<=1000?'1000 V':'1500 V'));
+  var iso=1.25*Isc*S;setT('o8','≥ '+iso.toFixed(1)+' A → '+std(iso,[16,20,25,32,40,50,63,80,100,125])+' A');
+  setT('o9',S>=3?(S*2)+' × '+std(1.56*Isc,[15,20,25,30,32])+' A gPV':'—');
+  var mc=1.25*Iac;setT('o10',Iac.toFixed(1)+' A × 1.25 = '+mc.toFixed(1)+' A → '+std(mc,[10,16,20,25,32,40,50,63,80,100,125])+' A '+(ph===1?'2P':'4P'));
+  setT('o11',ph===1?'2-pole':'4-pole');setT('o12','≈ '+(k*4).toFixed(0)+' kWh/day · '+(k*4*365).toFixed(0)+' kWh/year');
+ }
+ ['bK','bW','bVoc','bIsc','bS','bPh','bD'].forEach(function(id){$(id).addEventListener('input',bom)});bom();
+
+ /* ---- testing steps ---- */
+ var steps=[].slice.call(document.querySelectorAll('#tList li')),st=0,autoT=null;
+ function step(i){st=Math.max(0,Math.min(steps.length-1,i));steps.forEach(function(li,j){li.classList.toggle('done',j<st);li.classList.toggle('cur',j===st)});
+  document.querySelectorAll('.tstep').forEach(function(g){g.classList.toggle('off',+g.dataset.i!==st)})}
+ steps.forEach(function(li,j){li.addEventListener('click',function(){step(j)})});
+ $('tPrev').addEventListener('click',function(){step(st-1)});$('tNext').addEventListener('click',function(){step(st+1)});
+ $('tAuto').addEventListener('click',function(){if(autoT){clearInterval(autoT);autoT=null;$('tAuto').setAttribute('aria-pressed','false');return}$('tAuto').setAttribute('aria-pressed','true');autoT=setInterval(function(){if($('test').hidden)return;step((st+1)%steps.length)},3000)});
+ step(0);
+
+ applyLang(ld('bos-lang')||'en');
+ var hh=(location.hash||'').replace('#','');
+ show(ids.indexOf(hh)>=0?hh:(ld('bos-tab')||ids[0]));
+})();
+</script>
+
+</body>
+</html>

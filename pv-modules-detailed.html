@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar PV Module Technologies – Types, Comparison and Applications</title>
+<style>
+:root{
+  --paper:#F6F8FB; --card:#FFFFFF; --ink:#13202E; --muted:#4B5A6B;
+  --navy:#1B3A66; --poly:#2F6DB5; --sky:#E4EDF7; --line:#C8D3DF;
+  --sun:#B86E00; --sunfill:#F2B233; --leaf:#2D7A4B; --red:#B23A3A;
+  --nfill:#9FC3E8; --pfill:#F3C7A0; --metal:#9AA3AD; --glass:#D9EEF7;
+  --fs:20px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+    --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+    --sun:#F2B233; --leaf:#6CC08F; --red:#E58080; --glass:#24394A;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111A24; --card:#18232F; --ink:#E9EEF4; --muted:#A9B6C4;
+  --navy:#8DB4E8; --poly:#6FA3E0; --sky:#1F2E3E; --line:#34475B;
+  --sun:#F2B233; --leaf:#6CC08F; --red:#E58080; --glass:#24394A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);font-size:var(--fs)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Segoe UI","Nirmala UI","Noto Sans","Noto Sans Devanagari","Noto Sans Malayalam","Helvetica Neue",Arial,sans-serif;line-height:1.55}
+h1,h2,h3,h4,.tabbtn,.num,th{font-family:Bahnschrift,"DIN Alternate","Segoe UI Semibold","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam","Arial Narrow",Arial,sans-serif}
+html[lang="hi"] body,html[lang="ml"] body{line-height:1.7}
+#langSel{font:inherit;font-size:.8rem;padding:.2rem .4rem;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+h1{font-size:1.65rem;margin:0;font-weight:600;letter-spacing:-.01em}
+h2{font-size:1.6rem;margin:0 0 .6rem;font-weight:600;color:var(--navy)}
+h3{font-size:1.2rem;margin:1.4rem 0 .4rem;font-weight:600}
+h4{font-size:1rem;margin:1rem 0 .3rem}
+p{margin:.5rem 0 .9rem;max-width:72ch}
+img,svg{max-width:100%}
+header.top{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;align-items:flex-end;justify-content:space-between;
+  padding:1rem clamp(1rem,3vw,2.2rem) .7rem;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .sub{color:var(--muted);font-size:.85rem;margin-top:.15rem}
+.stamp{font-size:.75rem;color:var(--muted);text-align:right}
+.tools{display:flex;gap:.4rem;align-items:center}
+.tools button{font:inherit;font-size:.8rem;padding:.25rem .6rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:4px;cursor:pointer}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);overflow-x:auto;white-space:nowrap;
+  padding:0 clamp(.5rem,2vw,1.6rem)}
+.tabbtn{display:inline-block;font-size:.88rem;color:#DCE7F5;background:none;border:0;padding:.75rem .9rem .65rem;cursor:pointer;
+  border-bottom:4px solid transparent}
+.tabbtn[aria-selected="true"]{color:#fff;border-bottom-color:var(--sunfill);font-weight:600}
+.tabbtn:hover{color:#fff}
+:focus-visible{outline:3px solid var(--sunfill);outline-offset:2px}
+main{max-width:1240px;margin:0 auto;padding:1.4rem clamp(1rem,3vw,2.2rem) 3rem}
+section.panel{display:none}
+section.panel.active{display:block}
+.lead{font-size:1.08rem;color:var(--muted);max-width:70ch}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.6rem 2.2rem;align-items:start;margin:1rem 0}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.8rem}
+figcaption{font-size:.78rem;color:var(--muted);margin-top:.4rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin:1rem 0}
+.fact{border-left:5px solid var(--navy);background:var(--card);padding:.6rem .8rem}
+.fact .num{font-size:1.5rem;font-weight:600;color:var(--navy);display:block}
+.fact span:last-child{font-size:.8rem;color:var(--muted)}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+@media (max-width:700px){.pc{grid-template-columns:1fr}}
+.pc div{background:var(--card);border:1px solid var(--line);padding:.6rem 1rem;border-radius:6px}
+.pc h4{margin-top:.2rem}
+.pc .pro h4{color:var(--leaf)} .pc .con h4{color:var(--red)}
+ul{margin:.3rem 0 .8rem;padding-left:1.2rem} li{margin:.25rem 0}
+.note{background:var(--sky);border-left:5px solid var(--sun);padding:.7rem 1rem;margin:1rem 0;max-width:80ch}
+.note strong{color:var(--sun)}
+.tablewrap{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.82rem}
+th,td{padding:.5rem .65rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--sky);font-weight:600;position:sticky;top:0}
+td.n{text-align:right;white-space:nowrap}
+tr:hover td{background:color-mix(in srgb,var(--sky) 50%,transparent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;margin:.3rem 0 .8rem}
+.seg button{font:inherit;font-size:.82rem;border:0;background:var(--card);color:var(--ink);padding:.4rem .8rem;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:1rem 1.2rem;margin:1rem 0 2rem}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+.calc label{display:block;font-size:.82rem;color:var(--muted);margin:.5rem 0 .15rem}
+.calc input,.calc select{font:inherit;font-size:.95rem;width:100%;padding:.35rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.out{background:var(--sky);border-radius:6px;padding:.8rem 1rem}
+.out .big{font-family:Bahnschrift,"Segoe UI",sans-serif;font-size:1.7rem;font-weight:600;color:var(--navy)}
+.out .row{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px dashed var(--line);padding:.25rem 0;font-size:.88rem}
+.worked{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.6rem 1rem;margin:.8rem 0}
+.worked .step{font-family:Consolas,"Cascadia Mono",monospace;font-size:.85rem;background:var(--paper);padding:.5rem .8rem;border-radius:4px;white-space:pre-wrap;overflow-x:auto}
+.tag{display:inline-block;font-size:.7rem;padding:.05rem .45rem;border-radius:3px;background:var(--sky);color:var(--navy);margin-right:.3rem;font-weight:600}
+.dot{display:inline-block;width:.8rem;height:.8rem;border-radius:50%}
+.d3{background:var(--leaf)} .d2{background:var(--sunfill)} .d1{background:var(--line)}
+footer{max-width:1240px;margin:0 auto;padding:1rem clamp(1rem,3vw,2.2rem) 2rem;color:var(--muted);font-size:.75rem;border-top:1px solid var(--line)}
+svg text{font-family:"Segoe UI","Nirmala UI","Noto Sans Devanagari","Noto Sans Malayalam",Arial,sans-serif}
+.svgtxt{fill:var(--ink)} .svgmuted{fill:var(--muted)}
+@media print{nav.tabs,.tools{display:none} section.panel{display:block;page-break-after:always}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1 data-t="k000">Solar PV Module Technologies</h1>
+    <div data-t="k001" class="sub">Cell types, module formats, efficiency and price comparison, Indian standards and field applications (data as of mid-2026)</div>
+  </div>
+  <div>
+    <div class="tools" aria-label="Display controls">
+      <select id="langSel" aria-label="Language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="ml">മലയാളം</option></select>
+      <button id="fsDown" title="Smaller text">A−</button>
+      <button id="fsUp" title="Larger text">A+</button>
+      <button id="prevTab" title="Previous tab (←)">◀</button>
+      <button id="nextTab" title="Next tab (→)">▶</button>
+    </div>
+    <div data-t="k002" class="stamp">Prepared by PRASAD UM, VI, Vocational Instructor, NSTI Calicut</div>
+  </div>
+</header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B86E00"/></marker>
+  <marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1B3A66"/></marker>
+ </defs></svg>
+<nav class="tabs" role="tablist" aria-label="Topics" id="tablist"></nav>
+<main id="main">
+
+<!-- ============ OVERVIEW ============ -->
+<section class="panel" id="overview" role="tabpanel" data-title="How PV works">
+<h2 data-t="k003">How a solar cell turns light into electricity</h2>
+<p data-t="k004" class="lead">Every panel on a rooftop, a canal top or a satellite works on the same physical effect: the photovoltaic effect at a p–n junction. What differs between "mono", "poly", PERC, TOPCon or HJT is how cleverly the silicon is grown, cleaned up and contacted so that fewer of the freed electrons are lost before they reach the wires.</p>
+<div class="split">
+<div>
+<p data-t="k005">A crystalline silicon solar cell is a thin wafer, about 130–150 µm thick (thinner than two sheets of paper), made of two regions. One region is doped to have extra free electrons (n-type, typically phosphorus) and the other is doped to have "holes" or missing electrons (p-type, typically boron or gallium). Where these two regions meet, a built-in electric field forms across the depletion region. This field is the engine of the cell.</p>
+<p data-t="k006">When a photon from sunlight with energy greater than the silicon band gap (1.12 eV, corresponding to wavelengths shorter than about 1,100 nm) is absorbed, it lifts an electron out of its bond, leaving a hole behind. If this electron–hole pair is generated near the junction, the built-in field separates them: electrons are swept to the n-side and holes to the p-side. Metal contacts on the front and rear collect these carriers, and if an external load is connected, a direct current flows.</p>
+<p data-t="k007">A single cell gives an open-circuit voltage of only about 0.68–0.75 V, depending on the technology. To get useful voltage, cells are connected in series inside a module (60, 66, 72, 120, 132 or 144 cells/half-cells), modules are connected in series to form a string, and strings in parallel form an array.</p>
+</div>
+<figure>
+<svg viewBox="0 0 520 360" role="img" aria-label="Cross-section of a p-n junction solar cell with sunlight, electron and hole movement and external load">
+ 
+ <circle cx="60" cy="40" r="24" fill="#F2B233"/>
+ <g stroke="#F2B233" stroke-width="3"><line x1="60" y1="6" x2="60" y2="0"/><line x1="26" y1="40" x2="18" y2="40"/><line x1="36" y1="16" x2="30" y2="10"/><line x1="84" y1="16" x2="90" y2="10"/></g>
+ <g stroke="#B86E00" stroke-width="2.5" marker-end="url(#arr)" fill="none">
+  <path d="M95,55 q15,-6 30,0 t30,0 t30,30"/><path d="M85,75 q15,-6 30,0 t30,0 t40,45"/><path d="M80,95 q15,-6 30,0 t30,0 t65,80"/>
+ </g>
+ <text x="150" y="40" class="svgtxt" font-size="13">Photons (hν &gt; 1.12 eV)</text>
+ <rect x="150" y="110" width="270" height="10" fill="#9AA3AD"/>
+ <rect x="215" y="102" width="10" height="8" fill="#6B7480"/><rect x="345" y="102" width="10" height="8" fill="#6B7480"/>
+ <text x="430" y="118" class="svgmuted" font-size="12">front grid (Ag)</text>
+ <rect x="150" y="120" width="270" height="50" fill="#9FC3E8"/>
+ <text x="430" y="150" class="svgtxt" font-size="13">n-type</text>
+ <rect x="150" y="170" width="270" height="18" fill="#C9B6E4"/>
+ <text x="430" y="184" class="svgmuted" font-size="12">depletion region</text>
+ <rect x="150" y="188" width="270" height="100" fill="#F3C7A0"/>
+ <text x="430" y="240" class="svgtxt" font-size="13">p-type</text>
+ <rect x="150" y="288" width="270" height="12" fill="#9AA3AD"/><line x1="420" y1="294" x2="500" y2="294" stroke="#13202E" stroke-width="2" />
+ <text x="160" y="316" class="svgmuted" font-size="12">rear contact</text>
+ <circle cx="250" cy="200" r="7" fill="#1B3A66"/><text x="246" y="204" fill="#fff" font-size="11">e</text>
+ <circle cx="285" cy="200" r="7" fill="#fff" stroke="#B23A3A" stroke-width="2"/><text x="281" y="204" fill="#B23A3A" font-size="11">h</text>
+ <path d="M250,192 L250,140" stroke="#1B3A66" stroke-width="2" marker-end="url(#arrb)"/>
+ <path d="M285,208 L285,262" stroke="#B23A3A" stroke-width="2" marker-end="url(#arrb)"/>
+ <text x="160" y="160" class="svgtxt" font-size="11">electrons collect here</text>
+ <text x="160" y="278" class="svgtxt" font-size="11">holes collect here</text>
+ <path d="M150,115 H110 V335 H508 V294 H500" fill="none" stroke="#13202E" stroke-width="2"/>
+ <circle cx="285" cy="335" r="16" fill="#FFF6D6" stroke="#13202E" stroke-width="2"/>
+ <path d="M277,335 q8,-12 16,0" stroke="#B86E00" fill="none" stroke-width="2"/>
+ <text x="310" y="352" class="svgtxt" font-size="12">Load (DC current I)</text>
+ <text x="40" y="225" class="svgtxt" font-size="12">− terminal</text>
+ <text x="494" y="325" class="svgtxt" font-size="12">+</text>
+</svg>
+<figcaption data-t="k008">Fig. 1 – A photon frees an electron–hole pair; the junction field pushes electrons to the n-side and holes to the p-side, driving current through the load.</figcaption>
+</figure>
+</div>
+
+<h3 data-t="k009">From cell to array</h3>
+<figure>
+<svg viewBox="0 0 980 230" role="img" aria-label="Hierarchy from cell to module to string to array">
+ <g font-size="14" class="svgtxt">
+  <rect x="20" y="70" width="80" height="80" rx="4" fill="#1B3A66"/>
+  <g stroke="#C8D3DF" stroke-width="1.2"><line x1="40" y1="70" x2="40" y2="150"/><line x1="60" y1="70" x2="60" y2="150"/><line x1="80" y1="70" x2="80" y2="150"/></g>
+  <text x="25" y="180">Cell</text><text x="25" y="200" class="svgmuted" font-size="12">≈0.7 V, 13–18 A</text>
+  <text x="120" y="115" font-size="26" class="svgmuted">→</text>
+  <rect x="160" y="40" width="110" height="160" rx="3" fill="#C8D3DF"/>
+  <g fill="#1B3A66"></g>
+  <g id="miniMod"></g>
+  <text x="160" y="220">Module</text><text x="215" y="220" class="svgmuted" font-size="12">40–50 V, 550–720 W</text>
+  <text x="300" y="115" font-size="26" class="svgmuted">→</text>
+  <g id="miniString"></g>
+  <text x="340" y="220">String (modules in series)</text><text x="340" y="200" class="svgmuted" font-size="12">up to 1,000 V (roof) / 1,500 V (utility)</text>
+  <text x="670" y="115" font-size="26" class="svgmuted">→</text>
+  <g id="miniArray"></g>
+  <text x="710" y="220">Array (strings in parallel) → inverter</text>
+ </g>
+</svg>
+<figcaption data-t="k010">Fig. 2 – Building blocks of a PV plant. Series connection adds voltage; parallel connection adds current.</figcaption>
+</figure>
+
+<h3 data-t="k011">Three generations of PV technology</h3>
+<p data-t="k012">Engineers usually group solar technologies into generations. The <strong>first generation</strong> is wafer-based crystalline silicon: monocrystalline and polycrystalline. It accounts for roughly 97% of all modules shipped worldwide today. Within mono silicon, the cell <em>architecture</em> has evolved rapidly: Al-BSF (till about 2017), then PERC (2017–2023), and now TOPCon, HJT and back-contact (BC) cells. The <strong>second generation</strong> is thin film: cadmium telluride (CdTe), copper indium gallium selenide (CIGS) and amorphous silicon (a-Si), deposited as micrometre-thin layers on glass or flexible substrates. The <strong>third generation</strong> includes emerging technologies such as perovskite, perovskite-on-silicon tandem, organic PV and multi-junction III-V cells used in space.</p>
+<div class="facts">
+ <div class="fact"><span class="num">~97%</span><span data-t="k013">of global shipments are crystalline silicon</span></div>
+ <div class="fact"><span class="num">~70%+</span><span data-t="k014">of 2025–26 global output is n-type TOPCon</span></div>
+ <div class="fact"><span class="num">22–24%</span><span data-t="k015">typical mainstream module efficiency in 2026</span></div>
+ <div class="fact"><span class="num">1,000 W/m²</span><span data-t="k016">STC irradiance at 25 °C cell, AM 1.5G</span></div>
+</div>
+<div data-t="k017" class="note"><strong>Common misconception.</strong> "Monocrystalline" and "TOPCon" are not competing choices. Mono describes how the silicon crystal is grown; TOPCon describes how the cell is built on that wafer. Practically every TOPCon, HJT and back-contact module sold today uses a monocrystalline n-type wafer. When a dealer says "mono panel", ask which cell technology it is: PERC or TOPCon makes a measurable difference to yield.</div>
+</section>
+
+<!-- ============ MONO ============ -->
+<section class="panel" id="mono" role="tabpanel" data-title="Monocrystalline">
+<h2 data-t="k018">Monocrystalline silicon (mono c-Si)</h2>
+<p data-t="k019" class="lead">A monocrystalline wafer is cut from a single, continuous crystal of silicon with no grain boundaries. Electrons move through it with less resistance and less recombination, which is why mono cells are the most efficient silicon cells and now dominate the market.</p>
+<div class="split">
+<div>
+<h3 data-t="k020">How it is made: the Czochralski (CZ) process</h3>
+<p data-t="k021">High-purity polysilicon chunks (9N–11N purity, i.e. 99.9999999% or better) are melted in a quartz crucible at about 1,420 °C. A small seed crystal with the required crystal orientation is dipped into the melt and slowly pulled upward while rotating. Silicon atoms freeze onto the seed in the same orientation, forming a cylindrical ingot up to about 300 mm in diameter and several metres long. A dopant is added to the melt: boron or gallium for p-type, phosphorus for n-type. Gallium replaced boron in p-type wafers around 2020 because boron-oxygen pairs cause light-induced degradation (LID).</p>
+<p data-t="k022">The round ingot is squared into a block with rounded corners, and diamond-wire saws slice it into wafers. Modern formats are M10 (182 × 182 mm), G12 (210 × 210 mm), and the rectangular 182 × 210 mm (often called 210R or G12R) format that now dominates new 2026 modules because it fits standard container and roof dimensions well.</p>
+<h3 data-t="k023">How to identify it</h3>
+<p data-t="k024">Mono cells look uniformly dark blue-black. Older cells had a distinct "pseudo-square" shape with cut corners, leaving small white diamonds between cells; today's wafers are almost fully square, so modules look almost uniformly black. The surface is textured with microscopic random pyramids formed by alkaline etching, which trap light and reduce reflection.</p>
+</div>
+<figure>
+<svg viewBox="0 0 500 380" role="img" aria-label="Czochralski crystal pulling and resulting mono wafer">
+ <text x="20" y="22" class="svgtxt" font-size="14" font-weight="600">Czochralski crystal pulling</text>
+ <line x1="130" y1="35" x2="130" y2="70" stroke="#4B5A6B" stroke-width="3"/>
+ <path d="M118,48 a12,6 0 1,0 24,0" fill="none" stroke="#B86E00" stroke-width="2"/>
+ <text x="150" y="52" class="svgmuted" font-size="11">pull + rotate</text>
+ <rect x="126" y="70" width="8" height="14" fill="#6B7480"/>
+ <text x="150" y="82" class="svgmuted" font-size="11">seed crystal</text>
+ <path d="M122,84 L138,84 L150,100 L150,215 L110,215 L110,100 Z" fill="#1B3A66"/>
+ <text x="160" y="160" class="svgtxt" font-size="12">single-crystal ingot</text>
+ <path d="M60,215 L60,290 Q130,320 200,290 L200,215" fill="#F2DCCB" stroke="#9AA3AD" stroke-width="3"/>
+ <path d="M64,230 L196,230 L196,288 Q130,315 64,288 Z" fill="#F2B233" opacity=".85"/>
+ <text x="85" y="265" class="svgtxt" font-size="12">molten Si ≈1,420 °C</text>
+ <rect x="45" y="205" width="10" height="100" fill="#B23A3A" opacity=".6"/><rect x="205" y="205" width="10" height="100" fill="#B23A3A" opacity=".6"/>
+ <text x="220" y="300" class="svgmuted" font-size="11">heaters</text>
+ <text x="70" y="335" class="svgmuted" font-size="11">quartz crucible</text>
+ <text x="300" y="22" class="svgtxt" font-size="14" font-weight="600">Ingot → wafer → cell</text>
+ <circle cx="340" cy="95" r="45" fill="#1B3A66"/>
+ <rect x="308" y="63" width="64" height="64" fill="none" stroke="#F2B233" stroke-dasharray="4 3" stroke-width="2"/>
+ <text x="300" y="160" class="svgmuted" font-size="11">squaring the round ingot</text>
+ <path d="M410,55 h60 v60 h-60z" fill="#1B3A66"/>
+ <path d="M310,190 h90 v90 h-90 z" fill="#1A2F52"/>
+ <path d="M310,190 l8,0 l-8,8z M400,190 l-8,0 l8,8z M310,280 l8,0 l-8,-8z M400,280 l-8,0 l8,-8z" fill="#F6F8FB"/>
+ <g stroke="#C8D3DF" stroke-width="2"><line x1="333" y1="190" x2="333" y2="280"/><line x1="355" y1="190" x2="355" y2="280"/><line x1="377" y1="190" x2="377" y2="280"/></g>
+ <g stroke="#9AA3AD" stroke-width=".6" opacity=".7"><line x1="310" y1="200" x2="400" y2="200"/><line x1="310" y1="210" x2="400" y2="210"/><line x1="310" y1="220" x2="400" y2="220"/><line x1="310" y1="230" x2="400" y2="230"/><line x1="310" y1="240" x2="400" y2="240"/><line x1="310" y1="250" x2="400" y2="250"/><line x1="310" y1="260" x2="400" y2="260"/><line x1="310" y1="270" x2="400" y2="270"/></g>
+ <text x="300" y="300" class="svgtxt" font-size="12">Mono cell: uniform dark,</text>
+ <text x="300" y="316" class="svgtxt" font-size="12">busbars + fine fingers</text>
+ <text x="410" y="130" class="svgmuted" font-size="11">wafer 130–150 µm</text>
+</svg>
+<figcaption data-t="k025">Fig. 3 – Single-crystal growth by the CZ method, squaring of the ingot and the finished mono cell.</figcaption>
+</figure>
+</div>
+<h3 data-t="k026">p-type mono versus n-type mono</h3>
+<p data-t="k027">Until about 2023, most mono cells were p-type (boron- or gallium-doped base) and used the PERC architecture. Since then, the industry has switched almost entirely to <strong>n-type</strong> mono wafers (phosphorus-doped base) for TOPCon, HJT and back-contact cells. n-type silicon is more tolerant of metallic impurities such as iron, has no boron–oxygen LID, and has longer minority-carrier lifetime, allowing higher voltage and higher efficiency. The trade-off is a slightly more complex and costly cell process, which has now largely been absorbed by scale.</p>
+<div class="facts">
+ <div class="fact"><span class="num">20.5–24.8%</span><span data-t="k028">module efficiency range (PERC to BC)</span></div>
+ <div class="fact"><span class="num">−0.25 to −0.35</span><span data-t="k029">%/°C power temperature coefficient</span></div>
+ <div class="fact"><span class="num">25–30 yr</span><span data-t="k030">linear power warranty</span></div>
+ <div class="fact"><span class="num">~27.8%</span><span data-t="k031">approx. best lab efficiency for a single-junction Si cell (2025)</span></div>
+</div>
+<div class="pc">
+ <div class="pro"><h4 data-t="k032">Advantages</h4><ul><li data-t="k033">Highest efficiency among silicon technologies, so fewer panels and less roof area per kW.</li><li data-t="k034">Better low-light and high-temperature performance than poly.</li><li data-t="k035">Base wafer for all modern high-efficiency cells (TOPCon, HJT, BC).</li><li data-t="k036">Uniform black appearance is preferred for homes and buildings.</li></ul></div>
+ <div class="con"><h4 data-t="k037">Limitations</h4><ul><li data-t="k038">Crystal growth is energy-intensive; higher embodied energy than thin film.</li><li data-t="k039">Rigid glass module; weight about 25–33 kg for large formats.</li><li data-t="k040">Performance still drops 0.25–0.35% for every °C rise in cell temperature.</li></ul></div>
+</div>
+<div data-t="k041" class="note"><strong>Field practice.</strong> For a typical Kerala rooftop under PM Surya Ghar, the module offered will almost always be a mono-crystalline n-type TOPCon (or occasionally mono PERC) module in the 540–620 Wp class. For subsidy eligibility, the module must be on MNRE's ALMM List-I and, from 1 June 2026, must contain DCR cells from ALMM List-II. Check the datasheet and the DCR certificate, not just the word "mono".</div>
+</section>
+
+<!-- ============ POLY ============ -->
+<section class="panel" id="poly" role="tabpanel" data-title="Polycrystalline">
+<h2 data-t="k042">Polycrystalline silicon (multi c-Si)</h2>
+<p data-t="k043" class="lead">Polycrystalline (also called multicrystalline) silicon is cast as a large block containing many small crystals. It was cheaper to make and dominated the market until around 2018, but it has now been almost completely replaced by mono silicon.</p>
+<div class="split">
+<div>
+<h3 data-t="k044">How it is made: directional solidification (casting)</h3>
+<p data-t="k045">Instead of slowly pulling a single crystal, molten silicon is poured into, or melted inside, a large square quartz crucible and allowed to cool from the bottom upward in a controlled way. The silicon freezes into many crystal grains of different orientations, each a few millimetres to centimetres across. The block (about 800–1,000 kg) is cut into square bricks and sliced into square wafers. Because the crucible is square, there is no corner waste, and the process uses less energy and time than CZ pulling.</p>
+<h3 data-t="k046">Why the sparkly, blue look?</h3>
+<p data-t="k047">Each grain has a different crystal orientation, so it reflects light differently. This gives the characteristic speckled "metal flake" blue appearance. Acidic texturing, used on poly, cannot form the uniform pyramids that alkaline texturing produces on mono, so poly cells reflect more light and look lighter blue.</p>
+<h3 data-t="k048">Why efficiency is lower</h3>
+<p data-t="k049">Grain boundaries are crystal defects. Electrons and holes recombine at these boundaries and at impurities that collect there, before they can reach the contacts. Poly wafers also carry more dislocations and metal impurities from the crucible. As a result, poly cells reach about 18–20% (PERC poly up to about 21%) while mono PERC easily reached 23%. Once the cost of mono wafers fell after 2016–2018 due to faster CZ pullers and diamond-wire sawing, the higher yield of mono outweighed the price saving of poly.</p>
+</div>
+<figure>
+<svg viewBox="0 0 500 380" role="img" aria-label="Casting of multicrystalline silicon block and resulting poly cell">
+ <text x="20" y="22" class="svgtxt" font-size="14" font-weight="600">Directional solidification</text>
+ <rect x="30" y="45" width="190" height="190" fill="#F2DCCB" stroke="#9AA3AD" stroke-width="3"/>
+ <rect x="36" y="51" width="178" height="60" fill="#F2B233" opacity=".85"/>
+ <text x="70" y="85" class="svgtxt" font-size="12">molten Si (top)</text>
+ <g id="grainBlock"></g>
+ <path d="M240,220 v-150" stroke="#1B3A66" stroke-width="2.5" marker-end="url(#arrb)"/>
+ <text x="248" y="150" class="svgmuted" font-size="11">solidification</text>
+ <text x="248" y="165" class="svgmuted" font-size="11">front moves up</text>
+ <rect x="30" y="240" width="190" height="14" fill="#6FA3E0" opacity=".6"/>
+ <text x="40" y="275" class="svgmuted" font-size="11">cooled base plate (heat extracted)</text>
+ <text x="320" y="22" class="svgtxt" font-size="14" font-weight="600">Poly cell</text>
+ <g id="polyCell"></g>
+ <text x="320" y="310" class="svgtxt" font-size="12">Square, speckled blue,</text>
+ <text x="320" y="326" class="svgtxt" font-size="12">visible grain pattern</text>
+</svg>
+<figcaption data-t="k050">Fig. 4 – Cast multicrystalline block with columnar grains, and the square poly cell with its flake pattern.</figcaption>
+</figure>
+</div>
+<div class="facts">
+ <div class="fact"><span class="num">15–18%</span><span data-t="k051">typical module efficiency (legacy 60/72-cell, 270–345 W)</span></div>
+ <div class="fact"><span class="num">−0.39 to −0.41</span><span data-t="k052">%/°C power temperature coefficient</span></div>
+ <div class="fact"><span class="num">&lt;1%</span><span data-t="k053">approximate share of 2025–26 production</span></div>
+ <div class="fact"><span class="num">~0.7%</span><span data-t="k054">typical annual degradation after year 1</span></div>
+</div>
+<div class="pc">
+ <div class="pro"><h4 data-t="k055">Where it still makes sense</h4><ul><li data-t="k056">Replacement of a failed module in an existing poly string (matching voltage and current).</li><li data-t="k057">Very small off-grid uses where any available low-cost panel will do.</li><li data-t="k058">Training labs: the visible grain structure makes it ideal for explaining crystal defects.</li></ul></div>
+ <div class="con"><h4 data-t="k059">Why it is no longer recommended</h4><ul><li data-t="k060">Needs about 20–30% more roof area than TOPCon for the same kW.</li><li data-t="k061">Poorer temperature coefficient hurts badly in hot Indian summers.</li><li data-t="k062">Fewer manufacturers, so warranty support for new purchases is uncertain.</li><li data-t="k063">Not competitive for new ALMM/DCR subsidy projects.</li></ul></div>
+</div>
+<div data-t="k064" class="note"><strong>Replacement tip.</strong> If one poly module in a 2016-era string fails, do not insert a modern 580 W TOPCon module into the same string. Its Imp (around 13–14 A) is far higher than the old module's Imp (about 8–9 A) and its voltage is different, so the mismatch can cause hot spots or wasted capacity. Use a module with closely matching Imp, or re-design the string.</div>
+</section>
+
+<!-- ============ THIN FILM ============ -->
+<section class="panel" id="thin" role="tabpanel" data-title="Thin film">
+<h2 data-t="k065">Thin-film modules: CdTe, CIGS and amorphous silicon</h2>
+<p data-t="k066" class="lead">Thin-film cells deposit a light-absorbing layer only 1–4 µm thick, about a hundred times thinner than a silicon wafer, directly on glass, metal foil or plastic. Cells are formed by laser scribing the coated sheet into long narrow strips connected in series.</p>
+<div class="split">
+<div>
+<h3 data-t="k067">Cadmium telluride (CdTe)</h3>
+<p data-t="k068">CdTe is the only thin-film technology with large-scale commercial success, led by First Solar, which also operates a large manufacturing plant in Tamil Nadu. Modules reach about 18–19.5% efficiency. CdTe has a band gap of about 1.45 eV, close to ideal for sunlight, and a lower temperature coefficient (about −0.28 to −0.32%/°C) than PERC, so it performs well in hot, dusty desert plants. It also responds better to diffuse and humid-atmosphere light. Its weaknesses are lower efficiency than TOPCon and the use of cadmium, which demands a take-back and recycling programme.</p>
+<h3 data-t="k069">CIGS (copper indium gallium selenide)</h3>
+<p data-t="k070">CIGS reaches about 14–17% in modules and can be made on flexible substrates. It is used in some building-integrated (BIPV) façades, curved surfaces and lightweight roofs, but manufacturing has struggled to compete on cost with silicon.</p>
+<h3 data-t="k071">Amorphous silicon (a-Si)</h3>
+<p data-t="k072">a-Si has no long-range crystal order. It is cheap to deposit but only 6–9% efficient and suffers Staebler–Wronski light-induced degradation in the first months. Today it is found mostly in calculators, watches, garden lights and indoor devices, where its good response to fluorescent and LED light matters more than efficiency.</p>
+</div>
+<figure>
+<svg viewBox="0 0 500 360" role="img" aria-label="Layer stack of a CdTe thin-film module with monolithic series interconnection">
+ <text x="20" y="22" class="svgtxt" font-size="14" font-weight="600">CdTe module layer stack (not to scale)</text>
+ <g id="cdteStack"></g>
+ <text x="20" y="260" class="svgtxt" font-size="14" font-weight="600">Monolithic series connection by laser scribes</text>
+ <g id="scribes"></g>
+</svg>
+<figcaption data-t="k073">Fig. 5 – Thin-film stack on glass. P1, P2, P3 laser scribes divide the sheet into long cells and connect them in series without any soldering.</figcaption>
+</figure>
+</div>
+<div class="tablewrap"><table>
+<thead><tr><th data-t="k074">Thin film</th><th data-t="k075">Module efficiency</th><th data-t="k076">Band gap</th><th data-t="k077">Temp. coeff. (Pmax)</th><th data-t="k078">Main use</th></tr></thead>
+<tbody>
+<tr><td data-t="k079">CdTe</td><td class="n">18–19.5%</td><td class="n">≈1.45 eV</td><td class="n">−0.28 to −0.32 %/°C</td><td data-t="k080">Utility-scale ground-mount, hot climates</td></tr>
+<tr><td data-t="k081">CIGS</td><td class="n">14–17%</td><td data-t="k082" class="n">1.0–1.7 eV (tunable)</td><td class="n">≈ −0.32 to −0.36 %/°C</td><td data-t="k083">Flexible, BIPV, lightweight roofs</td></tr>
+<tr><td>a-Si</td><td class="n">6–9%</td><td class="n">≈1.7 eV</td><td class="n">≈ −0.20 %/°C</td><td data-t="k084">Consumer electronics, indoor light</td></tr>
+<tr><td data-t="k085">Perovskite (emerging)</td><td data-t="k086" class="n">pilot 18–22%</td><td data-t="k087" class="n">1.5–1.7 eV (tunable)</td><td data-t="k088" class="n">under evaluation</td><td data-t="k089">Tandem top cell, research</td></tr>
+</tbody></table></div>
+<div data-t="k090" class="note"><strong>Misconception.</strong> Thin film is not "weaker" in every situation. Per kWp installed, a CdTe plant in a very hot site can produce comparable or slightly higher energy than a PERC plant because of its lower temperature loss. What it needs is more land and more mounting structure per kW, because each square metre produces less power.</div>
+</section>
+
+<!-- ============ CELL ARCHITECTURES ============ -->
+<section class="panel" id="cells" role="tabpanel" data-title="PERC, TOPCon, HJT, BC">
+<h2 data-t="k091">Cell architectures: PERC, TOPCon, HJT and back contact</h2>
+<p data-t="k092" class="lead">All four are built on monocrystalline wafers. They differ in how they <em>passivate</em> the surfaces (stop electrons from recombining) and how they <em>contact</em> the silicon. Each step forward cut a specific loss, and module efficiency rose from about 17% (Al-BSF) to about 24% (BC).</p>
+<div class="seg" role="group" aria-label="Select cell architecture" id="archSeg"></div>
+<div class="split">
+<div id="archText"></div>
+<figure><svg id="archSVG" viewBox="0 0 600 420" role="img" aria-label="Cell cross-section"></svg><figcaption id="archCap"></figcaption></figure>
+</div>
+<h3 data-t="k093">Evolution in one line</h3>
+<p data-t="k094"><strong>Al-BSF</strong> (fully covered aluminium rear, about 19–20% cell) → <strong>PERC</strong> (rear passivated with Al₂O₃/SiNₓ, local contacts, about 23%) → <strong>TOPCon</strong> (n-type, passivating tunnel oxide + doped poly-Si contact on the rear, about 25–26.5%) → <strong>HJT</strong> (amorphous silicon layers on both sides, about 25.5–26.5%) → <strong>BC</strong> (all contacts on the rear, no front shading, about 26–27%) → <strong>perovskite–silicon tandem</strong> (two absorbers stacked, record cells above 34% in the lab).</p>
+<div data-t="k095" class="note"><strong>Why passivation matters.</strong> The surface of a wafer is full of "dangling bonds" where electrons are trapped and lost. In PERC only part of the surface is passivated and the metal contacts still touch bare silicon, which is a big loss. TOPCon and HJT put an extra thin layer between the metal and the silicon, so carriers pass through but recombination at the contact is greatly reduced. That is why their open-circuit voltage is about 30–50 mV higher than PERC, which directly lifts efficiency.</div>
+</section>
+
+<!-- ============ MODULE FORMATS ============ -->
+<section class="panel" id="formats" role="tabpanel" data-title="Half-cut, bifacial & formats">
+<h2 data-t="k096">Module formats: half-cut, bifacial, glass–glass, busbars and wafer size</h2>
+<p data-t="k097" class="lead">Cell technology decides how efficiently each cell converts light. Module design decides how much of that power reaches the cable. These features are combined freely: a typical 2026 module is "n-type TOPCon, half-cut, 16BB/0BB, bifacial, glass–glass, 182×210 mm".</p>
+
+<h3 data-t="k098">Half-cut cells</h3>
+<div class="split">
+<div>
+<p data-t="k099">A full cell is laser-cut into two halves. Each half produces the same voltage but only half the current. Because resistive loss in the ribbons and fingers is P = I²R, halving the current reduces the loss in each conductor to one quarter. The module is wired as two identical halves (upper and lower) connected in parallel, with the junction box placed in the middle of the module.</p>
+<p data-t="k100">Benefits: around 2–3% more output from the same cells, lower hot-spot temperature, and better shade tolerance. If the lower row is shaded by a parapet wall, only the lower half loses power while the upper half keeps producing. A cut cell is also mechanically less stressed, reducing micro-crack spread. Most modules now use half-cut cells; some premium designs use one-third cuts or shingled strips.</p>
+</div>
+<figure><svg viewBox="0 0 520 330" role="img" aria-label="Full-cell module versus half-cut module layout"><g id="halfcut"></g></svg><figcaption data-t="k101">Fig. 7 – Left: 60/72 full-cell layout. Right: half-cut layout with the module split into two parallel halves and the junction box in the centre.</figcaption></figure>
+</div>
+
+<h3 data-t="k102">Bifacial modules</h3>
+<div class="split">
+<div>
+<p data-t="k103">A bifacial module collects light on both faces. The cell has a grid (not a full metal sheet) on the rear, and the module uses a transparent rear glass or transparent backsheet. Light reflected from the ground or roof reaches the rear and adds 5–25% extra energy, depending on the surface reflectance (albedo), mounting height and row spacing.</p>
+<p data-t="k104">The <strong>bifaciality factor</strong> is rear efficiency ÷ front efficiency: PERC about 70%, TOPCon about 80–85%, HJT about 85–95%. Bifacial gain is largest over white roofs or white gravel (albedo 0.5–0.8), on elevated structures, and on single-axis trackers. On a flush-mounted dark sheet roof, the rear sees almost no light, so a bifacial module gives little extra benefit.</p>
+</div>
+<figure><svg viewBox="0 0 520 330" role="img" aria-label="Bifacial module receiving direct light on front and reflected light on rear" id="bifSVG"></svg><figcaption data-t="k105">Fig. 8 – Bifacial gain depends on ground albedo, mounting height and tilt.</figcaption></figure>
+</div>
+
+<h3 data-t="k106">Other module features you will see on datasheets</h3>
+<div class="tablewrap"><table>
+<thead><tr><th data-t="k107">Feature</th><th data-t="k108">What it means</th><th data-t="k109">Why it matters in the field</th></tr></thead>
+<tbody>
+<tr><td data-t="k110">Busbars: 5BB → 9BB → MBB (16BB+) → 0BB</td><td data-t="k111">More, thinner busbars (round wires) collect current from the fingers over shorter paths. 0BB eliminates busbars and bonds wires directly to fingers.</td><td data-t="k112">Lower resistance and less silver; better tolerance of micro-cracks because current has more alternate paths.</td></tr>
+<tr><td data-t="k113">Glass–glass (dual glass)</td><td data-t="k114">2 mm + 2 mm tempered glass instead of 3.2 mm glass + polymer backsheet.</td><td data-t="k115">Lower moisture ingress and PID, better for coastal and humid sites; 30-year warranties common. Slightly heavier and needs correct clamping zones.</td></tr>
+<tr><td data-t="k116">Wafer size M10 / G12 / G12R</td><td data-t="k117">182 mm, 210 mm, and 182×210 mm rectangular wafers.</td><td data-t="k118">Larger wafers give higher module power (580–730 W) but higher current; inverter MPPT current rating must suit (≥ 16–20 A per input).</td></tr>
+<tr><td data-t="k119">Shingled cells</td><td data-t="k120">Cells cut into strips and overlapped like roof tiles with conductive adhesive.</td><td data-t="k121">No gaps between cells, very good shade behaviour, uniform look.</td></tr>
+<tr><td data-t="k122">Full black / all-black</td><td data-t="k123">Black backsheet and black frame.</td><td data-t="k124">Better appearance on homes; runs slightly hotter, so marginally lower yield.</td></tr>
+<tr><td data-t="k125">Frameless / BIPV</td><td data-t="k126">Modules laminated into façade glass, skylights or roof tiles.</td><td data-t="k127">Replaces building material; efficiency secondary to architecture.</td></tr>
+<tr><td data-t="k128">Flexible / lightweight</td><td data-t="k129">Polymer front sheet instead of glass, 3–8 kg.</td><td data-t="k130">Boats, vehicles, tents, weak roofs. Shorter life and poorer heat dissipation.</td></tr>
+</tbody></table></div>
+<div data-t="k131" class="note"><strong>Common error during installation.</strong> Large-format modules (about 2.4 × 1.1 m) are sensitive to clamping position. Clamping outside the manufacturer's permitted zones, or walking on the module, causes micro-cracks that show up later as snail trails and power loss. Always check the mechanical load rating (for example 5,400 Pa front / 2,400 Pa rear) and the clamping drawing in the installation manual.</div>
+</section>
+
+<!-- ============ COMPARISON ============ -->
+<section class="panel" id="compare" role="tabpanel" data-title="Comparison">
+<h2 data-t="k132">Side-by-side comparison</h2>
+<p data-t="k133" class="lead">Typical values for commercially available modules in 2026. Prices are indicative module-only ex-works/dealer prices in India, in ₹ per watt-peak, and move every month: always confirm with a current quotation.</p>
+<div class="seg" role="group" aria-label="Chart metric" id="metricSeg">
+ <button data-t="k134" data-m="eff" aria-pressed="true">Module efficiency</button>
+ <button data-t="k135" data-m="tc" aria-pressed="false">Temperature loss</button>
+ <button data-t="k136" data-m="deg" aria-pressed="false">Annual degradation</button>
+ <button data-t="k137" data-m="bif" aria-pressed="false">Bifaciality</button>
+</div>
+<figure><svg id="cmpChart" viewBox="0 0 900 430" role="img" aria-label="Comparison chart"></svg><figcaption id="cmpCap"></figcaption></figure>
+<div class="tablewrap"><table id="cmpTable" style="min-width:1150px"></table></div>
+<p data-t="k138" style="font-size:.78rem;color:var(--muted)">Price notes: in early 2026 Indian market trackers reported non-DCR TOPCon modules at roughly ₹14–16/Wp and DCR TOPCon modules (Indian cells + Indian module) at roughly ₹22–27/Wp, a premium of about 70–100% that has been easing. Residential all-in system costs (modules, inverter, structure, cabling, installation) are typically ₹40–85 per Wp depending on size and DCR. HJT and BC are generally sold at a premium over TOPCon. Sources: Mercom India, SMM, OPIS and industry price trackers, Jan–Jun 2026.</p>
+<h3 data-t="k139">How to read the comparison</h3>
+<p data-t="k140">Efficiency decides how much power you can fit on a given roof. For a 25 m² terrace, poly at 17% gives about 4.2 kWp while TOPCon at 23% gives about 5.7 kWp. Temperature coefficient decides how much is lost on hot days: at a cell temperature of 65 °C, a PERC module (−0.35%/°C) loses about 14% while an HJT module (−0.25%/°C) loses about 10%. Degradation decides what is left after 25–30 years: n-type modules typically guarantee 87–89% at 30 years, against about 80–83% at 25 years for older p-type modules.</p>
+<p data-t="k141">Price per watt is only part of the economics. The correct comparison is the cost per kWh generated over the life of the system (LCOE), which includes yield, degradation and the balance-of-system cost per kW. A slightly more expensive, higher-efficiency module often wins when roof space, structure cost or land is the limiting factor.</p>
+</section>
+
+<!-- ============ STANDARDS ============ -->
+<section class="panel" id="standards" role="tabpanel" data-title="Standards & datasheet">
+<h2 data-t="k142">Standards, certification and reading a datasheet</h2>
+<p data-t="k143" class="lead">In India, a PV module must be BIS-registered and, for most government-supported and subsidy projects, listed under MNRE's ALMM. The technical tests are based on the IEC 61215 and IEC 61730 families, adopted as Indian Standards.</p>
+<div class="tablewrap"><table>
+<thead><tr><th data-t="k144">Standard / order</th><th data-t="k145">Scope</th><th data-t="k146">Relevance</th></tr></thead>
+<tbody>
+<tr><td data-t="k147">IS 14286 (aligned to IEC 61215)</td><td data-t="k148">Crystalline silicon terrestrial PV modules: design qualification and type approval (thermal cycling, damp heat 85 °C/85% RH, humidity freeze, mechanical load, hail, hot-spot, UV)</td><td data-t="k149">Mandatory BIS registration for c-Si modules</td></tr>
+<tr><td data-t="k150">IS 16077 (aligned to IEC 61646, now merged into IEC 61215 series)</td><td data-t="k151">Thin-film terrestrial PV modules: design qualification</td><td data-t="k152">Mandatory for thin-film modules</td></tr>
+<tr><td data-t="k153">IS/IEC 61730-1 &amp; -2</td><td data-t="k154">PV module safety qualification: construction and testing (insulation, wet leakage, fire, impulse voltage)</td><td data-t="k155">Mandatory BIS registration</td></tr>
+<tr><td data-t="k156">Solar PV Systems, Devices and Components Goods (Requirements for Compulsory Registration) Order, 2017, MeitY/BIS</td><td data-t="k157">Compulsory BIS registration of modules, inverters (IS 16221, IS 16169) and storage batteries (IS 16270)</td><td data-t="k158">No module may be sold in India without BIS registration (R-number)</td></tr>
+<tr><td data-t="k159">MNRE ALMM Order, List-I (modules) and List-II (cells)</td><td data-t="k160">Approved List of Models and Manufacturers; List-II for cells applies from 1 June 2026</td><td data-t="k161">Required for government, PM Surya Ghar, PM-KUSUM, net-metered and many open-access projects</td></tr>
+<tr><td data-t="k162">IEC 60904 series</td><td data-t="k163">Measurement of I–V characteristics, reference cells, STC spectrum (AM 1.5G)</td><td data-t="k164">Basis of nameplate rating and flash testing</td></tr>
+<tr><td data-t="k165">IEC 61701</td><td data-t="k166">Salt mist corrosion testing</td><td data-t="k167">Essential for coastal Kerala, Lakshadweep and port installations</td></tr>
+<tr><td data-t="k168">IEC 62716</td><td data-t="k169">Ammonia corrosion testing</td><td data-t="k170">Dairy farms, poultry sheds, cattle sheds</td></tr>
+<tr><td data-t="k171">IEC TS 62804-1</td><td data-t="k172">Potential-induced degradation (PID) test</td><td data-t="k173">High-voltage strings in humid climates</td></tr>
+<tr><td data-t="k174">IEC 61853</td><td data-t="k175">Energy rating at different temperatures and irradiances</td><td data-t="k176">Comparing real yield, not just STC watts</td></tr>
+<tr><td data-t="k177">IS/IEC 62548, IS/IEC 62446</td><td data-t="k178">PV array design requirements; commissioning tests and documentation</td><td data-t="k179">System design, string sizing, inspection</td></tr>
+<tr><td data-t="k180">CEA (Measures relating to Safety and Electric Supply) Regulations, 2023; CEA Technical Standards for Connectivity of Distributed Generation Resources</td><td data-t="k181">Safety, earthing, grid connectivity of rooftop and distributed generation</td><td data-t="k182">Applied by the Electrical Inspectorate and DISCOM (KSEB) during approval</td></tr>
+<tr><td>IS 732, IS 3043</td><td data-t="k183">Wiring practice; code of practice for earthing</td><td data-t="k184">DC/AC cabling and earthing of module frames and structures</td></tr>
+</tbody></table></div>
+
+<h3 data-t="k185">Reading a module datasheet</h3>
+<div class="split">
+<div>
+<p data-t="k186"><strong>STC</strong> (Standard Test Conditions): irradiance 1,000 W/m², cell temperature 25 °C, spectrum AM 1.5G. The nameplate power (Pmax or Wp) is measured at STC. Real rooftops rarely see a 25 °C cell; in Indian summer, cells commonly run at 55–70 °C.</p>
+<p data-t="k187"><strong>NMOT / NOCT</strong>: nominal module (or cell) operating temperature at 800 W/m², 20 °C ambient and 1 m/s wind. Typical values are 41–45 °C. It is used to estimate real cell temperature.</p>
+<p data-t="k188"><strong>Voc, Isc, Vmp, Imp</strong>: open-circuit voltage, short-circuit current, and voltage and current at the maximum power point. Voc at the coldest expected temperature decides how many modules can be placed in series without exceeding the inverter's maximum DC voltage. Isc decides cable size and inverter MPPT current rating.</p>
+<p data-t="k189"><strong>Temperature coefficients</strong>: for Pmax (about −0.25 to −0.40%/°C), Voc (about −0.24 to −0.30%/°C) and Isc (about +0.04 to +0.05%/°C).</p>
+<p data-t="k190"><strong>Power tolerance</strong>: usually 0 to +5 W, meaning the module will never test below nameplate.</p>
+<p data-t="k191"><strong>Warranty</strong>: product warranty 12–25 years; linear performance warranty such as "1% first-year loss, 0.4% per year thereafter, ≥ 87.4% at 30 years" for n-type modules.</p>
+</div>
+<figure>
+<svg viewBox="0 0 480 400" role="img" aria-label="Sample module nameplate label">
+ <rect x="10" y="10" width="460" height="380" fill="#FFFFFF" stroke="#13202E" stroke-width="2"/>
+ <rect x="10" y="10" width="460" height="44" fill="#1B3A66"/>
+ <text x="24" y="38" fill="#fff" font-size="16" font-weight="600">Sample n-type TOPCon bifacial module</text>
+ <g font-size="13" fill="#13202E">
+  <text x="24" y="80">Model</text><text x="250" y="80">XYZ-144-N-580 (example)</text>
+  <text x="24" y="104">Maximum power Pmax (STC)</text><text x="250" y="104">580 W  (0 ~ +5 W)</text>
+  <text x="24" y="128">Open-circuit voltage Voc</text><text x="250" y="128">51.9 V</text>
+  <text x="24" y="152">Short-circuit current Isc</text><text x="250" y="152">14.10 A</text>
+  <text x="24" y="176">Voltage at Pmax Vmp</text><text x="250" y="176">43.2 V</text>
+  <text x="24" y="200">Current at Pmax Imp</text><text x="250" y="200">13.43 A</text>
+  <text x="24" y="224">Module efficiency</text><text x="250" y="224">22.5 %</text>
+  <text x="24" y="248">Temp. coeff. Pmax / Voc / Isc</text><text x="250" y="248">−0.29 / −0.25 / +0.045 %/°C</text>
+  <text x="24" y="272">NMOT</text><text x="250" y="272">42 ± 2 °C</text>
+  <text x="24" y="296">Bifaciality</text><text x="250" y="296">80 ± 5 %</text>
+  <text x="24" y="320">Max. system voltage</text><text x="250" y="320">1500 V DC (IEC)</text>
+  <text x="24" y="344">Max. series fuse rating</text><text x="250" y="344">30 A</text>
+  <text x="24" y="368">Dimensions / weight</text><text x="250" y="368">2278×1134×30 mm / 31.5 kg</text>
+ </g>
+ <g stroke="#C8D3DF"><line x1="20" y1="88" x2="460" y2="88"/><line x1="20" y1="208" x2="460" y2="208"/><line x1="20" y1="304" x2="460" y2="304"/></g>
+</svg>
+<figcaption data-t="k192">Fig. 9 – Typical nameplate values for a 2026 mainstream module (illustrative, not a real product).</figcaption>
+</figure>
+</div>
+<div data-t="k193" class="note"><strong>Kerala-specific point.</strong> Near the coast (within roughly 1–5 km of the sea), specify modules certified to IEC 61701 at a high severity level, glass–glass construction where possible, and stainless or hot-dip galvanised structures with proper isolation between dissimilar metals. Salt corrosion of frames, junction boxes and MC4 connectors is a leading cause of early failures in coastal districts.</div>
+</section>
+
+<!-- ============ APPLICATIONS ============ -->
+<section class="panel" id="apps" role="tabpanel" data-title="Real-world applications">
+<h2 data-t="k194">Real-world applications</h2>
+<p data-t="k195" class="lead">The best technology depends on the site: available area, temperature, shading, the surface below the modules, weight limits and whether a subsidy requires DCR content.</p>
+<h3 data-t="k196">Which technology fits which application</h3>
+<div class="tablewrap"><table id="fitTable"></table></div>
+<p data-t="k197" style="font-size:.78rem;color:var(--muted)"><span class="dot d3"></span> preferred &nbsp; <span class="dot d2"></span> suitable &nbsp; <span class="dot d1"></span> not typical</p>
+
+<h3 data-t="k198">Examples from Kerala and India</h3>
+<div class="split">
+<div>
+<h4 data-t="k199">Residential rooftops under PM Surya Ghar (KSEB net metering)</h4>
+<p data-t="k200">A typical 3 kW home system in Kerala uses five or six 540–620 Wp DCR mono modules (PERC or, increasingly, TOPCon), a 3 kW on-grid inverter and a bidirectional meter installed by KSEB. Half-cut modules are preferred because terraces often have water tanks, parapets and coconut trees causing partial shade. On hot concrete terraces, the better temperature coefficient of TOPCon adds noticeable summer generation.</p>
+<h4 data-t="k201">Cochin International Airport (CIAL)</h4>
+<p data-t="k202">In 2015 CIAL became widely known as the world's first airport fully powered by solar energy. Its ground-mounted and canopy plants have since grown to several tens of MWp, including carport-style installations over parking areas and solar plants on airport land combined with vegetable farming beneath the panels (an early Indian example of agrivoltaics).</p>
+<h4 data-t="k203">Floating solar</h4>
+<p data-t="k204">KSEB's floating plant on the Banasura Sagar reservoir in Wayanad was among India's earliest floating installations. Nationally, NTPC's 100 MW floating plant at Ramagundam (Telangana) is one of the largest. Water cools the modules, improving yield, and reduces evaporation. Glass–glass modules with high PID and corrosion resistance are preferred because of constant humidity.</p>
+<h4 data-t="k205">Solar ferry "Aditya"</h4>
+<p data-t="k206">Kerala State Water Transport Department's Aditya, operating between Vaikom and Thavanakkadavu since 2017, is India's first solar-powered ferry. Roof-mounted mono modules charge the battery bank, showing how PV is used in transport where weight and space are limited.</p>
+</div>
+<div>
+<h4 data-t="k207">Utility-scale solar parks</h4>
+<p data-t="k208">Bhadla (Rajasthan, about 2.2 GW) and Pavagada (Karnataka, about 2 GW) are among the largest solar parks in the world. New phases use bifacial n-type TOPCon modules on single-axis trackers. Desert sand and light soil give useful rear-side gain, and robotic waterless cleaning is used to handle dust.</p>
+<h4 data-t="k209">Agriculture: PM-KUSUM solar pumps and agrivoltaics</h4>
+<p data-t="k210">Under PM-KUSUM, farmers install standalone solar pumps (Component B) or solarise grid-connected pumps (Component C). Modules are mono PERC or TOPCon with a variable-frequency pump controller. In agrivoltaics, modules are raised 2.5–4 m above crops; bifacial and semi-transparent glass–glass modules let diffuse light reach plants.</p>
+<h4 data-t="k211">Commercial and industrial rooftops</h4>
+<p data-t="k212">Factories, hospitals and institutions (including ITIs and NSTIs) install 50 kW–2 MW on metal sheet roofs. Lightweight framed TOPCon modules on rail-less clamps are common; bifacial gain is small on dark sheet roofs, so monofacial modules are often chosen.</p>
+<h4 data-t="k213">Thin film and specialised uses</h4>
+<p data-t="k214">CdTe modules are used in large hot-climate plants; CIGS and perovskite prototypes appear in BIPV façades. a-Si cells power calculators and indoor sensors. Spacecraft, including ISRO satellites, use high-efficiency III–V multi-junction cells (about 30% in space) because mass and area matter more than cost.</p>
+<h4 data-t="k215">Off-grid and small systems</h4>
+<p data-t="k216">Solar street lights, traffic blinkers, telecom towers, fencing energisers and remote homes use small 20–400 W mono modules with batteries. Here robustness and battery quality matter more than the last percent of efficiency.</p>
+</div>
+</div>
+<div data-t="k217" class="note"><strong>Selection rule of thumb (2026).</strong> Limited roof and subsidy project: DCR mono TOPCon, half-cut. Shaded or complex roof: half-cut or shingled modules, plus module-level optimisers or microinverters. White roof, elevated structure or tracker: bifacial glass–glass TOPCon or HJT. Very hot site with plenty of land: TOPCon, HJT or CdTe. Coastal site: glass–glass, IEC 61701-certified. Premium residential look: all-black BC or TOPCon.</div>
+</section>
+
+<!-- ============ CALCULATORS ============ -->
+<section class="panel" id="calc" role="tabpanel" data-title="Calculators">
+<h2 data-t="k218">Worked numericals and calculators</h2>
+<p data-t="k219" class="lead">Each calculator is preloaded with the values from the first worked example. Change any input to explore.</p>
+
+<h3 data-t="k220">1. Module efficiency</h3>
+<p data-t="k221">Efficiency η = Pmax ÷ (G × A) × 100, where G = 1,000 W/m² at STC and A = module area in m².</p>
+<div class="worked"><span data-t="k222" class="wi"><b>Worked example 1.1</b> – A TOPCon module rated 580 Wp measures 2,278 × 1,134 mm. Find its efficiency.</span>
+<div class="step">A  = 2.278 m × 1.134 m = 2.583 m²
+Pin = 1,000 W/m² × 2.583 m² = 2,583 W
+η  = 580 ÷ 2,583 × 100 = 22.45 %</div></div>
+<div class="worked"><span data-t="k223" class="wi"><b>Worked example 1.2</b> – An older poly module rated 330 Wp measures 1,956 × 992 mm. Find its efficiency and the area needed for 3 kWp.</span>
+<div class="step">A  = 1.956 × 0.992 = 1.940 m²
+η  = 330 ÷ (1,000 × 1.940) × 100 = 17.0 %
+Modules for 3 kWp = 3,000 ÷ 330 = 9.09 → 10 modules → 19.4 m²
+(The TOPCon module needs 6 × 2.583 = 15.5 m² for 3.48 kWp.)</div></div>
+<div class="calc">
+ <div>
+  <label data-t="k224" for="e_p">Rated power Pmax (W)</label><input id="e_p" type="number" value="580" step="1">
+  <label data-t="k225" for="e_l">Length (mm)</label><input id="e_l" type="number" value="2278">
+  <label data-t="k226" for="e_w">Width (mm)</label><input id="e_w" type="number" value="1134">
+  <label data-t="k227" for="e_g">Irradiance G (W/m²)</label><input id="e_g" type="number" value="1000">
+ </div>
+ <div class="out" id="e_out"></div>
+</div>
+
+<h3 data-t="k228">2. Power at real operating temperature</h3>
+<p data-t="k229">Cell temperature T<sub>cell</sub> = T<sub>amb</sub> + (NOCT − 20) ÷ 800 × G. Output P = P<sub>STC</sub> × (G ÷ 1000) × [1 + γ × (T<sub>cell</sub> − 25)], where γ is the Pmax temperature coefficient (negative).</p>
+<div class="worked"><span data-t="k230" class="wi"><b>Worked example 2.1</b> – A 580 Wp TOPCon module (γ = −0.29 %/°C, NOCT 45 °C) on a Kochi terrace at noon: ambient 34 °C, G = 1,000 W/m².</span>
+<div class="step">Tcell = 34 + (45 − 20) ÷ 800 × 1,000 = 34 + 31.25 = 65.25 °C
+ΔT    = 65.25 − 25 = 40.25 °C
+Loss  = 0.29 × 40.25 = 11.67 %
+P     = 580 × (1 − 0.1167) = 512.3 W</div></div>
+<div class="worked"><span data-t="k231" class="wi"><b>Worked example 2.2</b> – Same conditions, but a 580 Wp PERC module with γ = −0.35 %/°C.</span>
+<div class="step">Loss = 0.35 × 40.25 = 14.09 %
+P    = 580 × (1 − 0.1409) = 498.3 W
+TOPCon advantage = 512.3 − 498.3 = 14.0 W per module (about 2.8 %)</div></div>
+<div class="calc">
+ <div>
+  <label data-t="k232" for="t_p">Rated power P<sub>STC</sub> (W)</label><input id="t_p" type="number" value="580">
+  <label data-t="k233" for="t_g">Pmax temperature coefficient γ (%/°C)</label>
+  <select id="t_g"><option data-t="k234" value="-0.40">Poly: −0.40</option><option data-t="k235" value="-0.35">Mono PERC: −0.35</option><option data-t="k236" value="-0.29" selected>TOPCon: −0.29</option><option data-t="k237" value="-0.25">HJT: −0.25</option><option data-t="k238" value="-0.27">Back contact: −0.27</option><option data-t="k239" value="-0.30">CdTe: −0.30</option></select>
+  <label data-t="k240" for="t_n">NOCT / NMOT (°C)</label><input id="t_n" type="number" value="45">
+  <label data-t="k241" for="t_a">Ambient temperature (°C)</label><input id="t_a" type="number" value="34">
+  <label data-t="k242" for="t_i">Irradiance G (W/m²)</label><input id="t_i" type="number" value="1000">
+ </div>
+ <div><div class="out" id="t_out"></div><svg id="t_svg" viewBox="0 0 420 210" role="img" aria-label="Output of different technologies at the same conditions" style="margin-top:.6rem"></svg></div>
+</div>
+
+<h3 data-t="k243">3. Rooftop system sizing and annual energy</h3>
+<p data-t="k244">Required kWp = monthly units ÷ (30 × specific yield). Kerala rooftops typically yield about 3.8–4.2 kWh per kWp per day (roughly 1,400–1,500 kWh/kWp/year).</p>
+<div class="worked"><span data-t="k245" class="wi"><b>Worked example 3.1</b> – A house uses 360 units per month. Size a system with 580 Wp modules (2.583 m² each) at 4.0 kWh/kWp/day.</span>
+<div class="step">kWp needed  = 360 ÷ (30 × 4.0) = 3.0 kWp
+Modules     = 3,000 ÷ 580 = 5.17 → 6 modules
+Actual kWp  = 6 × 0.580 = 3.48 kWp
+Annual kWh  = 3.48 × 4.0 × 365 = 5,081 kWh
+Module area = 6 × 2.583 = 15.5 m²  (allow ≈ 20% extra for access/spacing → ≈ 18.6 m²)</div></div>
+<div class="worked"><span data-t="k246" class="wi"><b>Worked example 3.2</b> – Module cost for the 3.48 kWp system at DCR price ₹25/Wp versus non-DCR ₹15/Wp.</span>
+<div class="step">DCR      = 3,480 Wp × ₹25 = ₹87,000
+Non-DCR  = 3,480 Wp × ₹15 = ₹52,200
+(Only DCR modules qualify for PM Surya Ghar subsidy.)</div></div>
+<div class="calc">
+ <div>
+  <label data-t="k247" for="s_u">Monthly consumption (units, kWh)</label><input id="s_u" type="number" value="360">
+  <label data-t="k248" for="s_y">Specific yield (kWh/kWp/day)</label><input id="s_y" type="number" value="4.0" step="0.1">
+  <label data-t="k249" for="s_m">Module rating (Wp)</label><input id="s_m" type="number" value="580">
+  <label data-t="k250" for="s_a">Module area (m²)</label><input id="s_a" type="number" value="2.583" step="0.001">
+  <label data-t="k251" for="s_r">Module price (₹/Wp)</label><input id="s_r" type="number" value="25" step="0.5">
+ </div>
+ <div class="out" id="s_out"></div>
+</div>
+
+<h3 data-t="k252">4. Half-cut resistive loss and bifacial gain</h3>
+<div class="worked"><span data-t="k253" class="wi"><b>Worked example 4.1</b> – A cell ribbon path has resistance 0.010 Ω. Full-cell current 13.6 A; half-cut current 6.8 A.</span>
+<div class="step">Full cell : P = I²R = 13.6² × 0.010 = 1.85 W
+Half cell : P = 6.8² × 0.010 = 0.46 W  (one quarter)</div></div>
+<div class="worked"><span data-t="k254" class="wi"><b>Worked example 4.2</b> – A 580 Wp bifacial TOPCon module (bifaciality 80%) on a white-painted roof where rear irradiance is 12% of front irradiance.</span>
+<div class="step">Bifacial gain = 0.80 × 12 % = 9.6 %
+Equivalent power = 580 × 1.096 = 635.7 W</div></div>
+<div class="calc">
+ <div>
+  <label data-t="k255" for="h_i">Full-cell current I (A)</label><input id="h_i" type="number" value="13.6" step="0.1">
+  <label data-t="k256" for="h_r">Conductor resistance R (Ω)</label><input id="h_r" type="number" value="0.010" step="0.001">
+  <label data-t="k257" for="b_p">Module front power (Wp)</label><input id="b_p" type="number" value="580">
+  <label data-t="k258" for="b_f">Bifaciality (%)</label><input id="b_f" type="number" value="80">
+  <label data-t="k259" for="b_s">Ground surface</label>
+  <select id="b_s"><option data-t="k260" value="5">Dark metal sheet roof, low mount (≈5%)</option><option data-t="k261" value="7">Grass / soil (≈7%)</option><option data-t="k262" value="9">Grey concrete (≈9%)</option><option data-t="k263" value="12" selected>White paint / white membrane (≈12%)</option><option data-t="k264" value="15">Sand, elevated mount (≈15%)</option><option data-t="k265" value="20">Snow or tracker over white gravel (≈20%)</option></select>
+ </div>
+ <div class="out" id="hb_out"></div>
+</div>
+</section>
+</main>
+<footer>Values are typical ranges compiled from manufacturer datasheets, NREL/ITRPV trends and Indian market trackers as of mid-2026. Prices change frequently; confirm with current quotations and the MNRE ALMM lists. Prepared by PRASAD UM, VI, Vocational Instructor, NSTI Calicut, for classroom use.</footer>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+const UI={
+en:{
+ tab_overview:"How PV works",tab_mono:"Monocrystalline",tab_poly:"Polycrystalline",tab_thin:"Thin film",tab_cells:"PERC, TOPCon, HJT, BC",tab_formats:"Half-cut, bifacial & formats",tab_compare:"Comparison",tab_standards:"Standards & datasheet",tab_apps:"Real-world applications",tab_calc:"Calculators",
+ xsec:" cell cross-section (not to scale)",status:"Status 2026",
+ m_eff:"Module efficiency range (%) – higher is better",m_tc:"Power loss at 65 °C cell temperature (%) – lower is better",m_deg:"Annual degradation after year 1 (%/yr) – lower is better",m_bif:"Bifaciality factor (%) – higher gives more rear-side gain",
+ fig10:"Fig. 10 – ",chartLegend:"Dark blue: n-type mono; mid blue: p-type silicon; purple: thin film.",monofacial:"monofacial",notyet:"not yet established",
+ th:["Technology","Wafer / material","Module efficiency","Cell efficiency (production)","Temp. coeff. Pmax","Degradation (yr 1 / per yr)","Bifaciality","Indicative price India 2026 (₹/Wp)","Performance warranty","Market share (approx.)","Status"],
+ yr:"yr",
+ apps:["Residential rooftop (subsidy, DCR)","Shaded / complex roof","C&I metal-sheet roof","Utility ground-mount with tracker","Floating solar","Agrivoltaics / carport","Coastal site","Very hot, dusty desert","BIPV façade / skylight","Portable, boat, vehicle","Solar pump (PM-KUSUM)"],
+ appHead:"Application",preferred:"preferred",suitable:"suitable",nottyp:"not typical",
+ e1:"Module efficiency (STC)",e2:"Area A",e3:"Input at STC",e4:"Power density",e5:"Output at G = {G} W/m² (temp. ignored)",e6:"Area per kWp",
+ t1:"Output at operating temperature",t2:"Cell temperature",t3:"Temperature loss",t4:"Output as % of nameplate",t5:"Same module rating, same conditions:",
+ s1:"Recommended system",s2:"kWp required",s3:"Annual generation",s4:"Monthly average",s5:"Module area",s6:"Roof area incl. ≈20% spacing",s7:"Module cost",
+ h1:"Half-cut: loss per conductor",h2:"Reduction",h3:"Bifacial equivalent power",h4:"Rear irradiance ratio",h5:"Bifacial gain",h6:"Extra power per module",
+ ph:{}
+},
+hi:{
+ tab_overview:"PV कैसे काम करता है",tab_mono:"मोनोक्रिस्टलाइन",tab_poly:"पॉलीक्रिस्टलाइन",tab_thin:"थिन फिल्म",tab_cells:"PERC, TOPCon, HJT, BC",tab_formats:"हाफ-कट, बाइफेशियल और फॉर्मेट",tab_compare:"तुलना",tab_standards:"स्टैंडर्ड और डेटाशीट",tab_apps:"असली उपयोग",tab_calc:"कैलकुलेटर",
+ xsec:" सेल का क्रॉस-सेक्शन (स्केल पर नहीं)",status:"स्थिति 2026",
+ m_eff:"मॉड्यूल एफिशिएंसी रेंज (%) – ज़्यादा बेहतर",m_tc:"65 °C सेल तापमान पर पावर लॉस (%) – कम बेहतर",m_deg:"पहले साल के बाद सालाना डिग्रेडेशन (%/साल) – कम बेहतर",m_bif:"बाइफेशियलिटी फैक्टर (%) – ज़्यादा = पीछे से ज़्यादा फायदा",
+ fig10:"चित्र 10 – ",chartLegend:"गहरा नीला: n-type मोनो; बीच का नीला: p-type सिलिकॉन; बैंगनी: थिन फिल्म।",monofacial:"मोनोफेशियल",notyet:"अभी तय नहीं",
+ th:["टेक्नोलॉजी","वेफर / मटेरियल","मॉड्यूल एफिशिएंसी","सेल एफिशिएंसी (उत्पादन)","टेम्प. कोएफ. Pmax","डिग्रेडेशन (पहला साल / हर साल)","बाइफेशियलिटी","भारत में अंदाज़न कीमत 2026 (₹/Wp)","परफॉर्मेंस वारंटी","बाज़ार हिस्सा (लगभग)","स्थिति"],
+ yr:"साल",
+ apps:["घर की छत (सब्सिडी, DCR)","छाया वाली / जटिल छत","C&I मेटल-शीट छत","ट्रैकर वाला बड़ा ग्राउंड-माउंट","फ्लोटिंग सोलर","एग्रीवोल्टाइक्स / कारपोर्ट","समुद्र किनारे की जगह","बहुत गर्म, धूल भरा रेगिस्तान","BIPV फसाड / स्काइलाइट","पोर्टेबल, नाव, गाड़ी","सोलर पंप (PM-KUSUM)"],
+ appHead:"उपयोग",preferred:"सबसे अच्छा",suitable:"उपयुक्त",nottyp:"आमतौर पर नहीं",
+ e1:"मॉड्यूल एफिशिएंसी (STC)",e2:"क्षेत्रफल A",e3:"STC पर इनपुट",e4:"पावर डेंसिटी",e5:"G = {G} W/m² पर आउटपुट (तापमान छोड़कर)",e6:"प्रति kWp क्षेत्रफल",
+ t1:"चालू तापमान पर आउटपुट",t2:"सेल तापमान",t3:"तापमान से नुकसान",t4:"नेमप्लेट का % आउटपुट",t5:"एक ही रेटिंग, एक ही हालात:",
+ s1:"सुझाया गया सिस्टम",s2:"ज़रूरी kWp",s3:"सालाना उत्पादन",s4:"महीने का औसत",s5:"मॉड्यूल क्षेत्रफल",s6:"छत का क्षेत्रफल (≈20% खाली जगह सहित)",s7:"मॉड्यूल लागत",
+ h1:"हाफ-कट: प्रति कंडक्टर नुकसान",h2:"कमी",h3:"बाइफेशियल बराबर पावर",h4:"पीछे की रोशनी का अनुपात",h5:"बाइफेशियल फायदा",h6:"प्रति मॉड्यूल extra पावर",
+ ph:{"Legacy stock only":"सिर्फ पुराना स्टॉक","≈10–15% above TOPCon":"TOPCon से ≈10–15% ज़्यादा","≈10–20% above TOPCon":"TOPCon से ≈10–20% ज़्यादा","Utility contracts only":"सिर्फ बड़े प्रोजेक्ट कॉन्ट्रैक्ट","Niche / BIPV":"खास उपयोग / BIPV","Consumer devices":"कंज़्यूमर डिवाइस","Pilot only":"सिर्फ पायलट","under evaluation":"परीक्षण जारी","under development":"विकास जारी","— (bifacial in pilot)":"— (बाइफेशियल पायलट में)","negligible":"नगण्य","pilot":"पायलट","Phased out":"बंद हो रहा","Declining":"घट रहा","Mainstream":"मुख्य धारा","Premium, hot climates":"प्रीमियम, गर्म जलवायु","Premium rooftop":"प्रीमियम छत","Utility, hot sites":"बड़े प्लांट, गर्म जगह","Flexible, BIPV":"फ्लेक्सिबल, BIPV","Indoor / small devices":"इनडोर / छोटे डिवाइस","Emerging":"नई तकनीक","CIGS / flexible":"CIGS / फ्लेक्सिबल","p-type multi":"p-type मल्टी","p-type mono":"p-type मोनो","n-type mono":"n-type मोनो","thin film":"थिन फिल्म","n-type mono + perovskite":"n-type मोनो + पेरोव्स्काइट","lab >34%":"लैब >34%"}
+},
+ml:{
+ tab_overview:"PV പ്രവർത്തനം",tab_mono:"മോണോക്രിസ്റ്റലൈൻ",tab_poly:"പോളിക്രിസ്റ്റലൈൻ",tab_thin:"തിൻ ഫിലിം",tab_cells:"PERC, TOPCon, HJT, BC",tab_formats:"ഹാഫ്-കട്ട്, ബൈഫേഷ്യൽ, ഫോർമാറ്റുകൾ",tab_compare:"താരതമ്യം",tab_standards:"സ്റ്റാൻഡേർഡും ഡാറ്റാഷീറ്റും",tab_apps:"യഥാർത്ഥ ഉപയോഗങ്ങൾ",tab_calc:"കാൽക്കുലേറ്ററുകൾ",
+ xsec:" സെൽ ക്രോസ്-സെക്ഷൻ (സ്കെയിലിൽ അല്ല)",status:"സ്ഥിതി 2026",
+ m_eff:"മൊഡ്യൂൾ എഫിഷ്യൻസി പരിധി (%) – കൂടുതൽ നല്ലത്",m_tc:"65 °C സെൽ താപനിലയിൽ പവർ നഷ്ടം (%) – കുറവ് നല്ലത്",m_deg:"ഒന്നാം വർഷത്തിനു ശേഷം വാർഷിക ഡീഗ്രഡേഷൻ (%/വർഷം) – കുറവ് നല്ലത്",m_bif:"ബൈഫേഷ്യാലിറ്റി ഫാക്ടർ (%) – കൂടുതൽ = പിന്നിൽ നിന്ന് കൂടുതൽ നേട്ടം",
+ fig10:"ചിത്രം 10 – ",chartLegend:"കടും നീല: n-type മോണോ; ഇടത്തരം നീല: p-type സിലിക്കൺ; വയലറ്റ്: തിൻ ഫിലിം.",monofacial:"മോണോഫേഷ്യൽ",notyet:"ഇനിയും ഉറപ്പായിട്ടില്ല",
+ th:["ടെക്നോളജി","വേഫർ / മെറ്റീരിയൽ","മൊഡ്യൂൾ എഫിഷ്യൻസി","സെൽ എഫിഷ്യൻസി (ഉത്പാദനം)","ടെമ്പ്. കോഎഫ്. Pmax","ഡീഗ്രഡേഷൻ (ഒന്നാം വർഷം / ഓരോ വർഷവും)","ബൈഫേഷ്യാലിറ്റി","ഇന്ത്യയിലെ ഏകദേശ വില 2026 (₹/Wp)","പെർഫോമൻസ് വാറന്റി","മാർക്കറ്റ് പങ്ക് (ഏകദേശം)","സ്ഥിതി"],
+ yr:"വർഷം",
+ apps:["വീട്ടു മേൽക്കൂര (സബ്സിഡി, DCR)","നിഴലുള്ള / സങ്കീർണ്ണ മേൽക്കൂര","C&I മെറ്റൽ-ഷീറ്റ് മേൽക്കൂര","ട്രാക്കറുള്ള വലിയ ഗ്രൗണ്ട്-മൗണ്ട്","ഫ്ലോട്ടിംഗ് സോളാർ","അഗ്രിവോൾട്ടായിക്സ് / കാർപോർട്ട്","കടലോര സൈറ്റ്","വളരെ ചൂടും പൊടിയുമുള്ള മരുഭൂമി","BIPV ചുവർ / സ്കൈലൈറ്റ്","പോർട്ടബിൾ, ബോട്ട്, വാഹനം","സോളാർ പമ്പ് (PM-KUSUM)"],
+ appHead:"ഉപയോഗം",preferred:"ഏറ്റവും നല്ലത്",suitable:"അനുയോജ്യം",nottyp:"സാധാരണ ഇല്ല",
+ e1:"മൊഡ്യൂൾ എഫിഷ്യൻസി (STC)",e2:"വിസ്തീർണ്ണം A",e3:"STC-യിലെ ഇൻപുട്ട്",e4:"പവർ ഡെൻസിറ്റി",e5:"G = {G} W/m²-ൽ ഔട്ട്പുട്ട് (താപനില ഒഴിവാക്കി)",e6:"ഓരോ kWp-നും വിസ്തീർണ്ണം",
+ t1:"പ്രവർത്തന താപനിലയിലെ ഔട്ട്പുട്ട്",t2:"സെൽ താപനില",t3:"താപനില നഷ്ടം",t4:"നെയിംപ്ലേറ്റിന്റെ % ഔട്ട്പുട്ട്",t5:"ഒരേ റേറ്റിംഗ്, ഒരേ സാഹചര്യം:",
+ s1:"നിർദ്ദേശിക്കുന്ന സിസ്റ്റം",s2:"വേണ്ട kWp",s3:"വാർഷിക ഉത്പാദനം",s4:"മാസ ശരാശരി",s5:"മൊഡ്യൂൾ വിസ്തീർണ്ണം",s6:"മേൽക്കൂര വിസ്തീർണ്ണം (≈20% ഇടം ഉൾപ്പെടെ)",s7:"മൊഡ്യൂൾ ചെലവ്",
+ h1:"ഹാഫ്-കട്ട്: ഓരോ കണ്ടക്ടറിലെയും നഷ്ടം",h2:"കുറവ്",h3:"ബൈഫേഷ്യൽ തുല്യ പവർ",h4:"പിൻ വെളിച്ച അനുപാതം",h5:"ബൈഫേഷ്യൽ നേട്ടം",h6:"ഓരോ മൊഡ്യൂളിനും അധിക പവർ",
+ ph:{"Legacy stock only":"പഴയ സ്റ്റോക്ക് മാത്രം","≈10–15% above TOPCon":"TOPCon-നേക്കാൾ ≈10–15% കൂടുതൽ","≈10–20% above TOPCon":"TOPCon-നേക്കാൾ ≈10–20% കൂടുതൽ","Utility contracts only":"വലിയ പ്രോജക്ട് കരാറുകൾ മാത്രം","Niche / BIPV":"പ്രത്യേക ഉപയോഗം / BIPV","Consumer devices":"ഉപഭോക്തൃ ഉപകരണങ്ങൾ","Pilot only":"പൈലറ്റ് മാത്രം","under evaluation":"പരിശോധനയിൽ","under development":"വികസനത്തിൽ","— (bifacial in pilot)":"— (ബൈഫേഷ്യൽ പൈലറ്റിൽ)","negligible":"നിസ്സാരം","pilot":"പൈലറ്റ്","Phased out":"നിർത്തലാക്കുന്നു","Declining":"കുറയുന്നു","Mainstream":"മുഖ്യധാര","Premium, hot climates":"പ്രീമിയം, ചൂടുള്ള കാലാവസ്ഥ","Premium rooftop":"പ്രീമിയം മേൽക്കൂര","Utility, hot sites":"വലിയ പ്ലാന്റ്, ചൂടുള്ള സൈറ്റ്","Flexible, BIPV":"ഫ്ലെക്സിബിൾ, BIPV","Indoor / small devices":"ഇൻഡോർ / ചെറിയ ഉപകരണങ്ങൾ","Emerging":"പുതിയത്","CIGS / flexible":"CIGS / ഫ്ലെക്സിബിൾ","p-type multi":"p-type മൾട്ടി","p-type mono":"p-type മോണോ","n-type mono":"n-type മോണോ","thin film":"തിൻ ഫിലിം","n-type mono + perovskite":"n-type മോണോ + പെറോവ്സ്കൈറ്റ്","lab >34%":"ലാബ് >34%"}
+}};
+const ARCHT={
+hi:{
+ perc:{cap:"चित्र 6 – PERC (p-type): पीछे पैसिवेशन और लेज़र से खुले लोकल एल्युमिनियम कॉन्टैक्ट।",text:`<h3>PERC – पैसिवेटेड एमिटर एंड रियर सेल</h3><p>PERC में पुराने p-type सेल के पीछे एक पैसिवेशन परत (एल्युमिनियम ऑक्साइड के ऊपर सिलिकॉन नाइट्राइड) जोड़ी गई। लेज़र से छोटे छेद किए जाते हैं, जिनसे एल्युमिनियम सिर्फ कुछ बिंदुओं पर सिलिकॉन को छूता है। बाकी पिछली सतह पैसिवेट रहती है और शीशे की तरह लंबी वेवलेंथ वाली रोशनी को वापस वेफर में भेजती है।</p><p>2017–2023 में PERC का दबदबा रहा: सेल एफिशिएंसी लगभग 23–23.5% और मॉड्यूल 20.5–21.5%। इसकी सीमाएँ हैं मेटल कॉन्टैक्ट पर नुकसान और LeTID जैसा डिग्रेडेशन। बाइफेशियल PERC भी आता है (पीछे एल्युमिनियम ग्रिड), बाइफेशियलिटी लगभग 70%।</p><p><span class="tag">स्थिति 2026</span>धीरे-धीरे बंद हो रहा है; भारत में पंप और छोटी छतों के लिए सस्ते DCR मॉड्यूल के रूप में अब भी बिकता है।</p>`},
+ topcon:{cap:"चित्र 6 – TOPCon (n-type): पीछे बहुत पतला टनल ऑक्साइड और n⁺ पॉली-Si मिलकर पैसिवेटिंग कॉन्टैक्ट बनाते हैं।",text:`<h3>TOPCon – टनल ऑक्साइड पैसिवेटेड कॉन्टैक्ट</h3><p>TOPCon में n-type वेफर होता है। पीछे लगभग 1.5 nm की बहुत पतली सिलिकॉन ऑक्साइड परत बनाई जाती है और उसके ऊपर फॉस्फोरस से भारी डोप किया पॉलीसिलिकॉन। इलेक्ट्रॉन ऑक्साइड से टनल करके निकल जाते हैं, पर होल रुक जाते हैं और सतह पर नुकसान बहुत घट जाता है। पीछे भी ग्रिड होती है, इसलिए सेल अपने आप बाइफेशियल है (लगभग 80–85%)।</p><p>उत्पादन में सेल एफिशिएंसी लगभग 25–26.5% और मॉड्यूल 22–23.8% है। निर्माताओं के लिए बड़ा फायदा यह है कि पुरानी PERC लाइन में कुछ नई मशीनें जोड़कर TOPCon बनाया जा सकता है। इसीलिए TOPCon इतनी जल्दी मुख्य टेक्नोलॉजी बना और 2025–26 तक दुनिया के लगभग 70% या ज़्यादा उत्पादन में है।</p><p><span class="tag">स्थिति 2026</span>मुख्य धारा। भारत की ज़्यादातर नई DCR सेल लाइनें (Waaree, Premier, Tata Power, Adani, ReNew आदि) TOPCon हैं।</p>`},
+ hjt:{cap:"चित्र 6 – हेटेरोजंक्शन (HJT): क्रिस्टलाइन वेफर के दोनों तरफ पतली अमॉर्फस सिलिकॉन परतें, ITO और कम तापमान वाली चाँदी।",text:`<h3>HJT – हेटेरोजंक्शन टेक्नोलॉजी</h3><p>HJT में n-type वेफर के दोनों तरफ कुछ नैनोमीटर की इंट्रिंसिक और डोप्ड अमॉर्फस सिलिकॉन परतें लगाई जाती हैं, फिर पारदर्शी कंडक्टिव ऑक्साइड (ITO) और कम तापमान वाली मेटल ग्रिड। अमॉर्फस परतें पूरी सतह को बहुत अच्छे से पैसिवेट करती हैं, इसलिए इसका ओपन-सर्किट वोल्टेज सबसे ज़्यादा है।</p><p>प्रोसेस में सिर्फ 4–6 स्टेप हैं, सब 250 °C से नीचे, इसलिए बहुत पतले वेफर इस्तेमाल हो सकते हैं। HJT का टेम्परेचर कोएफिशिएंट सबसे अच्छा (लगभग −0.24 से −0.26%/°C), बाइफेशियलिटी सबसे ज़्यादा (85–95%) और LID नहीं। कमियाँ: अलग और महँगी मशीनें, ज़्यादा चाँदी या इंडियम (अब सिल्वर-कोटेड कॉपर से घटाया जा रहा है), और ज़्यादा कीमत।</p><p><span class="tag">स्थिति 2026</span>दुनिया के उत्पादन का लगभग 5–8%; भारत में Reliance के जामनगर प्लांट में बनता है। गर्म जलवायु और बाइफेशियल स्ट्रक्चर के लिए सबसे अच्छा।</p>`},
+ bc:{cap:"चित्र 6 – बैक-कॉन्टैक्ट (IBC/BC): आगे कोई मेटल नहीं; पीछे बारी-बारी p⁺ और n⁺ हिस्से और सारे कॉन्टैक्ट।",text:`<h3>बैक कॉन्टैक्ट (IBC, HPBC, ABC, TBC)</h3><p>बैक-कॉन्टैक्ट सेल में पॉज़िटिव और नेगेटिव दोनों कॉन्टैक्ट पीछे कंघी जैसे पैटर्न में होते हैं। आगे कोई फिंगर या बसबार नहीं, इसलिए धातु की छाया से रोशनी का नुकसान नहीं होता, और आगे की सतह सिर्फ रोशनी पकड़ने और पैसिवेशन के लिए बनाई जाती है। आधुनिक BC सेल में अक्सर TOPCon या HJT जैसे पैसिवेटिंग कॉन्टैक्ट भी होते हैं (TBC और HBC)।</p><p>सिंगल-जंक्शन सिलिकॉन सेल का रिकॉर्ड BC के पास है (लैब में लगभग 27.8%), और मॉड्यूल एफिशिएंसी 23–25% है। आगे से पूरा काला दिखता है, जो प्रीमियम घरों में पसंद किया जाता है। कमियाँ: जटिल और महँगा प्रोसेस, और कम बाइफेशियलिटी (अक्सर 60–70% या मोनोफेशियल), जिससे ग्राउंड-माउंट ट्रैकर पर फायदा कम।</p><p><span class="tag">स्थिति 2026</span>तेज़ी से बढ़ रहा है (LONGi Hi-MO 9, Aiko ABC); दुनिया के उत्पादन का लगभग 10%, भारत में ज़्यादातर आयात।</p>`}
+},
+ml:{
+ perc:{cap:"ചിത്രം 6 – PERC (p-type): പിന്നിൽ പാസിവേഷൻ, ലേസർ തുറന്ന ലോക്കൽ അലുമിനിയം കോൺടാക്ടുകൾ.",text:`<h3>PERC – പാസിവേറ്റഡ് എമിറ്റർ ആൻഡ് റിയർ സെൽ</h3><p>സാധാരണ p-type സെല്ലിന്റെ പിന്നിൽ ഒരു പാസിവേഷൻ പാളി (അലുമിനിയം ഓക്സൈഡിനു മുകളിൽ സിലിക്കൺ നൈട്രൈഡ്) ചേർത്തതാണ് PERC. ലേസർ ഉപയോഗിച്ച് ചെറിയ ദ്വാരങ്ങൾ ഉണ്ടാക്കുന്നു; അലുമിനിയം ചില പോയിന്റുകളിൽ മാത്രം സിലിക്കണിൽ തൊടുന്നു. ബാക്കി പിൻപ്രതലം പാസിവേറ്റ് ആയിരിക്കും; കണ്ണാടി പോലെ നീണ്ട വേവ്‌ലെങ്ത് വെളിച്ചം വേഫറിലേക്ക് തിരിച്ചുവിടുകയും ചെയ്യും.</p><p>2017–2023 കാലത്ത് PERC ആയിരുന്നു മുന്നിൽ: സെൽ എഫിഷ്യൻസി ഏകദേശം 23–23.5%, മൊഡ്യൂൾ 20.5–21.5%. പരിമിതികൾ: മെറ്റൽ കോൺടാക്ടിലെ നഷ്ടം, LeTID പോലുള്ള ഡീഗ്രഡേഷൻ. ബൈഫേഷ്യൽ PERC-ഉം ഉണ്ട് (പിന്നിൽ അലുമിനിയം ഗ്രിഡ്), ബൈഫേഷ്യാലിറ്റി ഏകദേശം 70%.</p><p><span class="tag">സ്ഥിതി 2026</span>ക്രമേണ നിർത്തലാക്കുന്നു; ഇന്ത്യയിൽ പമ്പുകൾക്കും ചെറിയ മേൽക്കൂരകൾക്കും വിലകുറഞ്ഞ DCR മൊഡ്യൂളായി ഇപ്പോഴും വിൽക്കുന്നു.</p>`},
+ topcon:{cap:"ചിത്രം 6 – TOPCon (n-type): പിന്നിൽ വളരെ നേർത്ത ടണൽ ഓക്സൈഡും n⁺ പോളി-Si-യും ചേർന്ന് പാസിവേറ്റിംഗ് കോൺടാക്ട് ഉണ്ടാക്കുന്നു.",text:`<h3>TOPCon – ടണൽ ഓക്സൈഡ് പാസിവേറ്റഡ് കോൺടാക്ട്</h3><p>TOPCon-ൽ n-type വേഫർ ആണ്. പിന്നിൽ ഏകദേശം 1.5 nm കനമുള്ള വളരെ നേർത്ത സിലിക്കൺ ഓക്സൈഡ് പാളി ഉണ്ടാക്കി അതിനു മുകളിൽ ഫോസ്ഫറസ് കൂടുതൽ ഡോപ്പ് ചെയ്ത പോളിസിലിക്കൺ ഇടുന്നു. ഇലക്ട്രോണുകൾ ഓക്സൈഡിലൂടെ ടണൽ ചെയ്ത് കടന്നുപോകും, പക്ഷേ ഹോളുകൾ തടയപ്പെടും; പ്രതലത്തിലെ നഷ്ടം വളരെ കുറയും. പിന്നിലും ഗ്രിഡ് ഉള്ളതിനാൽ സെൽ സ്വാഭാവികമായും ബൈഫേഷ്യൽ ആണ് (ഏകദേശം 80–85%).</p><p>ഉത്പാദനത്തിൽ സെൽ എഫിഷ്യൻസി ഏകദേശം 25–26.5%, മൊഡ്യൂൾ 22–23.8%. പഴയ PERC ലൈനിൽ കുറച്ച് മെഷീനുകൾ ചേർത്ത് TOPCon-ലേക്ക് മാറ്റാം എന്നതാണ് നിർമ്മാതാക്കൾക്കുള്ള വലിയ നേട്ടം. അതുകൊണ്ടാണ് TOPCon ഇത്ര വേഗം മുഖ്യധാരയായതും 2025–26 ഓടെ ലോക ഉത്പാദനത്തിന്റെ ഏകദേശം 70%-ലധികം ആയതും.</p><p><span class="tag">സ്ഥിതി 2026</span>മുഖ്യധാര. ഇന്ത്യയിലെ മിക്ക പുതിയ DCR സെൽ ലൈനുകളും (Waaree, Premier, Tata Power, Adani, ReNew തുടങ്ങിയവ) TOPCon ആണ്.</p>`},
+ hjt:{cap:"ചിത്രം 6 – ഹെറ്ററോജംഗ്ഷൻ (HJT): ക്രിസ്റ്റലൈൻ വേഫറിന്റെ ഇരുവശത്തും നേർത്ത അമോർഫസ് സിലിക്കൺ പാളികൾ, ITO, കുറഞ്ഞ താപനിലയിലെ വെള്ളി.",text:`<h3>HJT – ഹെറ്ററോജംഗ്ഷൻ ടെക്നോളജി</h3><p>HJT-യിൽ n-type വേഫറിന്റെ ഇരുവശത്തും ഏതാനും നാനോമീറ്റർ കനമുള്ള ഇൻട്രിൻസിക്, ഡോപ്പ്ഡ് അമോർഫസ് സിലിക്കൺ പാളികൾ, പിന്നെ സുതാര്യ കണ്ടക്റ്റീവ് ഓക്സൈഡ് (ITO), കുറഞ്ഞ താപനിലയിലെ മെറ്റൽ ഗ്രിഡ്. അമോർഫസ് പാളികൾ മുഴുവൻ പ്രതലവും വളരെ നന്നായി പാസിവേറ്റ് ചെയ്യുന്നതിനാൽ ഏറ്റവും കൂടിയ ഓപ്പൺ-സർക്യൂട്ട് വോൾട്ടേജ് ഇതിനാണ്.</p><p>പ്രോസസിൽ 4–6 ഘട്ടങ്ങൾ മാത്രം, എല്ലാം 250 °C-ൽ താഴെ; അതിനാൽ വളരെ നേർത്ത വേഫർ ഉപയോഗിക്കാം. ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് ഏറ്റവും നല്ലത് (ഏകദേശം −0.24 മുതൽ −0.26%/°C), ബൈഫേഷ്യാലിറ്റി ഏറ്റവും കൂടുതൽ (85–95%), LID ഇല്ല. ദോഷങ്ങൾ: വ്യത്യസ്തവും ചെലവേറിയതുമായ മെഷീനുകൾ, കൂടുതൽ വെള്ളി/ഇൻഡിയം ഉപയോഗം (ഇപ്പോൾ സിൽവർ-കോട്ടഡ് കോപ്പർ വഴി കുറയ്ക്കുന്നു), കൂടിയ വില.</p><p><span class="tag">സ്ഥിതി 2026</span>ലോക ഉത്പാദനത്തിന്റെ ഏകദേശം 5–8%; ഇന്ത്യയിൽ Reliance-ന്റെ ജാംനഗർ പ്ലാന്റിൽ നിർമ്മിക്കുന്നു. ചൂടുള്ള കാലാവസ്ഥയ്ക്കും ബൈഫേഷ്യൽ സ്ട്രക്ചറിനും ഏറ്റവും നല്ലത്.</p>`},
+ bc:{cap:"ചിത്രം 6 – ബാക്ക്-കോൺടാക്ട് (IBC/BC): മുന്നിൽ മെറ്റൽ ഇല്ല; പിന്നിൽ ഇടവിട്ട p⁺, n⁺ ഭാഗങ്ങളും എല്ലാ കോൺടാക്ടുകളും.",text:`<h3>ബാക്ക് കോൺടാക്ട് (IBC, HPBC, ABC, TBC)</h3><p>ബാക്ക്-കോൺടാക്ട് സെല്ലിൽ പോസിറ്റീവ്, നെഗറ്റീവ് കോൺടാക്ടുകൾ രണ്ടും പിന്നിൽ ചീപ്പ് പോലുള്ള പാറ്റേണിലാണ്. മുന്നിൽ ഫിംഗറോ ബസ്ബാറോ ഇല്ല; മെറ്റലിന്റെ നിഴൽ മൂലമുള്ള വെളിച്ച നഷ്ടമില്ല. മുൻപ്രതലം വെളിച്ചം പിടിക്കാനും പാസിവേഷനും വേണ്ടി മാത്രം രൂപകൽപ്പന ചെയ്യാം. ആധുനിക BC സെല്ലുകളിൽ പലപ്പോഴും TOPCon അല്ലെങ്കിൽ HJT രീതിയിലുള്ള പാസിവേറ്റിംഗ് കോൺടാക്ടുകളും ഉണ്ട് (TBC, HBC).</p><p>സിംഗിൾ-ജംഗ്ഷൻ സിലിക്കൺ സെല്ലിന്റെ റെക്കോർഡ് BC-ക്കാണ് (ലാബിൽ ഏകദേശം 27.8%); മൊഡ്യൂൾ എഫിഷ്യൻസി 23–25%. മുന്നിൽ മുഴുവൻ കറുപ്പ്, പ്രീമിയം വീടുകൾക്ക് ഇഷ്ടം. ദോഷങ്ങൾ: സങ്കീർണ്ണവും ചെലവേറിയതുമായ പ്രോസസ്, കുറഞ്ഞ ബൈഫേഷ്യാലിറ്റി (പലപ്പോഴും 60–70% അല്ലെങ്കിൽ മോണോഫേഷ്യൽ); ഗ്രൗണ്ട്-മൗണ്ട് ട്രാക്കറിൽ നേട്ടം കുറവ്.</p><p><span class="tag">സ്ഥിതി 2026</span>വേഗത്തിൽ വളരുന്നു (LONGi Hi-MO 9, Aiko ABC); ലോക ഉത്പാദനത്തിന്റെ ഏകദേശം 10%, ഇന്ത്യയിൽ കൂടുതലും ഇറക്കുമതി.</p>`}
+}};
+
+const TR={"hi": {"k000": "सोलर PV मॉड्यूल टेक्नोलॉजी", "k001": "सेल के प्रकार, मॉड्यूल फॉर्मेट, एफिशिएंसी और कीमत की तुलना, भारतीय स्टैंडर्ड और फील्ड उपयोग (डेटा 2026 के मध्य तक)", "k002": "तैयारकर्ता: PRASAD UM, VI, वोकेशनल इंस्ट्रक्टर, NSTI कालीकट", "k003": "सोलर सेल रोशनी को बिजली में कैसे बदलता है", "k004": "छत पर लगा पैनल हो, नहर के ऊपर हो या सैटेलाइट पर, सब एक ही सिद्धांत पर काम करते हैं: p–n जंक्शन पर फोटोवोल्टिक इफेक्ट। मोनो, पॉली, PERC, TOPCon या HJT में फर्क बस इतना है कि सिलिकॉन को कैसे बनाया, साफ किया और कॉन्टैक्ट किया गया है, ताकि कम से कम इलेक्ट्रॉन रास्ते में खोएँ।", "k005": "क्रिस्टलाइन सिलिकॉन सोलर सेल एक पतला वेफर होता है, लगभग 130–150 µm मोटा (कागज़ की दो शीट से भी पतला)। इसमें दो हिस्से होते हैं। एक हिस्से में extra फ्री इलेक्ट्रॉन होते हैं (n-type, आमतौर पर फॉस्फोरस से डोप)। दूसरे हिस्से में \"होल\" यानी इलेक्ट्रॉन की कमी होती है (p-type, आमतौर पर बोरॉन या गैलियम से डोप)। जहाँ ये दोनों मिलते हैं, वहाँ depletion region में एक अंदरूनी इलेक्ट्रिक फील्ड बनता है। यही फील्ड सेल का इंजन है।", "k006": "जब सूरज की रोशनी का फोटॉन, जिसकी एनर्जी सिलिकॉन के बैंड गैप (1.12 eV, यानी लगभग 1,100 nm से छोटी वेवलेंथ) से ज़्यादा हो, सेल में सोख लिया जाता है, तो वह एक इलेक्ट्रॉन को उसके बॉन्ड से अलग कर देता है और पीछे एक होल बच जाता है। अगर यह इलेक्ट्रॉन–होल जोड़ी जंक्शन के पास बनी है, तो फील्ड उन्हें अलग कर देता है: इलेक्ट्रॉन n-side की ओर और होल p-side की ओर जाते हैं। आगे और पीछे के मेटल कॉन्टैक्ट इन्हें इकट्ठा करते हैं, और लोड जोड़ने पर DC करंट बहता है।", "k007": "एक सेल से सिर्फ लगभग 0.68–0.75 V ओपन-सर्किट वोल्टेज मिलता है। काम लायक वोल्टेज के लिए मॉड्यूल के अंदर सेल सीरीज़ में जोड़े जाते हैं (60, 66, 72, 120, 132 या 144 सेल/हाफ-सेल)। मॉड्यूल सीरीज़ में जुड़कर स्ट्रिंग बनाते हैं, और स्ट्रिंग पैरेलल में जुड़कर ऐरे बनाती हैं।", "k008": "चित्र 1 – फोटॉन एक इलेक्ट्रॉन–होल जोड़ी बनाता है; जंक्शन फील्ड इलेक्ट्रॉन को n-side और होल को p-side की ओर धकेलता है, जिससे लोड में करंट बहता है।", "k009": "सेल से ऐरे तक", "k010": "चित्र 2 – PV प्लांट के हिस्से। सीरीज़ कनेक्शन से वोल्टेज बढ़ता है; पैरेलल कनेक्शन से करंट बढ़ता है।", "k011": "PV टेक्नोलॉजी की तीन पीढ़ियाँ", "k012": "सोलर टेक्नोलॉजी को आमतौर पर तीन पीढ़ियों में बाँटा जाता है। <strong>पहली पीढ़ी</strong> वेफर वाला क्रिस्टलाइन सिलिकॉन है: मोनोक्रिस्टलाइन और पॉलीक्रिस्टलाइन। आज दुनिया में बिकने वाले लगभग 97% मॉड्यूल यही हैं। मोनो सिलिकॉन में सेल की <em>बनावट</em> तेज़ी से बदली है: Al-BSF (लगभग 2017 तक), फिर PERC (2017–2023), और अब TOPCon, HJT और बैक-कॉन्टैक्ट (BC)। <strong>दूसरी पीढ़ी</strong> थिन फिल्म है: कैडमियम टेल्यूराइड (CdTe), CIGS और अमॉर्फस सिलिकॉन (a-Si), जो काँच या फ्लेक्सिबल शीट पर माइक्रोमीटर जितनी पतली परत के रूप में लगाए जाते हैं। <strong>तीसरी पीढ़ी</strong> में नई टेक्नोलॉजी आती हैं, जैसे पेरोव्स्काइट, पेरोव्स्काइट–सिलिकॉन टैंडम, ऑर्गेनिक PV और अंतरिक्ष में लगने वाले मल्टी-जंक्शन III-V सेल।", "k013": "दुनिया भर की बिक्री क्रिस्टलाइन सिलिकॉन है", "k014": "2025–26 का वैश्विक उत्पादन n-type TOPCon है", "k015": "2026 में आम मॉड्यूल एफिशिएंसी", "k016": "STC इरेडियंस, सेल 25 °C, AM 1.5G", "k017": "<strong>आम गलतफहमी।</strong> \"मोनोक्रिस्टलाइन\" और \"TOPCon\" एक-दूसरे के विकल्प नहीं हैं। मोनो बताता है कि सिलिकॉन क्रिस्टल कैसे बना; TOPCon बताता है कि उस वेफर पर सेल कैसे बना। आज के लगभग सभी TOPCon, HJT और BC मॉड्यूल मोनो n-type वेफर पर ही बनते हैं। डीलर \"मोनो पैनल\" कहे तो पूछें कि सेल टेक्नोलॉजी कौन सी है: PERC या TOPCon, इससे बिजली उत्पादन में साफ फर्क पड़ता है।", "k018": "मोनोक्रिस्टलाइन सिलिकॉन (मोनो c-Si)", "k019": "मोनोक्रिस्टलाइन वेफर सिलिकॉन के एक ही लगातार क्रिस्टल से काटा जाता है, जिसमें ग्रेन बाउंड्री नहीं होती। इसमें इलेक्ट्रॉन कम रुकावट और कम नुकसान के साथ चलते हैं, इसलिए मोनो सेल सबसे ज़्यादा एफिशिएंट सिलिकॉन सेल हैं और आज बाज़ार में इन्हीं का दबदबा है।", "k020": "कैसे बनता है: चोखराल्स्की (CZ) प्रोसेस", "k021": "बहुत शुद्ध पॉलीसिलिकॉन (9N–11N, यानी 99.9999999% या उससे ज़्यादा) को क्वार्ट्ज़ क्रूसिबल में लगभग 1,420 °C पर पिघलाया जाता है। एक छोटा सीड क्रिस्टल पिघले सिलिकॉन में डुबोकर घुमाते हुए धीरे-धीरे ऊपर खींचा जाता है। सिलिकॉन के एटम उसी दिशा में जमते जाते हैं और लगभग 300 mm व्यास और कई मीटर लंबा बेलनाकार इंगट बन जाता है। पिघले सिलिकॉन में डोपेंट मिलाया जाता है: p-type के लिए बोरॉन या गैलियम, n-type के लिए फॉस्फोरस। लगभग 2020 से p-type में बोरॉन की जगह गैलियम आया, क्योंकि बोरॉन–ऑक्सीजन से लाइट-इंड्यूस्ड डिग्रेडेशन (LID) होता है।", "k022": "गोल इंगट को काटकर लगभग चौकोर ब्लॉक बनाया जाता है और डायमंड-वायर आरी से वेफर काटे जाते हैं। आज के फॉर्मेट हैं M10 (182 × 182 mm), G12 (210 × 210 mm) और आयताकार 182 × 210 mm (210R या G12R)। 2026 के नए मॉड्यूल में ज़्यादातर यही आयताकार फॉर्मेट है, क्योंकि यह कंटेनर और छत के साइज़ में अच्छे से फिट होता है।", "k023": "कैसे पहचानें", "k024": "मोनो सेल एक जैसे गहरे नीले-काले दिखते हैं। पुराने सेल के कोने कटे होते थे (\"सूडो-स्क्वेयर\"), जिससे सेल के बीच छोटे सफेद हीरे जैसे निशान दिखते थे; आज के वेफर लगभग पूरे चौकोर हैं, इसलिए मॉड्यूल लगभग पूरा काला दिखता है। सतह पर अल्कलाइन एचिंग से बहुत छोटे पिरामिड बनाए जाते हैं, जो रोशनी को फँसाते हैं और रिफ्लेक्शन कम करते हैं।", "k025": "चित्र 3 – CZ विधि से सिंगल क्रिस्टल बनाना, इंगट को चौकोर काटना और तैयार मोनो सेल।", "k026": "p-type मोनो बनाम n-type मोनो", "k027": "लगभग 2023 तक ज़्यादातर मोनो सेल p-type (बोरॉन या गैलियम डोप) थे और PERC डिज़ाइन पर बनते थे। उसके बाद इंडस्ट्री लगभग पूरी तरह <strong>n-type</strong> मोनो वेफर (फॉस्फोरस डोप) पर आ गई, जिन पर TOPCon, HJT और BC सेल बनते हैं। n-type सिलिकॉन लोहे जैसी अशुद्धियों को बेहतर सहता है, इसमें बोरॉन–ऑक्सीजन LID नहीं होता और कैरियर लाइफटाइम लंबा होता है, जिससे वोल्टेज और एफिशिएंसी दोनों ज़्यादा मिलते हैं। प्रोसेस थोड़ा जटिल और महँगा है, लेकिन बड़े पैमाने पर उत्पादन से यह लागत अब काफी हद तक निकल गई है।", "k028": "मॉड्यूल एफिशिएंसी रेंज (PERC से BC तक)", "k029": "%/°C पावर टेम्परेचर कोएफिशिएंट", "k030": "लीनियर पावर वारंटी", "k031": "सिंगल-जंक्शन Si सेल की लगभग सबसे अच्छी लैब एफिशिएंसी (2025)", "k032": "फायदे", "k033": "सिलिकॉन टेक्नोलॉजी में सबसे ज़्यादा एफिशिएंसी, इसलिए प्रति kW कम पैनल और कम छत की जगह।", "k034": "कम रोशनी और ज़्यादा तापमान में पॉली से बेहतर परफॉर्मेंस।", "k035": "सभी आधुनिक हाई-एफिशिएंसी सेल (TOPCon, HJT, BC) इसी वेफर पर बनते हैं।", "k036": "एक जैसा काला रंग घरों और बिल्डिंग के लिए पसंद किया जाता है।", "k037": "कमियाँ", "k038": "क्रिस्टल बनाने में ज़्यादा बिजली लगती है; थिन फिल्म से ज़्यादा embodied energy।", "k039": "सख्त काँच वाला मॉड्यूल; बड़े फॉर्मेट का वज़न लगभग 25–33 kg।", "k040": "सेल का तापमान हर 1 °C बढ़ने पर परफॉर्मेंस 0.25–0.35% घटती है।", "k041": "<strong>फील्ड प्रैक्टिस।</strong> PM सूर्य घर के तहत केरल की आम छत पर लगभग हमेशा 540–620 Wp का मोनो n-type TOPCon (कभी-कभी मोनो PERC) मॉड्यूल मिलेगा। सब्सिडी के लिए मॉड्यूल MNRE की ALMM List-I में होना चाहिए और 1 जून 2026 से उसमें ALMM List-II वाले DCR सेल होने चाहिए। सिर्फ \"मोनो\" शब्द नहीं, डेटाशीट और DCR सर्टिफिकेट जाँचें।", "k042": "पॉलीक्रिस्टलाइन सिलिकॉन (मल्टी c-Si)", "k043": "पॉलीक्रिस्टलाइन (मल्टीक्रिस्टलाइन) सिलिकॉन को एक बड़े ब्लॉक में ढाला जाता है, जिसमें कई छोटे-छोटे क्रिस्टल होते हैं। यह बनाने में सस्ता था और लगभग 2018 तक बाज़ार में यही ज़्यादा बिकता था, लेकिन अब इसकी जगह लगभग पूरी तरह मोनो ने ले ली है।", "k044": "कैसे बनता है: डायरेक्शनल सॉलिडिफिकेशन (कास्टिंग)", "k045": "एक क्रिस्टल खींचने की जगह, पिघले सिलिकॉन को बड़े चौकोर क्वार्ट्ज़ क्रूसिबल में डालकर नीचे से ऊपर की ओर धीरे-धीरे ठंडा किया जाता है। सिलिकॉन कई अलग-अलग दिशा वाले ग्रेन में जमता है, हर ग्रेन कुछ mm से cm तक बड़ा। लगभग 800–1,000 kg का ब्लॉक चौकोर टुकड़ों में काटकर चौकोर वेफर बनाए जाते हैं। क्रूसिबल चौकोर होने से कोने बर्बाद नहीं होते, और CZ से कम बिजली और कम समय लगता है।", "k046": "चमकीला नीला रंग क्यों?", "k047": "हर ग्रेन की क्रिस्टल दिशा अलग है, इसलिए हर ग्रेन रोशनी को अलग तरह से लौटाता है। इसी से \"मेटल फ्लेक\" जैसा चित्तीदार नीला रंग दिखता है। पॉली पर एसिड टेक्सचरिंग होती है, जो मोनो जैसे एक जैसे पिरामिड नहीं बना पाती, इसलिए पॉली सेल ज़्यादा रोशनी लौटाते हैं और हल्के नीले दिखते हैं।", "k048": "एफिशिएंसी कम क्यों है", "k049": "ग्रेन बाउंड्री क्रिस्टल की खराबी (defect) हैं। इलेक्ट्रॉन और होल कॉन्टैक्ट तक पहुँचने से पहले इन बाउंड्री पर और वहाँ जमा अशुद्धियों पर आपस में मिलकर खत्म हो जाते हैं। पॉली वेफर में क्रूसिबल से आई धातु की अशुद्धियाँ भी ज़्यादा होती हैं। इसलिए पॉली सेल लगभग 18–20% (PERC पॉली लगभग 21%) तक ही पहुँचे, जबकि मोनो PERC आसानी से 23% तक गया। 2016–2018 के बाद तेज़ CZ मशीनों और डायमंड-वायर कटिंग से मोनो वेफर सस्ते हुए, और मोनो का ज़्यादा उत्पादन पॉली की कम कीमत पर भारी पड़ गया।", "k050": "चित्र 4 – कॉलम जैसे ग्रेन वाला ढला हुआ मल्टीक्रिस्टलाइन ब्लॉक, और चित्तीदार पैटर्न वाला चौकोर पॉली सेल।", "k051": "आम मॉड्यूल एफिशिएंसी (पुराने 60/72-सेल, 270–345 W)", "k052": "%/°C पावर टेम्परेचर कोएफिशिएंट", "k053": "2025–26 उत्पादन में लगभग हिस्सा", "k054": "पहले साल के बाद सालाना डिग्रेडेशन", "k055": "कहाँ अब भी काम का है", "k056": "पुरानी पॉली स्ट्रिंग में खराब मॉड्यूल बदलने के लिए (वोल्टेज और करंट मैच करते हुए)।", "k057": "बहुत छोटे ऑफ-ग्रिड काम, जहाँ कोई भी सस्ता पैनल चल जाए।", "k058": "ट्रेनिंग लैब: दिखने वाले ग्रेन से क्रिस्टल डिफेक्ट समझाना आसान।", "k059": "अब क्यों सलाह नहीं दी जाती", "k060": "उतने ही kW के लिए TOPCon से लगभग 20–30% ज़्यादा छत चाहिए।", "k061": "खराब टेम्परेचर कोएफिशिएंट से भारतीय गर्मी में बहुत नुकसान।", "k062": "कम निर्माता, इसलिए नई खरीद पर वारंटी सपोर्ट भरोसेमंद नहीं।", "k063": "नए ALMM/DCR सब्सिडी प्रोजेक्ट के लिए उपयुक्त नहीं।", "k064": "<strong>बदलने की टिप।</strong> 2016 के आसपास की स्ट्रिंग में एक पॉली मॉड्यूल खराब हो जाए, तो उसी स्ट्रिंग में नया 580 W TOPCon मॉड्यूल न लगाएँ। उसका Imp (लगभग 13–14 A) पुराने मॉड्यूल (लगभग 8–9 A) से बहुत ज़्यादा है और वोल्टेज भी अलग है। इस mismatch से हॉट-स्पॉट या बेकार क्षमता हो सकती है। मिलते-जुलते Imp वाला मॉड्यूल लगाएँ या स्ट्रिंग को दोबारा डिज़ाइन करें।", "k065": "थिन-फिल्म मॉड्यूल: CdTe, CIGS और अमॉर्फस सिलिकॉन", "k066": "थिन-फिल्म सेल में रोशनी सोखने वाली परत सिर्फ 1–4 µm मोटी होती है, जो सिलिकॉन वेफर से लगभग सौ गुना पतली है। यह सीधे काँच, धातु की पन्नी या प्लास्टिक पर लगाई जाती है। लेज़र से लंबी पतली पट्टियों में काटकर सेल बनाए जाते हैं, जो आपस में सीरीज़ में जुड़े होते हैं।", "k067": "कैडमियम टेल्यूराइड (CdTe)", "k068": "बड़े पैमाने पर व्यावसायिक सफलता पाने वाली अकेली थिन-फिल्म टेक्नोलॉजी CdTe है। इसे First Solar बनाता है, जिसका तमिलनाडु में बड़ा प्लांट भी है। मॉड्यूल एफिशिएंसी लगभग 18–19.5% है। CdTe का बैंड गैप लगभग 1.45 eV है, जो सूरज की रोशनी के लिए लगभग आदर्श है, और इसका टेम्परेचर कोएफिशिएंट (लगभग −0.28 से −0.32%/°C) PERC से बेहतर है, इसलिए गर्म, धूल भरे रेगिस्तानी प्लांट में अच्छा चलता है। बादल और नमी वाली रोशनी में भी अच्छा काम करता है। कमियाँ: TOPCon से कम एफिशिएंसी और कैडमियम का इस्तेमाल, जिसके लिए वापसी और रीसाइक्लिंग ज़रूरी है।", "k069": "CIGS (कॉपर इंडियम गैलियम सेलेनाइड)", "k070": "CIGS मॉड्यूल लगभग 14–17% तक पहुँचते हैं और फ्लेक्सिबल शीट पर बन सकते हैं। ये कुछ BIPV फसाड, मुड़ी सतहों और हल्की छतों पर लगते हैं, लेकिन कीमत में सिलिकॉन से मुकाबला नहीं कर पाए।", "k071": "अमॉर्फस सिलिकॉन (a-Si)", "k072": "a-Si में व्यवस्थित क्रिस्टल नहीं होता। यह सस्ता है, पर एफिशिएंसी सिर्फ 6–9% है और पहले कुछ महीनों में रोशनी से इसका आउटपुट घटता है (Staebler–Wronski इफेक्ट)। आज यह ज़्यादातर कैलकुलेटर, घड़ी, गार्डन लाइट और इनडोर डिवाइस में मिलता है, जहाँ ट्यूबलाइट और LED की रोशनी में अच्छा काम करना एफिशिएंसी से ज़्यादा ज़रूरी है।", "k073": "चित्र 5 – काँच पर थिन-फिल्म परतें। P1, P2, P3 लेज़र कट शीट को लंबे सेल में बाँटते हैं और बिना सोल्डरिंग के उन्हें सीरीज़ में जोड़ते हैं।", "k074": "थिन फिल्म", "k075": "मॉड्यूल एफिशिएंसी", "k076": "बैंड गैप", "k077": "टेम्प. कोएफ. (Pmax)", "k078": "मुख्य उपयोग", "k080": "बड़े ग्राउंड-माउंट प्लांट, गर्म जलवायु", "k082": "1.0–1.7 eV (बदला जा सकता है)", "k083": "फ्लेक्सिबल, BIPV, हल्की छतें", "k084": "कंज़्यूमर इलेक्ट्रॉनिक्स, इनडोर लाइट", "k085": "पेरोव्स्काइट (नई तकनीक)", "k086": "पायलट 18–22%", "k087": "1.5–1.7 eV (बदला जा सकता है)", "k088": "परीक्षण जारी", "k089": "टैंडम का ऊपरी सेल, रिसर्च", "k090": "<strong>गलतफहमी।</strong> थिन फिल्म हर जगह \"कमज़ोर\" नहीं है। बहुत गर्म जगह पर प्रति kWp, CdTe प्लांट PERC प्लांट जितनी या थोड़ी ज़्यादा बिजली बना सकता है, क्योंकि गर्मी से उसका नुकसान कम है। बस प्रति kW ज़्यादा ज़मीन और ज़्यादा स्ट्रक्चर चाहिए, क्योंकि हर वर्ग मीटर से कम पावर मिलती है।", "k091": "सेल डिज़ाइन: PERC, TOPCon, HJT और बैक कॉन्टैक्ट", "k092": "चारों मोनोक्रिस्टलाइन वेफर पर बनते हैं। फर्क यह है कि सतह को कैसे <em>पैसिवेट</em> करते हैं (इलेक्ट्रॉन को खत्म होने से रोकना) और सिलिकॉन से <em>कॉन्टैक्ट</em> कैसे बनाते हैं। हर नए कदम ने कोई एक नुकसान घटाया, और मॉड्यूल एफिशिएंसी लगभग 17% (Al-BSF) से बढ़कर लगभग 24% (BC) हो गई।", "k093": "एक लाइन में विकास", "k094": "<strong>Al-BSF</strong> (पीछे पूरा एल्युमिनियम, सेल लगभग 19–20%) → <strong>PERC</strong> (पीछे Al₂O₃/SiNₓ पैसिवेशन, लोकल कॉन्टैक्ट, लगभग 23%) → <strong>TOPCon</strong> (n-type, पीछे टनल ऑक्साइड + डोप्ड पॉली-Si कॉन्टैक्ट, लगभग 25–26.5%) → <strong>HJT</strong> (दोनों तरफ अमॉर्फस सिलिकॉन परत, लगभग 25.5–26.5%) → <strong>BC</strong> (सारे कॉन्टैक्ट पीछे, आगे कोई छाया नहीं, लगभग 26–27%) → <strong>पेरोव्स्काइट–सिलिकॉन टैंडम</strong> (दो परतें एक के ऊपर एक, लैब में 34% से ज़्यादा)।", "k095": "<strong>पैसिवेशन क्यों ज़रूरी है।</strong> वेफर की सतह पर टूटे बॉन्ड (\"dangling bonds\") होते हैं, जहाँ इलेक्ट्रॉन फँसकर खत्म हो जाते हैं। PERC में सतह का सिर्फ कुछ हिस्सा पैसिवेट होता है और मेटल कॉन्टैक्ट सीधे सिलिकॉन को छूता है, यह बड़ा नुकसान है। TOPCon और HJT में मेटल और सिलिकॉन के बीच एक और पतली परत होती है, जिससे करंट तो निकल जाता है पर नुकसान बहुत घट जाता है। इसीलिए इनका ओपन-सर्किट वोल्टेज PERC से लगभग 30–50 mV ज़्यादा है, जो सीधे एफिशिएंसी बढ़ाता है।", "k096": "मॉड्यूल फॉर्मेट: हाफ-कट, बाइफेशियल, ग्लास–ग्लास, बसबार और वेफर साइज़", "k097": "सेल टेक्नोलॉजी तय करती है कि हर सेल रोशनी को कितनी अच्छी तरह बदलता है। मॉड्यूल डिज़ाइन तय करता है कि उसमें से कितनी पावर केबल तक पहुँचती है। ये फीचर साथ-साथ इस्तेमाल होते हैं: 2026 का आम मॉड्यूल है \"n-type TOPCon, हाफ-कट, 16BB/0BB, बाइफेशियल, ग्लास–ग्लास, 182×210 mm\"।", "k098": "हाफ-कट सेल", "k099": "पूरे सेल को लेज़र से दो हिस्सों में काटा जाता है। हर आधे का वोल्टेज वही रहता है पर करंट आधा हो जाता है। रिबन और फिंगर में नुकसान P = I²R है, इसलिए करंट आधा होने पर हर कंडक्टर में नुकसान एक-चौथाई रह जाता है। मॉड्यूल दो बराबर हिस्सों (ऊपर और नीचे) में वायर होता है, जो पैरेलल में जुड़े होते हैं, और जंक्शन बॉक्स बीच में लगा होता है।", "k100": "फायदे: उन्हीं सेल से लगभग 2–3% ज़्यादा आउटपुट, कम हॉट-स्पॉट तापमान और छाया में बेहतर काम। अगर पैरापेट दीवार से नीचे की लाइन पर छाया हो, तो सिर्फ नीचे का आधा हिस्सा पावर खोता है, ऊपर का हिस्सा चलता रहता है। कटे सेल पर मैकेनिकल दबाव भी कम होता है, जिससे माइक्रो-क्रैक कम फैलते हैं। आज ज़्यादातर मॉड्यूल हाफ-कट हैं; कुछ प्रीमियम डिज़ाइन में तिहाई कट या शिंगल्ड पट्टियाँ होती हैं।", "k101": "चित्र 7 – बाएँ: 60/72 फुल-सेल लेआउट। दाएँ: हाफ-कट लेआउट, जिसमें मॉड्यूल दो पैरेलल हिस्सों में बँटा है और जंक्शन बॉक्स बीच में है।", "k102": "बाइफेशियल मॉड्यूल", "k103": "बाइफेशियल मॉड्यूल दोनों तरफ से रोशनी लेता है। सेल के पीछे पूरी धातु की शीट की जगह ग्रिड होती है, और मॉड्यूल के पीछे पारदर्शी काँच या पारदर्शी बैकशीट होती है। ज़मीन या छत से लौटी रोशनी पीछे पहुँचती है और 5–25% extra बिजली देती है। यह सतह की चमक (एल्बीडो), ऊँचाई और लाइनों के बीच दूरी पर निर्भर है।", "k104": "<strong>बाइफेशियलिटी फैक्टर</strong> = पीछे की एफिशिएंसी ÷ आगे की एफिशिएंसी: PERC लगभग 70%, TOPCon लगभग 80–85%, HJT लगभग 85–95%। सफेद छत या सफेद बजरी (एल्बीडो 0.5–0.8), ऊँचे स्ट्रक्चर और सिंगल-एक्सिस ट्रैकर पर फायदा सबसे ज़्यादा है। गहरे रंग की शीट छत पर सटाकर लगाने पर पीछे लगभग रोशनी नहीं आती, इसलिए बाइफेशियल से खास फायदा नहीं।", "k105": "चित्र 8 – बाइफेशियल फायदा ज़मीन के एल्बीडो, ऊँचाई और झुकाव पर निर्भर है।", "k106": "डेटाशीट पर दिखने वाले और फीचर", "k107": "फीचर", "k108": "मतलब", "k109": "फील्ड में क्यों ज़रूरी", "k110": "बसबार: 5BB → 9BB → MBB (16BB+) → 0BB", "k111": "ज़्यादा और पतले बसबार (गोल तार) फिंगर से कम दूरी में करंट इकट्ठा करते हैं। 0BB में बसबार नहीं होते, तार सीधे फिंगर से जुड़ते हैं।", "k112": "कम रेज़िस्टेंस और कम चाँदी; करंट के ज़्यादा रास्ते होने से माइक्रो-क्रैक का असर कम।", "k113": "ग्लास–ग्लास (डुअल ग्लास)", "k114": "3.2 mm काँच + पॉलिमर बैकशीट की जगह 2 mm + 2 mm टेम्पर्ड काँच।", "k115": "कम नमी और कम PID, समुद्र किनारे और नमी वाली जगह के लिए बेहतर; 30 साल वारंटी आम। थोड़ा भारी, सही जगह क्लैंप करना ज़रूरी।", "k116": "वेफर साइज़ M10 / G12 / G12R", "k117": "182 mm, 210 mm और 182×210 mm आयताकार वेफर।", "k118": "बड़े वेफर से ज़्यादा मॉड्यूल पावर (580–730 W) पर करंट भी ज़्यादा; इन्वर्टर का MPPT करंट रेटिंग उपयुक्त हो (≥ 16–20 A प्रति इनपुट)।", "k119": "शिंगल्ड सेल", "k120": "सेल को पट्टियों में काटकर छत की टाइल की तरह एक-दूसरे पर चढ़ाकर कंडक्टिव गोंद से जोड़ा जाता है।", "k121": "सेल के बीच खाली जगह नहीं, छाया में बहुत अच्छा, एक जैसा दिखता है।", "k122": "फुल ब्लैक / ऑल-ब्लैक", "k123": "काली बैकशीट और काला फ्रेम।", "k124": "घरों पर अच्छा दिखता है; थोड़ा ज़्यादा गर्म होता है, इसलिए उत्पादन थोड़ा कम।", "k125": "फ्रेमलेस / BIPV", "k126": "बिल्डिंग के काँच, स्काइलाइट या छत की टाइल में मॉड्यूल लगाया जाता है।", "k127": "बिल्डिंग मटेरियल की जगह लेता है; एफिशिएंसी से ज़्यादा डिज़ाइन ज़रूरी।", "k128": "फ्लेक्सिबल / हल्का", "k129": "काँच की जगह पॉलिमर शीट, 3–8 kg।", "k130": "नाव, गाड़ी, टेंट, कमज़ोर छत। उम्र कम और गर्मी कम निकलती है।", "k131": "<strong>इंस्टॉलेशन में आम गलती।</strong> बड़े मॉड्यूल (लगभग 2.4 × 1.1 m) में क्लैंप की जगह बहुत मायने रखती है। निर्माता की बताई जगह से बाहर क्लैंप करने या मॉड्यूल पर चलने से माइक्रो-क्रैक बनते हैं, जो बाद में \"स्नेल ट्रेल\" और पावर लॉस के रूप में दिखते हैं। हमेशा मैकेनिकल लोड रेटिंग (जैसे आगे 5,400 Pa / पीछे 2,400 Pa) और इंस्टॉलेशन मैनुअल का क्लैंपिंग ड्रॉइंग देखें।", "k132": "आमने-सामने तुलना", "k133": "2026 में बाज़ार में मिलने वाले मॉड्यूल के आम मान। कीमतें भारत में सिर्फ मॉड्यूल की अंदाज़न ex-works/डीलर कीमतें हैं, ₹ प्रति वाट-पीक में, और हर महीने बदलती हैं: हमेशा ताज़ा कोटेशन से पुष्टि करें।", "k134": "मॉड्यूल एफिशिएंसी", "k135": "तापमान से नुकसान", "k136": "सालाना डिग्रेडेशन", "k137": "बाइफेशियलिटी", "k138": "कीमत नोट: 2026 की शुरुआत में भारतीय मार्केट ट्रैकर के अनुसार non-DCR TOPCon लगभग ₹14–16/Wp और DCR TOPCon (भारतीय सेल + भारतीय मॉड्यूल) लगभग ₹22–27/Wp था, यानी लगभग 70–100% ज़्यादा, जो अब कम हो रहा है। घर के पूरे सिस्टम (मॉड्यूल, इन्वर्टर, स्ट्रक्चर, केबल, इंस्टॉलेशन) की लागत आमतौर पर ₹40–85 प्रति Wp है, साइज़ और DCR के अनुसार। HJT और BC आमतौर पर TOPCon से महँगे बिकते हैं। स्रोत: Mercom India, SMM, OPIS और इंडस्ट्री प्राइस ट्रैकर, जनवरी–जून 2026।", "k139": "तुलना कैसे पढ़ें", "k140": "एफिशिएंसी तय करती है कि एक छत पर कितनी पावर लगेगी। 25 m² की छत पर 17% पॉली से लगभग 4.2 kWp और 23% TOPCon से लगभग 5.7 kWp लगेगा। टेम्परेचर कोएफिशिएंट तय करता है कि गर्म दिन में कितना नुकसान होगा: 65 °C सेल तापमान पर PERC (−0.35%/°C) लगभग 14% और HJT (−0.25%/°C) लगभग 10% खोता है। डिग्रेडेशन तय करता है कि 25–30 साल बाद कितना बचेगा: n-type मॉड्यूल आमतौर पर 30 साल पर 87–89% की गारंटी देते हैं, जबकि पुराने p-type 25 साल पर लगभग 80–83%।", "k141": "प्रति वाट कीमत पूरी गणना का सिर्फ एक हिस्सा है। सही तुलना है सिस्टम की पूरी उम्र में प्रति kWh लागत (LCOE), जिसमें उत्पादन, डिग्रेडेशन और प्रति kW बाकी सिस्टम की लागत शामिल है। जब छत, स्ट्रक्चर या ज़मीन कम हो, तब थोड़ा महँगा पर ज़्यादा एफिशिएंट मॉड्यूल अक्सर फायदे का सौदा होता है।", "k142": "स्टैंडर्ड, सर्टिफिकेशन और डेटाशीट पढ़ना", "k143": "भारत में PV मॉड्यूल का BIS रजिस्ट्रेशन ज़रूरी है, और ज़्यादातर सरकारी व सब्सिडी प्रोजेक्ट के लिए MNRE की ALMM लिस्ट में होना भी ज़रूरी है। टेक्निकल टेस्ट IEC 61215 और IEC 61730 पर आधारित हैं, जिन्हें भारतीय स्टैंडर्ड के रूप में अपनाया गया है।", "k144": "स्टैंडर्ड / आदेश", "k145": "विषय", "k146": "महत्व", "k148": "क्रिस्टलाइन सिलिकॉन PV मॉड्यूल: डिज़ाइन क्वालिफिकेशन और टाइप अप्रूवल (थर्मल साइक्लिंग, डैम्प हीट 85 °C/85% RH, ह्यूमिडिटी फ्रीज़, मैकेनिकल लोड, ओले, हॉट-स्पॉट, UV)", "k149": "c-Si मॉड्यूल के लिए BIS रजिस्ट्रेशन अनिवार्य", "k150": "IS 16077 (IEC 61646 के अनुसार, अब IEC 61215 सीरीज़ में शामिल)", "k151": "थिन-फिल्म PV मॉड्यूल: डिज़ाइन क्वालिफिकेशन", "k152": "थिन-फिल्म मॉड्यूल के लिए अनिवार्य", "k154": "PV मॉड्यूल सेफ्टी: बनावट और टेस्टिंग (इंसुलेशन, वेट लीकेज, आग, इम्पल्स वोल्टेज)", "k155": "BIS रजिस्ट्रेशन अनिवार्य", "k156": "सोलर PV सिस्टम, डिवाइस और कंपोनेंट (अनिवार्य रजिस्ट्रेशन) आदेश, 2017, MeitY/BIS", "k157": "मॉड्यूल, इन्वर्टर (IS 16221, IS 16169) और बैटरी (IS 16270) का BIS रजिस्ट्रेशन अनिवार्य", "k158": "BIS रजिस्ट्रेशन (R-नंबर) के बिना भारत में कोई मॉड्यूल नहीं बिक सकता", "k159": "MNRE ALMM आदेश, List-I (मॉड्यूल) और List-II (सेल)", "k160": "मंज़ूर मॉडल और निर्माताओं की सूची; सेल के लिए List-II 1 जून 2026 से लागू", "k161": "सरकारी, PM सूर्य घर, PM-KUSUM, नेट-मीटरिंग और कई ओपन-एक्सेस प्रोजेक्ट के लिए ज़रूरी", "k163": "I–V कैरेक्टरिस्टिक, रेफरेंस सेल, STC स्पेक्ट्रम (AM 1.5G) का माप", "k164": "नेमप्लेट रेटिंग और फ्लैश टेस्ट का आधार", "k166": "नमक की धुंध (salt mist) से जंग का टेस्ट", "k167": "केरल के तटीय इलाके, लक्षद्वीप और बंदरगाह के लिए ज़रूरी", "k169": "अमोनिया से जंग का टेस्ट", "k170": "डेयरी फार्म, पोल्ट्री शेड, पशु शेड", "k172": "पोटेंशियल-इंड्यूस्ड डिग्रेडेशन (PID) टेस्ट", "k173": "नमी वाली जगह पर हाई-वोल्टेज स्ट्रिंग", "k175": "अलग-अलग तापमान और रोशनी पर एनर्जी रेटिंग", "k176": "सिर्फ STC वाट नहीं, असली उत्पादन की तुलना", "k178": "PV ऐरे डिज़ाइन की ज़रूरतें; कमीशनिंग टेस्ट और दस्तावेज़", "k179": "सिस्टम डिज़ाइन, स्ट्रिंग साइज़िंग, जाँच", "k180": "CEA (सुरक्षा और बिजली आपूर्ति के उपाय) विनियम, 2023; CEA डिस्ट्रिब्यूटेड जनरेशन कनेक्टिविटी टेक्निकल स्टैंडर्ड", "k181": "रूफटॉप और डिस्ट्रिब्यूटेड जनरेशन की सुरक्षा, अर्थिंग, ग्रिड कनेक्शन", "k182": "मंज़ूरी के समय इलेक्ट्रिकल इंस्पेक्टरेट और DISCOM (KSEB) लागू करते हैं", "k183": "वायरिंग प्रैक्टिस; अर्थिंग की कोड ऑफ प्रैक्टिस", "k184": "DC/AC केबलिंग और मॉड्यूल फ्रेम व स्ट्रक्चर की अर्थिंग", "k185": "मॉड्यूल डेटाशीट कैसे पढ़ें", "k186": "<strong>STC</strong> (स्टैंडर्ड टेस्ट कंडीशन): इरेडियंस 1,000 W/m², सेल तापमान 25 °C, स्पेक्ट्रम AM 1.5G। नेमप्लेट पावर (Pmax या Wp) STC पर मापी जाती है। असली छत पर सेल शायद ही 25 °C पर होता है; भारतीय गर्मी में सेल आमतौर पर 55–70 °C पर चलते हैं।", "k187": "<strong>NMOT / NOCT</strong>: 800 W/m², 20 °C हवा का तापमान और 1 m/s हवा पर मॉड्यूल (या सेल) का सामान्य चालू तापमान। आमतौर पर 41–45 °C। इससे असली सेल तापमान का अंदाज़ा लगाया जाता है।", "k188": "<strong>Voc, Isc, Vmp, Imp</strong>: ओपन-सर्किट वोल्टेज, शॉर्ट-सर्किट करंट, और मैक्सिमम पावर पॉइंट पर वोल्टेज व करंट। सबसे ठंडे तापमान पर Voc तय करता है कि इन्वर्टर का अधिकतम DC वोल्टेज पार किए बिना कितने मॉड्यूल सीरीज़ में लग सकते हैं। Isc से केबल साइज़ और इन्वर्टर MPPT करंट रेटिंग तय होती है।", "k189": "<strong>टेम्परेचर कोएफिशिएंट</strong>: Pmax के लिए (लगभग −0.25 से −0.40%/°C), Voc (लगभग −0.24 से −0.30%/°C) और Isc (लगभग +0.04 से +0.05%/°C)।", "k190": "<strong>पावर टॉलरेंस</strong>: आमतौर पर 0 से +5 W, यानी टेस्ट में मॉड्यूल नेमप्लेट से कम नहीं आएगा।", "k191": "<strong>वारंटी</strong>: प्रोडक्ट वारंटी 12–25 साल; लीनियर परफॉर्मेंस वारंटी, जैसे n-type मॉड्यूल के लिए \"पहले साल 1% कमी, फिर हर साल 0.4%, 30 साल पर ≥ 87.4%\"।", "k192": "चित्र 9 – 2026 के आम मॉड्यूल के नेमप्लेट मान (उदाहरण, असली प्रोडक्ट नहीं)।", "k193": "<strong>केरल के लिए खास बात।</strong> समुद्र के पास (लगभग 1–5 km के अंदर) ऊँचे स्तर पर IEC 61701 सर्टिफाइड मॉड्यूल, जहाँ हो सके ग्लास–ग्लास, और स्टेनलेस या हॉट-डिप गैल्वनाइज़्ड स्ट्रक्चर लें, जिसमें अलग-अलग धातुओं के बीच सही इंसुलेशन हो। फ्रेम, जंक्शन बॉक्स और MC4 कनेक्टर पर नमक की जंग तटीय ज़िलों में जल्दी खराबी का बड़ा कारण है।", "k194": "असली दुनिया में उपयोग", "k195": "सबसे अच्छी टेक्नोलॉजी जगह पर निर्भर करती है: उपलब्ध जगह, तापमान, छाया, मॉड्यूल के नीचे की सतह, वज़न की सीमा, और सब्सिडी में DCR ज़रूरी है या नहीं।", "k196": "कौन सी टेक्नोलॉजी कहाँ उपयुक्त", "k197": "<span class=\"dot d3\"></span> सबसे अच्छा &nbsp; <span class=\"dot d2\"></span> उपयुक्त &nbsp; <span class=\"dot d1\"></span> आमतौर पर नहीं", "k198": "केरल और भारत के उदाहरण", "k199": "PM सूर्य घर के तहत घरों की छतें (KSEB नेट मीटरिंग)", "k200": "केरल में आम 3 kW घरेलू सिस्टम में 540–620 Wp के पाँच या छह DCR मोनो मॉड्यूल (PERC या अब ज़्यादातर TOPCon), 3 kW ऑन-ग्रिड इन्वर्टर और KSEB का बाइडायरेक्शनल मीटर लगता है। हाफ-कट मॉड्यूल पसंद किए जाते हैं, क्योंकि छत पर पानी की टंकी, पैरापेट और नारियल के पेड़ों से आंशिक छाया होती है। गर्म कंक्रीट छत पर TOPCon का बेहतर टेम्परेचर कोएफिशिएंट गर्मियों में साफ ज़्यादा बिजली देता है।", "k201": "कोचीन इंटरनेशनल एयरपोर्ट (CIAL)", "k202": "2015 में CIAL दुनिया का पहला पूरी तरह सोलर से चलने वाला एयरपोर्ट बना। इसके ग्राउंड-माउंट और कैनोपी प्लांट अब कई दसियों MWp के हो गए हैं, जिनमें पार्किंग के ऊपर कारपोर्ट और पैनलों के नीचे सब्ज़ी की खेती भी है (भारत में एग्रीवोल्टाइक्स का शुरुआती उदाहरण)।", "k203": "फ्लोटिंग सोलर", "k204": "वायनाड के बाणासुर सागर जलाशय पर KSEB का फ्लोटिंग प्लांट भारत के शुरुआती फ्लोटिंग प्लांटों में से एक था। देश में NTPC का रामागुंडम (तेलंगाना) 100 MW फ्लोटिंग प्लांट सबसे बड़ों में है। पानी मॉड्यूल को ठंडा रखता है, जिससे उत्पादन बढ़ता है, और पानी का वाष्पीकरण भी घटता है। लगातार नमी के कारण अच्छे PID और जंग प्रतिरोध वाले ग्लास–ग्लास मॉड्यूल पसंद किए जाते हैं।", "k205": "सोलर फेरी \"आदित्य\"", "k206": "केरल राज्य जल परिवहन विभाग की \"आदित्य\" फेरी 2017 से वैकम और तवनक्कडवु के बीच चल रही है। यह भारत की पहली सोलर फेरी है। छत पर लगे मोनो मॉड्यूल बैटरी चार्ज करते हैं, जो दिखाता है कि कम वज़न और कम जगह वाले परिवहन में PV कैसे काम आता है।", "k207": "बड़े सोलर पार्क", "k208": "भड़ला (राजस्थान, लगभग 2.2 GW) और पावागड़ा (कर्नाटक, लगभग 2 GW) दुनिया के सबसे बड़े सोलर पार्कों में हैं। नए फेज़ में सिंगल-एक्सिस ट्रैकर पर बाइफेशियल n-type TOPCon मॉड्यूल लगते हैं। रेगिस्तानी रेत और हल्की मिट्टी से पीछे की तरफ अच्छा फायदा मिलता है, और धूल के लिए बिना पानी वाली रोबोटिक सफाई होती है।", "k209": "खेती: PM-KUSUM सोलर पंप और एग्रीवोल्टाइक्स", "k210": "PM-KUSUM में किसान अलग सोलर पंप (कंपोनेंट B) लगाते हैं या ग्रिड वाले पंप को सोलर पर लाते हैं (कंपोनेंट C)। मॉड्यूल मोनो PERC या TOPCon होते हैं, साथ में वेरिएबल-फ्रीक्वेंसी पंप कंट्रोलर। एग्रीवोल्टाइक्स में मॉड्यूल फसल से 2.5–4 m ऊपर लगते हैं; बाइफेशियल और अर्ध-पारदर्शी ग्लास–ग्लास मॉड्यूल से पौधों तक रोशनी पहुँचती है।", "k211": "कमर्शियल और इंडस्ट्रियल छतें", "k212": "फैक्ट्री, अस्पताल और संस्थान (ITI और NSTI सहित) मेटल शीट छतों पर 50 kW–2 MW लगाते हैं। रेल-लेस क्लैंप पर हल्के फ्रेम वाले TOPCon मॉड्यूल आम हैं; गहरी शीट छत पर बाइफेशियल फायदा कम है, इसलिए अक्सर मोनोफेशियल मॉड्यूल चुने जाते हैं।", "k213": "थिन फिल्म और खास उपयोग", "k214": "CdTe मॉड्यूल गर्म इलाकों के बड़े प्लांट में लगते हैं; CIGS और पेरोव्स्काइट के प्रोटोटाइप BIPV फसाड में दिखते हैं। a-Si सेल कैलकुलेटर और इनडोर सेंसर चलाते हैं। ISRO सहित अंतरिक्ष यान हाई-एफिशिएंसी III–V मल्टी-जंक्शन सेल (अंतरिक्ष में लगभग 30%) लगाते हैं, क्योंकि वहाँ वज़न और जगह कीमत से ज़्यादा मायने रखते हैं।", "k215": "ऑफ-ग्रिड और छोटे सिस्टम", "k216": "सोलर स्ट्रीट लाइट, ट्रैफिक ब्लिंकर, टेलीकॉम टावर, फेंसिंग एनर्जाइज़र और दूर-दराज़ के घर बैटरी के साथ 20–400 W के छोटे मोनो मॉड्यूल लगाते हैं। यहाँ आखिरी प्रतिशत एफिशिएंसी से ज़्यादा मज़बूती और बैटरी की क्वालिटी मायने रखती है।", "k217": "<strong>चुनाव का आसान नियम (2026)।</strong> कम छत और सब्सिडी प्रोजेक्ट: DCR मोनो TOPCon, हाफ-कट। छाया या जटिल छत: हाफ-कट या शिंगल्ड मॉड्यूल, साथ में ऑप्टिमाइज़र या माइक्रोइन्वर्टर। सफेद छत, ऊँचा स्ट्रक्चर या ट्रैकर: बाइफेशियल ग्लास–ग्लास TOPCon या HJT। बहुत गर्म जगह और ज़्यादा ज़मीन: TOPCon, HJT या CdTe। समुद्र किनारा: ग्लास–ग्लास, IEC 61701 सर्टिफाइड। प्रीमियम घरेलू लुक: ऑल-ब्लैक BC या TOPCon।", "k218": "हल किए गए सवाल और कैलकुलेटर", "k219": "हर कैलकुलेटर में पहले हल किए गए उदाहरण के मान पहले से भरे हैं। कोई भी इनपुट बदलकर देखें।", "k220": "1. मॉड्यूल एफिशिएंसी", "k221": "एफिशिएंसी η = Pmax ÷ (G × A) × 100, जहाँ STC पर G = 1,000 W/m² और A = मॉड्यूल का क्षेत्रफल m² में।", "k222": "<b>उदाहरण 1.1</b> – 580 Wp का TOPCon मॉड्यूल 2,278 × 1,134 mm का है। इसकी एफिशिएंसी निकालें।", "k223": "<b>उदाहरण 1.2</b> – 330 Wp का पुराना पॉली मॉड्यूल 1,956 × 992 mm का है। एफिशिएंसी और 3 kWp के लिए ज़रूरी क्षेत्रफल निकालें।", "k224": "रेटेड पावर Pmax (W)", "k225": "लंबाई (mm)", "k226": "चौड़ाई (mm)", "k227": "इरेडियंस G (W/m²)", "k228": "2. असली चालू तापमान पर पावर", "k229": "सेल तापमान T<sub>cell</sub> = T<sub>amb</sub> + (NOCT − 20) ÷ 800 × G। आउटपुट P = P<sub>STC</sub> × (G ÷ 1000) × [1 + γ × (T<sub>cell</sub> − 25)], जहाँ γ Pmax का टेम्परेचर कोएफिशिएंट है (नेगेटिव)।", "k230": "<b>उदाहरण 2.1</b> – कोच्चि की छत पर दोपहर में 580 Wp TOPCon मॉड्यूल (γ = −0.29 %/°C, NOCT 45 °C): हवा का तापमान 34 °C, G = 1,000 W/m²।", "k231": "<b>उदाहरण 2.2</b> – वही हालात, पर 580 Wp PERC मॉड्यूल, γ = −0.35 %/°C।", "k232": "रेटेड पावर P<sub>STC</sub> (W)", "k233": "Pmax टेम्परेचर कोएफिशिएंट γ (%/°C)", "k234": "पॉली: −0.40", "k235": "मोनो PERC: −0.35", "k238": "बैक कॉन्टैक्ट: −0.27", "k241": "हवा का तापमान (°C)", "k242": "इरेडियंस G (W/m²)", "k243": "3. छत के सिस्टम का साइज़ और सालाना बिजली", "k244": "ज़रूरी kWp = महीने की यूनिट ÷ (30 × स्पेसिफिक यील्ड)। केरल की छतों पर आमतौर पर प्रति kWp प्रति दिन 3.8–4.2 kWh (लगभग 1,400–1,500 kWh/kWp/साल) मिलता है।", "k245": "<b>उदाहरण 3.1</b> – एक घर हर महीने 360 यूनिट इस्तेमाल करता है। 580 Wp मॉड्यूल (हर एक 2.583 m²) और 4.0 kWh/kWp/दिन पर सिस्टम का साइज़ निकालें।", "k246": "<b>उदाहरण 3.2</b> – 3.48 kWp सिस्टम के मॉड्यूल की लागत, DCR ₹25/Wp और non-DCR ₹15/Wp पर।", "k247": "महीने की खपत (यूनिट, kWh)", "k248": "स्पेसिफिक यील्ड (kWh/kWp/दिन)", "k249": "मॉड्यूल रेटिंग (Wp)", "k250": "मॉड्यूल क्षेत्रफल (m²)", "k251": "मॉड्यूल कीमत (₹/Wp)", "k252": "4. हाफ-कट रेज़िस्टिव नुकसान और बाइफेशियल फायदा", "k253": "<b>उदाहरण 4.1</b> – सेल रिबन का रेज़िस्टेंस 0.010 Ω है। फुल-सेल करंट 13.6 A; हाफ-कट करंट 6.8 A।", "k254": "<b>उदाहरण 4.2</b> – सफेद पेंट वाली छत पर 580 Wp बाइफेशियल TOPCon मॉड्यूल (बाइफेशियलिटी 80%), जहाँ पीछे की रोशनी आगे की 12% है।", "k255": "फुल-सेल करंट I (A)", "k256": "कंडक्टर रेज़िस्टेंस R (Ω)", "k257": "मॉड्यूल की आगे की पावर (Wp)", "k258": "बाइफेशियलिटी (%)", "k259": "ज़मीन की सतह", "k260": "गहरी मेटल शीट छत, नीचा माउंट (≈5%)", "k261": "घास / मिट्टी (≈7%)", "k262": "ग्रे कंक्रीट (≈9%)", "k263": "सफेद पेंट / सफेद मेम्ब्रेन (≈12%)", "k264": "रेत, ऊँचा माउंट (≈15%)", "k265": "बर्फ या सफेद बजरी पर ट्रैकर (≈20%)"}, "ml": {"k000": "സോളാർ PV മൊഡ്യൂൾ ടെക്നോളജി", "k001": "സെൽ തരങ്ങൾ, മൊഡ്യൂൾ ഫോർമാറ്റുകൾ, എഫിഷ്യൻസിയും വിലയും താരതമ്യം, ഇന്ത്യൻ സ്റ്റാൻഡേർഡുകൾ, ഫീൽഡ് ഉപയോഗങ്ങൾ (2026 മധ്യം വരെയുള്ള ഡാറ്റ)", "k002": "തയ്യാറാക്കിയത്: PRASAD UM, VI, വൊക്കേഷണൽ ഇൻസ്ട്രക്ടർ, NSTI കോഴിക്കോട്", "k003": "സോളാർ സെൽ വെളിച്ചത്തെ വൈദ്യുതിയാക്കുന്നത് എങ്ങനെ", "k004": "വീടിന്റെ മേൽക്കൂരയിലായാലും കനാലിന് മുകളിലായാലും സാറ്റലൈറ്റിലായാലും എല്ലാ പാനലും ഒരേ തത്വത്തിലാണ് പ്രവർത്തിക്കുന്നത്: p–n ജംഗ്ഷനിലെ ഫോട്ടോവോൾട്ടായിക് ഇഫക്ട്. മോണോ, പോളി, PERC, TOPCon, HJT എന്നിവ തമ്മിലുള്ള വ്യത്യാസം സിലിക്കൺ എങ്ങനെ ഉണ്ടാക്കുന്നു, ശുദ്ധമാക്കുന്നു, കോൺടാക്ട് കൊടുക്കുന്നു എന്നതിലാണ്; വഴിയിൽ നഷ്ടപ്പെടുന്ന ഇലക്ട്രോണുകൾ കുറയ്ക്കുകയാണ് ലക്ഷ്യം.", "k005": "ക്രിസ്റ്റലൈൻ സിലിക്കൺ സോളാർ സെൽ ഏകദേശം 130–150 µm കനമുള്ള ഒരു നേർത്ത വേഫർ ആണ് (രണ്ട് കടലാസ് ഷീറ്റിനേക്കാൾ കനം കുറവ്). ഇതിന് രണ്ട് ഭാഗങ്ങളുണ്ട്. ഒരു ഭാഗത്ത് അധിക ഫ്രീ ഇലക്ട്രോണുകൾ ഉണ്ട് (n-type, സാധാരണ ഫോസ്ഫറസ് ഡോപ്പ്). മറ്റേ ഭാഗത്ത് \"ഹോളുകൾ\" അഥവാ ഇലക്ട്രോൺ കുറവ് ഉണ്ട് (p-type, സാധാരണ ബോറോൺ അല്ലെങ്കിൽ ഗാലിയം ഡോപ്പ്). ഇവ ചേരുന്നിടത്ത് depletion region-ൽ ഒരു ഇലക്ട്രിക് ഫീൽഡ് ഉണ്ടാകുന്നു. ഈ ഫീൽഡാണ് സെല്ലിന്റെ എഞ്ചിൻ.", "k006": "സിലിക്കണിന്റെ ബാൻഡ് ഗ്യാപ്പിനേക്കാൾ (1.12 eV, അതായത് ഏകദേശം 1,100 nm-ൽ കുറഞ്ഞ വേവ്‌ലെങ്ത്) കൂടുതൽ എനർജിയുള്ള ഫോട്ടോൺ സെല്ലിൽ ആഗിരണം ചെയ്യപ്പെടുമ്പോൾ, അത് ഒരു ഇലക്ട്രോണിനെ ബോണ്ടിൽ നിന്ന് സ്വതന്ത്രമാക്കുന്നു, പിന്നിൽ ഒരു ഹോൾ ബാക്കിയാകുന്നു. ഈ ഇലക്ട്രോൺ–ഹോൾ ജോഡി ജംഗ്ഷന് അടുത്താണെങ്കിൽ ഫീൽഡ് അവയെ വേർതിരിക്കുന്നു: ഇലക്ട്രോൺ n-side-ലേക്കും ഹോൾ p-side-ലേക്കും പോകുന്നു. മുന്നിലും പിന്നിലുമുള്ള മെറ്റൽ കോൺടാക്ടുകൾ ഇവയെ ശേഖരിക്കുന്നു; ലോഡ് കണക്ട് ചെയ്താൽ DC കറന്റ് ഒഴുകുന്നു.", "k007": "ഒരു സെല്ലിൽ നിന്ന് ഏകദേശം 0.68–0.75 V ഓപ്പൺ-സർക്യൂട്ട് വോൾട്ടേജ് മാത്രമേ കിട്ടൂ. ഉപയോഗയോഗ്യമായ വോൾട്ടേജിന് മൊഡ്യൂളിനുള്ളിൽ സെല്ലുകൾ സീരീസിൽ ഘടിപ്പിക്കുന്നു (60, 66, 72, 120, 132 അല്ലെങ്കിൽ 144 സെൽ/ഹാഫ്-സെൽ). മൊഡ്യൂളുകൾ സീരീസിൽ ചേർന്ന് സ്ട്രിംഗ് ആകുന്നു; സ്ട്രിംഗുകൾ പാരലലിൽ ചേർന്ന് അറേ ആകുന്നു.", "k008": "ചിത്രം 1 – ഫോട്ടോൺ ഒരു ഇലക്ട്രോൺ–ഹോൾ ജോഡി ഉണ്ടാക്കുന്നു; ജംഗ്ഷൻ ഫീൽഡ് ഇലക്ട്രോണിനെ n-side-ലേക്കും ഹോളിനെ p-side-ലേക്കും തള്ളുന്നു, ലോഡിലൂടെ കറന്റ് ഒഴുകുന്നു.", "k009": "സെല്ലിൽ നിന്ന് അറേ വരെ", "k010": "ചിത്രം 2 – PV പ്ലാന്റിന്റെ ഭാഗങ്ങൾ. സീരീസ് കണക്ഷൻ വോൾട്ടേജ് കൂട്ടുന്നു; പാരലൽ കണക്ഷൻ കറന്റ് കൂട്ടുന്നു.", "k011": "PV ടെക്നോളജിയുടെ മൂന്ന് തലമുറകൾ", "k012": "സോളാർ ടെക്നോളജികളെ സാധാരണ മൂന്ന് തലമുറകളായി തിരിക്കുന്നു. <strong>ഒന്നാം തലമുറ</strong> വേഫർ അടിസ്ഥാനമായ ക്രിസ്റ്റലൈൻ സിലിക്കൺ: മോണോക്രിസ്റ്റലൈനും പോളിക്രിസ്റ്റലൈനും. ഇന്ന് ലോകത്ത് വിൽക്കുന്ന ഏകദേശം 97% മൊഡ്യൂളുകളും ഇതാണ്. മോണോ സിലിക്കണിൽ സെല്ലിന്റെ <em>ഘടന</em> വേഗത്തിൽ മാറി: Al-BSF (ഏകദേശം 2017 വരെ), പിന്നെ PERC (2017–2023), ഇപ്പോൾ TOPCon, HJT, ബാക്ക്-കോൺടാക്ട് (BC). <strong>രണ്ടാം തലമുറ</strong> തിൻ ഫിലിം: കാഡ്മിയം ടെല്ലുറൈഡ് (CdTe), CIGS, അമോർഫസ് സിലിക്കൺ (a-Si); ഗ്ലാസിലോ ഫ്ലെക്സിബിൾ ഷീറ്റിലോ മൈക്രോമീറ്റർ കനമുള്ള പാളിയായി പൂശുന്നു. <strong>മൂന്നാം തലമുറ</strong>യിൽ പുതിയ ടെക്നോളജികൾ: പെറോവ്സ്കൈറ്റ്, പെറോവ്സ്കൈറ്റ്–സിലിക്കൺ ടാൻഡം, ഓർഗാനിക് PV, ബഹിരാകാശത്ത് ഉപയോഗിക്കുന്ന മൾട്ടി-ജംഗ്ഷൻ III-V സെല്ലുകൾ.", "k013": "ലോകത്ത് വിൽക്കുന്നതിൽ ക്രിസ്റ്റലൈൻ സിലിക്കൺ", "k014": "2025–26 ആഗോള ഉത്പാദനം n-type TOPCon", "k015": "2026-ലെ സാധാരണ മൊഡ്യൂൾ എഫിഷ്യൻസി", "k016": "STC ഇറേഡിയൻസ്, സെൽ 25 °C, AM 1.5G", "k017": "<strong>സാധാരണ തെറ്റിദ്ധാരണ.</strong> \"മോണോക്രിസ്റ്റലൈൻ\", \"TOPCon\" എന്നിവ പരസ്പരം പകരമല്ല. മോണോ എന്നത് സിലിക്കൺ ക്രിസ്റ്റൽ എങ്ങനെ വളർത്തി എന്നതാണ്; TOPCon എന്നത് ആ വേഫറിൽ സെൽ എങ്ങനെ നിർമ്മിച്ചു എന്നതാണ്. ഇന്നത്തെ മിക്കവാറും എല്ലാ TOPCon, HJT, BC മൊഡ്യൂളുകളും മോണോ n-type വേഫറിലാണ്. ഡീലർ \"മോണോ പാനൽ\" എന്ന് പറഞ്ഞാൽ സെൽ ടെക്നോളജി ഏതാണെന്ന് ചോദിക്കുക: PERC ആണോ TOPCon ആണോ എന്നത് ഉത്പാദനത്തിൽ വ്യക്തമായ വ്യത്യാസം ഉണ്ടാക്കും.", "k018": "മോണോക്രിസ്റ്റലൈൻ സിലിക്കൺ (മോണോ c-Si)", "k019": "ഗ്രെയിൻ ബൗണ്ടറി ഇല്ലാത്ത, തുടർച്ചയായ ഒറ്റ സിലിക്കൺ ക്രിസ്റ്റലിൽ നിന്നാണ് മോണോക്രിസ്റ്റലൈൻ വേഫർ മുറിക്കുന്നത്. ഇതിലൂടെ ഇലക്ട്രോണുകൾ കുറഞ്ഞ തടസ്സത്തോടെയും കുറഞ്ഞ നഷ്ടത്തോടെയും നീങ്ങുന്നു. അതുകൊണ്ടാണ് മോണോ സെല്ലുകൾ ഏറ്റവും എഫിഷ്യൻസിയുള്ള സിലിക്കൺ സെല്ലുകളും ഇന്ന് മാർക്കറ്റിൽ മുന്നിലും.", "k020": "നിർമ്മാണം: ചൊക്രാൾസ്കി (CZ) പ്രോസസ്", "k021": "വളരെ ശുദ്ധമായ പോളിസിലിക്കൺ (9N–11N, അതായത് 99.9999999% അല്ലെങ്കിൽ അതിനു മുകളിൽ) ക്വാർട്സ് ക്രൂസിബിളിൽ ഏകദേശം 1,420 °C-ൽ ഉരുക്കുന്നു. ചെറിയൊരു സീഡ് ക്രിസ്റ്റൽ ഉരുകിയ സിലിക്കണിൽ മുക്കി കറക്കിക്കൊണ്ട് പതുക്കെ മുകളിലേക്ക് വലിക്കുന്നു. സിലിക്കൺ ആറ്റങ്ങൾ അതേ ദിശയിൽ ഉറയുന്നു; ഏകദേശം 300 mm വ്യാസവും പല മീറ്റർ നീളവുമുള്ള സിലിണ്ടർ ആകൃതിയിലുള്ള ഇൻഗോട്ട് ഉണ്ടാകുന്നു. ഉരുക്കിൽ ഡോപ്പന്റ് ചേർക്കുന്നു: p-type-ന് ബോറോൺ അല്ലെങ്കിൽ ഗാലിയം, n-type-ന് ഫോസ്ഫറസ്. ബോറോൺ–ഓക്സിജൻ ജോഡി ലൈറ്റ്-ഇൻഡ്യൂസ്ഡ് ഡീഗ്രഡേഷൻ (LID) ഉണ്ടാക്കുന്നതിനാൽ 2020-നടുത്ത് p-type-ൽ ബോറോണിന് പകരം ഗാലിയം വന്നു.", "k022": "ഉരുണ്ട ഇൻഗോട്ട് ഏകദേശം ചതുരമായ ബ്ലോക്കാക്കി ഡയമണ്ട്-വയർ സോ ഉപയോഗിച്ച് വേഫറുകളായി മുറിക്കുന്നു. ഇന്നത്തെ ഫോർമാറ്റുകൾ: M10 (182 × 182 mm), G12 (210 × 210 mm), ദീർഘചതുര 182 × 210 mm (210R അല്ലെങ്കിൽ G12R). കണ്ടെയ്നറിലും മേൽക്കൂരയിലും നന്നായി ഒതുങ്ങുന്നതിനാൽ 2026-ലെ പുതിയ മൊഡ്യൂളുകളിൽ കൂടുതലും ഈ ദീർഘചതുര ഫോർമാറ്റാണ്.", "k023": "എങ്ങനെ തിരിച്ചറിയാം", "k024": "മോണോ സെല്ലുകൾ ഒരേപോലെ കടും നീല-കറുപ്പ് നിറത്തിൽ കാണും. പഴയ സെല്ലുകൾക്ക് മൂല മുറിച്ച \"സ്യൂഡോ-സ്ക്വയർ\" ആകൃതി ഉണ്ടായിരുന്നു, സെല്ലുകൾക്കിടയിൽ ചെറിയ വെള്ള ഡയമണ്ട് പോലെ കാണാമായിരുന്നു; ഇന്നത്തെ വേഫറുകൾ മിക്കവാറും പൂർണ്ണ ചതുരമായതിനാൽ മൊഡ്യൂൾ ഏകദേശം മുഴുവൻ കറുപ്പായി കാണും. ആൽക്കലൈൻ എച്ചിംഗ് വഴി പ്രതലത്തിൽ സൂക്ഷ്മ പിരമിഡുകൾ ഉണ്ടാക്കുന്നു; ഇവ വെളിച്ചം പിടിച്ചുനിർത്തി റിഫ്ലക്ഷൻ കുറയ്ക്കുന്നു.", "k025": "ചിത്രം 3 – CZ രീതിയിൽ സിംഗിൾ ക്രിസ്റ്റൽ വളർത്തൽ, ഇൻഗോട്ട് ചതുരമാക്കൽ, പൂർത്തിയായ മോണോ സെൽ.", "k026": "p-type മോണോയും n-type മോണോയും", "k027": "ഏകദേശം 2023 വരെ മിക്ക മോണോ സെല്ലുകളും p-type (ബോറോൺ/ഗാലിയം ഡോപ്പ്) ആയിരുന്നു, PERC ഡിസൈനിൽ. അതിനുശേഷം ഇൻഡസ്ട്രി ഏകദേശം പൂർണ്ണമായും <strong>n-type</strong> മോണോ വേഫറിലേക്ക് (ഫോസ്ഫറസ് ഡോപ്പ്) മാറി; TOPCon, HJT, BC സെല്ലുകൾ ഇതിലാണ്. n-type സിലിക്കൺ ഇരുമ്പ് പോലുള്ള മാലിന്യങ്ങൾ നന്നായി സഹിക്കും, ബോറോൺ–ഓക്സിജൻ LID ഇല്ല, കാരിയർ ലൈഫ്ടൈം കൂടുതലുമാണ്; അതിനാൽ വോൾട്ടേജും എഫിഷ്യൻസിയും കൂടുന്നു. പ്രോസസ് അല്പം സങ്കീർണ്ണവും ചെലവേറിയതുമാണ്, പക്ഷേ വലിയ തോതിലുള്ള ഉത്പാദനത്തിലൂടെ ആ ചെലവ് ഇപ്പോൾ ഏറെക്കുറെ കുറഞ്ഞു.", "k028": "മൊഡ്യൂൾ എഫിഷ്യൻസി പരിധി (PERC മുതൽ BC വരെ)", "k029": "%/°C പവർ ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ്", "k030": "ലീനിയർ പവർ വാറന്റി", "k031": "സിംഗിൾ-ജംഗ്ഷൻ Si സെല്ലിന്റെ ഏകദേശ മികച്ച ലാബ് എഫിഷ്യൻസി (2025)", "k032": "ഗുണങ്ങൾ", "k033": "സിലിക്കൺ ടെക്നോളജികളിൽ ഏറ്റവും കൂടിയ എഫിഷ്യൻസി; ഓരോ kW-നും കുറച്ച് പാനലും കുറച്ച് മേൽക്കൂര സ്ഥലവും മതി.", "k034": "കുറഞ്ഞ വെളിച്ചത്തിലും കൂടിയ ചൂടിലും പോളിയേക്കാൾ മികച്ച പ്രകടനം.", "k035": "എല്ലാ ആധുനിക ഹൈ-എഫിഷ്യൻസി സെല്ലുകളുടെയും (TOPCon, HJT, BC) അടിസ്ഥാന വേഫർ.", "k036": "ഒരേപോലെയുള്ള കറുപ്പ് നിറം വീടുകൾക്കും കെട്ടിടങ്ങൾക്കും ഇഷ്ടം.", "k037": "പരിമിതികൾ", "k038": "ക്രിസ്റ്റൽ വളർത്താൻ കൂടുതൽ ഊർജ്ജം വേണം; തിൻ ഫിലിമിനേക്കാൾ കൂടിയ embodied energy.", "k039": "ഗ്ലാസുള്ള ഉറച്ച മൊഡ്യൂൾ; വലിയ ഫോർമാറ്റിന് ഏകദേശം 25–33 kg ഭാരം.", "k040": "സെൽ താപനില ഓരോ 1 °C കൂടുമ്പോഴും പ്രകടനം 0.25–0.35% കുറയും.", "k041": "<strong>ഫീൽഡ് പ്രാക്ടീസ്.</strong> PM സൂര്യ ഘർ പദ്ധതിയിൽ കേരളത്തിലെ സാധാരണ മേൽക്കൂരയ്ക്ക് മിക്കവാറും 540–620 Wp ക്ലാസിലുള്ള മോണോ n-type TOPCon (ചിലപ്പോൾ മോണോ PERC) മൊഡ്യൂളാണ് ലഭിക്കുക. സബ്സിഡിക്ക് മൊഡ്യൂൾ MNRE-യുടെ ALMM List-I-ൽ ഉണ്ടായിരിക്കണം; 2026 ജൂൺ 1 മുതൽ ALMM List-II-ലെ DCR സെല്ലുകളും വേണം. \"മോണോ\" എന്ന വാക്ക് മാത്രം നോക്കാതെ ഡാറ്റാഷീറ്റും DCR സർട്ടിഫിക്കറ്റും പരിശോധിക്കുക.", "k042": "പോളിക്രിസ്റ്റലൈൻ സിലിക്കൺ (മൾട്ടി c-Si)", "k043": "പോളിക്രിസ്റ്റലൈൻ (മൾട്ടിക്രിസ്റ്റലൈൻ) സിലിക്കൺ ധാരാളം ചെറിയ ക്രിസ്റ്റലുകളുള്ള ഒരു വലിയ ബ്ലോക്കായി വാർത്തെടുക്കുന്നു. നിർമ്മിക്കാൻ ചെലവ് കുറവായതിനാൽ ഏകദേശം 2018 വരെ മാർക്കറ്റിൽ ഇതായിരുന്നു മുന്നിൽ; ഇപ്പോൾ ഇതിന്റെ സ്ഥാനം ഏകദേശം പൂർണ്ണമായും മോണോ ഏറ്റെടുത്തു.", "k044": "നിർമ്മാണം: ഡയറക്ഷണൽ സോളിഡിഫിക്കേഷൻ (കാസ്റ്റിംഗ്)", "k045": "ഒറ്റ ക്രിസ്റ്റൽ വലിക്കുന്നതിന് പകരം, ഉരുകിയ സിലിക്കൺ വലിയ ചതുര ക്വാർട്സ് ക്രൂസിബിളിൽ നിറച്ച് താഴെ നിന്ന് മുകളിലേക്ക് നിയന്ത്രിതമായി തണുപ്പിക്കുന്നു. പല ദിശയിലുള്ള ഒട്ടേറെ ഗ്രെയിനുകളായി സിലിക്കൺ ഉറയുന്നു; ഓരോന്നും ഏതാനും mm മുതൽ cm വരെ വലുപ്പം. ഏകദേശം 800–1,000 kg ബ്ലോക്ക് ചതുര കഷണങ്ങളാക്കി ചതുര വേഫറുകൾ മുറിക്കുന്നു. ക്രൂസിബിൾ ചതുരമായതിനാൽ മൂല പാഴാകില്ല; CZ-നേക്കാൾ കുറഞ്ഞ ഊർജ്ജവും സമയവും മതി.", "k046": "തിളങ്ങുന്ന നീല നിറം എന്തുകൊണ്ട്?", "k047": "ഓരോ ഗ്രെയിനിന്റെയും ക്രിസ്റ്റൽ ദിശ വ്യത്യസ്തമായതിനാൽ ഓരോന്നും വെളിച്ചം വ്യത്യസ്തമായി പ്രതിഫലിപ്പിക്കുന്നു. അതാണ് \"മെറ്റൽ ഫ്ലേക്ക്\" പോലുള്ള പുള്ളി നീല നിറം. പോളിയിൽ ആസിഡ് ടെക്സ്ചറിംഗ് ആണ്; മോണോയിലെ പോലെ ഒരേപോലുള്ള പിരമിഡുകൾ ഉണ്ടാകില്ല. അതിനാൽ പോളി സെൽ കൂടുതൽ വെളിച്ചം തിരിച്ചുവിടുകയും ഇളം നീലയായി കാണുകയും ചെയ്യുന്നു.", "k048": "എഫിഷ്യൻസി കുറയാൻ കാരണം", "k049": "ഗ്രെയിൻ ബൗണ്ടറികൾ ക്രിസ്റ്റലിലെ തകരാറുകളാണ് (defects). കോൺടാക്ടിൽ എത്തുന്നതിന് മുമ്പ് ഇലക്ട്രോണുകളും ഹോളുകളും ഈ ബൗണ്ടറികളിലും അവിടെ കൂടുന്ന മാലിന്യങ്ങളിലും വെച്ച് കൂടിച്ചേർന്ന് നഷ്ടമാകുന്നു. ക്രൂസിബിളിൽ നിന്നുള്ള മെറ്റൽ മാലിന്യങ്ങളും പോളി വേഫറിൽ കൂടുതലാണ്. അതിനാൽ പോളി സെല്ലുകൾ ഏകദേശം 18–20% (PERC പോളി ഏകദേശം 21%) വരെയേ എത്തിയുള്ളൂ; മോണോ PERC എളുപ്പത്തിൽ 23% എത്തി. 2016–2018-നു ശേഷം വേഗതയേറിയ CZ മെഷീനുകളും ഡയമണ്ട്-വയർ കട്ടിംഗും വന്നതോടെ മോണോ വേഫർ വില കുറഞ്ഞു; മോണോയുടെ കൂടിയ ഉത്പാദനം പോളിയുടെ വിലക്കുറവിനെ മറികടന്നു.", "k050": "ചിത്രം 4 – തൂൺ പോലുള്ള ഗ്രെയിനുകളുള്ള വാർത്ത മൾട്ടിക്രിസ്റ്റലൈൻ ബ്ലോക്ക്, പുള്ളി പാറ്റേണുള്ള ചതുര പോളി സെൽ.", "k051": "സാധാരണ മൊഡ്യൂൾ എഫിഷ്യൻസി (പഴയ 60/72-സെൽ, 270–345 W)", "k052": "%/°C പവർ ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ്", "k053": "2025–26 ഉത്പാദനത്തിലെ ഏകദേശ പങ്ക്", "k054": "ഒന്നാം വർഷത്തിനു ശേഷമുള്ള വാർഷിക ഡീഗ്രഡേഷൻ", "k055": "ഇപ്പോഴും ഉപയോഗപ്രദമാകുന്നത് എവിടെ", "k056": "പഴയ പോളി സ്ട്രിംഗിലെ കേടായ മൊഡ്യൂൾ മാറ്റാൻ (വോൾട്ടേജും കറന്റും ഒത്തുനോക്കി).", "k057": "ഏത് വിലകുറഞ്ഞ പാനലും മതിയാകുന്ന വളരെ ചെറിയ ഓഫ്-ഗ്രിഡ് ഉപയോഗങ്ങൾ.", "k058": "ട്രെയിനിംഗ് ലാബ്: കാണാവുന്ന ഗ്രെയിനുകൾ ക്രിസ്റ്റൽ തകരാറുകൾ വിശദീകരിക്കാൻ നല്ലത്.", "k059": "ഇനി ശുപാർശ ചെയ്യാത്തത് എന്തുകൊണ്ട്", "k060": "അതേ kW-ന് TOPCon-നേക്കാൾ ഏകദേശം 20–30% കൂടുതൽ മേൽക്കൂര സ്ഥലം വേണം.", "k061": "മോശം ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് ഇന്ത്യൻ വേനലിൽ വലിയ നഷ്ടം ഉണ്ടാക്കും.", "k062": "നിർമ്മാതാക്കൾ കുറവ്; പുതിയ വാങ്ങലിന് വാറന്റി പിന്തുണ ഉറപ്പില്ല.", "k063": "പുതിയ ALMM/DCR സബ്സിഡി പ്രോജക്ടുകൾക്ക് അനുയോജ്യമല്ല.", "k064": "<strong>മാറ്റിവെക്കുമ്പോൾ ശ്രദ്ധിക്കാൻ.</strong> 2016 കാലത്തെ സ്ട്രിംഗിലെ ഒരു പോളി മൊഡ്യൂൾ കേടായാൽ അതേ സ്ട്രിംഗിൽ പുതിയ 580 W TOPCon മൊഡ്യൂൾ വെക്കരുത്. അതിന്റെ Imp (ഏകദേശം 13–14 A) പഴയതിനേക്കാൾ (ഏകദേശം 8–9 A) വളരെ കൂടുതലാണ്, വോൾട്ടേജും വ്യത്യസ്തം. ഈ mismatch ഹോട്ട്-സ്പോട്ടിനോ ശേഷി പാഴാകുന്നതിനോ കാരണമാകും. ഏകദേശം ഒരേ Imp ഉള്ള മൊഡ്യൂൾ വെക്കുക, അല്ലെങ്കിൽ സ്ട്രിംഗ് പുനർരൂപകൽപ്പന ചെയ്യുക.", "k065": "തിൻ-ഫിലിം മൊഡ്യൂളുകൾ: CdTe, CIGS, അമോർഫസ് സിലിക്കൺ", "k066": "തിൻ-ഫിലിം സെല്ലിൽ വെളിച്ചം ആഗിരണം ചെയ്യുന്ന പാളിക്ക് 1–4 µm കനമേയുള്ളൂ, സിലിക്കൺ വേഫറിനേക്കാൾ ഏകദേശം നൂറ് മടങ്ങ് കനം കുറവ്. ഇത് നേരിട്ട് ഗ്ലാസിലോ മെറ്റൽ ഫോയിലിലോ പ്ലാസ്റ്റിക്കിലോ പൂശുന്നു. ലേസർ ഉപയോഗിച്ച് നീളമുള്ള നേർത്ത സ്ട്രിപ്പുകളായി മുറിച്ച് സീരീസിൽ ബന്ധിപ്പിച്ച സെല്ലുകൾ ഉണ്ടാക്കുന്നു.", "k067": "കാഡ്മിയം ടെല്ലുറൈഡ് (CdTe)", "k068": "വലിയ തോതിൽ വാണിജ്യ വിജയം നേടിയ ഒരേയൊരു തിൻ-ഫിലിം ടെക്നോളജി CdTe ആണ്. First Solar ആണ് പ്രധാന നിർമ്മാതാവ്; തമിഴ്നാട്ടിൽ അവരുടെ വലിയ പ്ലാന്റുമുണ്ട്. മൊഡ്യൂൾ എഫിഷ്യൻസി ഏകദേശം 18–19.5%. ബാൻഡ് ഗ്യാപ് ഏകദേശം 1.45 eV, സൂര്യപ്രകാശത്തിന് ഏറെക്കുറെ അനുയോജ്യം; ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് (ഏകദേശം −0.28 മുതൽ −0.32%/°C) PERC-നേക്കാൾ നല്ലത്. അതിനാൽ ചൂടും പൊടിയുമുള്ള മരുഭൂമി പ്ലാന്റുകളിൽ നന്നായി പ്രവർത്തിക്കും. മേഘവും ഈർപ്പവുമുള്ള വെളിച്ചത്തിലും നല്ല പ്രതികരണം. ദോഷങ്ങൾ: TOPCon-നേക്കാൾ കുറഞ്ഞ എഫിഷ്യൻസി, കാഡ്മിയം ഉപയോഗം; തിരിച്ചെടുക്കലും റീസൈക്ലിംഗും നിർബന്ധം.", "k069": "CIGS (കോപ്പർ ഇൻഡിയം ഗാലിയം സെലിനൈഡ്)", "k070": "CIGS മൊഡ്യൂളുകൾ ഏകദേശം 14–17% വരെ എത്തുന്നു; ഫ്ലെക്സിബിൾ ഷീറ്റിലും നിർമ്മിക്കാം. ചില BIPV ചുവരുകൾ, വളഞ്ഞ പ്രതലങ്ങൾ, ഭാരം കുറഞ്ഞ മേൽക്കൂരകൾ എന്നിവയിൽ ഉപയോഗിക്കുന്നു; പക്ഷേ വിലയിൽ സിലിക്കണുമായി മത്സരിക്കാൻ കഴിഞ്ഞിട്ടില്ല.", "k071": "അമോർഫസ് സിലിക്കൺ (a-Si)", "k072": "a-Si-ൽ ക്രമമായ ക്രിസ്റ്റൽ ഘടനയില്ല. ചെലവ് കുറവാണ്, പക്ഷേ എഫിഷ്യൻസി 6–9% മാത്രം; ആദ്യ മാസങ്ങളിൽ വെളിച്ചം കാരണം ഔട്ട്പുട്ട് കുറയുന്നു (Staebler–Wronski ഇഫക്ട്). ഇന്ന് പ്രധാനമായും കാൽക്കുലേറ്റർ, വാച്ച്, ഗാർഡൻ ലൈറ്റ്, ഇൻഡോർ ഉപകരണങ്ങൾ എന്നിവയിൽ; ട്യൂബ്‌ലൈറ്റ്, LED വെളിച്ചത്തിൽ നന്നായി പ്രവർത്തിക്കുന്നതാണ് അവിടെ പ്രധാനം.", "k073": "ചിത്രം 5 – ഗ്ലാസിലെ തിൻ-ഫിലിം പാളികൾ. P1, P2, P3 ലേസർ കട്ടുകൾ ഷീറ്റിനെ നീളമുള്ള സെല്ലുകളായി വിഭജിച്ച് സോൾഡറിംഗ് ഇല്ലാതെ സീരീസിൽ ബന്ധിപ്പിക്കുന്നു.", "k074": "തിൻ ഫിലിം", "k075": "മൊഡ്യൂൾ എഫിഷ്യൻസി", "k076": "ബാൻഡ് ഗ്യാപ്", "k077": "ടെമ്പ്. കോഎഫ്. (Pmax)", "k078": "പ്രധാന ഉപയോഗം", "k080": "വലിയ ഗ്രൗണ്ട്-മൗണ്ട് പ്ലാന്റുകൾ, ചൂടുള്ള കാലാവസ്ഥ", "k082": "1.0–1.7 eV (മാറ്റാവുന്നത്)", "k083": "ഫ്ലെക്സിബിൾ, BIPV, ഭാരം കുറഞ്ഞ മേൽക്കൂര", "k084": "ഇലക്ട്രോണിക് ഉപകരണങ്ങൾ, ഇൻഡോർ വെളിച്ചം", "k085": "പെറോവ്സ്കൈറ്റ് (പുതിയത്)", "k086": "പൈലറ്റ് 18–22%", "k087": "1.5–1.7 eV (മാറ്റാവുന്നത്)", "k088": "പരിശോധനയിൽ", "k089": "ടാൻഡത്തിന്റെ മുകൾ സെൽ, ഗവേഷണം", "k090": "<strong>തെറ്റിദ്ധാരണ.</strong> തിൻ ഫിലിം എല്ലാ സാഹചര്യത്തിലും \"ദുർബലം\" അല്ല. വളരെ ചൂടുള്ള സ്ഥലത്ത് ഓരോ kWp-നും CdTe പ്ലാന്റ് PERC പ്ലാന്റിനോളമോ അല്പം കൂടുതലോ ഊർജ്ജം ഉത്പാദിപ്പിക്കാം, കാരണം ചൂട് മൂലമുള്ള നഷ്ടം കുറവാണ്. ഓരോ ചതുരശ്ര മീറ്ററിൽ നിന്നും പവർ കുറവായതിനാൽ ഓരോ kW-നും കൂടുതൽ സ്ഥലവും സ്ട്രക്ചറും വേണം എന്നതാണ് പ്രശ്നം.", "k091": "സെൽ ഘടനകൾ: PERC, TOPCon, HJT, ബാക്ക് കോൺടാക്ട്", "k092": "നാലും മോണോക്രിസ്റ്റലൈൻ വേഫറിലാണ്. പ്രതലം എങ്ങനെ <em>പാസിവേറ്റ്</em> ചെയ്യുന്നു (ഇലക്ട്രോൺ നഷ്ടം തടയൽ), സിലിക്കണുമായി എങ്ങനെ <em>കോൺടാക്ട്</em> ഉണ്ടാക്കുന്നു എന്നതിലാണ് വ്യത്യാസം. ഓരോ പുതിയ ഘട്ടവും ഒരു പ്രത്യേക നഷ്ടം കുറച്ചു; മൊഡ്യൂൾ എഫിഷ്യൻസി ഏകദേശം 17% (Al-BSF) ൽ നിന്ന് ഏകദേശം 24% (BC) ആയി ഉയർന്നു.", "k093": "ഒറ്റ വരിയിൽ വികാസം", "k094": "<strong>Al-BSF</strong> (പിന്നിൽ മുഴുവൻ അലുമിനിയം, സെൽ ഏകദേശം 19–20%) → <strong>PERC</strong> (പിന്നിൽ Al₂O₃/SiNₓ പാസിവേഷൻ, ലോക്കൽ കോൺടാക്ട്, ഏകദേശം 23%) → <strong>TOPCon</strong> (n-type, പിന്നിൽ ടണൽ ഓക്സൈഡ് + ഡോപ്പ്ഡ് പോളി-Si കോൺടാക്ട്, ഏകദേശം 25–26.5%) → <strong>HJT</strong> (ഇരുവശത്തും അമോർഫസ് സിലിക്കൺ പാളി, ഏകദേശം 25.5–26.5%) → <strong>BC</strong> (എല്ലാ കോൺടാക്ടും പിന്നിൽ, മുന്നിൽ നിഴൽ ഇല്ല, ഏകദേശം 26–27%) → <strong>പെറോവ്സ്കൈറ്റ്–സിലിക്കൺ ടാൻഡം</strong> (രണ്ട് പാളി ഒന്നിനു മുകളിൽ, ലാബിൽ 34%-ൽ കൂടുതൽ).", "k095": "<strong>പാസിവേഷൻ എന്തിന്.</strong> വേഫറിന്റെ പ്രതലത്തിൽ മുറിഞ്ഞ ബോണ്ടുകൾ (\"dangling bonds\") ധാരാളമുണ്ട്; അവിടെ ഇലക്ട്രോണുകൾ കുടുങ്ങി നഷ്ടമാകുന്നു. PERC-ൽ പ്രതലത്തിന്റെ ഒരു ഭാഗം മാത്രമേ പാസിവേറ്റ് ആകുന്നുള്ളൂ; മെറ്റൽ കോൺടാക്ട് നേരിട്ട് സിലിക്കണിൽ തൊടുന്നു, അത് വലിയ നഷ്ടമാണ്. TOPCon-ലും HJT-യിലും മെറ്റലിനും സിലിക്കണിനും ഇടയിൽ ഒരു നേർത്ത പാളി കൂടിയുണ്ട്; കറന്റ് കടന്നുപോകും, പക്ഷേ നഷ്ടം വളരെ കുറയും. അതുകൊണ്ടാണ് അവയുടെ ഓപ്പൺ-സർക്യൂട്ട് വോൾട്ടേജ് PERC-നേക്കാൾ ഏകദേശം 30–50 mV കൂടുതൽ; ഇത് നേരിട്ട് എഫിഷ്യൻസി കൂട്ടുന്നു.", "k096": "മൊഡ്യൂൾ ഫോർമാറ്റുകൾ: ഹാഫ്-കട്ട്, ബൈഫേഷ്യൽ, ഗ്ലാസ്–ഗ്ലാസ്, ബസ്ബാർ, വേഫർ സൈസ്", "k097": "ഓരോ സെല്ലും വെളിച്ചത്തെ എത്ര നന്നായി മാറ്റുന്നു എന്ന് സെൽ ടെക്നോളജി തീരുമാനിക്കുന്നു. അതിൽ എത്ര പവർ കേബിളിൽ എത്തുന്നു എന്ന് മൊഡ്യൂൾ ഡിസൈൻ തീരുമാനിക്കുന്നു. ഈ ഫീച്ചറുകൾ ഒരുമിച്ച് ഉപയോഗിക്കുന്നു: 2026-ലെ സാധാരണ മൊഡ്യൂൾ \"n-type TOPCon, ഹാഫ്-കട്ട്, 16BB/0BB, ബൈഫേഷ്യൽ, ഗ്ലാസ്–ഗ്ലാസ്, 182×210 mm\" ആണ്.", "k098": "ഹാഫ്-കട്ട് സെല്ലുകൾ", "k099": "മുഴുവൻ സെല്ലും ലേസർ ഉപയോഗിച്ച് രണ്ടായി മുറിക്കുന്നു. ഓരോ പകുതിക്കും അതേ വോൾട്ടേജ്, പക്ഷേ പകുതി കറന്റ് മാത്രം. റിബണിലും ഫിംഗറിലുമുള്ള നഷ്ടം P = I²R ആയതിനാൽ കറന്റ് പകുതിയാകുമ്പോൾ ഓരോ കണ്ടക്ടറിലെയും നഷ്ടം നാലിലൊന്നാകുന്നു. മൊഡ്യൂൾ ഒരേപോലുള്ള രണ്ട് പകുതികളായി (മുകൾ, താഴെ) വയർ ചെയ്ത് പാരലലിൽ ബന്ധിപ്പിക്കുന്നു; ജംഗ്ഷൻ ബോക്സ് നടുവിലാണ്.", "k100": "ഗുണങ്ങൾ: അതേ സെല്ലുകളിൽ നിന്ന് ഏകദേശം 2–3% കൂടുതൽ ഔട്ട്പുട്ട്, കുറഞ്ഞ ഹോട്ട്-സ്പോട്ട് താപനില, നിഴലിൽ മികച്ച പ്രവർത്തനം. പാരപെറ്റ് ചുവരിന്റെ നിഴൽ താഴത്തെ വരിയിൽ വീണാൽ താഴത്തെ പകുതി മാത്രമേ പവർ നഷ്ടപ്പെടുത്തൂ, മുകൾ പകുതി ഉത്പാദനം തുടരും. മുറിച്ച സെല്ലിൽ മെക്കാനിക്കൽ സമ്മർദ്ദം കുറവാണ്, മൈക്രോ-ക്രാക്ക് പടരുന്നതും കുറയും. ഇന്ന് മിക്ക മൊഡ്യൂളുകളും ഹാഫ്-കട്ടാണ്; ചില പ്രീമിയം ഡിസൈനുകളിൽ മൂന്നായി മുറിക്കലോ ഷിംഗിൾഡ് സ്ട്രിപ്പുകളോ ഉണ്ട്.", "k101": "ചിത്രം 7 – ഇടത്: 60/72 ഫുൾ-സെൽ ലേഔട്ട്. വലത്: രണ്ട് പാരലൽ പകുതികളായി വിഭജിച്ച ഹാഫ്-കട്ട് ലേഔട്ട്, ജംഗ്ഷൻ ബോക്സ് നടുവിൽ.", "k102": "ബൈഫേഷ്യൽ മൊഡ്യൂളുകൾ", "k103": "ബൈഫേഷ്യൽ മൊഡ്യൂൾ ഇരുവശത്തുനിന്നും വെളിച്ചം സ്വീകരിക്കുന്നു. സെല്ലിന്റെ പിന്നിൽ മുഴുവൻ മെറ്റൽ ഷീറ്റിന് പകരം ഗ്രിഡ് ആണ്; മൊഡ്യൂളിന്റെ പിൻഭാഗത്ത് സുതാര്യ ഗ്ലാസ് അല്ലെങ്കിൽ സുതാര്യ ബാക്ക്ഷീറ്റ്. നിലത്തുനിന്നോ മേൽക്കൂരയിൽ നിന്നോ പ്രതിഫലിക്കുന്ന വെളിച്ചം പിന്നിലെത്തി 5–25% അധിക ഊർജ്ജം നൽകും. ഇത് പ്രതലത്തിന്റെ പ്രതിഫലനശേഷി (ആൽബിഡോ), ഉയരം, വരികൾ തമ്മിലുള്ള അകലം എന്നിവയെ ആശ്രയിക്കുന്നു.", "k104": "<strong>ബൈഫേഷ്യാലിറ്റി ഫാക്ടർ</strong> = പിൻ എഫിഷ്യൻസി ÷ മുൻ എഫിഷ്യൻസി: PERC ഏകദേശം 70%, TOPCon ഏകദേശം 80–85%, HJT ഏകദേശം 85–95%. വെള്ള മേൽക്കൂര അല്ലെങ്കിൽ വെള്ള ചരൽ (ആൽബിഡോ 0.5–0.8), ഉയർത്തിയ സ്ട്രക്ചർ, സിംഗിൾ-ആക്സിസ് ട്രാക്കർ എന്നിവയിൽ നേട്ടം ഏറ്റവും കൂടുതൽ. ഇരുണ്ട ഷീറ്റ് മേൽക്കൂരയിൽ ചേർത്ത് ഘടിപ്പിച്ചാൽ പിന്നിൽ വെളിച്ചം കിട്ടില്ല; ബൈഫേഷ്യൽ കൊണ്ട് കാര്യമായ നേട്ടമില്ല.", "k105": "ചിത്രം 8 – ബൈഫേഷ്യൽ നേട്ടം നിലത്തിന്റെ ആൽബിഡോ, ഉയരം, ചരിവ് എന്നിവയെ ആശ്രയിക്കുന്നു.", "k106": "ഡാറ്റാഷീറ്റിൽ കാണുന്ന മറ്റ് ഫീച്ചറുകൾ", "k107": "ഫീച്ചർ", "k108": "അർത്ഥം", "k109": "ഫീൽഡിൽ പ്രാധാന്യം", "k110": "ബസ്ബാർ: 5BB → 9BB → MBB (16BB+) → 0BB", "k111": "കൂടുതൽ, നേർത്ത ബസ്ബാറുകൾ (ഉരുണ്ട വയർ) കുറഞ്ഞ ദൂരത്തിൽ ഫിംഗറുകളിൽ നിന്ന് കറന്റ് ശേഖരിക്കുന്നു. 0BB-യിൽ ബസ്ബാർ ഇല്ല, വയർ നേരിട്ട് ഫിംഗറിൽ ചേർക്കുന്നു.", "k112": "കുറഞ്ഞ റെസിസ്റ്റൻസ്, കുറഞ്ഞ വെള്ളി ഉപയോഗം; കറന്റിന് കൂടുതൽ വഴികൾ ഉള്ളതിനാൽ മൈക്രോ-ക്രാക്കിന്റെ ആഘാതം കുറവ്.", "k113": "ഗ്ലാസ്–ഗ്ലാസ് (ഡ്യുവൽ ഗ്ലാസ്)", "k114": "3.2 mm ഗ്ലാസ് + പോളിമർ ബാക്ക്ഷീറ്റിന് പകരം 2 mm + 2 mm ടെമ്പേർഡ് ഗ്ലാസ്.", "k115": "ഈർപ്പം കടക്കലും PID-യും കുറവ്; കടലോരത്തിനും ഈർപ്പമുള്ള സ്ഥലങ്ങൾക്കും നല്ലത്; 30 വർഷ വാറന്റി സാധാരണം. അല്പം ഭാരം കൂടുതൽ, ശരിയായ ക്ലാമ്പിംഗ് സ്ഥാനം നിർബന്ധം.", "k116": "വേഫർ സൈസ് M10 / G12 / G12R", "k117": "182 mm, 210 mm, 182×210 mm ദീർഘചതുര വേഫറുകൾ.", "k118": "വലിയ വേഫർ കൂടിയ മൊഡ്യൂൾ പവർ (580–730 W) നൽകും, കറന്റും കൂടും; ഇൻവെർട്ടറിന്റെ MPPT കറന്റ് റേറ്റിംഗ് അനുയോജ്യമായിരിക്കണം (ഓരോ ഇൻപുട്ടിനും ≥ 16–20 A).", "k119": "ഷിംഗിൾഡ് സെല്ലുകൾ", "k120": "സെല്ലുകൾ സ്ട്രിപ്പുകളായി മുറിച്ച് ഓട് പോലെ ഒന്നിനു മുകളിൽ ഒന്നായി കണ്ടക്റ്റീവ് പശ കൊണ്ട് ചേർക്കുന്നു.", "k121": "സെല്ലുകൾക്കിടയിൽ വിടവില്ല, നിഴലിൽ വളരെ നല്ലത്, ഒരേപോലെ കാണും.", "k122": "ഫുൾ ബ്ലാക്ക് / ഓൾ-ബ്ലാക്ക്", "k123": "കറുത്ത ബാക്ക്ഷീറ്റും കറുത്ത ഫ്രെയിമും.", "k124": "വീടുകളിൽ കാണാൻ ഭംഗി; അല്പം കൂടുതൽ ചൂടാകും, ഉത്പാദനം നേരിയ തോതിൽ കുറയും.", "k125": "ഫ്രെയിംലെസ് / BIPV", "k126": "കെട്ടിടത്തിന്റെ ഗ്ലാസ്, സ്കൈലൈറ്റ്, മേൽക്കൂര ഓട് എന്നിവയിൽ മൊഡ്യൂൾ ഉൾപ്പെടുത്തുന്നു.", "k127": "കെട്ടിട സാമഗ്രിക്ക് പകരമാകുന്നു; എഫിഷ്യൻസിയേക്കാൾ ഡിസൈനാണ് പ്രധാനം.", "k128": "ഫ്ലെക്സിബിൾ / ഭാരം കുറഞ്ഞത്", "k129": "ഗ്ലാസിന് പകരം പോളിമർ ഷീറ്റ്, 3–8 kg.", "k130": "ബോട്ട്, വാഹനം, ടെന്റ്, ബലം കുറഞ്ഞ മേൽക്കൂര. ആയുസ്സ് കുറവ്, ചൂട് പുറത്തുപോകലും കുറവ്.", "k131": "<strong>ഇൻസ്റ്റലേഷനിലെ സാധാരണ പിഴവ്.</strong> വലിയ മൊഡ്യൂളുകളിൽ (ഏകദേശം 2.4 × 1.1 m) ക്ലാമ്പ് ചെയ്യുന്ന സ്ഥാനം വളരെ പ്രധാനമാണ്. നിർമ്മാതാവ് അനുവദിച്ച ഭാഗത്തിന് പുറത്ത് ക്ലാമ്പ് ചെയ്യുന്നതും മൊഡ്യൂളിനു മുകളിൽ നടക്കുന്നതും മൈക്രോ-ക്രാക്ക് ഉണ്ടാക്കും; പിന്നീട് \"സ്നെയിൽ ട്രെയിൽ\" ആയും പവർ നഷ്ടമായും കാണും. മെക്കാനിക്കൽ ലോഡ് റേറ്റിംഗും (ഉദാ. മുന്നിൽ 5,400 Pa / പിന്നിൽ 2,400 Pa) ഇൻസ്റ്റലേഷൻ മാനുവലിലെ ക്ലാമ്പിംഗ് ഡ്രോയിംഗും എപ്പോഴും നോക്കുക.", "k132": "നേർക്കുനേർ താരതമ്യം", "k133": "2026-ൽ മാർക്കറ്റിൽ ലഭ്യമായ മൊഡ്യൂളുകളുടെ സാധാരണ മൂല്യങ്ങൾ. വിലകൾ ഇന്ത്യയിലെ മൊഡ്യൂളിന് മാത്രമുള്ള ഏകദേശ ex-works/ഡീലർ വിലയാണ്, ₹ പ്രതി വാട്ട്-പീക്ക്; ഓരോ മാസവും മാറും: പുതിയ ക്വട്ടേഷൻ വാങ്ങി ഉറപ്പാക്കുക.", "k134": "മൊഡ്യൂൾ എഫിഷ്യൻസി", "k135": "ചൂട് മൂലമുള്ള നഷ്ടം", "k136": "വാർഷിക ഡീഗ്രഡേഷൻ", "k137": "ബൈഫേഷ്യാലിറ്റി", "k138": "വില കുറിപ്പ്: 2026 തുടക്കത്തിൽ ഇന്ത്യൻ മാർക്കറ്റ് ട്രാക്കറുകൾ പ്രകാരം non-DCR TOPCon ഏകദേശം ₹14–16/Wp, DCR TOPCon (ഇന്ത്യൻ സെൽ + ഇന്ത്യൻ മൊഡ്യൂൾ) ഏകദേശം ₹22–27/Wp; അതായത് ഏകദേശം 70–100% കൂടുതൽ, ഈ വ്യത്യാസം ഇപ്പോൾ കുറഞ്ഞുവരുന്നു. വീടുകളിലെ മുഴുവൻ സിസ്റ്റം ചെലവ് (മൊഡ്യൂൾ, ഇൻവെർട്ടർ, സ്ട്രക്ചർ, കേബിൾ, ഇൻസ്റ്റലേഷൻ) സൈസും DCR-ഉം അനുസരിച്ച് സാധാരണ ₹40–85 പ്രതി Wp. HJT, BC എന്നിവ സാധാരണ TOPCon-നേക്കാൾ വില കൂടുതലാണ്. ഉറവിടം: Mercom India, SMM, OPIS, ഇൻഡസ്ട്രി പ്രൈസ് ട്രാക്കറുകൾ, ജനുവരി–ജൂൺ 2026.", "k139": "താരതമ്യം എങ്ങനെ വായിക്കാം", "k140": "ഒരു മേൽക്കൂരയിൽ എത്ര പവർ ഘടിപ്പിക്കാം എന്ന് എഫിഷ്യൻസി തീരുമാനിക്കുന്നു. 25 m² ടെറസിൽ 17% പോളി ഏകദേശം 4.2 kWp, 23% TOPCon ഏകദേശം 5.7 kWp. ചൂടുള്ള ദിവസം എത്ര നഷ്ടം എന്ന് ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് തീരുമാനിക്കുന്നു: 65 °C സെൽ താപനിലയിൽ PERC (−0.35%/°C) ഏകദേശം 14%, HJT (−0.25%/°C) ഏകദേശം 10% നഷ്ടപ്പെടുത്തും. 25–30 വർഷം കഴിഞ്ഞ് എത്ര ബാക്കി എന്ന് ഡീഗ്രഡേഷൻ തീരുമാനിക്കുന്നു: n-type മൊഡ്യൂളുകൾ സാധാരണ 30 വർഷത്തിൽ 87–89% ഉറപ്പ് നൽകുന്നു; പഴയ p-type 25 വർഷത്തിൽ ഏകദേശം 80–83%.", "k141": "പ്രതി വാട്ട് വില കണക്കിന്റെ ഒരു ഭാഗം മാത്രം. സിസ്റ്റത്തിന്റെ മുഴുവൻ ആയുസ്സിലെ പ്രതി kWh ചെലവ് (LCOE) ആണ് ശരിയായ താരതമ്യം; അതിൽ ഉത്പാദനം, ഡീഗ്രഡേഷൻ, ഓരോ kW-നും ബാക്കി സിസ്റ്റത്തിന്റെ ചെലവ് എല്ലാം ഉൾപ്പെടും. മേൽക്കൂര, സ്ട്രക്ചർ അല്ലെങ്കിൽ സ്ഥലം പരിമിതമാകുമ്പോൾ അല്പം വിലകൂടിയ, കൂടിയ എഫിഷ്യൻസിയുള്ള മൊഡ്യൂൾ പലപ്പോഴും ലാഭകരമാകും.", "k142": "സ്റ്റാൻഡേർഡുകൾ, സർട്ടിഫിക്കേഷൻ, ഡാറ്റാഷീറ്റ് വായന", "k143": "ഇന്ത്യയിൽ PV മൊഡ്യൂളിന് BIS രജിസ്ട്രേഷൻ നിർബന്ധമാണ്; മിക്ക സർക്കാർ, സബ്സിഡി പ്രോജക്ടുകൾക്കും MNRE-യുടെ ALMM ലിസ്റ്റിലും ഉണ്ടായിരിക്കണം. ടെക്നിക്കൽ ടെസ്റ്റുകൾ IEC 61215, IEC 61730 അടിസ്ഥാനമാക്കിയാണ്; ഇവ ഇന്ത്യൻ സ്റ്റാൻഡേർഡുകളായി സ്വീകരിച്ചിട്ടുണ്ട്.", "k144": "സ്റ്റാൻഡേർഡ് / ഉത്തരവ്", "k145": "വിഷയം", "k146": "പ്രസക്തി", "k148": "ക്രിസ്റ്റലൈൻ സിലിക്കൺ PV മൊഡ്യൂൾ: ഡിസൈൻ ക്വാളിഫിക്കേഷനും ടൈപ്പ് അപ്രൂവലും (തെർമൽ സൈക്ലിംഗ്, ഡാമ്പ് ഹീറ്റ് 85 °C/85% RH, ഹ്യുമിഡിറ്റി ഫ്രീസ്, മെക്കാനിക്കൽ ലോഡ്, ആലിപ്പഴം, ഹോട്ട്-സ്പോട്ട്, UV)", "k149": "c-Si മൊഡ്യൂളിന് BIS രജിസ്ട്രേഷൻ നിർബന്ധം", "k150": "IS 16077 (IEC 61646 അനുസരിച്ച്, ഇപ്പോൾ IEC 61215 സീരീസിൽ ലയിച്ചു)", "k151": "തിൻ-ഫിലിം PV മൊഡ്യൂൾ: ഡിസൈൻ ക്വാളിഫിക്കേഷൻ", "k152": "തിൻ-ഫിലിം മൊഡ്യൂളിന് നിർബന്ധം", "k154": "PV മൊഡ്യൂൾ സേഫ്റ്റി: നിർമ്മാണവും ടെസ്റ്റിംഗും (ഇൻസുലേഷൻ, വെറ്റ് ലീക്കേജ്, തീ, ഇംപൾസ് വോൾട്ടേജ്)", "k155": "BIS രജിസ്ട്രേഷൻ നിർബന്ധം", "k156": "സോളാർ PV സിസ്റ്റം, ഉപകരണങ്ങൾ, ഘടകങ്ങൾ (നിർബന്ധിത രജിസ്ട്രേഷൻ) ഉത്തരവ്, 2017, MeitY/BIS", "k157": "മൊഡ്യൂൾ, ഇൻവെർട്ടർ (IS 16221, IS 16169), ബാറ്ററി (IS 16270) എന്നിവയ്ക്ക് BIS രജിസ്ട്രേഷൻ നിർബന്ധം", "k158": "BIS രജിസ്ട്രേഷൻ (R-നമ്പർ) ഇല്ലാതെ ഇന്ത്യയിൽ ഒരു മൊഡ്യൂളും വിൽക്കാൻ പാടില്ല", "k159": "MNRE ALMM ഉത്തരവ്, List-I (മൊഡ്യൂൾ), List-II (സെൽ)", "k160": "അംഗീകൃത മോഡലുകളുടെയും നിർമ്മാതാക്കളുടെയും പട്ടിക; സെല്ലിനുള്ള List-II 2026 ജൂൺ 1 മുതൽ", "k161": "സർക്കാർ, PM സൂര്യ ഘർ, PM-KUSUM, നെറ്റ്-മീറ്ററിംഗ്, പല ഓപ്പൺ-ആക്സസ് പ്രോജക്ടുകൾക്കും നിർബന്ധം", "k163": "I–V സവിശേഷത, റഫറൻസ് സെൽ, STC സ്പെക്ട്രം (AM 1.5G) അളക്കൽ", "k164": "നെയിംപ്ലേറ്റ് റേറ്റിംഗിന്റെയും ഫ്ലാഷ് ടെസ്റ്റിന്റെയും അടിസ്ഥാനം", "k166": "ഉപ്പുകാറ്റ് (salt mist) മൂലമുള്ള തുരുമ്പ് ടെസ്റ്റ്", "k167": "കേരള തീരപ്രദേശം, ലക്ഷദ്വീപ്, തുറമുഖങ്ങൾ എന്നിവിടങ്ങളിൽ അത്യാവശ്യം", "k169": "അമോണിയ മൂലമുള്ള തുരുമ്പ് ടെസ്റ്റ്", "k170": "ഡെയറി ഫാം, കോഴിഫാം, കന്നുകാലി തൊഴുത്ത്", "k172": "പൊട്ടൻഷ്യൽ-ഇൻഡ്യൂസ്ഡ് ഡീഗ്രഡേഷൻ (PID) ടെസ്റ്റ്", "k173": "ഈർപ്പമുള്ള കാലാവസ്ഥയിലെ ഹൈ-വോൾട്ടേജ് സ്ട്രിംഗുകൾ", "k175": "വിവിധ താപനിലയിലും വെളിച്ചത്തിലും എനർജി റേറ്റിംഗ്", "k176": "STC വാട്ട് മാത്രമല്ല, യഥാർത്ഥ ഉത്പാദനം താരതമ്യം ചെയ്യാൻ", "k178": "PV അറേ ഡിസൈൻ ആവശ്യകതകൾ; കമ്മീഷനിംഗ് ടെസ്റ്റുകളും രേഖകളും", "k179": "സിസ്റ്റം ഡിസൈൻ, സ്ട്രിംഗ് സൈസിംഗ്, പരിശോധന", "k180": "CEA (സുരക്ഷയും വൈദ്യുതി വിതരണവും സംബന്ധിച്ച നടപടികൾ) റെഗുലേഷൻസ്, 2023; CEA ഡിസ്ട്രിബ്യൂട്ടഡ് ജനറേഷൻ കണക്ടിവിറ്റി ടെക്നിക്കൽ സ്റ്റാൻഡേർഡുകൾ", "k181": "റൂഫ്ടോപ്പ്, ഡിസ്ട്രിബ്യൂട്ടഡ് ജനറേഷൻ എന്നിവയുടെ സുരക്ഷ, എർത്തിംഗ്, ഗ്രിഡ് കണക്ഷൻ", "k182": "അംഗീകാര സമയത്ത് ഇലക്ട്രിക്കൽ ഇൻസ്പെക്ടറേറ്റും DISCOM-ഉം (KSEB) നടപ്പാക്കുന്നു", "k183": "വയറിംഗ് പ്രാക്ടീസ്; എർത്തിംഗിനുള്ള കോഡ് ഓഫ് പ്രാക്ടീസ്", "k184": "DC/AC കേബിളിംഗ്, മൊഡ്യൂൾ ഫ്രെയിമിന്റെയും സ്ട്രക്ചറിന്റെയും എർത്തിംഗ്", "k185": "മൊഡ്യൂൾ ഡാറ്റാഷീറ്റ് വായിക്കുന്ന വിധം", "k186": "<strong>STC</strong> (സ്റ്റാൻഡേർഡ് ടെസ്റ്റ് കണ്ടീഷൻ): ഇറേഡിയൻസ് 1,000 W/m², സെൽ താപനില 25 °C, സ്പെക്ട്രം AM 1.5G. നെയിംപ്ലേറ്റ് പവർ (Pmax അല്ലെങ്കിൽ Wp) STC-യിലാണ് അളക്കുന്നത്. യഥാർത്ഥ മേൽക്കൂരയിൽ സെൽ 25 °C-ൽ വരുന്നത് അപൂർവം; ഇന്ത്യൻ വേനലിൽ സെൽ സാധാരണ 55–70 °C-ൽ ആയിരിക്കും.", "k187": "<strong>NMOT / NOCT</strong>: 800 W/m², 20 °C അന്തരീക്ഷ താപനില, 1 m/s കാറ്റ് എന്നിവയിൽ മൊഡ്യൂളിന്റെ (അല്ലെങ്കിൽ സെല്ലിന്റെ) സാധാരണ പ്രവർത്തന താപനില. സാധാരണ 41–45 °C. യഥാർത്ഥ സെൽ താപനില കണക്കാക്കാൻ ഉപയോഗിക്കുന്നു.", "k188": "<strong>Voc, Isc, Vmp, Imp</strong>: ഓപ്പൺ-സർക്യൂട്ട് വോൾട്ടേജ്, ഷോർട്ട്-സർക്യൂട്ട് കറന്റ്, മാക്സിമം പവർ പോയിന്റിലെ വോൾട്ടേജും കറന്റും. ഏറ്റവും തണുത്ത താപനിലയിലെ Voc ആണ് ഇൻവെർട്ടറിന്റെ പരമാവധി DC വോൾട്ടേജ് കടക്കാതെ എത്ര മൊഡ്യൂൾ സീരീസിൽ വെക്കാം എന്ന് തീരുമാനിക്കുന്നത്. കേബിൾ സൈസും ഇൻവെർട്ടർ MPPT കറന്റ് റേറ്റിംഗും Isc അനുസരിച്ചാണ്.", "k189": "<strong>ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ്</strong>: Pmax (ഏകദേശം −0.25 മുതൽ −0.40%/°C), Voc (ഏകദേശം −0.24 മുതൽ −0.30%/°C), Isc (ഏകദേശം +0.04 മുതൽ +0.05%/°C).", "k190": "<strong>പവർ ടോളറൻസ്</strong>: സാധാരണ 0 മുതൽ +5 W; അതായത് ടെസ്റ്റിൽ മൊഡ്യൂൾ നെയിംപ്ലേറ്റിനേക്കാൾ കുറയില്ല.", "k191": "<strong>വാറന്റി</strong>: പ്രോഡക്ട് വാറന്റി 12–25 വർഷം; ലീനിയർ പെർഫോമൻസ് വാറന്റി, ഉദാ. n-type മൊഡ്യൂളിന് \"ഒന്നാം വർഷം 1% കുറവ്, പിന്നെ ഓരോ വർഷവും 0.4%, 30 വർഷത്തിൽ ≥ 87.4%\".", "k192": "ചിത്രം 9 – 2026-ലെ സാധാരണ മൊഡ്യൂളിന്റെ നെയിംപ്ലേറ്റ് മൂല്യങ്ങൾ (ഉദാഹരണം മാത്രം, യഥാർത്ഥ ഉൽപ്പന്നമല്ല).", "k193": "<strong>കേരളത്തിന് പ്രത്യേകം.</strong> കടലിനടുത്ത് (ഏകദേശം 1–5 km ഉള്ളിൽ) ഉയർന്ന തലത്തിൽ IEC 61701 സർട്ടിഫൈ ചെയ്ത മൊഡ്യൂൾ, കഴിയുമെങ്കിൽ ഗ്ലാസ്–ഗ്ലാസ്, വ്യത്യസ്ത ലോഹങ്ങൾക്കിടയിൽ ശരിയായ ഇൻസുലേഷനോടെ സ്റ്റെയിൻലെസ് അല്ലെങ്കിൽ ഹോട്ട്-ഡിപ് ഗാൽവനൈസ്ഡ് സ്ട്രക്ചർ എന്നിവ നിർദ്ദേശിക്കുക. ഫ്രെയിം, ജംഗ്ഷൻ ബോക്സ്, MC4 കണക്ടർ എന്നിവയിലെ ഉപ്പ് തുരുമ്പാണ് തീരദേശ ജില്ലകളിൽ നേരത്തെയുള്ള കേടുപാടുകളുടെ പ്രധാന കാരണം.", "k194": "യഥാർത്ഥ ഉപയോഗങ്ങൾ", "k195": "ഏറ്റവും നല്ല ടെക്നോളജി സൈറ്റിനെ ആശ്രയിച്ചിരിക്കുന്നു: ലഭ്യമായ സ്ഥലം, താപനില, നിഴൽ, മൊഡ്യൂളിന് താഴെയുള്ള പ്രതലം, ഭാര പരിധി, സബ്സിഡിക്ക് DCR വേണോ എന്നത്.", "k196": "ഏത് ടെക്നോളജി ഏത് ഉപയോഗത്തിന്", "k197": "<span class=\"dot d3\"></span> ഏറ്റവും നല്ലത് &nbsp; <span class=\"dot d2\"></span> അനുയോജ്യം &nbsp; <span class=\"dot d1\"></span> സാധാരണ ഇല്ല", "k198": "കേരളത്തിലെയും ഇന്ത്യയിലെയും ഉദാഹരണങ്ങൾ", "k199": "PM സൂര്യ ഘർ പദ്ധതിയിലെ വീട്ടു മേൽക്കൂരകൾ (KSEB നെറ്റ് മീറ്ററിംഗ്)", "k200": "കേരളത്തിലെ സാധാരണ 3 kW വീട്ടു സിസ്റ്റത്തിൽ 540–620 Wp-യുടെ അഞ്ചോ ആറോ DCR മോണോ മൊഡ്യൂളുകൾ (PERC അല്ലെങ്കിൽ ഇപ്പോൾ കൂടുതലായി TOPCon), 3 kW ഓൺ-ഗ്രിഡ് ഇൻവെർട്ടർ, KSEB സ്ഥാപിക്കുന്ന ബൈഡയറക്ഷണൽ മീറ്റർ എന്നിവയുണ്ട്. ടെറസിൽ വാട്ടർ ടാങ്ക്, പാരപെറ്റ്, തെങ്ങ് എന്നിവ ഭാഗിക നിഴൽ ഉണ്ടാക്കുന്നതിനാൽ ഹാഫ്-കട്ട് മൊഡ്യൂളാണ് ഇഷ്ടം. ചൂടുള്ള കോൺക്രീറ്റ് ടെറസിൽ TOPCon-ന്റെ മികച്ച ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് വേനലിൽ വ്യക്തമായി കൂടുതൽ ഉത്പാദനം നൽകും.", "k201": "കൊച്ചി അന്താരാഷ്ട്ര വിമാനത്താവളം (CIAL)", "k202": "2015-ൽ CIAL പൂർണ്ണമായും സൗരോർജ്ജത്തിൽ പ്രവർത്തിക്കുന്ന ലോകത്തിലെ ആദ്യ വിമാനത്താവളമായി അറിയപ്പെട്ടു. ഗ്രൗണ്ട്-മൗണ്ട്, കനോപ്പി പ്ലാന്റുകൾ പിന്നീട് പല പത്ത് MWp ശേഷിയിലേക്ക് വളർന്നു; പാർക്കിംഗിന് മുകളിലെ കാർപോർട്ടുകളും പാനലുകൾക്ക് താഴെ പച്ചക്കറി കൃഷിയും ഉൾപ്പെടെ (ഇന്ത്യയിലെ അഗ്രിവോൾട്ടായിക്സിന്റെ ആദ്യകാല ഉദാഹരണം).", "k203": "ഫ്ലോട്ടിംഗ് സോളാർ", "k204": "വയനാട് ബാണാസുര സാഗർ ജലസംഭരണിയിലെ KSEB-യുടെ ഫ്ലോട്ടിംഗ് പ്ലാന്റ് ഇന്ത്യയിലെ ആദ്യകാല ഫ്ലോട്ടിംഗ് പ്ലാന്റുകളിൽ ഒന്നാണ്. ദേശീയ തലത്തിൽ NTPC-യുടെ രാമഗുണ്ടം (തെലങ്കാന) 100 MW ഫ്ലോട്ടിംഗ് പ്ലാന്റ് ഏറ്റവും വലിയവയിൽ ഒന്നാണ്. വെള്ളം മൊഡ്യൂളിനെ തണുപ്പിക്കുന്നതിനാൽ ഉത്പാദനം കൂടും; ബാഷ്പീകരണവും കുറയും. സ്ഥിരമായ ഈർപ്പം കാരണം മികച്ച PID, തുരുമ്പ് പ്രതിരോധമുള്ള ഗ്ലാസ്–ഗ്ലാസ് മൊഡ്യൂളുകളാണ് ഇഷ്ടം.", "k205": "സോളാർ ഫെറി \"ആദിത്യ\"", "k206": "കേരള സംസ്ഥാന ജലഗതാഗത വകുപ്പിന്റെ \"ആദിത്യ\" 2017 മുതൽ വൈക്കം–തവണക്കടവ് റൂട്ടിൽ ഓടുന്നു; ഇന്ത്യയിലെ ആദ്യ സോളാർ ഫെറിയാണ്. മേൽക്കൂരയിലെ മോണോ മൊഡ്യൂളുകൾ ബാറ്ററി ചാർജ് ചെയ്യുന്നു; ഭാരവും സ്ഥലവും പരിമിതമായ ഗതാഗതത്തിൽ PV എങ്ങനെ ഉപയോഗിക്കാം എന്നതിന് ഉദാഹരണം.", "k207": "വലിയ സോളാർ പാർക്കുകൾ", "k208": "ഭഡ്‌ല (രാജസ്ഥാൻ, ഏകദേശം 2.2 GW), പാവഗഡ (കർണാടക, ഏകദേശം 2 GW) എന്നിവ ലോകത്തിലെ ഏറ്റവും വലിയ സോളാർ പാർക്കുകളിൽ പെടുന്നു. പുതിയ ഘട്ടങ്ങളിൽ സിംഗിൾ-ആക്സിസ് ട്രാക്കറുകളിൽ ബൈഫേഷ്യൽ n-type TOPCon മൊഡ്യൂളുകൾ. മരുഭൂമിയിലെ മണലും ഇളം മണ്ണും പിൻഭാഗത്ത് നല്ല നേട്ടം നൽകുന്നു; പൊടിക്ക് വെള്ളമില്ലാത്ത റോബോട്ടിക് ക്ലീനിംഗ് ഉപയോഗിക്കുന്നു.", "k209": "കൃഷി: PM-KUSUM സോളാർ പമ്പുകളും അഗ്രിവോൾട്ടായിക്സും", "k210": "PM-KUSUM-ൽ കർഷകർ സ്വതന്ത്ര സോളാർ പമ്പുകൾ (ഘടകം B) സ്ഥാപിക്കുകയോ ഗ്രിഡ് പമ്പുകൾ സോളാറിലേക്ക് മാറ്റുകയോ (ഘടകം C) ചെയ്യുന്നു. മോണോ PERC അല്ലെങ്കിൽ TOPCon മൊഡ്യൂളുകളും വേരിയബിൾ-ഫ്രീക്വൻസി പമ്പ് കൺട്രോളറും. അഗ്രിവോൾട്ടായിക്സിൽ മൊഡ്യൂളുകൾ വിളകൾക്ക് 2.5–4 m മുകളിൽ; ബൈഫേഷ്യൽ, അർദ്ധ-സുതാര്യ ഗ്ലാസ്–ഗ്ലാസ് മൊഡ്യൂളുകൾ ചെടികൾക്ക് വെളിച്ചം എത്തിക്കുന്നു.", "k211": "വാണിജ്യ, വ്യവസായ മേൽക്കൂരകൾ", "k212": "ഫാക്ടറികൾ, ആശുപത്രികൾ, സ്ഥാപനങ്ങൾ (ITI, NSTI ഉൾപ്പെടെ) മെറ്റൽ ഷീറ്റ് മേൽക്കൂരയിൽ 50 kW–2 MW സ്ഥാപിക്കുന്നു. റെയിൽ-ലെസ് ക്ലാമ്പുകളിൽ ഭാരം കുറഞ്ഞ ഫ്രെയിമുള്ള TOPCon മൊഡ്യൂളുകൾ സാധാരണം; ഇരുണ്ട ഷീറ്റ് മേൽക്കൂരയിൽ ബൈഫേഷ്യൽ നേട്ടം കുറവായതിനാൽ പലപ്പോഴും മോണോഫേഷ്യൽ തിരഞ്ഞെടുക്കുന്നു.", "k213": "തിൻ ഫിലിമും പ്രത്യേക ഉപയോഗങ്ങളും", "k214": "ചൂടുള്ള പ്രദേശങ്ങളിലെ വലിയ പ്ലാന്റുകളിൽ CdTe മൊഡ്യൂളുകൾ; BIPV ചുവരുകളിൽ CIGS, പെറോവ്സ്കൈറ്റ് പ്രോട്ടോടൈപ്പുകൾ. a-Si സെല്ലുകൾ കാൽക്കുലേറ്ററും ഇൻഡോർ സെൻസറും പ്രവർത്തിപ്പിക്കുന്നു. ISRO ഉപഗ്രഹങ്ങൾ ഉൾപ്പെടെ ബഹിരാകാശ വാഹനങ്ങൾ ഹൈ-എഫിഷ്യൻസി III–V മൾട്ടി-ജംഗ്ഷൻ സെല്ലുകൾ (ബഹിരാകാശത്ത് ഏകദേശം 30%) ഉപയോഗിക്കുന്നു; അവിടെ വിലയേക്കാൾ ഭാരവും സ്ഥലവുമാണ് പ്രധാനം.", "k215": "ഓഫ്-ഗ്രിഡും ചെറിയ സിസ്റ്റങ്ങളും", "k216": "സോളാർ തെരുവുവിളക്ക്, ട്രാഫിക് ബ്ലിങ്കർ, ടെലികോം ടവർ, ഫെൻസിംഗ് എനർജൈസർ, വിദൂര വീടുകൾ എന്നിവ ബാറ്ററിയോടൊപ്പം 20–400 W ചെറിയ മോണോ മൊഡ്യൂളുകൾ ഉപയോഗിക്കുന്നു. ഇവിടെ അവസാന ശതമാനം എഫിഷ്യൻസിയേക്കാൾ ഉറപ്പും ബാറ്ററി ഗുണനിലവാരവുമാണ് പ്രധാനം.", "k217": "<strong>തിരഞ്ഞെടുക്കാൻ എളുപ്പ നിയമം (2026).</strong> കുറഞ്ഞ മേൽക്കൂര, സബ്സിഡി പ്രോജക്ട്: DCR മോണോ TOPCon, ഹാഫ്-കട്ട്. നിഴലുള്ള അല്ലെങ്കിൽ സങ്കീർണ്ണ മേൽക്കൂര: ഹാഫ്-കട്ട് അല്ലെങ്കിൽ ഷിംഗിൾഡ് മൊഡ്യൂൾ, ഒപ്പം ഒപ്റ്റിമൈസർ അല്ലെങ്കിൽ മൈക്രോഇൻവെർട്ടർ. വെള്ള മേൽക്കൂര, ഉയർത്തിയ സ്ട്രക്ചർ, ട്രാക്കർ: ബൈഫേഷ്യൽ ഗ്ലാസ്–ഗ്ലാസ് TOPCon അല്ലെങ്കിൽ HJT. വളരെ ചൂടുള്ളതും സ്ഥലം ധാരാളമുള്ളതുമായ സൈറ്റ്: TOPCon, HJT അല്ലെങ്കിൽ CdTe. കടലോരം: ഗ്ലാസ്–ഗ്ലാസ്, IEC 61701 സർട്ടിഫൈഡ്. പ്രീമിയം വീട്ടു ലുക്ക്: ഓൾ-ബ്ലാക്ക് BC അല്ലെങ്കിൽ TOPCon.", "k218": "ചെയ്തു കാണിച്ച കണക്കുകളും കാൽക്കുലേറ്ററുകളും", "k219": "ഓരോ കാൽക്കുലേറ്ററിലും ആദ്യ ഉദാഹരണത്തിലെ മൂല്യങ്ങൾ മുൻകൂട്ടി നൽകിയിട്ടുണ്ട്. ഏത് ഇൻപുട്ടും മാറ്റി നോക്കാം.", "k220": "1. മൊഡ്യൂൾ എഫിഷ്യൻസി", "k221": "എഫിഷ്യൻസി η = Pmax ÷ (G × A) × 100; ഇവിടെ STC-യിൽ G = 1,000 W/m², A = മൊഡ്യൂൾ വിസ്തീർണ്ണം m²-ൽ.", "k222": "<b>ഉദാഹരണം 1.1</b> – 580 Wp TOPCon മൊഡ്യൂളിന്റെ അളവ് 2,278 × 1,134 mm. എഫിഷ്യൻസി കണ്ടെത്തുക.", "k223": "<b>ഉദാഹരണം 1.2</b> – 330 Wp പഴയ പോളി മൊഡ്യൂളിന്റെ അളവ് 1,956 × 992 mm. എഫിഷ്യൻസിയും 3 kWp-ന് വേണ്ട വിസ്തീർണ്ണവും കണ്ടെത്തുക.", "k224": "റേറ്റഡ് പവർ Pmax (W)", "k225": "നീളം (mm)", "k226": "വീതി (mm)", "k227": "ഇറേഡിയൻസ് G (W/m²)", "k228": "2. യഥാർത്ഥ പ്രവർത്തന താപനിലയിലെ പവർ", "k229": "സെൽ താപനില T<sub>cell</sub> = T<sub>amb</sub> + (NOCT − 20) ÷ 800 × G. ഔട്ട്പുട്ട് P = P<sub>STC</sub> × (G ÷ 1000) × [1 + γ × (T<sub>cell</sub> − 25)]; ഇവിടെ γ Pmax ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് (നെഗറ്റീവ്).", "k230": "<b>ഉദാഹരണം 2.1</b> – കൊച്ചിയിലെ ടെറസിൽ ഉച്ചയ്ക്ക് 580 Wp TOPCon മൊഡ്യൂൾ (γ = −0.29 %/°C, NOCT 45 °C): അന്തരീക്ഷ താപനില 34 °C, G = 1,000 W/m².", "k231": "<b>ഉദാഹരണം 2.2</b> – അതേ സാഹചര്യം, പക്ഷേ γ = −0.35 %/°C ഉള്ള 580 Wp PERC മൊഡ്യൂൾ.", "k232": "റേറ്റഡ് പവർ P<sub>STC</sub> (W)", "k233": "Pmax ടെമ്പറേച്ചർ കോഎഫിഷ്യന്റ് γ (%/°C)", "k234": "പോളി: −0.40", "k235": "മോണോ PERC: −0.35", "k238": "ബാക്ക് കോൺടാക്ട്: −0.27", "k241": "അന്തരീക്ഷ താപനില (°C)", "k242": "ഇറേഡിയൻസ് G (W/m²)", "k243": "3. മേൽക്കൂര സിസ്റ്റം സൈസും വാർഷിക ഊർജ്ജവും", "k244": "വേണ്ട kWp = മാസ യൂണിറ്റ് ÷ (30 × സ്പെസിഫിക് യീൽഡ്). കേരളത്തിലെ മേൽക്കൂരകളിൽ സാധാരണ ഒരു kWp-ൽ നിന്ന് ദിവസം 3.8–4.2 kWh (വർഷം ഏകദേശം 1,400–1,500 kWh/kWp).", "k245": "<b>ഉദാഹരണം 3.1</b> – ഒരു വീട് മാസം 360 യൂണിറ്റ് ഉപയോഗിക്കുന്നു. 580 Wp മൊഡ്യൂളുകൾ (ഓരോന്നും 2.583 m²), 4.0 kWh/kWp/ദിവസം എന്നിവ വെച്ച് സിസ്റ്റം സൈസ് കണ്ടെത്തുക.", "k246": "<b>ഉദാഹരണം 3.2</b> – 3.48 kWp സിസ്റ്റത്തിന്റെ മൊഡ്യൂൾ ചെലവ്, DCR ₹25/Wp, non-DCR ₹15/Wp നിരക്കിൽ.", "k247": "മാസ ഉപയോഗം (യൂണിറ്റ്, kWh)", "k248": "സ്പെസിഫിക് യീൽഡ് (kWh/kWp/ദിവസം)", "k249": "മൊഡ്യൂൾ റേറ്റിംഗ് (Wp)", "k250": "മൊഡ്യൂൾ വിസ്തീർണ്ണം (m²)", "k251": "മൊഡ്യൂൾ വില (₹/Wp)", "k252": "4. ഹാഫ്-കട്ട് റെസിസ്റ്റീവ് നഷ്ടവും ബൈഫേഷ്യൽ നേട്ടവും", "k253": "<b>ഉദാഹരണം 4.1</b> – സെൽ റിബണിന്റെ റെസിസ്റ്റൻസ് 0.010 Ω. ഫുൾ-സെൽ കറന്റ് 13.6 A; ഹാഫ്-കട്ട് കറന്റ് 6.8 A.", "k254": "<b>ഉദാഹരണം 4.2</b> – വെള്ള പെയിന്റടിച്ച മേൽക്കൂരയിൽ 580 Wp ബൈഫേഷ്യൽ TOPCon മൊഡ്യൂൾ (ബൈഫേഷ്യാലിറ്റി 80%); പിന്നിലെ വെളിച്ചം മുന്നിലേതിന്റെ 12%.", "k255": "ഫുൾ-സെൽ കറന്റ് I (A)", "k256": "കണ്ടക്ടർ റെസിസ്റ്റൻസ് R (Ω)", "k257": "മൊഡ്യൂൾ മുൻ പവർ (Wp)", "k258": "ബൈഫേഷ്യാലിറ്റി (%)", "k259": "നിലത്തിന്റെ പ്രതലം", "k260": "ഇരുണ്ട മെറ്റൽ ഷീറ്റ് മേൽക്കൂര, താഴ്ന്ന മൗണ്ട് (≈5%)", "k261": "പുല്ല് / മണ്ണ് (≈7%)", "k262": "ചാര കോൺക്രീറ്റ് (≈9%)", "k263": "വെള്ള പെയിന്റ് / വെള്ള മെംബ്രെയിൻ (≈12%)", "k264": "മണൽ, ഉയർത്തിയ മൗണ്ട് (≈15%)", "k265": "മഞ്ഞ് അല്ലെങ്കിൽ വെള്ള ചരലിന് മുകളിൽ ട്രാക്കർ (≈20%)"}};
+let lang="en";try{const sl=localStorage.getItem("pvlang");if(sl&&UI[sl])lang=sl}catch(e){}
+const L=k=>(UI[lang]&&UI[lang][k]!==undefined)?UI[lang][k]:UI.en[k];
+const P=s=>{const m=UI[lang].ph||{};if(m[s])return m[s];return lang==="en"?s:s.replace(/(\d) yr\b/g,"$1 "+L("yr"))};
+const EN={};document.querySelectorAll("[data-t]").forEach(e=>EN[e.dataset.t]=e.innerHTML);
+function applyStatic(){document.documentElement.lang=lang;document.querySelectorAll("[data-t]").forEach(e=>{const k=e.dataset.t;const v=lang!=="en"&&TR[lang]&&TR[lang][k];e.innerHTML=v||EN[k];});}
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---------- Tabs ---------- */
+const panels=[...document.querySelectorAll("section.panel")];
+const tablist=document.getElementById("tablist");
+panels.forEach((p,i)=>{const b=document.createElement("button");b.className="tabbtn";b.role="tab";b.id="tab-"+p.id;
+ b.setAttribute("aria-controls",p.id);b.textContent=p.dataset.title;b.addEventListener("click",()=>show(i));tablist.appendChild(b);p.setAttribute("aria-labelledby",b.id);});
+const tabs=[...tablist.children];
+function relabelTabs(){tabs.forEach((t,i)=>t.textContent=L("tab_"+panels[i].id)||panels[i].dataset.title);}
+let cur=0;
+function show(i,noHash){cur=(i+panels.length)%panels.length;panels.forEach((p,j)=>p.classList.toggle("active",j===cur));
+ tabs.forEach((t,j)=>{t.setAttribute("aria-selected",j===cur);t.tabIndex=j===cur?0:-1});
+ tabs[cur].scrollIntoView({block:"nearest",inline:"nearest"});
+ if(!noHash)try{history.replaceState(null,"","#"+panels[cur].id)}catch(e){}
+ window.scrollTo({top:0});}
+const start=panels.findIndex(p=>"#"+p.id===location.hash);show(start<0?0:start,true);
+document.getElementById("prevTab").onclick=()=>show(cur-1);
+document.getElementById("nextTab").onclick=()=>show(cur+1);
+document.addEventListener("keydown",e=>{const t=e.target.tagName;if(t==="INPUT"||t==="SELECT"||t==="TEXTAREA")return;
+ if(e.key==="ArrowRight"||e.key==="PageDown"){show(cur+1);e.preventDefault();}
+ if(e.key==="ArrowLeft"||e.key==="PageUp"){show(cur-1);e.preventDefault();}});
+let fs=20;try{const s=localStorage.getItem("pvfs");if(s)fs=+s}catch(e){}
+function setFs(v){fs=Math.max(14,Math.min(30,v));document.documentElement.style.setProperty("--fs",fs+"px");try{localStorage.setItem("pvfs",fs)}catch(e){}}
+setFs(fs);
+document.getElementById("fsUp").onclick=()=>setFs(fs+2);
+document.getElementById("fsDown").onclick=()=>setFs(fs-2);
+
+/* ---------- Overview mini diagrams ---------- */
+const mm=document.getElementById("miniMod");
+for(let r=0;r<8;r++)for(let c=0;c<5;c++)el("rect",{x:165+c*20.5,y:45+r*19,width:19,height:17.5,fill:"#1B3A66"},mm);
+const ms=document.getElementById("miniString");
+for(let k=0;k<5;k++){el("rect",{x:340+k*62,y:60,width:52,height:100,fill:"#1B3A66",stroke:"#C8D3DF"},ms);
+ if(k<4)el("line",{x1:392+k*62,y1:110,x2:402+k*62,y2:110,stroke:"#B86E00","stroke-width":3},ms);}
+const ma=document.getElementById("miniArray");
+for(let r=0;r<3;r++)for(let k=0;k<6;k++)el("rect",{x:710+k*40,y:45+r*50,width:36,height:44,fill:"#1B3A66"},ma);
+el("rect",{x:955,y:85,width:20,height:40,fill:"#F2B233"},ma);
+
+/* ---------- Poly grains ---------- */
+function seeded(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}}
+const rnd=seeded(42);
+const gb=document.getElementById("grainBlock");
+const blues=["#2F6DB5","#3E7CC4","#26599A","#4C8AD0","#1F4E8C","#5B97D8"];
+for(let x=36;x<214;){const w=12+rnd()*22;el("rect",{x:x,y:111,width:Math.min(w,214-x),height:124,fill:blues[Math.floor(rnd()*6)]},gb);x+=w;}
+const pc=document.getElementById("polyCell");
+const cx0=320,cy0=40,S=170,N=9;
+for(let i=0;i<N;i++)for(let j=0;j<N;j++){const x=cx0+i*S/N,y=cy0+j*S/N;
+ const jx=()=> (rnd()-.5)*10;
+ el("polygon",{points:`${x+jx()},${y+jx()} ${x+S/N+jx()},${y+jx()} ${x+S/N+jx()},${y+S/N+jx()} ${x+jx()},${y+S/N+jx()}`,fill:blues[Math.floor(rnd()*6)],opacity:.95},pc);}
+el("rect",{x:cx0,y:cy0,width:S,height:S,fill:"none",stroke:"#9AA3AD","stroke-width":2},pc);
+[cx0+S*.25,cx0+S*.5,cx0+S*.75].forEach(x=>el("line",{x1:x,y1:cy0,x2:x,y2:cy0+S,stroke:"#E4EDF7","stroke-width":3},pc));
+const clip=el("clipPath",{id:"pclip"},pc);el("rect",{x:cx0,y:cy0,width:S,height:S},clip);pc.setAttribute("clip-path","url(#pclip)");
+
+/* ---------- Generic layer stack ---------- */
+function stack(g,x,y,w,layers,labelX,fsz){fsz=fsz||14;let yy=y;const labs=[];layers.forEach(L=>{
+ if(L.fingers){for(let k=0;k<L.fingers;k++){const fx=x+(k+0.5)*w/L.fingers-6;el("rect",{x:fx,y:yy,width:12,height:L.h,fill:L.fill},g);} }
+ else if(L.ic){const n=L.ic;for(let k=0;k<n;k++){const seg=w/n;el("rect",{x:x+k*seg,y:yy,width:seg,height:L.h,fill:k%2?L.fill2:L.fill},g);}}
+ else el("rect",{x:x,y:yy,width:w,height:L.h,fill:L.fill,stroke:L.stroke||"none"},g);
+ if(L.label)labs.push({t:L.label,y0:yy+L.h/2});yy+=L.h;});
+ const gap=fsz+6;let ly=labs.map(l=>l.y0);
+ for(let i=1;i<ly.length;i++)if(ly[i]-ly[i-1]<gap)ly[i]=ly[i-1]+gap;
+ labs.forEach((l,i)=>{el("polyline",{points:`${x+w+2},${l.y0} ${labelX-30},${l.y0} ${labelX-6},${ly[i]}`,fill:"none",stroke:"#9AA3AD","stroke-width":1},g);
+  el("text",{x:labelX,y:ly[i]+fsz*0.35,"font-size":fsz,class:"svgtxt"},g,l.t);});
+ return Math.max(yy,ly.length?ly[ly.length-1]+gap:yy);}
+
+/* CdTe stack */
+stack(document.getElementById("cdteStack"),30,40,220,[
+ {h:8,fill:"#F2B233",label:"sunlight enters through glass ↓"},
+ {h:40,fill:"#D9EEF7",stroke:"#9AA3AD",label:"front glass (superstrate)"},
+ {h:12,fill:"#B9D7C2",label:"TCO (transparent conductor)"},
+ {h:8,fill:"#E6D27A",label:"CdS / buffer layer"},
+ {h:30,fill:"#5A4A6E",label:"CdTe absorber (≈2–4 µm)"},
+ {h:12,fill:"#9AA3AD",label:"back metal contact"},
+ {h:12,fill:"#6B7480",label:"encapsulant"},
+ {h:30,fill:"#D9EEF7",stroke:"#9AA3AD",label:"back glass"}],290,13);
+const sc=document.getElementById("scribes");
+for(let k=0;k<5;k++){const x=30+k*90;el("rect",{x:x,y:285,width:84,height:14,fill:"#5A4A6E"},sc);el("rect",{x:x,y:299,width:84,height:6,fill:"#B9D7C2"},sc);
+ el("rect",{x:x,y:279,width:84,height:6,fill:"#9AA3AD"},sc);
+ if(k<4){el("line",{x1:x+86,y1:279,x2:x+86,y2:305,stroke:"#B23A3A","stroke-width":2},sc);}}
+el("text",{x:30,y:330,"font-size":11,class:"svgmuted"},sc,"Each strip ≈ 0.8–0.9 V; ~150–250 strips in series give module voltage");
+el("text",{x:30,y:346,"font-size":11,class:"svgmuted"},sc,"Red lines: P1/P2/P3 scribes that cut and interconnect adjacent strips");
+
+/* ---------- Cell architectures ---------- */
+const ARCH={
+ perc:{name:"PERC",cap:"Fig. 6 – PERC (p-type): rear passivation with local laser-opened aluminium contacts.",
+  layers:[{h:14,fill:"#9AA3AD",fingers:6,label:"front Ag fingers"},{h:10,fill:"#2F6DB5",label:"SiNₓ anti-reflection coating"},{h:18,fill:"#9FC3E8",label:"n⁺ emitter (phosphorus)"},
+   {h:120,fill:"#F3C7A0",label:"p-type Si wafer (Ga-doped)"},{h:12,fill:"#B9D7C2",label:"Al₂O₃ / SiNₓ rear passivation"},{h:24,fill:"#9AA3AD",label:"Al rear contact (local BSF through openings)"}],
+  text:`<h3>PERC – Passivated Emitter and Rear Cell</h3><p>PERC added a dielectric passivation layer (aluminium oxide capped with silicon nitride) to the rear of a conventional p-type cell. Laser openings let the aluminium contact the silicon only at small points, so most of the rear surface is passivated and acts as a mirror that reflects long-wavelength light back into the wafer.</p><p>PERC dominated 2017–2023 with cell efficiency of about 23–23.5% and module efficiency of 20.5–21.5%. Its limits are recombination at the metal contacts and boron/gallium-related degradation such as LeTID. Bifacial PERC exists (rear aluminium printed as a grid), with bifaciality around 70%.</p><p><span class="tag">Status 2026</span>Being phased out; still sold in India as lower-cost DCR modules for pumps and small rooftops.</p>`},
+ topcon:{name:"TOPCon",cap:"Fig. 6 – TOPCon (n-type): ultra-thin tunnel oxide and n⁺ poly-Si form a passivating contact on the rear.",
+  layers:[{h:14,fill:"#9AA3AD",fingers:6,label:"front Ag fingers"},{h:10,fill:"#2F6DB5",label:"SiNₓ / AlOₓ front passivation + ARC"},{h:18,fill:"#F3C7A0",label:"p⁺ boron emitter"},
+   {h:110,fill:"#9FC3E8",label:"n-type Si wafer"},{h:5,fill:"#F2B233",label:"tunnel SiO₂ (≈1.5 nm)"},{h:16,fill:"#5B97D8",label:"n⁺ doped poly-Si"},{h:10,fill:"#2F6DB5",label:"rear SiNₓ"},{h:14,fill:"#9AA3AD",fingers:6,label:"rear Ag fingers (bifacial)"}],
+  text:`<h3>TOPCon – Tunnel Oxide Passivated Contact</h3><p>TOPCon uses an n-type wafer. On the rear, an ultra-thin silicon oxide layer (about 1.5 nm) is grown and covered with heavily phosphorus-doped polysilicon. Electrons can tunnel through the oxide, but holes are blocked and surface recombination is drastically reduced. The rear is metallised with a grid, so the cell is naturally bifacial (about 80–85%).</p><p>Cell efficiency is about 25–26.5% in production and module efficiency 22–23.8%. A key advantage for manufacturers is that existing PERC lines can be upgraded to TOPCon with additional furnace and deposition tools, which is why TOPCon became the industry mainstream so quickly, accounting for roughly 70% or more of global output by 2025–26.</p><p><span class="tag">Status 2026</span>Mainstream. Most new Indian DCR cell lines (Waaree, Premier, Tata Power, Adani, ReNew and others) are TOPCon.</p>`},
+ hjt:{name:"HJT",cap:"Fig. 6 – Heterojunction (HJT): crystalline wafer sandwiched between thin amorphous silicon layers, with ITO and low-temperature silver.",
+  layers:[{h:14,fill:"#9AA3AD",fingers:6,label:"low-temp Ag / Cu fingers"},{h:10,fill:"#B9D7C2",label:"ITO (transparent conductor)"},{h:8,fill:"#E6A6A6",label:"p⁺ a-Si:H"},{h:6,fill:"#E6D27A",label:"intrinsic a-Si:H"},
+   {h:110,fill:"#9FC3E8",label:"n-type c-Si wafer"},{h:6,fill:"#E6D27A",label:"intrinsic a-Si:H"},{h:8,fill:"#5B97D8",label:"n⁺ a-Si:H"},{h:10,fill:"#B9D7C2",label:"ITO"},{h:14,fill:"#9AA3AD",fingers:6,label:"rear fingers"}],
+  text:`<h3>HJT – Heterojunction Technology</h3><p>HJT deposits a few nanometres of intrinsic and doped amorphous silicon on both sides of an n-type wafer, then transparent conductive oxide (ITO) and a low-temperature metal grid. The amorphous layers passivate the whole surface extremely well, giving the highest open-circuit voltage of any mainstream cell.</p><p>The process has only about 4–6 steps, all below 250 °C, which allows very thin wafers. HJT has the best temperature coefficient (about −0.24 to −0.26%/°C) and highest bifaciality (85–95%), and no LID. Drawbacks: different, more expensive equipment, higher silver or indium use (being cut with silver-coated copper and copper plating), and a price premium.</p><p><span class="tag">Status 2026</span>Roughly 5–8% of global output; produced in India at Reliance's Jamnagar facility. Best in hot climates and on bifacial structures.</p>`},
+ bc:{name:"Back contact",cap:"Fig. 6 – Back-contact (IBC/BC): no metal on the front; interdigitated p⁺ and n⁺ regions with all contacts on the rear.",
+  layers:[{h:8,fill:"#F6F8FB",label:"no front metal – zero shading"},{h:12,fill:"#2F6DB5",label:"front passivation + ARC (textured)"},{h:6,fill:"#5B97D8",label:"n⁺ front surface field"},
+   {h:120,fill:"#9FC3E8",label:"n-type Si wafer"},{h:18,ic:8,fill:"#F3C7A0",fill2:"#5B97D8",label:"interdigitated p⁺ / n⁺ regions"},{h:10,fill:"#2F6DB5",label:"rear passivation"},{h:16,ic:8,fill:"#B86E00",fill2:"#9AA3AD",label:"rear + and − contact fingers"}],
+  text:`<h3>Back Contact (IBC, HPBC, ABC, TBC)</h3><p>In a back-contact cell, both the positive and negative contacts are placed on the rear in an interlocking comb pattern. The front surface has no fingers or busbars, so no sunlight is lost to metal shading, and the front can be optimised purely for light trapping and passivation. Modern BC cells often combine back contacts with TOPCon-type or HJT-type passivating contacts (called TBC and HBC).</p><p>BC holds the record for single-junction silicon cells (about 27.8% in the lab) and gives module efficiencies of 23–25%. Modules have a uniform all-black front preferred for premium homes. Disadvantages are a complex, costly process and lower bifaciality (often 60–70% or monofacial), which limits gain on ground-mount trackers.</p><p><span class="tag">Status 2026</span>Growing quickly (LONGi Hi-MO 9, Aiko ABC); about 10% of global output, mostly imported into India.</p>`}
+};
+const seg=document.getElementById("archSeg"),svgA=document.getElementById("archSVG");
+Object.keys(ARCH).forEach((k,i)=>{const b=document.createElement("button");b.textContent=ARCH[k].name;b.dataset.k=k;b.setAttribute("aria-pressed",i===1);b.onclick=()=>drawArch(k);seg.appendChild(b);});
+let curArch="topcon";
+function drawArch(k){curArch=k;[...seg.children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));
+ svgA.innerHTML="";el("text",{x:20,y:24,"font-size":17,"font-weight":600,class:"svgtxt"},svgA,ARCH[k].name+L("xsec"));
+ const g=el("g",{},svgA);
+ for(let j=0;j<4;j++)el("path",{d:`M${50+j*45},34 l10,22`,stroke:"#F2B233","stroke-width":3},g);
+ const big=ARCH[k].layers.map(L=>Object.assign({},L,{h:L.h*1.6}));const bottom=stack(g,20,60,200,big,290,15);svgA.setAttribute("viewBox","0 0 600 "+(bottom+15));
+ const AT=(ARCHT[lang]||{})[k];document.getElementById("archText").innerHTML=AT?AT.text:ARCH[k].text;document.getElementById("archCap").textContent=AT?AT.cap:ARCH[k].cap;}
+drawArch("topcon");
+
+/* ---------- Half-cut ---------- */
+const hc=document.getElementById("halfcut");
+el("text",{x:20,y:20,"font-size":14,"font-weight":600,class:"svgtxt"},hc,"Full-cell module");
+el("rect",{x:20,y:30,width:180,height:270,fill:"#C8D3DF"},hc);
+for(let r=0;r<12;r++)for(let c=0;c<6;c++)el("rect",{x:24+c*29.3,y:34+r*22,width:27.5,height:20.5,fill:"#1B3A66"},hc);
+el("rect",{x:95,y:300,width:30,height:12,fill:"#13202E"},hc);
+el("text",{x:20,y:325,"font-size":12,class:"svgtxt"},hc,"Current I through every ribbon");
+el("text",{x:280,y:20,"font-size":14,"font-weight":600,class:"svgtxt"},hc,"Half-cut module");
+el("rect",{x:280,y:30,width:180,height:270,fill:"#C8D3DF"},hc);
+for(let r=0;r<24;r++)for(let c=0;c<6;c++){const y=34+r*10.9+(r>=12?4:0);el("rect",{x:284+c*29.3,y:y,width:27.5,height:9.8,fill:r<12?"#1B3A66":"#26599A"},hc);}
+el("rect",{x:355,y:159,width:30,height:12,fill:"#13202E"},hc);
+el("text",{x:468,y:100,"font-size":12,class:"svgtxt"},hc,"upper");el("text",{x:468,y:115,"font-size":12,class:"svgtxt"},hc,"half I/2");
+el("text",{x:468,y:230,"font-size":12,class:"svgtxt"},hc,"lower");el("text",{x:468,y:245,"font-size":12,class:"svgtxt"},hc,"half I/2");
+el("text",{x:468,y:170,"font-size":11,class:"svgmuted"},hc,"J-box");
+el("text",{x:280,y:325,"font-size":12,class:"svgtxt"},hc,"I²R loss per ribbon ÷ 4; halves in parallel");
+
+/* ---------- Bifacial ---------- */
+(function(){const s=document.getElementById("bifSVG");
+ el("rect",{x:0,y:250,width:520,height:80,fill:"#E9E4D8"},s);
+ el("text",{x:20,y:318,"font-size":12,class:"svgtxt"},s,"Ground / roof surface (albedo ρ)");
+ el("circle",{cx:70,cy:50,r:26,fill:"#F2B233"},s);
+ el("line",{x1:260,y1:250,x2:260,y2:175,stroke:"#6B7480","stroke-width":6},s);
+ el("line",{x1:360,y1:250,x2:360,y2:130,stroke:"#6B7480","stroke-width":6},s);
+ el("polygon",{points:"200,190 400,110 406,122 206,202",fill:"#1B3A66"},s);
+ el("text",{x:330,y:95,"font-size":12,class:"svgtxt"},s,"glass–glass bifacial module");
+ const ray=(d,c)=>el("path",{d:d,stroke:c,"stroke-width":2.5,fill:"none","marker-end":"url(#arr)"},s);
+ ray("M95,65 L240,165","#B86E00");ray("M90,80 L300,150","#B86E00");ray("M85,95 L150,240","#B86E00");
+ ray("M150,248 L250,200","#2F6DB5");ray("M170,248 L300,185","#2F6DB5");ray("M300,248 L330,170","#2F6DB5");
+ el("text",{x:150,y:120,"font-size":12,class:"svgtxt"},s,"direct (front)");
+ el("text",{x:180,y:238,"font-size":12,fill:"#2F6DB5"},s,"reflected (rear)");
+ el("text",{x:20,y:280,"font-size":11,class:"svgmuted"},s,"Grass 0.20 · Concrete 0.25–0.35 · White membrane 0.6–0.8 · Sand 0.30–0.40");
+})();
+
+/* ---------- Comparison data ---------- */
+const D=[
+ {n:"Polycrystalline",s:"Poly",wafer:"p-type multi",eff:[15,18],cell:"18–20%",tc:-0.40,deg1:2.5,deg:0.70,bif:0,bifT:"—",price:"Legacy stock only",w:"25 yr / ~80%",share:"<1%",note:"Phased out"},
+ {n:"Mono PERC",s:"PERC",wafer:"p-type mono",eff:[20.5,21.5],cell:"23–23.5%",tc:-0.35,deg1:2.0,deg:0.55,bif:70,bifT:"~70%",price:"₹12–16 (non-DCR) / ₹22–26 (DCR)",w:"25–30 yr / 80–84%",share:"~10%",note:"Declining"},
+ {n:"TOPCon",s:"TOPCon",wafer:"n-type mono",eff:[22,23.8],cell:"25–26.5%",tc:-0.29,deg1:1.0,deg:0.40,bif:82,bifT:"80–85%",price:"₹14–18 (non-DCR) / ₹22–27 (DCR)",w:"30 yr / ≥87.4%",share:"~70%",note:"Mainstream"},
+ {n:"Heterojunction (HJT)",s:"HJT",wafer:"n-type mono",eff:[22.5,24],cell:"25.5–26.5%",tc:-0.25,deg1:1.0,deg:0.35,bif:90,bifT:"85–95%",price:"≈10–15% above TOPCon",w:"30 yr / ≥88–90%",share:"~5–8%",note:"Premium, hot climates"},
+ {n:"Back contact (BC)",s:"BC",wafer:"n-type mono",eff:[23,24.8],cell:"26–27%",tc:-0.27,deg1:1.0,deg:0.35,bif:65,bifT:"0–70%",price:"≈10–20% above TOPCon",w:"30 yr / ≥88%",share:"~10%",note:"Premium rooftop"},
+ {n:"CdTe thin film",s:"CdTe",wafer:"thin film",eff:[18,19.5],cell:"—",tc:-0.30,deg1:1.0,deg:0.30,bif:0,bifT:"— (bifacial in pilot)",price:"Utility contracts only",w:"30 yr / ~88%",share:"~3%",note:"Utility, hot sites"},
+ {n:"CIGS thin film",s:"CIGS",wafer:"thin film",eff:[14,17],cell:"—",tc:-0.34,deg1:2.0,deg:0.60,bif:0,bifT:"—",price:"Niche / BIPV",w:"20–25 yr",share:"<1%",note:"Flexible, BIPV"},
+ {n:"Amorphous Si",s:"a-Si",wafer:"thin film",eff:[6,9],cell:"—",tc:-0.20,deg1:10,deg:1.0,bif:0,bifT:"—",price:"Consumer devices",w:"—",share:"negligible",note:"Indoor / small devices"},
+ {n:"Perovskite–Si tandem",s:"Tandem",wafer:"n-type mono + perovskite",eff:[24,27],cell:"lab >34%",tc:-0.25,deg1:null,deg:null,bif:0,bifT:"under development",price:"Pilot only",w:"under evaluation",share:"pilot",note:"Emerging"}
+];
+const tbl=document.getElementById("cmpTable");
+function buildTable(){const H=L("th");tbl.innerHTML="<thead><tr>"+H.map(h=>"<th>"+h+"</th>").join("")+"</tr></thead><tbody>"+
+ D.map(d=>`<tr><td><b>${d.n}</b></td><td>${P(d.wafer)}</td><td class="n">${d.eff[0]}–${d.eff[1]}%</td><td class="n">${P(d.cell)}</td><td class="n">${d.tc.toFixed(2)} %/°C</td><td class="n">${d.deg1==null?P("under evaluation"):d.deg1+"% / "+d.deg+"%"}</td><td class="n">${P(d.bifT)}</td><td>${P(d.price)}</td><td>${P(d.w)}</td><td class="n">${P(d.share)}</td><td>${P(d.note)}</td></tr>`).join("")+"</tbody>";}
+buildTable();
+
+const METRIC={
+ eff:{t:"Module efficiency range (%) – higher is better",v:d=>d.eff,max:28,unit:"%",good:"high"},
+ tc:{t:"Power loss at 65 °C cell temperature (%) – lower is better",v:d=>[Math.abs(d.tc)*40],max:18,unit:"%",good:"low"},
+ deg:{t:"Annual degradation after year 1 (%/yr) – lower is better",v:d=>d.deg==null?null:[d.deg],max:1.1,unit:"%/yr",good:"low"},
+ bif:{t:"Bifaciality factor (%) – higher gives more rear-side gain",v:d=>[d.bif],max:100,unit:"%",good:"high"}
+};
+const chart=document.getElementById("cmpChart");
+let curMetric="eff";
+function drawChart(m){curMetric=m;const M=METRIC[m];chart.innerHTML="";
+ const L0=170,R=860,T=20,rowH=40;
+ el("text",{x:L0,y:14,"font-size":13,class:"svgmuted"},chart,L("m_"+m));
+ const sx=v=>L0+(R-L0)*v/M.max;
+ for(let k=0;k<=4;k++){const v=M.max*k/4;el("line",{x1:sx(v),y1:T+6,x2:sx(v),y2:T+10+D.length*rowH,stroke:cssv("--line"),"stroke-width":1},chart);
+  el("text",{x:sx(v),y:T+28+D.length*rowH,"font-size":11,"text-anchor":"middle",class:"svgmuted"},chart,(Math.round(v*100)/100)+M.unit);}
+ D.forEach((d,i)=>{const y=T+14+i*rowH;el("text",{x:L0-10,y:y+18,"font-size":13,"text-anchor":"end",class:"svgtxt"},chart,d.s);
+  const v=M.v(d);
+  if(v==null||(v.length===1&&v[0]===0&&m==="bif")){el("text",{x:L0+6,y:y+18,"font-size":12,class:"svgmuted"},chart,m==="bif"?L("monofacial"):L("notyet"));return;}
+  const col=d.wafer.startsWith("n-type")?"#1B3A66":d.wafer.startsWith("thin")?"#7A5C99":"#2F6DB5";
+  if(v.length===2){el("rect",{x:L0,y:y+4,width:sx(v[0])-L0,height:22,fill:col,opacity:.35},chart);el("rect",{x:sx(v[0]),y:y+4,width:sx(v[1])-sx(v[0]),height:22,fill:col},chart);
+   el("text",{x:sx(v[1])+6,y:y+20,"font-size":12,class:"svgtxt"},chart,v[0]+"–"+v[1]+M.unit);}
+  else{el("rect",{x:L0,y:y+4,width:sx(v[0])-L0,height:22,fill:col},chart);el("text",{x:sx(v[0])+6,y:y+20,"font-size":12,class:"svgtxt"},chart,(Math.round(v[0]*100)/100)+M.unit);}
+ });
+ document.getElementById("cmpCap").textContent=L("fig10")+L("m_"+m)+". "+L("chartLegend");}
+const mseg=document.getElementById("metricSeg");
+[...mseg.children].forEach(b=>b.onclick=()=>{[...mseg.children].forEach(x=>x.setAttribute("aria-pressed",x===b));drawChart(b.dataset.m);});
+drawChart("eff");
+
+/* ---------- Fit matrix ---------- */
+const apps=["Residential rooftop (subsidy, DCR)","Shaded / complex roof","C&I metal-sheet roof","Utility ground-mount with tracker","Floating solar","Agrivoltaics / carport","Coastal site","Very hot, dusty desert","BIPV façade / skylight","Portable, boat, vehicle","Solar pump (PM-KUSUM)"];
+const techs=["Poly","PERC","TOPCon","HJT","BC","CdTe","CIGS / flexible"];
+const F=[[1,2,3,2,2,1,1],[1,2,3,3,3,1,1],[1,2,3,2,2,1,2],[1,2,3,3,1,3,1],[1,2,3,3,1,1,1],[1,2,3,3,1,2,2],[1,2,3,3,2,2,1],[1,2,3,3,2,3,1],[1,1,2,2,2,2,3],[1,2,2,2,3,1,3],[1,3,3,2,1,1,1]];
+function buildFit(){const A=L("apps");document.getElementById("fitTable").innerHTML="<thead><tr><th>"+L("appHead")+"</th>"+techs.map(t=>`<th style="text-align:center">${P(t)}</th>`).join("")+"</tr></thead><tbody>"+
+ A.map((a,i)=>"<tr><td>"+a+"</td>"+F[i].map(v=>`<td style="text-align:center"><span class="dot d${v}" title="${v===3?L("preferred"):v===2?L("suitable"):L("nottyp")}"></span></td>`).join("")+"</tr>").join("")+"</tbody>";}
+buildFit();
+
+/* ---------- Calculators ---------- */
+const $=id=>document.getElementById(id), num=id=>parseFloat($(id).value)||0;
+const f=(x,d=2)=>isFinite(x)?x.toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d}):"–";
+const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+function calcE(){const P=num("e_p"),A=num("e_l")/1000*num("e_w")/1000,G=num("e_g")||1000;const eta=P/(G*A)*100*(G/1000);
+ const etaS=P/(1000*A)*100;
+ $("e_out").innerHTML=`<div>${L("e1")}</div><div class="big">${f(etaS)} %</div>`+row(L("e2"),f(A,3)+" m²")+row(L("e3"),f(1000*A,0)+" W")+row(L("e4"),f(P/A,0)+" W/m²")+row(L("e5").replace("{G}",G),f(P*G/1000,0)+" W")+row(L("e6"),f(1000/(P/A),2)+" m²");}
+function calcT(){const P=num("t_p"),g=parseFloat($("t_g").value),N=num("t_n"),Ta=num("t_a"),G=num("t_i");
+ const Tc=Ta+(N-20)/800*G, out=T=>P*(G/1000)*(1+T/100*(Tc-25));const Po=out(g);
+ $("t_out").innerHTML=`<div>${L("t1")}</div><div class="big">${f(Po,1)} W</div>`+row(L("t2"),f(Tc,2)+" °C")+row(L("t3"),f(Math.abs(g)*(Tc-25),2)+" %")+row(L("t4"),f(Po/P*100,1)+" %");
+ const s=$("t_svg");s.innerHTML="";const list=[["Poly",-0.40],["PERC",-0.35],["TOPCon",-0.29],["BC",-0.27],["HJT",-0.25]];
+ el("text",{x:0,y:14,"font-size":12,class:"svgmuted"},s,L("t5"));
+ const mx=Math.max(P,1);list.forEach((t,i)=>{const v=out(t[1]);const y=24+i*36;el("text",{x:60,y:y+19,"font-size":12,"text-anchor":"end",class:"svgtxt"},s,t[0]);
+  el("rect",{x:66,y:y+4,width:Math.max(0,280*v/mx),height:22,fill:Math.abs(t[1]-g)<1e-6?"#B86E00":"#1B3A66"},s);
+  el("text",{x:72+Math.max(0,280*v/mx),y:y+20,"font-size":12,class:"svgtxt"},s,f(v,0)+" W");});}
+function calcS(){const U=num("s_u"),Y=num("s_y")||1,M=num("s_m")||1,A=num("s_a"),R=num("s_r");
+ const need=U/(30*Y),n=Math.ceil(need*1000/M),act=n*M/1000;
+ $("s_out").innerHTML=`<div>${L("s1")}</div><div class="big">${n} × ${M} Wp = ${f(act,2)} kWp</div>`+row(L("s2"),f(need,2)+" kWp")+row(L("s3"),f(act*Y*365,0)+" kWh")+row(L("s4"),f(act*Y*30,0)+" kWh")+row(L("s5"),f(n*A,1)+" m²")+row(L("s6"),f(n*A*1.2,1)+" m²")+row(L("s7"),`₹ ${f(act*1000*R,0)}`);}
+function calcHB(){const I=num("h_i"),R=num("h_r"),Pf=num("b_p"),bf=num("b_f"),rs=parseFloat($("b_s").value);
+ const pf=I*I*R,ph=(I/2)*(I/2)*R,gain=bf/100*rs;
+ $("hb_out").innerHTML=`<div>${L("h1")}</div><div class="big">${f(pf,2)} W → ${f(ph,2)} W</div>`+row(L("h2"),f((1-ph/pf)*100,0)+" %")+
+ `<div style="margin-top:1rem">${L("h3")}</div><div class="big">${f(Pf*(1+gain/100),1)} W</div>`+row(L("h4"),rs+" %")+row(L("h5"),f(gain,1)+" %")+row(L("h6"),f(Pf*gain/100,1)+" W");}
+[["e_p","e_l","e_w","e_g"],["t_p","t_g","t_n","t_a","t_i"],["s_u","s_y","s_m","s_a","s_r"],["h_i","h_r","b_p","b_f","b_s"]].forEach((ids,k)=>{const fn=[calcE,calcT,calcS,calcHB][k];ids.forEach(i=>$(i).addEventListener("input",fn));fn();});
+function setLang(l){lang=UI[l]?l:"en";try{localStorage.setItem("pvlang",lang)}catch(e){}
+ $("langSel").value=lang;applyStatic();relabelTabs();drawArch(curArch);buildTable();drawChart(curMetric);buildFit();calcE();calcT();calcS();calcHB();}
+$("langSel").addEventListener("change",e=>setLang(e.target.value));
+setLang(lang);
+})();
+</script>
+</body>
+</html>

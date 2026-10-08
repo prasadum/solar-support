@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why we have seasons in India</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef2f5; --panel:#ffffff; --ink:#1b2430; --muted:#5b6775; --line:#d6dde4; --accent:#0f4c81; --soft:#f4f7fa;
+  --win:#3f7be0; --sum:#e57a12; --mon:#1f9d63; --post:#9b59c9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#0e141c; --panel:#161f2a; --ink:#e7edf3; --muted:#9aa8b6; --line:#28333f; --accent:#7fb6ea; --soft:#1d2834;}
+}
+:root[data-theme="dark"]{--bg:#0e141c; --panel:#161f2a; --ink:#e7edf3; --muted:#9aa8b6; --line:#28333f; --accent:#7fb6ea; --soft:#1d2834;}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans","Noto Sans Malayalam","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+.app{display:grid;grid-template-columns:1fr 380px;height:100%}
+.stage{position:relative;min-height:320px;overflow:hidden;background:#05070d}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.views{position:absolute;right:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.views button{background:rgba(255,255,255,.92);color:#1b2430;border:1px solid #c5ced8;border-radius:6px;padding:6px 10px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.views button.on{background:#0f4c81;color:#fff;border-color:#0f4c81}
+.hint{position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,.6);color:#fff;font-size:12.5px;padding:6px 10px;border-radius:6px;pointer-events:none;max-width:calc(100% - 24px)}
+.datebig{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.6);color:#fff;padding:8px 12px;border-radius:8px}
+.datebig b{font-size:22px;display:block;line-height:1.1}
+.datebig span{font-size:13px;opacity:.9}
+aside{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:18px 18px 28px}
+h1{font-size:20px;line-height:1.25;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.big{background:var(--soft);border-left:5px solid var(--accent);padding:10px 12px;border-radius:6px;font-weight:600;margin-bottom:14px}
+.ctl{margin:0 0 12px}
+.ctl label{display:flex;justify-content:space-between;font-weight:600;font-size:14px;margin-bottom:4px}
+.ctl label span{font-variant-numeric:tabular-nums}
+input[type=range]{width:100%}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.btns button,.jump button{font:inherit;font-size:13px;font-weight:600;padding:7px 8px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;text-align:left}
+.btns button.on{background:var(--accent);color:#fff}
+.jump{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 14px}
+.jump button small{display:block;font-weight:400;color:var(--muted)}
+button:focus-visible,input:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+.status{padding:10px 12px;border-radius:8px;color:#fff;font-weight:600;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.card{background:var(--soft);border-radius:8px;padding:8px 10px}
+.card .k{font-size:12.5px;color:var(--muted)}
+.card .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.card.wide{grid-column:1/3}
+h2{font-size:15px;margin:16px 0 6px}
+.legend{display:grid;gap:5px;font-size:13.5px}
+.legend div{display:flex;gap:8px;align-items:center}
+.sw{width:22px;height:4px;border-radius:2px;flex:none}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:5px 4px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.note{font-size:12.5px;color:var(--muted);margin-top:12px}
+.app.dual{grid-template-columns:1fr 520px}
+.langsel{display:flex;gap:8px;align-items:center;margin-bottom:12px;font-weight:600;font-size:14px}
+.langsel select{flex:1;font:inherit;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.speedrow{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin-top:8px;font-weight:600;font-size:14px}
+.speedrow select{font:inherit;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.steps button{font:inherit;font-size:13px;font-weight:600;padding:6px 4px;border-radius:6px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
+.ml{display:grid;gap:10px}
+.ml.two{grid-template-columns:1fr 1fr}
+.ml>div{min-width:0}
+.ml [lang=ml],.ml [lang=hi]{line-height:1.6}
+.ex{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;transition:border-color .2s,background .2s}
+.ex.on{border-color:var(--accent);background:var(--soft);box-shadow:inset 4px 0 0 var(--accent)}
+.ex h3{font-size:14.5px;margin:0 0 4px}
+.ex p{margin:0;font-size:13.5px}
+.caption{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);width:min(92%,900px);background:rgba(5,10,20,.82);color:#fff;border-radius:10px;padding:10px 14px;font-size:15px;line-height:1.55;border-left:6px solid #fff}
+.caption .ml{gap:14px}
+.caption .two>div+div{border-left:1px solid rgba(255,255,255,.25);padding-left:14px}
+.arrowkey{position:absolute;left:12px;top:90px;background:rgba(0,0,0,.6);color:#ffee58;padding:6px 10px;border-radius:6px;font-size:13px;font-weight:600;display:none}
+@media (max-width:900px){
+  .app.dual{grid-template-columns:1fr}
+  .caption{bottom:40px;font-size:13.5px}
+  .app{grid-template-columns:1fr;grid-template-rows:60vh auto;height:auto}
+  aside{border-left:0;border-top:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="datebig"><b id="bigDate">21 Jun</b><span id="bigSeason">SW Monsoon</span></div>
+    <div class="views" id="views">
+      <button data-v="top">Top view</button>
+      <button data-v="3d" class="on">3D view</button>
+      <button data-v="side">Beside Earth</button>
+      <button data-v="earth">Around Earth</button>
+    </div>
+    <div class="arrowkey" id="arrowKey">← Sunlight comes from this side</div>
+    <div class="caption" id="caption"></div>
+    <div class="hint">Drag to turn · scroll or pinch to zoom · sizes and distances not to scale</div>
+  </div>
+
+  <aside>
+    <h1>Why we have seasons in India</h1>
+    <p class="sub">The Earth goes round the Sun once a year with its axis tilted 23.5°. The axis always points the same way in space (towards the Pole Star).</p>
+
+    <div class="big">Seasons come from the tilt, not the distance. Earth is closest to the Sun on 3 January, which is winter in India.</div>
+
+    <div class="langsel"><label for="langIn">Explanation language</label>
+      <select id="langIn">
+        <option value="en">English</option>
+        <option value="ml">മലയാളം (Malayalam)</option>
+        <option value="hi">हिंदी (Hindi)</option>
+        <option value="en+ml" selected>English + മലയാളം</option>
+        <option value="en+hi">English + हिंदी</option>
+        <option value="ml+hi">മലയാളം + हिंदी</option>
+      </select></div>
+
+    <div class="ctl">
+      <label for="dayIn">Date <span id="dateOut"></span></label>
+      <input type="range" id="dayIn" min="0" max="364" step="1" value="171">
+    </div>
+    <div class="ctl">
+      <label for="hourIn">Time at Kozhikode (solar) <span id="hourOut"></span></label>
+      <input type="range" id="hourIn" min="0" max="24" step="0.25" value="12">
+    </div>
+    <div class="btns">
+      <button id="playYear">▶ Play the year</button>
+      <button id="playDay">▶ Spin one day</button>
+    </div>
+    <div class="speedrow"><label for="speedIn">Speed</label>
+      <select id="speedIn">
+        <option value="0">Very slow</option>
+        <option value="1">Slow</option>
+        <option value="2" selected>Normal</option>
+        <option value="3">Fast</option>
+        <option value="4">Very fast</option>
+      </select></div>
+    <div class="steps">
+      <button data-step="-30">◀ 1 month</button>
+      <button data-step="-1">◀ 1 day</button>
+      <button data-step="1">1 day ▶</button>
+      <button data-step="30">1 month ▶</button>
+    </div>
+
+    <h2>Jump to</h2>
+    <div class="jump">
+      <button data-d="78">March Equinox<small>20 Mar · Vernal · day = night</small></button>
+      <button data-d="171">June Solstice<small>21 Jun · Summer · longest day</small></button>
+      <button data-d="265">September Equinox<small>23 Sep · Autumnal · day = night</small></button>
+      <button data-d="354">December Solstice<small>22 Dec · Winter · shortest day</small></button>
+      <button data-d="2">Perihelion<small>3 Jan · nearest the Sun</small></button>
+      <button data-d="184">Aphelion<small>4 Jul · farthest from Sun</small></button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="grid">
+      <div class="card wide"><div class="k">Sun is directly overhead at</div><div class="v" id="rDec"></div></div>
+      <div class="card"><div class="k">Day length, Kozhikode</div><div class="v" id="rDayK"></div></div>
+      <div class="card"><div class="k">Day length, New Delhi</div><div class="v" id="rDayD"></div></div>
+      <div class="card"><div class="k">Noon sun height, Kozhikode</div><div class="v" id="rNoon"></div></div>
+      <div class="card"><div class="k">Earth–Sun distance</div><div class="v" id="rDist"></div></div>
+    </div>
+
+    <h2>Why summer, winter and equinox happen</h2>
+    <div id="explain"></div>
+
+    <h2>Lines on the Earth</h2>
+    <div class="legend">
+      <div><span class="sw" style="background:#ff4d4d"></span>Equator (0°): equinox sun is overhead here</div>
+      <div><span class="sw" style="background:#ffb000"></span>Tropic of Cancer (23.5°N): passes through India; June sun overhead</div>
+      <div><span class="sw" style="background:#33d1c4"></span>Tropic of Capricorn (23.5°S): December sun overhead</div>
+      <div><span class="sw" style="background:#ffffff"></span>Earth's axis (tilted 23.5°)</div>
+      <div><span class="dot" style="background:#ff2d55"></span>Kozhikode (11.25°N)</div>
+      <div><span class="dot" style="background:#ffee58"></span>Point where the sun is straight overhead</div>
+    </div>
+
+    <h2>Orbit colours: India's seasons (IMD)</h2>
+    <div class="legend">
+      <div><span class="sw" style="background:var(--win)"></span>Winter: Jan – Feb</div>
+      <div><span class="sw" style="background:var(--sum)"></span>Summer (pre-monsoon): Mar – May</div>
+      <div><span class="sw" style="background:var(--mon)"></span>South-West Monsoon: Jun – Sep</div>
+      <div><span class="sw" style="background:var(--post)"></span>Post-monsoon (NE monsoon in Kerala): Oct – Dec</div>
+    </div>
+
+    <h2>Key dates</h2>
+    <table>
+      <tr><th>Event</th><th>Date</th><th>What happens</th></tr>
+      <tr><td>March (Vernal) Equinox</td><td>20–21 Mar</td><td>Sun over Equator. Day = night = 12 h everywhere.</td></tr>
+      <tr><td>June (Summer) Solstice</td><td>21 Jun</td><td>Sun over Tropic of Cancer. Longest day in India.</td></tr>
+      <tr><td>September (Autumnal) Equinox</td><td>22–23 Sep</td><td>Sun over Equator. Day = night again.</td></tr>
+      <tr><td>December (Winter) Solstice</td><td>21–22 Dec</td><td>Sun over Tropic of Capricorn. Shortest day in India.</td></tr>
+      <tr><td>Perihelion</td><td>~3 Jan</td><td>Nearest: about 147.1 million km.</td></tr>
+      <tr><td>Aphelion</td><td>~4 Jul</td><td>Farthest: about 152.1 million km.</td></tr>
+    </table>
+    <p class="note">The real orbit is almost a circle (only about 3% difference between nearest and farthest). The shape is stretched a little here so you can see it. Sun and Earth sizes are greatly enlarged.</p>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const D2R=Math.PI/180, TILT=23.44, A=36, EV=0.05, RE=2.2, LATK=11.25, LONK=75.78, LATD=28.61;
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MLEN=[31,28,31,30,31,30,31,31,30,31,30,31];
+function dayToDate(d){let m=0;d=Math.floor(d);while(d>=MLEN[m]){d-=MLEN[m];m++;}return {m,day:d+1};}
+function season(m){if(m<=1)return['Winter','#3f7be0'];if(m<=4)return['Summer (pre-monsoon)','#e57a12'];if(m<=8)return['South-West Monsoon','#1f9d63'];return['Post-monsoon','#9b59c9'];}
+
+// ---------- scene ----------
+const stage=$('stage');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070d);
+const camera=new THREE.PerspectiveCamera(45,1,0.1,800);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.prepend(renderer.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,0.13));
+const sunLight=new THREE.PointLight(0xffffff,1.6,0,0);scene.add(sunLight);
+
+// stars
+{const p=[];for(let i=0;i<1500;i++){const v=new THREE.Vector3().randomDirection?new THREE.Vector3().randomDirection():new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();p.push(v.multiplyScalar(300+Math.random()*100));}
+ scene.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(p),new THREE.PointsMaterial({color:0xffffff,size:.8,sizeAttenuation:true,transparent:true,opacity:.7})));}
+
+function makeLabel(lines,color,h,depth){
+  if(typeof lines==='string')lines=[lines];
+  const cv=document.createElement('canvas');cv.width=1024;cv.height=128*lines.length;
+  const tex=new THREE.CanvasTexture(cv);tex.minFilter=THREE.LinearFilter;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:!!depth,transparent:true}));
+  sp.renderOrder=depth?1:10;
+  sp.setText=function(ls){if(typeof ls==='string')ls=[ls];const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);
+    g.textAlign='center';g.textBaseline='middle';
+    ls.forEach((t,i)=>{g.font=(i===0?'bold 64px':'500 52px')+' "IBM Plex Sans", Arial, sans-serif';
+      g.lineWidth=12;g.strokeStyle='rgba(0,0,0,.85)';g.strokeText(t,512,64+i*128);g.fillStyle=i===0?color:'#e8eef5';g.fillText(t,512,64+i*128);});
+    tex.needsUpdate=true;};
+  sp.setText(lines);sp.scale.set(h*8,h*lines.length,1);scene.add(sp);return sp;
+}
+
+// ---------- sun ----------
+const sun=new THREE.Mesh(new THREE.SphereGeometry(4,40,24),new THREE.MeshBasicMaterial({color:0xffd34d}));scene.add(sun);
+{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d'),gr=g.createRadialGradient(128,128,20,128,128,128);gr.addColorStop(0,'rgba(255,210,80,.8)');gr.addColorStop(1,'rgba(255,150,0,0)');g.fillStyle=gr;g.fillRect(0,0,256,256);
+ const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));gl.scale.set(18,18,1);sun.add(gl);}
+makeLabel('Sun','#ffd34d',1.4).position.set(0,6.5,0);
+
+// ---------- orbit ----------
+function solveE(M){let E=M;for(let i=0;i<8;i++)E=E-(E-EV*Math.sin(E)-M)/(1-EV*Math.cos(E));return E;}
+function orbitPos(d){const M=2*Math.PI*(d-2)/365.25;const E=solveE(M);
+  const nu=2*Math.atan2(Math.sqrt(1+EV)*Math.sin(E/2),Math.sqrt(1-EV)*Math.cos(E/2));
+  const r=A*(1-EV*EV)/(1+EV*Math.cos(nu));return new THREE.Vector3(r*Math.cos(nu),0,-r*Math.sin(nu));}
+const segCols=[[0,59,0x3f7be0],[59,151,0xe57a12],[151,273,0x1f9d63],[273,365,0x9b59c9]];
+segCols.forEach(([a,b,c])=>{const p=[];for(let d=a;d<=b;d+=1)p.push(orbitPos(d));
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),new THREE.LineBasicMaterial({color:c})));});
+// month ticks
+for(let m=0,d=0;m<12;d+=MLEN[m],m++){const p=orbitPos(d);const l=makeLabel(MONTHS[m],'#9fb3c8',.75);l.position.copy(p.clone().multiplyScalar(.9)).setY(.3);}
+// events
+const EVENTS=[
+  [78,['March Equinox (Vernal)','20 Mar · day = night'],'#ffffff'],
+  [171,['June Solstice (Summer)','21 Jun · longest day in India'],'#ffb000'],
+  [265,['September Equinox (Autumnal)','23 Sep · day = night'],'#ffffff'],
+  [354,['December Solstice (Winter)','22 Dec · shortest day in India'],'#33d1c4'],
+  [2,['Perihelion: nearest','3 Jan · 147.1 million km'],'#ff7a7a'],
+  [184,['Aphelion: farthest','4 Jul · 152.1 million km'],'#ff7a7a'],
+];
+EVENTS.forEach(([d,txt,col],i)=>{const p=orbitPos(d);
+  const m=new THREE.Mesh(new THREE.SphereGeometry(.5,16,12),new THREE.MeshBasicMaterial({color:new THREE.Color(col)}));m.position.copy(p);scene.add(m);
+  const out=p.clone().normalize();const extra=(i>=4)?7.5:3.5;
+  const l=makeLabel(txt,col,1.05);l.position.copy(p.clone().add(out.multiplyScalar(extra))).setY(i>=4?-1.5:2.2);});
+// perihelion–aphelion line
+{const pl=new THREE.Line(new THREE.BufferGeometry().setFromPoints([orbitPos(2),orbitPos(184)]),new THREE.LineDashedMaterial({color:0xff7a7a,dashSize:1,gapSize:.8}));pl.computeLineDistances();scene.add(pl);}
+
+// ---------- earth ----------
+const sun172=orbitPos(171).negate().normalize();
+const AXIS=new THREE.Vector3(0,1,0).multiplyScalar(Math.cos(TILT*D2R)).add(sun172.clone().multiplyScalar(Math.sin(TILT*D2R))).normalize();
+const earthPos=new THREE.Group();scene.add(earthPos);
+const tiltG=new THREE.Group();tiltG.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),AXIS);earthPos.add(tiltG);
+const spinG=new THREE.Group();tiltG.add(spinG);
+
+// procedural earth texture (equirectangular)
+function earthTexture(){
+  const W=2048,H=1024,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#1d4f8a');gr.addColorStop(.5,'#2466a8');gr.addColorStop(1,'#1d4f8a');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const P=(lon,lat)=>[(lon+180)/360*W,(90-lat)/180*H];
+  const poly=(pts,fill)=>{g.beginPath();pts.forEach((q,i)=>{const [x,y]=P(q[0],q[1]);i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();g.fillStyle=fill;g.fill();};
+  const land='#5f8f4e';
+  poly([[-17,21],[-10,30],[-6,35],[10,37],[20,32],[32,31],[35,28],[43,12],[51,12],[44,-2],[40,-15],[33,-26],[20,-35],[17,-29],[12,-17],[13,-5],[9,4],[-8,4],[-17,14]],land);
+  poly([[-10,36],[-9,43],[-2,48],[5,53],[10,58],[20,70],[40,68],[70,73],[110,77],[140,72],[180,68],[180,62],[160,60],[143,50],[130,42],[122,40],[121,30],[110,20],[106,10],[100,13],[98,16],[94,17],[92,22],[90,26],[75,35],[68,24],[62,25],[57,26],[50,30],[48,29],[56,22],[59,22],[52,16],[43,12],[35,28],[32,31],[28,37],[26,40],[20,40],[16,38],[12,44],[3,43]],land);
+  poly([[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-19],[153,-28],[150,-37],[141,-38],[135,-35],[129,-32],[115,-34]],land);
+  poly([[-168,66],[-160,71],[-125,70],[-95,72],[-80,73],[-62,60],[-56,52],[-66,45],[-70,42],[-76,35],[-81,31],[-80,25],[-83,29],[-90,29],[-97,26],[-97,19],[-88,15],[-83,9],[-79,9],[-86,13],[-95,16],[-105,20],[-110,23],[-117,32],[-124,40],[-124,48],[-135,58],[-150,60],[-165,60]],land);
+  poly([[-79,9],[-72,12],[-60,10],[-50,0],[-35,-6],[-39,-14],[-41,-22],[-48,-26],[-58,-35],[-65,-41],[-68,-52],[-72,-50],[-73,-40],[-71,-30],[-70,-18],[-76,-12],[-81,-5],[-80,0],[-78,6]],land);
+  poly([[-50,60],[-42,60],[-20,70],[-20,82],[-60,82],[-70,77],[-55,70]],'#e6eef5');
+  g.fillStyle='#e6eef5';g.fillRect(0,P(0,-68)[1],W,H);
+  poly([[68,23],[70,21],[72.8,19],[73.5,16],[75,12],[76.5,8.5],[77.5,8],[78.2,9],[80,13],[80.3,15.8],[82.5,17],[85,19.5],[87,21.5],[89,22],[92,22],[92.5,24],[94,27],[89,28],[84,28],[80,30],[78,32.5],[75,35],[74,34],[72,31],[70,28],[69,25]],'#e3a33b');
+  poly([[79.8,9.8],[81.8,7.5],[81,6],[80,6.2]],'#7da35b');
+  const t=new THREE.CanvasTexture(c);return t;
+}
+const earth=new THREE.Mesh(new THREE.SphereGeometry(RE,64,40),new THREE.MeshLambertMaterial({map:earthTexture()}));
+spinG.add(earth);
+function latLon(lat,lon,r){const a=lat*D2R,o=lon*D2R;return new THREE.Vector3(r*Math.cos(a)*Math.cos(o),r*Math.sin(a),-r*Math.cos(a)*Math.sin(o));}
+// latitude circles (in tilt frame — they don't need to spin)
+function circle(lat,col){const p=[];for(let o=0;o<=360;o+=4)p.push(latLon(lat,o,RE*1.012));const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),new THREE.LineBasicMaterial({color:col}));tiltG.add(l);return l;}
+circle(0,0xff4d4d);circle(TILT,0xffb000);circle(-TILT,0x33d1c4);
+// axis
+tiltG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-RE*1.7,0),new THREE.Vector3(0,RE*1.7,0)]),new THREE.LineBasicMaterial({color:0xffffff})));
+const nLab=makeLabel('N','#ffffff',.9);scene.remove(nLab);tiltG.add(nLab);nLab.position.set(0,RE*1.95,0);
+const sLab=makeLabel('S','#ffffff',.9);scene.remove(sLab);tiltG.add(sLab);sLab.position.set(0,-RE*1.95,0);
+// Kozhikode
+const kMark=new THREE.Mesh(new THREE.SphereGeometry(.11,12,10),new THREE.MeshBasicMaterial({color:0xff2d55}));kMark.position.copy(latLon(LATK,LONK,RE*1.01));spinG.add(kMark);
+const kLab=makeLabel('Kozhikode','#ff6b88',.45,true);scene.remove(kLab);spinG.add(kLab);kLab.position.copy(latLon(LATK+6,LONK,RE*1.12));
+// circle labels (follow camera side)
+const cLabs=[[0,'Equator','#ff6b6b'],[TILT,'Tropic of Cancer','#ffb000'],[-TILT,'Tropic of Capricorn','#33d1c4']].map(([lat,t,c])=>{const s=makeLabel(t,c,.42);scene.remove(s);tiltG.add(s);s.userData.lat=lat;return s;});
+// subsolar point + ray
+const ssMark=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),new THREE.MeshBasicMaterial({color:0xffee58}));scene.add(ssMark);
+const ray=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xffee58,transparent:true,opacity:.8}));scene.add(ray);
+const earthLab=makeLabel('Earth','#cfe3ff',.9);
+const arrows=[0,1,2].map(()=>{const a=new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(),RE*2.4,0xffee58,.6,.4);scene.add(a);return a;});
+
+// ---------- physics (real values for read-outs) ----------
+function declination(d){const G=2*Math.PI*d/365;return (0.006918-0.399912*Math.cos(G)+0.070257*Math.sin(G)-0.006758*Math.cos(2*G)+0.000907*Math.sin(2*G)-0.002697*Math.cos(3*G)+0.00148*Math.sin(3*G))/D2R;}
+function distance(d){const e=0.0167,M=2*Math.PI*(d-2)/365.25;let E=M;for(let i=0;i<8;i++)E=E-(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));return 149.6*(1-e*Math.cos(E));}
+function dayLen(lat,dec){const x=-Math.tan(lat*D2R)*Math.tan(dec*D2R);return 2/15*Math.acos(Math.max(-1,Math.min(1,x)))/D2R;}
+function hm(h){const H=Math.floor(h),M=Math.round((h-H)*60);return H+' h '+String(M%60).padStart(2,'0')+' min';}
+
+
+// ---------- explanations (English / Malayalam / Hindi) ----------
+const TXT={
+ status:{
+  eq:{en:'Equinox: the Sun is straight over the Equator. Day and night are equal (12 hours) all over the Earth.',
+      ml:'വിഷുവം: സൂര്യൻ ഭൂമധ്യരേഖയ്ക്ക് നേരെ മുകളിൽ. ഭൂമിയിൽ എല്ലായിടത്തും പകലും രാത്രിയും തുല്യം (12 മണിക്കൂർ വീതം).',
+      hi:'विषुव: सूर्य भूमध्य रेखा के ठीक ऊपर है। पूरी पृथ्वी पर दिन और रात बराबर (12-12 घंटे)।'},
+  jun:{en:'June Solstice: the northern half (India) leans most towards the Sun. Longest day, highest noon Sun. Summer.',
+      ml:'ജൂൺ അയനാന്തം: വടക്കേ അർദ്ധഗോളം (ഇന്ത്യ) സൂര്യന്റെ നേരെ ഏറ്റവും കൂടുതൽ ചരിഞ്ഞിരിക്കുന്നു. ഏറ്റവും നീളമുള്ള പകൽ, ഉച്ചസൂര്യൻ ഏറ്റവും ഉയരത്തിൽ. വേനൽ.',
+      hi:'ग्रीष्म अयनांत: उत्तरी गोलार्ध (भारत) सूर्य की ओर सबसे ज़्यादा झुका है। सबसे लंबा दिन, दोपहर का सूर्य सबसे ऊँचा। गर्मी।'},
+  dec:{en:'December Solstice: the northern half (India) leans most away from the Sun. Shortest day, lowest noon Sun. Winter.',
+      ml:'ഡിസംബർ അയനാന്തം: വടക്കേ അർദ്ധഗോളം (ഇന്ത്യ) സൂര്യനിൽ നിന്ന് ഏറ്റവും അകന്നു ചരിഞ്ഞിരിക്കുന്നു. ഏറ്റവും ചെറിയ പകൽ, ഉച്ചസൂര്യൻ ഏറ്റവും താഴ്ന്ന്. ശൈത്യം.',
+      hi:'शीत अयनांत: उत्तरी गोलार्ध (भारत) सूर्य से सबसे ज़्यादा दूर झुका है। सबसे छोटा दिन, दोपहर का सूर्य सबसे नीचा। सर्दी।'},
+  north:{en:'The northern half (India) leans towards the Sun: days are longer than nights and the noon Sun is high.',
+      ml:'വടക്കേ അർദ്ധഗോളം (ഇന്ത്യ) സൂര്യന്റെ നേരെ ചരിഞ്ഞിരിക്കുന്നു: പകലിന് രാത്രിയേക്കാൾ നീളം കൂടുതൽ, ഉച്ചസൂര്യൻ ഉയരത്തിൽ.',
+      hi:'उत्तरी गोलार्ध (भारत) सूर्य की ओर झुका है: दिन रात से लंबे हैं और दोपहर का सूर्य ऊँचा है।'},
+  south:{en:'The northern half (India) leans away from the Sun: nights are longer than days and the noon Sun is low.',
+      ml:'വടക്കേ അർദ്ധഗോളം (ഇന്ത്യ) സൂര്യനിൽ നിന്ന് അകന്നു ചരിഞ്ഞിരിക്കുന്നു: രാത്രിക്ക് പകലിനേക്കാൾ നീളം കൂടുതൽ, ഉച്ചസൂര്യൻ താഴ്ന്ന്.',
+      hi:'उत्तरी गोलार्ध (भारत) सूर्य से दूर झुका है: रातें दिन से लंबी हैं और दोपहर का सूर्य नीचा है।'},
+  koz:{en:'Today the noon Sun is straight overhead at Kozhikode: no shadow at noon!',
+      ml:'ഇന്ന് ഉച്ചയ്ക്ക് സൂര്യൻ കോഴിക്കോടിന് നേരെ മുകളിൽ: ഉച്ചയ്ക്ക് നിഴൽ ഇല്ല!',
+      hi:'आज दोपहर सूर्य कोझिकोड के ठीक ऊपर है: दोपहर में परछाईं नहीं!'}
+ },
+ cards:[
+  {id:'why',
+   en:['Why do seasons happen?','The Earth\'s axis is tilted by 23.5°. While going round the Sun, the axis always points the same way (towards the Pole Star). So for some months the northern half, where India is, leans towards the Sun, and for other months it leans away.'],
+   ml:['എന്തുകൊണ്ടാണ് ഋതുക്കൾ ഉണ്ടാകുന്നത്?','ഭൂമിയുടെ അച്ചുതണ്ട് 23.5° ചരിഞ്ഞാണ് നിൽക്കുന്നത്. സൂര്യനെ ചുറ്റുമ്പോഴും ഈ അച്ചുതണ്ട് എപ്പോഴും ഒരേ ദിശയിലേക്കാണ് (ധ്രുവനക്ഷത്രത്തിലേക്ക്) ചൂണ്ടുന്നത്. അതുകൊണ്ട് ചില മാസങ്ങളിൽ ഇന്ത്യ ഉൾപ്പെടുന്ന വടക്കേ അർദ്ധഗോളം സൂര്യന്റെ നേരെ ചരിയുന്നു; മറ്റു മാസങ്ങളിൽ സൂര്യനിൽ നിന്ന് അകന്നു ചരിയുന്നു.'],
+   hi:['ऋतुएँ क्यों होती हैं?','पृथ्वी की धुरी 23.5° झुकी हुई है। सूर्य की परिक्रमा करते समय यह धुरी हमेशा एक ही दिशा में (ध्रुव तारे की ओर) रहती है। इसलिए कुछ महीनों में उत्तरी गोलार्ध, जहाँ भारत है, सूर्य की ओर झुका रहता है और कुछ महीनों में सूर्य से दूर।']},
+  {id:'sum',
+   en:['Summer: June Solstice (21 June)','The northern half leans towards the Sun. The Sun is straight overhead at the Tropic of Cancer. In India the noon Sun climbs high and days are long, so the land gets more heat. It is the longest day of the year.'],
+   ml:['വേനൽ: ജൂൺ അയനാന്തം (ജൂൺ 21)','വടക്കേ അർദ്ധഗോളം സൂര്യന്റെ നേരെ ചരിഞ്ഞിരിക്കുന്നു. സൂര്യൻ ഉത്തരായനരേഖയ്ക്ക് (കർക്കടകരേഖ, Tropic of Cancer) നേരെ മുകളിലാണ്. ഇന്ത്യയിൽ ഉച്ചസൂര്യൻ ഉയരത്തിൽ നിൽക്കുന്നു, പകലിന് നീളം കൂടുതലാണ്, അതിനാൽ ഭൂമിക്ക് കൂടുതൽ ചൂട് ലഭിക്കുന്നു. വർഷത്തിലെ ഏറ്റവും നീളമുള്ള പകൽ.'],
+   hi:['गर्मी: ग्रीष्म अयनांत (21 जून)','उत्तरी गोलार्ध सूर्य की ओर झुका होता है। सूर्य कर्क रेखा (Tropic of Cancer) के ठीक ऊपर होता है। भारत में दोपहर का सूर्य ऊँचा रहता है और दिन लंबे होते हैं, इसलिए धरती को ज़्यादा गर्मी मिलती है। यह साल का सबसे लंबा दिन है।']},
+  {id:'win',
+   en:['Winter: December Solstice (22 December)','The northern half leans away from the Sun. The Sun is straight overhead at the Tropic of Capricorn. In India the Sun stays low in the sky and days are short, so we get less heat. It is the shortest day of the year.'],
+   ml:['ശൈത്യം: ഡിസംബർ അയനാന്തം (ഡിസംബർ 22)','വടക്കേ അർദ്ധഗോളം സൂര്യനിൽ നിന്ന് അകന്നു ചരിഞ്ഞിരിക്കുന്നു. സൂര്യൻ ദക്ഷിണായനരേഖയ്ക്ക് (മകരരേഖ, Tropic of Capricorn) നേരെ മുകളിലാണ്. ഇന്ത്യയിൽ സൂര്യൻ ആകാശത്ത് താഴ്ന്നു നിൽക്കുന്നു, പകൽ ചെറുതാണ്, അതിനാൽ ചൂട് കുറവാണ്. വർഷത്തിലെ ഏറ്റവും ചെറിയ പകൽ.'],
+   hi:['सर्दी: शीत अयनांत (22 दिसंबर)','उत्तरी गोलार्ध सूर्य से दूर झुका होता है। सूर्य मकर रेखा (Tropic of Capricorn) के ठीक ऊपर होता है। भारत में सूर्य आकाश में नीचा रहता है और दिन छोटे होते हैं, इसलिए गर्मी कम मिलती है। यह साल का सबसे छोटा दिन है।']},
+  {id:'eq',
+   en:['Equinox: 21 March and 23 September','The axis leans neither towards nor away from the Sun. The Sun is straight overhead at the Equator. Day and night are equal, 12 hours each, everywhere on Earth.'],
+   ml:['വിഷുവം: മാർച്ച് 21, സെപ്റ്റംബർ 23','അച്ചുതണ്ട് സൂര്യന്റെ നേരെയോ സൂര്യനിൽ നിന്ന് അകലേക്കോ ചരിയുന്നില്ല. സൂര്യൻ ഭൂമധ്യരേഖയ്ക്ക് നേരെ മുകളിലാണ്. ഭൂമിയിൽ എല്ലായിടത്തും പകലും രാത്രിയും തുല്യം, 12 മണിക്കൂർ വീതം.'],
+   hi:['विषुव: 21 मार्च और 23 सितंबर','धुरी न सूर्य की ओर झुकी होती है, न उससे दूर। सूर्य भूमध्य रेखा के ठीक ऊपर होता है। पूरी पृथ्वी पर दिन और रात बराबर होते हैं, 12-12 घंटे।']},
+  {id:'dist',
+   en:['Distance is not the reason','Earth is nearest to the Sun on 3 January (Perihelion, 147.1 million km), which is winter in India, and farthest on 4 July (Aphelion, 152.1 million km). The difference is only about 3%, too small to cause seasons.'],
+   ml:['ദൂരം അല്ല കാരണം','ജനുവരി 3-ന് ഭൂമി സൂര്യനോട് ഏറ്റവും അടുത്താണ് (പെരിഹീലിയൻ, 14.71 കോടി കി.മീ.); അപ്പോൾ ഇന്ത്യയിൽ ശൈത്യകാലമാണ്. ജൂലൈ 4-ന് ഏറ്റവും അകലെയാണ് (അഫീലിയൻ, 15.21 കോടി കി.മീ.). വ്യത്യാസം ഏകദേശം 3% മാത്രം; ഋതുക്കൾ ഉണ്ടാക്കാൻ ഇത് പോരാ.'],
+   hi:['दूरी कारण नहीं है','3 जनवरी को पृथ्वी सूर्य के सबसे पास होती है (उपसौर / पेरिहीलियन, 14.71 करोड़ किमी); तब भारत में सर्दी होती है। 4 जुलाई को सबसे दूर होती है (अपसौर / एफ़ेलियन, 15.21 करोड़ किमी)। अंतर केवल लगभग 3% है; इससे ऋतुएँ नहीं बनतीं।']}
+ ]
+};
+let LANGS=['en','ml'];
+function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function mlBlock(fn){return '<div class="ml'+(LANGS.length>1?' two':'')+'">'+LANGS.map(l=>'<div lang="'+l+'">'+fn(l)+'</div>').join('')+'</div>';}
+function renderCards(){
+  $('explain').innerHTML=TXT.cards.map(c=>'<div class="ex" id="ex-'+c.id+'">'+mlBlock(l=>'<h3>'+esc(c[l][0])+'</h3><p>'+esc(c[l][1])+'</p>')+'</div>').join('');
+  document.querySelector('.app').classList.toggle('dual',LANGS.length>1);
+  setTimeout(resize,0);
+}
+let lastKey='';
+function showStatus(keys,color){
+  const html=mlBlock(l=>keys.map(k=>esc(TXT.status[k][l])).join(' '));
+  $('status').innerHTML=html;$('status').style.background=color;
+  $('caption').innerHTML=html;$('caption').style.borderLeftColor=color;
+}
+
+// ---------- state ----------
+const st={day:171,hour:12,play:null,view:'3d'};
+const tmpQ=new THREE.Quaternion();
+function update(){
+  const d=st.day+st.hour/24;
+  const p=orbitPos(d);earthPos.position.copy(p);
+  earthLab.position.copy(p).setY(RE*2.6);
+  // spin: Kozhikode faces the sun at 12:00 solar time
+  const sunDirW=p.clone().negate().normalize();
+  tmpQ.copy(tiltG.quaternion).invert();
+  const sl=sunDirW.clone().applyQuaternion(tmpQ);
+  const lamS=Math.atan2(-sl.z,sl.x);
+  spinG.rotation.y=lamS-LONK*D2R+2*Math.PI*(st.hour/24-0.5);
+  // subsolar point
+  const ss=p.clone().add(sunDirW.clone().multiplyScalar(RE*1.01));ssMark.position.copy(ss);
+  ray.geometry.dispose();ray.geometry=new THREE.BufferGeometry().setFromPoints([sunDirW.clone().multiplyScalar(4.2),ss]);
+
+  // readouts
+  const dec=declination(Math.floor(st.day)),{m,day}=dayToDate(st.day),[sn,sc]=season(m);
+  const ds=day+' '+MONTHS[m];
+  $('dateOut').textContent=ds;$('bigDate').textContent=ds;$('bigSeason').textContent='India: '+sn;$('bigSeason').style.color='#fff';
+  const hh=Math.floor(st.hour)%24,mm=Math.round((st.hour-Math.floor(st.hour))*60);
+  $('hourOut').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(st.hour<6||st.hour>18?' (night)':' (day)');
+  const where=Math.abs(dec)<0.5?'the Equator':dec>23?'the Tropic of Cancer':dec<-23?'the Tropic of Capricorn':(dec>0?'between Equator and Tropic of Cancer':'between Equator and Tropic of Capricorn');
+  $('rDec').textContent=Math.abs(dec).toFixed(1)+'° '+(dec>=0?'N':'S')+' ('+where+')';
+  $('rDayK').textContent=hm(dayLen(LATK,dec));$('rDayD').textContent=hm(dayLen(LATD,dec));
+  $('rNoon').textContent=(90-Math.abs(LATK-dec)).toFixed(1)+'°';
+  $('rDist').textContent=distance(st.day).toFixed(1)+' M km';
+  let k,card;
+  if(Math.abs(dec)<0.6){k='eq';card='eq';}
+  else if(dec>23){k='jun';card='sum';}
+  else if(dec<-23){k='dec';card='win';}
+  else if(dec>0){k='north';card=dec>12?'sum':'why';}
+  else {k='south';card=dec<-12?'win':'why';}
+  const keys=[k];if(Math.abs(dec-LATK)<0.35)keys.push('koz');
+  const dd=Math.floor(st.day);const near=(dd<=8||dd>=362)||(dd>=178&&dd<=190);
+  const sig=keys.join()+sc+LANGS.join()+near;
+  if(sig!==lastKey){lastKey=sig;showStatus(keys,sc);
+    document.querySelectorAll('.ex').forEach(e=>e.classList.remove('on'));
+    const ce=$('ex-'+card);if(ce)ce.classList.add('on');
+    if(near){const de=$('ex-dist');if(de)de.classList.add('on');}}
+  // sunlight arrows
+  const up=new THREE.Vector3(0,1,0);
+  arrows.forEach((a,i)=>{const off=(i-1)*1.4;a.position.copy(p).add(sunDirW.clone().multiplyScalar(RE*3.6)).add(up.clone().multiplyScalar(off));a.setDirection(sunDirW.clone().negate());});
+  $('dayIn').value=Math.floor(st.day);$('hourIn').value=st.hour;
+}
+
+// ---------- camera ----------
+const cam={theta:.7,phi:.95,dist:95,target:new THREE.Vector3(),sYaw:0,sEl:.12};
+function applyView(v){st.view=v;
+  if(v==='top'){cam.theta=0;cam.phi=.01;cam.dist=100;}
+  if(v==='3d'){cam.theta=.7;cam.phi=.95;cam.dist=95;}
+  if(v==='earth'){const p=earthPos.position;cam.theta=Math.atan2(p.x,p.z)+1.1;cam.phi=1.2;cam.dist=11;}
+  if(v==='side'){cam.sYaw=0;cam.sEl=.12;cam.dist=13;}
+  document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
+document.querySelectorAll('#views button').forEach(b=>b.addEventListener('click',()=>applyView(b.dataset.v)));
+function placeCamera(){
+  if(st.view==='earth'||st.view==='side')cam.target.copy(earthPos.position);else cam.target.set(0,0,0);
+  if(st.view==='side'){
+    // camera beside Earth, at right angles to the Sun–Earth line, so the Sun is always on the left
+    const s=earthPos.position.clone().negate().setY(0).normalize();
+    const perp=new THREE.Vector3(s.z,0,-s.x).applyAxisAngle(new THREE.Vector3(0,1,0),cam.sYaw);
+    camera.position.copy(cam.target).add(perp.multiplyScalar(cam.dist*Math.cos(cam.sEl))).add(new THREE.Vector3(0,cam.dist*Math.sin(cam.sEl),0));
+  } else
+  camera.position.set(cam.target.x+cam.dist*Math.sin(cam.phi)*Math.sin(cam.theta),cam.target.y+cam.dist*Math.cos(cam.phi),cam.target.z+cam.dist*Math.sin(cam.phi)*Math.cos(cam.theta));
+  camera.lookAt(cam.target);
+  // put circle labels on the side of the globe facing the camera's right
+  const right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0);
+  const toCam=camera.position.clone().sub(earthPos.position).normalize();
+  const dir=right.multiplyScalar(.75).add(toCam.multiplyScalar(.65)).applyQuaternion(tmpQ.copy(tiltG.quaternion).invert());
+  const a=Math.atan2(-dir.z,dir.x)/D2R;
+  cLabs.forEach(s=>{s.position.copy(latLon(s.userData.lat,a,RE*1.55));});
+  const close=st.view==='earth'||st.view==='side';
+  cLabs.forEach(s=>s.visible=close);kLab.visible=close;earthLab.visible=!close;
+  arrows.forEach(a=>a.visible=close);$('arrowKey').style.display=st.view==='side'?'block':'none';
+}
+const ptrs=new Map();let pinch0=0;const cv=renderer.domElement;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);}});
+cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const q=ptrs.get(e.pointerId),dx=e.clientX-q.x,dy=e.clientY-q.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0)zoom(pinch0/d);pinch0=d;return;}
+  if(st.view==='side'){cam.sYaw-=dx*.006;cam.sEl=Math.max(-1.3,Math.min(1.3,cam.sEl+dy*.006));if(Math.abs(cam.sYaw)>.05)$('arrowKey').textContent='Sunlight arrows show where the Sun is';return;}
+  cam.theta-=dx*.007;cam.phi=Math.max(.01,Math.min(3.1,cam.phi-dy*.007));});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,e=>{ptrs.delete(e.pointerId);pinch0=0;}));
+function zoom(f){const near=st.view==='earth'||st.view==='side';const lo=near?5:30,hi=near?40:200;cam.dist=Math.max(lo,Math.min(hi,cam.dist*f));}
+cv.addEventListener('wheel',e=>{e.preventDefault();zoom(1+e.deltaY*.001);},{passive:false});
+
+// ---------- controls ----------
+$('dayIn').addEventListener('input',e=>{st.day=+e.target.value;update();});
+$('hourIn').addEventListener('input',e=>{st.hour=+e.target.value;update();});
+function setPlay(mode){st.play=st.play===mode?null:mode;
+  $('playYear').textContent=st.play==='year'?'❚❚ Pause':'▶ Play the year';$('playYear').classList.toggle('on',st.play==='year');
+  $('playDay').textContent=st.play==='day'?'❚❚ Pause':'▶ Spin one day';$('playDay').classList.toggle('on',st.play==='day');
+  if(st.play==='year'){st.hour=12;}}
+$('playYear').addEventListener('click',()=>setPlay('year'));
+$('playDay').addEventListener('click',()=>{if(st.play!=='day'&&st.view!=='earth'&&st.view!=='side')applyView('side');setPlay('day');});
+const SPEED_YEAR=[2,5,12,25,50], SPEED_DAY=[.5,1.5,3,6,12];
+let spd=2;$('speedIn').addEventListener('change',e=>{spd=+e.target.value;});
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{st.day=((Math.floor(st.day)+(+b.dataset.step))%365+365)%365;update();}));
+$('langIn').addEventListener('change',e=>{LANGS=e.target.value.split('+');lastKey='';renderCards();update();});
+document.querySelectorAll('.jump button').forEach(b=>b.addEventListener('click',()=>{st.day=+b.dataset.d;st.hour=12;update();}));
+
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);
+let last=performance.now();
+function loop(t){const dt=Math.min(.1,(t-last)/1000);last=t;
+  if(st.play==='year'){st.day=(st.day+dt*SPEED_YEAR[spd])%365;update();}
+  if(st.play==='day'){st.hour+=dt*SPEED_DAY[spd];if(st.hour>=24){st.hour-=24;}update();}
+  placeCamera();renderer.render(scene,camera);requestAnimationFrame(loop);}
+renderCards();update();applyView('side');resize();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
