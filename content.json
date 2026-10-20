@@ -154,17 +154,6 @@
    "layout": "cards",
    "items": [
     {
-     "id": "solar-systems-overview",
-     "type": "html",
-     "title": "Solar energy systems – classroom slides",
-     "desc": "On-grid, off-grid, hybrid, islanding and anti-islanding, BESS and IEC standards, comparison table.",
-     "tags": [
-      "Slides",
-      "EN·HI·ML"
-     ],
-     "file": "solar-systems-overview.html"
-    },
-    {
      "id": "pv-systems-bess",
      "type": "html",
      "title": "Solar PV systems and BESS",
