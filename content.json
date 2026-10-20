@@ -1,0 +1,540 @@
+{
+ "site": {
+  "eyebrow": "Solar Support · PM Surya Ghar Muft Bijli Yojana",
+  "title": "Solar PV Learning Path",
+  "lede": "Interactive lessons, simulators, sizing trainers and practice quizzes for rooftop solar, arranged in teaching order: from the Sun's movement to sizing a complete plant. Most lessons switch between English, Hindi and Malayalam.",
+  "author": "PRASAD UM, VI",
+  "org": "NSTI Calicut",
+  "course": "CTS Electrician – Power Distribution"
+ },
+ "modules": [
+  {
+   "id": "sun",
+   "title": "The Sun and the sky",
+   "note": "Why seasons happen, where the Sun is at any hour, and how tilt changes what a panel receives.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "seasons-3d",
+     "type": "html",
+     "title": "Why we have seasons in India",
+     "desc": "3D orbit model: 23.5° axial tilt, equinoxes, solstices, perihelion and aphelion, with IMD season colours.",
+     "tags": [
+      "3D",
+      "EN·HI·ML"
+     ],
+     "file": "seasons-3d.html"
+    },
+    {
+     "id": "seasons-step-by-step",
+     "type": "html",
+     "title": "Seasons, step by step",
+     "desc": "Guided lesson with voice narration that walks through the Earth's orbit one position at a time.",
+     "tags": [
+      "Narrated",
+      "EN·HI·ML"
+     ],
+     "file": "seasons-step-by-step.html"
+    },
+    {
+     "id": "sun-angles-3d",
+     "type": "html",
+     "title": "Sun angles: elevation, azimuth, zenith",
+     "desc": "Move the Sun over a sky dome and read α, θz and γ. Real-sun mode for Kozhikode, Port Blair and other cities.",
+     "tags": [
+      "3D",
+      "Simulator"
+     ],
+     "file": "sun-angles-3d.html"
+    },
+    {
+     "id": "sun-path-chart",
+     "type": "html",
+     "title": "Sun path chart – Kozhikode",
+     "desc": "Polar and rectangular sun path charts with sunrise, sunset, day length and noon elevation for the 21st of each month.",
+     "tags": [
+      "Chart",
+      "IST times"
+     ],
+     "file": "sun-path-chart.html"
+    },
+    {
+     "id": "solar-pathfinder",
+     "type": "html",
+     "title": "Solar Pathfinder shade survey",
+     "desc": "Why shade matters, parts of the Pathfinder, true north and magnetic declination, placement, the sunpath diagram, a shading simulator, worked examples and a quiz.",
+     "tags": [
+      "Simulator",
+      "Quiz",
+      "EN·HI·ML"
+     ],
+     "file": "solar-pathfinder.html"
+    },
+    {
+     "id": "tilt-irradiance-3-panel",
+     "type": "html",
+     "title": "Tilt, irradiance and time of day",
+     "desc": "Three-panel simulation for Port Blair and Kozhikode: sun path by month, recommended tilt, series/parallel, Isc, Voc and daily power curve.",
+     "tags": [
+      "Simulator",
+      "Monthly tilt"
+     ],
+     "file": "tilt-irradiance-3-panel.html"
+    }
+   ]
+  },
+  {
+   "id": "pv",
+   "title": "Solar cells and PV modules",
+   "note": "From the silicon atom to the module datasheet, and what shading does to a string.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "pn-junction-solar-cell",
+     "type": "html",
+     "title": "Semiconductors, PN junction and solar cell",
+     "desc": "Doping, depletion layer, bias, diode V–I curve, solar cell I–V curve, fill factor, and cell → module → array.",
+     "tags": [
+      "11 steps",
+      "EN·HI·ML"
+     ],
+     "file": "pn-junction-solar-cell.html"
+    },
+    {
+     "id": "iv-curve-lab",
+     "type": "html",
+     "title": "Solar cell I-V curve lab",
+     "desc": "Plot the I-V curve point by point using load resistors at 200, 600 and 1000 W/m², and compare 25 °C with 45 °C.",
+     "tags": [
+      "Lab",
+      "Temperature"
+     ],
+     "file": "iv-curve-lab.html"
+    },
+    {
+     "id": "pv-modules-visual",
+     "type": "html",
+     "title": "PV module technologies – visual overview",
+     "desc": "Mono, poly, thin film, PERC, TOPCon, HJT, half-cut and bifacial explained with diagrams.",
+     "tags": [
+      "Overview",
+      "EN·HI·ML"
+     ],
+     "file": "pv-modules-visual.html"
+    },
+    {
+     "id": "pv-modules-detailed",
+     "type": "html",
+     "title": "PV module technologies – detailed reference",
+     "desc": "Manufacturing, comparison of efficiency and degradation, IS/IEC standards, reading a datasheet, worked numericals.",
+     "tags": [
+      "Reference",
+      "Calculators",
+      "EN·HI·ML"
+     ],
+     "file": "pv-modules-detailed.html"
+    },
+    {
+     "id": "hotspots-bypass-diodes",
+     "type": "html",
+     "title": "Hotspots, bypass and blocking diodes",
+     "desc": "Shade one cell and watch heating, I–V and P–V curves; bypass and blocking diode action, testing and faults.",
+     "tags": [
+      "Animated",
+      "EN·HI·ML"
+     ],
+     "file": "hotspots-bypass-diodes.html"
+    }
+   ]
+  },
+  {
+   "id": "systems",
+   "title": "Solar systems and components",
+   "note": "On-grid, off-grid and hybrid systems, the inverter, and everything else between panel and grid.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "solar-systems-overview",
+     "type": "html",
+     "title": "Solar energy systems – classroom slides",
+     "desc": "On-grid, off-grid, hybrid, islanding and anti-islanding, BESS and IEC standards, comparison table.",
+     "tags": [
+      "Slides",
+      "EN·HI·ML"
+     ],
+     "file": "solar-systems-overview.html"
+    },
+    {
+     "id": "pv-systems-bess",
+     "type": "html",
+     "title": "Solar PV systems and BESS",
+     "desc": "Detailed on-grid, off-grid and hybrid layouts, isolation, protection devices and battery energy storage.",
+     "tags": [
+      "9 steps",
+      "EN·HI·ML"
+     ],
+     "file": "pv-systems-bess.html"
+    },
+    {
+     "id": "inverter-types",
+     "type": "html",
+     "title": "Solar inverter types",
+     "desc": "Inside an inverter, off-grid, on-grid, hybrid and micro inverters, datasheets, MPPT and the string voltage window.",
+     "tags": [
+      "10 steps",
+      "EN·HI·ML"
+     ],
+     "file": "inverter-types.html"
+    },
+    {
+     "id": "balance-of-system",
+     "type": "html",
+     "title": "Balance of System (BoS)",
+     "desc": "Structures, cables and MC4, DCDB and ACDB, earthing and lightning arrester, metering, BoS sizing and testing.",
+     "tags": [
+      "9 steps",
+      "EN·HI·ML"
+     ],
+     "file": "balance-of-system.html"
+    }
+   ]
+  },
+  {
+   "id": "storage",
+   "title": "Batteries and charge controllers",
+   "note": "Storage chemistry, charging, and how fast a battery can safely be discharged.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "lead-acid-charge-controllers",
+     "type": "html",
+     "title": "Lead-acid batteries and charge controllers",
+     "desc": "Construction, chemistry, C10/C20 ratings, charging stages, common problems, PWM vs MPPT, connections and pricing.",
+     "tags": [
+      "10 steps",
+      "EN·HI·ML"
+     ],
+     "file": "lead-acid-charge-controllers.html"
+    },
+    {
+     "id": "lithium-batteries",
+     "type": "html",
+     "title": "Lithium solar batteries",
+     "desc": "LiFePO₄ types, construction, live BMS demo, settings, pros and cons, care, safety and installation.",
+     "tags": [
+      "9 steps",
+      "EN·HI·ML"
+     ],
+     "file": "lithium-batteries.html"
+    },
+    {
+     "id": "battery-c-rate",
+     "type": "html",
+     "title": "C-rating of battery",
+     "desc": "What C-rate means, discharge time calculator, battery types, high-C effects, reading labels, worked examples and quiz.",
+     "tags": [
+      "Calculator",
+      "Quiz",
+      "EN·HI·ML"
+     ],
+     "file": "battery-c-rate.html"
+    },
+    {
+     "id": "battery-discharge-calculator",
+     "type": "html",
+     "title": "Battery discharge time calculator",
+     "desc": "Enter Ah or mAh and pick a C-rate from C/20 to 20C to get discharge time, current and typical applications.",
+     "tags": [
+      "Calculator"
+     ],
+     "file": "battery-discharge-calculator.html"
+    }
+   ]
+  },
+  {
+   "id": "sizing",
+   "title": "System sizing",
+   "note": "Work a full design from the load survey, with every number calculated live.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "grid-tie-sizing",
+     "type": "html",
+     "title": "Grid-tie rooftop PV sizing",
+     "desc": "Load survey → plant capacity, modules, inverter, string connection, energy exported to the grid and protection.",
+     "tags": [
+      "Step by step",
+      "EN·HI·ML"
+     ],
+     "file": "grid-tie-sizing.html"
+    },
+    {
+     "id": "offgrid-sizing-quick",
+     "type": "html",
+     "title": "Off-grid sizing – quick trainer",
+     "desc": "Six short steps with your own wattages: loads, hours, inverter VA, battery bank, PV array and charge controller.",
+     "tags": [
+      "6 steps",
+      "Calculator"
+     ],
+     "file": "offgrid-sizing-quick.html"
+    },
+    {
+     "id": "standalone-sizing",
+     "type": "html",
+     "title": "Stand-alone PV sizing trainer",
+     "desc": "Load survey, watt-hours, inverter VA, system voltage, battery bank, PV array, standard panels and controller rating.",
+     "tags": [
+      "Step by step",
+      "EN·HI·ML"
+     ],
+     "file": "standalone-sizing.html"
+    }
+   ]
+  },
+  {
+   "id": "practice",
+   "title": "Practice and assessment",
+   "note": "Self-check quizzes with instant feedback. The Google Form question banks follow below.",
+   "layout": "cards",
+   "items": [
+    {
+     "id": "challenge-1",
+     "type": "html",
+     "title": "Solar Smart Technician Challenge",
+     "desc": "30 questions on irradiance, PV cells, wiring, installation safety and troubleshooting, with a score at the end.",
+     "tags": [
+      "30 MCQ",
+      "NSQF 3"
+     ],
+     "file": "challenge-1.html"
+    },
+    {
+     "id": "challenge-2",
+     "type": "html",
+     "title": "Solar Smart Technician – Advanced Challenge",
+     "desc": "30 harder questions: string sizing, standards, PID, protection devices, temperature loss and performance checks.",
+     "tags": [
+      "30 MCQ",
+      "Advanced"
+     ],
+     "file": "challenge-2.html"
+    }
+   ]
+  },
+  {
+   "id": "mcq-modules",
+   "title": "MCQ modules – PM Surya Ghar",
+   "note": "Google Forms. Each opens in a new tab.",
+   "layout": "links",
+   "items": [
+    {
+     "id": "mcq-1",
+     "type": "form",
+     "title": "MCQ Module 1",
+     "url": "https://forms.gle/K4uoCsBEb8n4R5JG9"
+    },
+    {
+     "id": "mcq-2",
+     "type": "form",
+     "title": "MCQ Module 2",
+     "url": "https://forms.gle/Bkt5Lus67TMbUe5p8"
+    },
+    {
+     "id": "mcq-3",
+     "type": "form",
+     "title": "MCQ Module 3",
+     "url": "https://forms.gle/CAQi4N5skrfRuyMy5"
+    },
+    {
+     "id": "mcq-4",
+     "type": "form",
+     "title": "MCQ Module 4",
+     "url": "https://forms.gle/i2xHzPB66aBeNueW6"
+    },
+    {
+     "id": "mcq-5",
+     "type": "form",
+     "title": "MCQ Module 5",
+     "url": "https://forms.gle/eCEYjQhG7n3eNt5Y6"
+    }
+   ]
+  },
+  {
+   "id": "mcq-gen",
+   "title": "MCQ Gen practice sets",
+   "note": "Google Forms. Each opens in a new tab.",
+   "layout": "links",
+   "items": [
+    {
+     "id": "gen-1",
+     "type": "form",
+     "title": "Set 1",
+     "url": "https://forms.gle/opePE4qTTQLVftFJ6"
+    },
+    {
+     "id": "gen-2",
+     "type": "form",
+     "title": "Set 2",
+     "url": "https://forms.gle/NwXPB9qhLwxWJ6P48"
+    },
+    {
+     "id": "gen-3",
+     "type": "form",
+     "title": "Set 3",
+     "url": "https://forms.gle/7n2FXSAoDBdnHT9n8"
+    },
+    {
+     "id": "gen-4",
+     "type": "form",
+     "title": "Set 4",
+     "url": "https://forms.gle/zToDZ8M1DhzfPsZE9"
+    },
+    {
+     "id": "gen-5",
+     "type": "form",
+     "title": "Set 5",
+     "url": "https://forms.gle/6KyMxDT787J5VbMWA"
+    },
+    {
+     "id": "gen-6",
+     "type": "form",
+     "title": "Set 6",
+     "url": "https://forms.gle/aG5WTYLEHvse8swZ8"
+    },
+    {
+     "id": "gen-7",
+     "type": "form",
+     "title": "Set 7",
+     "url": "https://forms.gle/t36hEJ5HawDLka1C7"
+    },
+    {
+     "id": "gen-8",
+     "type": "form",
+     "title": "Set 8",
+     "url": "https://forms.gle/yUFUCVA5HqCDnwbK9"
+    },
+    {
+     "id": "gen-9",
+     "type": "form",
+     "title": "Set 9",
+     "url": "https://forms.gle/ZETVb4bsvvGNpMfFA"
+    },
+    {
+     "id": "gen-10",
+     "type": "form",
+     "title": "Set 10",
+     "url": "https://forms.gle/gm4Jge8BqHeCSyhd9"
+    },
+    {
+     "id": "gen-11",
+     "type": "form",
+     "title": "Set 11",
+     "url": "https://forms.gle/5PAK2EJyayuyaxL6A"
+    },
+    {
+     "id": "gen-12",
+     "type": "form",
+     "title": "Set 12",
+     "url": "https://forms.gle/kzN1SYnzjybd4JxAA"
+    },
+    {
+     "id": "gen-13",
+     "type": "form",
+     "title": "Set 13",
+     "url": "https://forms.gle/45QhSdmCg3CQuCbf9"
+    },
+    {
+     "id": "gen-14",
+     "type": "form",
+     "title": "Set 14",
+     "url": "https://forms.gle/agLCycds8i6n1pqh9"
+    },
+    {
+     "id": "gen-15",
+     "type": "form",
+     "title": "Set 15",
+     "url": "https://forms.gle/5czCwEUD2MnMEGiK9"
+    },
+    {
+     "id": "gen-16",
+     "type": "form",
+     "title": "Set 16",
+     "url": "https://forms.gle/94Lr4ZVf27zoeHtu8"
+    },
+    {
+     "id": "gen-17",
+     "type": "form",
+     "title": "Set 17",
+     "url": "https://forms.gle/aqjZkjZ9jgdm8W6a9"
+    },
+    {
+     "id": "gen-18",
+     "type": "form",
+     "title": "Set 18",
+     "url": "https://forms.gle/utoNX1PGa6PddQJx7"
+    },
+    {
+     "id": "gen-19",
+     "type": "form",
+     "title": "Set 19",
+     "url": "https://forms.gle/Yuhy1RPTLDbRS8ee7"
+    },
+    {
+     "id": "gen-20",
+     "type": "form",
+     "title": "Set 20",
+     "url": "https://forms.gle/henkTSVtcvj8rddz8"
+    },
+    {
+     "id": "gen-21",
+     "type": "form",
+     "title": "Set 21",
+     "url": "https://forms.gle/qxG4Y3Xs5m1hL89V6"
+    },
+    {
+     "id": "gen-22",
+     "type": "form",
+     "title": "Set 22",
+     "url": "https://forms.gle/TMdpZDL4uM4emhMU7"
+    },
+    {
+     "id": "gen-23",
+     "type": "form",
+     "title": "Set 23",
+     "url": "https://forms.gle/76pLs8JJz2ELWyqg7"
+    },
+    {
+     "id": "gen-24",
+     "type": "form",
+     "title": "Set 24",
+     "url": "https://forms.gle/nYsy8epQw1DEWA4L7"
+    },
+    {
+     "id": "gen-25",
+     "type": "form",
+     "title": "Set 25",
+     "url": "https://forms.gle/afNT1FCPrgWNJPAt7"
+    },
+    {
+     "id": "gen-26",
+     "type": "form",
+     "title": "Set 26",
+     "url": "https://forms.gle/9BvK77LWmtwSBWB4A"
+    },
+    {
+     "id": "gen-27",
+     "type": "form",
+     "title": "Set 27",
+     "url": "https://forms.gle/u6BmB2aan2ku3ZZG9"
+    },
+    {
+     "id": "gen-28",
+     "type": "form",
+     "title": "Set 28",
+     "url": "https://forms.gle/ji3hUKBLxy6vdJUE7"
+    }
+   ]
+  }
+ ]
+}

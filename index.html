@@ -103,13 +103,14 @@ footer{border-top:1px solid var(--line);padding-block:20px 28px;color:var(--mute
 </head>
 <body>
 
+
 <div id="home">
   <header class="top">
     <div class="wrap">
-      <p class="eyebrow">Solar Support · PM Surya Ghar Muft Bijli Yojana</p>
-      <h1>Solar PV Learning Path</h1>
-      <p class="lede">Interactive lessons, simulators, sizing trainers and practice quizzes for rooftop solar, arranged in teaching order: from the Sun's movement to sizing a complete plant. Most lessons switch between English, Hindi and Malayalam.</p>
-      <div class="meta">
+      <p class="eyebrow" id="eyebrow">Solar Support</p>
+      <h1 id="title">Solar PV Learning Path</h1>
+      <p class="lede" id="lede">Interactive lessons, simulators, sizing trainers and practice quizzes for rooftop solar, arranged in teaching order: from the Sun's movement to sizing a complete plant. Most lessons switch between English, Hindi and Malayalam.</p>
+      <div class="meta" id="meta">
         <span>Prepared by <b>PRASAD UM, VI</b></span>
         <span>Vocational Instructor, <b>NSTI Calicut</b></span>
         <span>CTS Electrician – Power Distribution</span>
@@ -124,10 +125,10 @@ footer{border-top:1px solid var(--line);padding-block:20px 28px;color:var(--mute
     </div>
   </nav>
 
-  <main class="home wrap" id="list"></main>
+  <main class="home wrap" id="list"><p class="empty">Loading lessons…</p></main>
 
   <footer class="wrap">
-    <span id="count"></span> lessons · works on phone, tablet and PC. Tap a lesson to open it full width; use ◀ ▶ in the top bar to move through the sequence.
+    <span id="count"></span> lessons · works on phone, tablet and PC. Tap a lesson to open it full width; use ◀ ▶ in the top bar to move through the sequence. <a href="admin.html" style="color:inherit;opacity:.55">Admin</a>
   </footer>
 </div>
 
@@ -143,103 +144,87 @@ footer{border-top:1px solid var(--line);padding-block:20px 28px;color:var(--mute
 </div>
 
 <script>
-const MODULES=[
- {id:"sun",title:"The Sun and the sky",note:"Why seasons happen, where the Sun is at any hour, and how tilt changes what a panel receives.",lessons:[
-  {s:"seasons-3d",t:"Why we have seasons in India",d:"3D orbit model: 23.5° axial tilt, equinoxes, solstices, perihelion and aphelion, with IMD season colours.",g:["3D","EN·HI·ML"]},
-  {s:"seasons-step-by-step",t:"Seasons, step by step",d:"Guided lesson with voice narration that walks through the Earth's orbit one position at a time.",g:["Narrated","EN·HI·ML"]},
-  {s:"sun-angles-3d",t:"Sun angles: elevation, azimuth, zenith",d:"Move the Sun over a sky dome and read α, θz and γ. Real-sun mode for Kozhikode, Port Blair and other cities.",g:["3D","Simulator"]},
-  {s:"sun-path-chart",t:"Sun path chart – Kozhikode",d:"Polar and rectangular sun path charts with sunrise, sunset, day length and noon elevation for the 21st of each month.",g:["Chart","IST times"]},
-  {s:"tilt-irradiance-3-panel",t:"Tilt, irradiance and time of day",d:"Three-panel simulation for Port Blair and Kozhikode: sun path by month, recommended tilt, series/parallel, Isc, Voc and daily power curve.",g:["Simulator","Monthly tilt"]}
- ]},
- {id:"pv",title:"Solar cells and PV modules",note:"From the silicon atom to the module datasheet, and what shading does to a string.",lessons:[
-  {s:"pn-junction-solar-cell",t:"Semiconductors, PN junction and solar cell",d:"Doping, depletion layer, bias, diode V–I curve, solar cell I–V curve, fill factor, and cell → module → array.",g:["11 steps","EN·HI·ML"]},
-  {s:"iv-curve-lab",t:"Solar cell I-V curve lab",d:"Plot the I-V curve point by point using load resistors at 200, 600 and 1000 W/m², and compare 25 °C with 45 °C.",g:["Lab","Temperature"]},
-  {s:"pv-modules-visual",t:"PV module technologies – visual overview",d:"Mono, poly, thin film, PERC, TOPCon, HJT, half-cut and bifacial explained with diagrams.",g:["Overview","EN·HI·ML"]},
-  {s:"pv-modules-detailed",t:"PV module technologies – detailed reference",d:"Manufacturing, comparison of efficiency and degradation, IS/IEC standards, reading a datasheet, worked numericals.",g:["Reference","Calculators","EN·HI·ML"]},
-  {s:"hotspots-bypass-diodes",t:"Hotspots, bypass and blocking diodes",d:"Shade one cell and watch heating, I–V and P–V curves; bypass and blocking diode action, testing and faults.",g:["Animated","EN·HI·ML"]}
- ]},
- {id:"systems",title:"Solar systems and components",note:"On-grid, off-grid and hybrid systems, the inverter, and everything else between panel and grid.",lessons:[
-  {s:"solar-systems-overview",t:"Solar energy systems – classroom slides",d:"On-grid, off-grid, hybrid, islanding and anti-islanding, BESS and IEC standards, comparison table.",g:["Slides","EN·HI·ML"]},
-  {s:"pv-systems-bess",t:"Solar PV systems and BESS",d:"Detailed on-grid, off-grid and hybrid layouts, isolation, protection devices and battery energy storage.",g:["9 steps","EN·HI·ML"]},
-  {s:"inverter-types",t:"Solar inverter types",d:"Inside an inverter, off-grid, on-grid, hybrid and micro inverters, datasheets, MPPT and the string voltage window.",g:["10 steps","EN·HI·ML"]},
-  {s:"balance-of-system",t:"Balance of System (BoS)",d:"Structures, cables and MC4, DCDB and ACDB, earthing and lightning arrester, metering, BoS sizing and testing.",g:["9 steps","EN·HI·ML"]}
- ]},
- {id:"storage",title:"Batteries and charge controllers",note:"Storage chemistry, charging, and how fast a battery can safely be discharged.",lessons:[
-  {s:"lead-acid-charge-controllers",t:"Lead-acid batteries and charge controllers",d:"Construction, chemistry, C10/C20 ratings, charging stages, common problems, PWM vs MPPT, connections and pricing.",g:["10 steps","EN·HI·ML"]},
-  {s:"lithium-batteries",t:"Lithium solar batteries",d:"LiFePO₄ types, construction, live BMS demo, settings, pros and cons, care, safety and installation.",g:["9 steps","EN·HI·ML"]},
-  {s:"battery-c-rate",t:"C-rating of battery",d:"What C-rate means, discharge time calculator, battery types, high-C effects, reading labels, worked examples and quiz.",g:["Calculator","Quiz","EN·HI·ML"]},
-  {s:"battery-discharge-calculator",t:"Battery discharge time calculator",d:"Enter Ah or mAh and pick a C-rate from C/20 to 20C to get discharge time, current and typical applications.",g:["Calculator"]}
- ]},
- {id:"sizing",title:"System sizing",note:"Work a full design from the load survey, with every number calculated live.",lessons:[
-  {s:"grid-tie-sizing",t:"Grid-tie rooftop PV sizing",d:"Load survey → plant capacity, modules, inverter, string connection, energy exported to the grid and protection.",g:["Step by step","EN·HI·ML"]},
-  {s:"offgrid-sizing-quick",t:"Off-grid sizing – quick trainer",d:"Six short steps with your own wattages: loads, hours, inverter VA, battery bank, PV array and charge controller.",g:["6 steps","Calculator"]},
-  {s:"standalone-sizing",t:"Stand-alone PV sizing trainer",d:"Load survey, watt-hours, inverter VA, system voltage, battery bank, PV array, standard panels and controller rating.",g:["Step by step","EN·HI·ML"]}
- ]},
- {id:"practice",title:"Practice and assessment",note:"Self-check quizzes with instant feedback, then the Google Form question banks below.",lessons:[
-  {s:"challenge-1",t:"Solar Smart Technician Challenge",d:"30 questions on irradiance, PV cells, wiring, installation safety and troubleshooting, with a score at the end.",g:["30 MCQ","NSQF 3"]},
-  {s:"challenge-2",t:"Solar Smart Technician – Advanced Challenge",d:"30 harder questions: string sizing, standards, PID, protection devices, temperature loss and performance checks.",g:["30 MCQ","Advanced"]}
- ]}
-];
-const MCQ=[
- ["MCQ Module 1","https://forms.gle/K4uoCsBEb8n4R5JG9"],
- ["MCQ Module 2","https://forms.gle/Bkt5Lus67TMbUe5p8"],
- ["MCQ Module 3","https://forms.gle/CAQi4N5skrfRuyMy5"],
- ["MCQ Module 4","https://forms.gle/i2xHzPB66aBeNueW6"],
- ["MCQ Module 5","https://forms.gle/eCEYjQhG7n3eNt5Y6"]
-];
-const GEN=["opePE4qTTQLVftFJ6", "NwXPB9qhLwxWJ6P48", "7n2FXSAoDBdnHT9n8", "zToDZ8M1DhzfPsZE9", "6KyMxDT787J5VbMWA", "aG5WTYLEHvse8swZ8", "t36hEJ5HawDLka1C7", "yUFUCVA5HqCDnwbK9", "ZETVb4bsvvGNpMfFA", "gm4Jge8BqHeCSyhd9", "5PAK2EJyayuyaxL6A", "kzN1SYnzjybd4JxAA", "45QhSdmCg3CQuCbf9", "agLCycds8i6n1pqh9", "5czCwEUD2MnMEGiK9", "94Lr4ZVf27zoeHtu8", "aqjZkjZ9jgdm8W6a9", "utoNX1PGa6PddQJx7", "Yuhy1RPTLDbRS8ee7", "henkTSVtcvj8rddz8", "qxG4Y3Xs5m1hL89V6", "TMdpZDL4uM4emhMU7", "76pLs8JJz2ELWyqg7", "nYsy8epQw1DEWA4L7", "afNT1FCPrgWNJPAt7", "9BvK77LWmtwSBWB4A", "u6BmB2aan2ku3ZZG9", "ji3hUKBLxy6vdJUE7"];
-
-const FLAT=[];MODULES.forEach((m,mi)=>m.lessons.forEach(l=>{l.m=mi;l.n=String(FLAT.length+1).padStart(2,"0");FLAT.push(l);}));
 const $=id=>document.getElementById(id);
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const OPENABLE={html:1,pdf:1,ppt:1};
+const TYPE_LABEL={html:"Lesson",pdf:"PDF",ppt:"Slides",form:"Google Form",link:"Link"};
+let DATA=null,MODS=[],FLAT=[];
 
-// jump chips
-const jump=$("jump");
-MODULES.forEach((m,i)=>{const a=document.createElement("a");a.href="#mod-"+m.id;a.textContent=(i+1)+". "+m.title;a.addEventListener("click",e=>{e.preventDefault();document.getElementById("mod-"+m.id)?.scrollIntoView({behavior:"smooth"});});jump.appendChild(a);});
-{const a=document.createElement("a");a.href="#mod-mcq";a.textContent="MCQ question banks";a.addEventListener("click",e=>{e.preventDefault();document.getElementById("mod-mcq")?.scrollIntoView({behavior:"smooth"});});jump.appendChild(a);}
-
-function card(l){return '<a class="card" href="#'+l.s+'"><span class="num">'+l.n+'</span><h3>'+esc(l.t)+'</h3><p>'+esc(l.d)+'</p><div class="tags">'+l.g.map((g,i)=>'<span class="tag'+(/EN·HI·ML/.test(g)?" sun":"")+'">'+esc(g)+'</span>').join("")+'</div></a>';}
-function render(q){
-  q=(q||"").trim().toLowerCase();let h="",shown=0;
-  MODULES.forEach((m,i)=>{
-    const ls=m.lessons.filter(l=>!q||(l.t+" "+l.d+" "+l.g.join(" ")).toLowerCase().includes(q));
-    if(!ls.length)return;shown+=ls.length;
-    h+='<section class="mod" id="mod-'+m.id+'"><div class="modhead"><span class="modno">MODULE '+(i+1)+'</span><h2>'+esc(m.title)+'</h2><p>'+esc(m.note)+'</p></div><div class="grid">'+ls.map(card).join("")+'</div></section>';
-  });
-  if(q&&!shown)h+='<p class="empty">No lesson matches “'+esc(q)+'”. Try a word like battery, inverter or tilt.</p>';
-  if(!q||"mcq practice quiz test question bank form gen".includes(q)){
-    h+='<section class="mod" id="mod-mcq"><div class="modhead"><span class="modno">QUESTION BANKS</span><h2>MCQ practice – PM Surya Ghar</h2><p>Google Forms. Each opens in a new tab.</p></div>'+
-      '<h3 class="sub">MCQ modules</h3><div class="mcq">'+MCQ.map(([t,u])=>'<a href="'+u+'" target="_blank" rel="noopener"><b>'+t+'</b><span>Google Form ↗</span></a>').join("")+'</div>'+
-      '<h3 class="sub">MCQ Gen practice sets</h3><div class="mcq gen">'+GEN.map((id,i)=>'<a href="https://forms.gle/'+id+'" target="_blank" rel="noopener"><b>Set '+(i+1)+'</b><span>Google Form ↗</span></a>').join("")+'</div></section>';
+function srcFor(it){
+  if(it.type==="ppt"){
+    if(it.url)return it.url; // Google Slides / OneDrive embed link
+    const abs=new URL(it.file,location.href).href;
+    return "https://view.officeapps.live.com/op/embed.aspx?src="+encodeURIComponent(abs);
   }
+  return it.file||it.url;
+}
+function directFor(it){return it.file?it.file:it.url;}
+
+function build(){
+  const s=DATA.site||{};
+  if(s.eyebrow)$("eyebrow").textContent=s.eyebrow;
+  if(s.title){$("title").textContent=s.title;document.title=s.title+" – "+(s.org||"");}
+  if(s.lede)$("lede").textContent=s.lede;
+  $("meta").innerHTML=(s.author?'<span>Prepared by <b>'+esc(s.author)+'</b></span>':'')+(s.org?'<span>Vocational Instructor, <b>'+esc(s.org)+'</b></span>':'')+(s.course?'<span>'+esc(s.course)+'</span>':'');
+  MODS=DATA.modules||[];FLAT=[];
+  MODS.forEach(m=>(m.items||[]).forEach(it=>{if(OPENABLE[it.type]&&(it.file||it.url)){it.n=String(FLAT.length+1).padStart(2,"0");FLAT.push(it);}}));
+  const jump=$("jump");jump.querySelectorAll("a").forEach(a=>a.remove());
+  let n=0;
+  MODS.forEach(m=>{const a=document.createElement("a");a.href="#mod-"+m.id;a.textContent=m.layout==="links"?m.title:(++n)+". "+m.title;
+    a.addEventListener("click",e=>{e.preventDefault();document.getElementById("mod-"+m.id)?.scrollIntoView({behavior:"smooth"});});jump.appendChild(a);});
+  $("count").textContent=FLAT.length;
+  render($("q").value);route();
+}
+function card(it){
+  if(!OPENABLE[it.type]){
+    return '<a class="card" href="'+esc(it.url)+'" target="_blank" rel="noopener"><span class="num">↗</span><h3>'+esc(it.title)+'</h3><p>'+esc(it.desc||"")+'</p><div class="tags"><span class="tag sun">'+TYPE_LABEL[it.type]+'</span>'+(it.tags||[]).map(g=>'<span class="tag">'+esc(g)+'</span>').join("")+'</div></a>';
+  }
+  const tags=(it.tags||[]).slice();if(it.type!=="html")tags.unshift(TYPE_LABEL[it.type]);
+  return '<a class="card" href="#'+esc(it.id)+'"><span class="num">'+it.n+'</span><h3>'+esc(it.title)+'</h3><p>'+esc(it.desc||"")+'</p><div class="tags">'+tags.map(g=>'<span class="tag'+(/EN·HI·ML|PDF|Slides/.test(g)?" sun":"")+'">'+esc(g)+'</span>').join("")+'</div></a>';
+}
+function linkCard(it){
+  const href=OPENABLE[it.type]?'#'+esc(it.id):esc(it.url);
+  const tgt=OPENABLE[it.type]?'':' target="_blank" rel="noopener"';
+  return '<a href="'+href+'"'+tgt+'><b>'+esc(it.title)+'</b><span>'+(TYPE_LABEL[it.type]||"")+(OPENABLE[it.type]?'':' ↗')+'</span></a>';
+}
+function render(q){
+  q=(q||"").trim().toLowerCase();let h="",shown=0,n=0;
+  MODS.forEach(m=>{
+    const isLinks=m.layout==="links";if(!isLinks)n++;
+    const its=(m.items||[]).filter(it=>!q||(it.title+" "+(it.desc||"")+" "+(it.tags||[]).join(" ")+" "+m.title+" "+(TYPE_LABEL[it.type]||"")).toLowerCase().includes(q));
+    if(!its.length)return;shown+=its.length;
+    const big=isLinks&&its.length>8?" gen":"";
+    h+='<section class="mod" id="mod-'+esc(m.id)+'"><div class="modhead"><span class="modno">'+(isLinks?"QUESTION BANK":"MODULE "+n)+'</span><h2>'+esc(m.title)+'</h2><p>'+esc(m.note||"")+'</p></div>'+
+      (isLinks?'<div class="mcq'+big+'">'+its.map(linkCard).join("")+'</div>':'<div class="grid">'+its.map(card).join("")+'</div>')+'</section>';
+  });
+  if(q&&!shown)h+='<p class="empty">Nothing matches “'+esc(q)+'”. Try a word like battery, inverter or tilt.</p>';
   $("list").innerHTML=h;
 }
-render();
-$("count").textContent=FLAT.length;
 $("q").addEventListener("input",e=>render(e.target.value));
 
 // viewer
 const viewer=$("viewer"),home=$("home"),frame=$("frame");let homeScroll=0,cur=-1;
 function show(idx){
-  const l=FLAT[idx];if(!l)return;
+  const it=FLAT[idx];if(!it)return;
   if(viewer.hidden)homeScroll=window.scrollY;
-  cur=idx;const src=l.s+".html";
+  cur=idx;const src=srcFor(it);
   if(frame.getAttribute("src")!==src)frame.setAttribute("src",src);
-  $("vn").textContent=l.n+" / "+FLAT.length;$("vt").textContent=l.t;$("vopen").href=src;
+  $("vn").textContent=it.n+" / "+FLAT.length;$("vt").textContent=it.title;$("vopen").href=directFor(it);
   $("vprev").disabled=idx===0;$("vnext").disabled=idx===FLAT.length-1;
-  document.title=l.t+" · Solar Support";
+  document.title=it.title;
   viewer.hidden=false;home.hidden=true;
 }
-function hide(){
-  viewer.hidden=true;home.hidden=false;cur=-1;document.title="Solar Support – NSTI Calicut";
-  window.scrollTo(0,homeScroll);
-}
-function route(){const s=location.hash.slice(1);const i=FLAT.findIndex(l=>l.s===s);if(i>=0)show(i);else if(!viewer.hidden)hide();}
+function hide(){viewer.hidden=true;home.hidden=false;cur=-1;document.title=(DATA?.site?.title||"Solar Support");window.scrollTo(0,homeScroll);}
+function route(){const s=decodeURIComponent(location.hash.slice(1));const i=FLAT.findIndex(it=>it.id===s);if(i>=0)show(i);else if(!viewer.hidden)hide();}
 window.addEventListener("hashchange",route);
 $("vhome").addEventListener("click",e=>{e.preventDefault();if(location.hash)history.pushState(null,"",location.pathname+location.search);hide();});
-$("vprev").addEventListener("click",()=>{if(cur>0)location.hash=FLAT[cur-1].s;});
-$("vnext").addEventListener("click",()=>{if(cur<FLAT.length-1)location.hash=FLAT[cur+1].s;});
-route();
+$("vprev").addEventListener("click",()=>{if(cur>0)location.hash=FLAT[cur-1].id;});
+$("vnext").addEventListener("click",()=>{if(cur<FLAT.length-1)location.hash=FLAT[cur+1].id;});
+
+fetch("content.json?v="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+ .then(d=>{DATA=d;build();})
+ .catch(e=>{$("list").innerHTML='<p class="empty">The lesson list (content.json) could not be loaded. If you opened this file directly from your computer, upload it to the website instead; browsers block this file when opened locally.</p>';});
 </script>
+
 </body>
 </html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Site Admin – Solar Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Noto+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7;--surface:#fff;--ink:#15202b;--muted:#56636f;--line:#d9e0e6;--soft:#eef2f5;
+  --pv:#0d5c7a;--pv-soft:#e3f0f5;--sun:#c77700;--sun-soft:#fff3dc;--ok:#1d7a3a;--ok-soft:#e5f5ea;--bad:#b42318;--bad-soft:#fdecea;--bar:#0f2533;--bar-ink:#eef4f8;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e161d;--surface:#16212b;--ink:#e6edf2;--muted:#9aa9b5;--line:#263441;--soft:#1c2934;--pv:#62bfe0;--pv-soft:#123142;--sun:#ffb23e;--sun-soft:#3a2a10;--ok:#5fd38a;--ok-soft:#12321f;--bad:#ff8a80;--bad-soft:#3b1714;--bar:#0a1218;color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+header{background:var(--bar);color:var(--bar-ink);padding:16px clamp(16px,3vw,40px)}
+header h1{font-family:var(--f-display);font-size:30px;margin:0;line-height:1.1}
+header p{margin:4px 0 0;opacity:.8;font-size:14px}
+header a{color:inherit}
+main{padding:18px clamp(16px,3vw,40px) 80px;max-width:1300px;margin:0 auto;display:grid;gap:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.panel h2{font-family:var(--f-display);font-size:23px;margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=password],input[type=url],select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);width:100%}
+textarea{min-height:60px;resize:vertical}
+.w1{flex:1 1 160px}.w2{flex:2 1 260px}.w3{flex:3 1 340px}
+button{font:inherit;font-weight:600;font-size:14px;padding:8px 14px;border-radius:7px;border:1px solid var(--pv);background:var(--surface);color:var(--pv);cursor:pointer;white-space:nowrap}
+button.primary{background:var(--pv);color:var(--surface)}
+button.danger{border-color:var(--bad);color:var(--bad)}
+button.small{padding:4px 9px;font-size:13px}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 0}
+.hint code,.mono{font-family:var(--f-mono);font-size:12.5px}
+details summary{cursor:pointer;font-weight:600;color:var(--pv)}
+.status{position:sticky;top:0;z-index:5;padding:10px 14px;border-radius:8px;font-weight:600;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.status.info{background:var(--pv-soft);color:var(--pv)}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.status.bad{background:var(--bad-soft);color:var(--bad)}
+.status.dirty{background:var(--sun-soft);color:var(--sun)}
+.status .grow{flex:1}
+.mod{border:1px solid var(--line);border-radius:10px;margin-top:14px;overflow:hidden}
+.modhead{background:var(--soft);padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.modhead .num{font-family:var(--f-mono);font-size:12px;color:var(--sun);font-weight:600}
+.modhead input{flex:1 1 220px;font-weight:700}
+.modhead .note{flex:2 1 300px;font-weight:400}
+.modhead select{width:auto}
+.items{list-style:none;margin:0;padding:0}
+.item{border-top:1px solid var(--line);padding:8px 12px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center}
+.item .t{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.item .src{font-family:var(--f-mono);font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.badge{font-family:var(--f-mono);font-size:11.5px;padding:2px 7px;border-radius:4px;background:var(--pv-soft);color:var(--pv);text-transform:uppercase}
+.badge.form,.badge.link{background:var(--sun-soft);color:var(--sun)}
+.acts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.edit{grid-column:1/-1;background:var(--soft);border-radius:8px;padding:12px;display:grid;gap:10px}
+.confirm{grid-column:1/-1;background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.empty{padding:10px 12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+.files{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
+.files li{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:7px;padding:6px 10px}
+.files .mono{flex:1;min-width:0;overflow-wrap:anywhere}
+.log{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);max-height:160px;overflow:auto;white-space:pre-wrap;margin:0}
+@media (max-width:640px){.item{grid-template-columns:minmax(0,1fr)}.acts{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Site admin</h1>
+  <p>Add, edit, reorder and delete lessons, slides, PDFs and Google Form links. Changes go live about 1 minute after you publish. <a href="./">← Back to the site</a></p>
+</header>
+<main>
+  <div class="status info" id="status"><span class="grow" id="statusText">Sign in with your GitHub access token to start.</span><button class="primary" id="publishBtn" hidden>Publish changes</button></div>
+
+  <section class="panel" id="loginPanel">
+    <h2>1. Sign in</h2>
+    <div class="row">
+      <div class="field w1"><label for="owner">GitHub username</label><input type="text" id="owner" autocomplete="off"></div>
+      <div class="field w1"><label for="repo">Repository</label><input type="text" id="repo" autocomplete="off"></div>
+      <div class="field w1"><label for="branch">Branch</label><input type="text" id="branch" value="main" autocomplete="off"></div>
+      <div class="field w2"><label for="token">Access token</label><input type="password" id="token" autocomplete="off" placeholder="github_pat_…"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="remember"> Remember on this device</label>
+      <button class="primary" id="connectBtn">Sign in and load</button>
+      <button id="signoutBtn" hidden>Sign out</button>
+    </div>
+    <details style="margin-top:12px">
+      <summary>How to get an access token (one time, 3 minutes)</summary>
+      <ol class="hint" style="line-height:1.8">
+        <li>On GitHub, click your photo (top right), then <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
+        <li>Token name: <code>site admin</code>. Expiration: pick a date (for example 1 year).</li>
+        <li>Repository access: <b>Only select repositories</b>, then choose this site's repository.</li>
+        <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Leave everything else as is.</li>
+        <li>Click <b>Generate token</b>, copy it, and paste it above. GitHub shows it only once.</li>
+      </ol>
+      <p class="hint">Keep the token private; anyone who has it can change this site. Tick “Remember” only on your own computer or phone. To revoke it, delete the token on the same GitHub page.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="addPanel" hidden>
+    <h2>2. Add an item</h2>
+    <div class="row">
+      <div class="field w1"><label for="aType">Type</label>
+        <select id="aType">
+          <option value="html">HTML lesson (upload .html)</option>
+          <option value="ppt">PowerPoint (upload .pptx)</option>
+          <option value="pdf">PDF (upload .pdf)</option>
+          <option value="slides">Google Slides / OneDrive link</option>
+          <option value="form">Google Form link</option>
+          <option value="link">Other web link</option>
+        </select></div>
+      <div class="field w1"><label for="aMod">Module</label><select id="aMod"></select></div>
+      <div class="field w1"><label for="aPos">Position</label><select id="aPos"></select></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="field w2" id="aFileWrap"><label for="aFile">File</label><input type="file" id="aFile"></div>
+      <div class="field w2" id="aUrlWrap" hidden><label for="aUrl">Link (URL)</label><input type="url" id="aUrl" placeholder="https://forms.gle/…"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="field w2"><label for="aTitle">Title shown on the site</label><input type="text" id="aTitle"></div>
+      <div class="field w1"><label for="aTags">Tags (comma separated, optional)</label><input type="text" id="aTags" placeholder="Simulator, EN·HI·ML"></div>
+    </div>
+    <div class="field" style="margin-top:10px"><label for="aDesc">Short description (optional)</label><textarea id="aDesc"></textarea></div>
+    <p class="hint" id="aNote"></p>
+    <div class="row" style="margin-top:10px"><button class="primary" id="addBtn">Add item</button><button id="addModBtn">+ New module</button></div>
+    <p class="hint">PowerPoint files open in Microsoft's free online viewer on the site, so the website must be public. For Google Slides, use <b>File → Share → Publish to web → Embed</b> and paste the link from <code>src="…"</code>.</p>
+  </section>
+
+  <section class="panel" id="listPanel" hidden>
+    <h2>3. Arrange the site</h2>
+    <p class="hint" style="margin-top:0">Use ↑ ↓ to change teaching order. Modules set as “Link buttons” show compact buttons, as used for the MCQ question banks. Nothing changes on the live site until you click <b>Publish changes</b>.</p>
+    <div id="mods"></div>
+  </section>
+
+  <section class="panel" id="filesPanel" hidden>
+    <h2>4. Files not used on the site</h2>
+    <p class="hint" style="margin-top:0">Files in the repository that no item points to. Delete them to keep the site tidy.</p>
+    <ul class="files" id="unused"></ul>
+  </section>
+
+  <section class="panel" id="logPanel" hidden>
+    <details><summary>Activity log</summary><pre class="log" id="log"></pre></details>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TYPES={html:"Lesson",ppt:"Slides",pdf:"PDF",form:"Form",link:"Link"};
+const PROTECTED=["index.html","admin.html","content.json"];
+let cfg={},data=null,contentSha=null,repoFiles=[],dirty=false,pendingDeletes=[],openEdit=null,openConfirm=null,modConfirm=null,busy=false;
+
+// ---------- storage ----------
+function store(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+
+// ---------- defaults from URL ----------
+(function(){
+  const h=location.hostname,parts=location.pathname.split("/").filter(Boolean);
+  $("owner").value=load("adm_owner")||(h.endsWith(".github.io")?h.split(".")[0]:"");
+  $("repo").value=load("adm_repo")||(h.endsWith(".github.io")&&parts.length&&!parts[0].includes(".")?parts[0]:"");
+  $("branch").value=load("adm_branch")||"main";
+  const t=load("adm_token");if(t){$("token").value=t;$("remember").checked=true;}
+})();
+
+// ---------- status / log ----------
+function status(text,kind){const s=$("status");s.className="status "+(kind||"info");$("statusText").textContent=text;}
+function log(m){const l=$("log");l.textContent=new Date().toLocaleTimeString()+"  "+m+"\n"+l.textContent;}
+function setDirty(v){dirty=v;$("publishBtn").hidden=!v;if(v)status("You have unpublished changes. Click “Publish changes” to update the live site.","dirty");}
+window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue="";}});
+
+// ---------- base64 ----------
+function bytesToB64(bytes){let s="";const CH=0x8000;for(let i=0;i<bytes.length;i+=CH)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+CH));return btoa(s);}
+function b64ToText(b64){const bin=atob(b64.replace(/\s/g,""));const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new TextDecoder().decode(u);}
+
+// ---------- GitHub API ----------
+async function api(path,opts={}){
+  const r=await fetch("https://api.github.com/repos/"+encodeURIComponent(cfg.owner)+"/"+encodeURIComponent(cfg.repo)+path,{
+    ...opts,headers:{"Authorization":"Bearer "+cfg.token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opts.body?{"Content-Type":"application/json"}:{})}});
+  if(r.status===404)return null;
+  if(!r.ok){let m="";try{m=(await r.json()).message;}catch(e){}throw new Error(r.status+" "+(m||r.statusText));}
+  return r.status===204?{}:r.json();
+}
+const enc=p=>p.split("/").map(encodeURIComponent).join("/");
+async function getMeta(path){return api("/contents/"+enc(path)+"?ref="+encodeURIComponent(cfg.branch));}
+async function putFile(path,b64,message){
+  const ex=await getMeta(path);
+  return api("/contents/"+enc(path),{method:"PUT",body:JSON.stringify({message,content:b64,branch:cfg.branch,...(ex&&ex.sha?{sha:ex.sha}:{})})});
+}
+async function delFile(path,message){
+  const ex=await getMeta(path);if(!ex)return;
+  return api("/contents/"+enc(path),{method:"DELETE",body:JSON.stringify({message,sha:ex.sha,branch:cfg.branch})});
+}
+
+// ---------- sign in ----------
+$("connectBtn").onclick=async()=>{
+  cfg={owner:$("owner").value.trim(),repo:$("repo").value.trim(),branch:$("branch").value.trim()||"main",token:$("token").value.trim()};
+  if(!cfg.owner||!cfg.repo||!cfg.token){status("Fill in username, repository and access token.","bad");return;}
+  store("adm_owner",cfg.owner);store("adm_repo",cfg.repo);store("adm_branch",cfg.branch);
+  store("adm_token",$("remember").checked?cfg.token:null);
+  status("Loading…");
+  try{
+    const meta=await getMeta("content.json");
+    if(!meta)throw new Error("content.json was not found in "+cfg.owner+"/"+cfg.repo+" (branch "+cfg.branch+"). Upload it first.");
+    contentSha=meta.sha;
+    let text;
+    if(meta.content)text=b64ToText(meta.content);
+    else{const blob=await api("/git/blobs/"+meta.sha);text=b64ToText(blob.content);}
+    data=JSON.parse(text);data.modules=data.modules||[];
+    await refreshFiles();
+    ["addPanel","listPanel","filesPanel","logPanel","signoutBtn"].forEach(id=>$(id).hidden=false);
+    pendingDeletes=[];setDirty(false);renderAll();
+    status("Signed in to "+cfg.owner+"/"+cfg.repo+". "+countItems()+" items loaded.","ok");log("Loaded content.json");
+  }catch(e){status("Could not sign in: "+e.message+". Check the username, repository name and token.","bad");log("Error: "+e.message);}
+};
+$("signoutBtn").onclick=()=>{store("adm_token",null);$("token").value="";location.reload();};
+async function refreshFiles(){const list=await api("/contents/?ref="+encodeURIComponent(cfg.branch));repoFiles=(list||[]).filter(f=>f.type==="file").map(f=>f.name);}
+function countItems(){return data.modules.reduce((s,m)=>s+(m.items||[]).length,0);}
+
+// ---------- helpers ----------
+function slug(s){return String(s).toLowerCase().replace(/\.[a-z0-9]+$/,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,60)||"item";}
+function uniqueId(base){const ids=new Set();data.modules.forEach(m=>(m.items||[]).forEach(i=>ids.add(i.id)));let id=base,k=2;while(ids.has(id))id=base+"-"+(k++);return id;}
+function uniqueModId(base){const ids=new Set(data.modules.map(m=>m.id));let id=base,k=2;while(ids.has(id))id=base+"-"+(k++);return id;}
+function safeName(name){const m=name.toLowerCase().match(/^(.*?)(\.[a-z0-9]+)?$/);return (m[1].replace(/[^a-z0-9._-]+/g,"-").replace(/^-+|-+$/g,"")||"file")+(m[2]||"");}
+function usedFiles(){const s=new Set();data.modules.forEach(m=>(m.items||[]).forEach(i=>{if(i.file)s.add(i.file);}));return s;}
+
+// ---------- render ----------
+function renderAll(){renderAddSelectors();renderMods();renderUnused();}
+function renderAddSelectors(){
+  const sel=$("aMod"),cur=sel.value;
+  sel.innerHTML=data.modules.map((m,i)=>'<option value="'+i+'">'+esc(m.title)+'</option>').join("");
+  if(cur!==""&&+cur<data.modules.length)sel.value=cur;
+  renderPos();
+}
+function renderPos(){
+  const m=data.modules[+$("aMod").value];const its=(m&&m.items)||[];
+  $("aPos").innerHTML='<option value="end">At the end</option><option value="0">At the start</option>'+its.map((it,i)=>'<option value="'+(i+1)+'">After: '+esc(it.title.slice(0,50))+'</option>').join("");
+}
+$("aMod").onchange=renderPos;
+
+function srcText(it){return it.file?it.file:(it.url||"");}
+function renderMods(){
+  let n=0;
+  $("mods").innerHTML=data.modules.map((m,mi)=>{
+    const isLinks=m.layout==="links";if(!isLinks)n++;
+    const items=(m.items||[]);
+    const mc=modConfirm===mi?'<div class="confirm" style="width:100%">'+(items.length?'This module has '+items.length+' items. Delete the module and remove all its items from the site?':'Delete this empty module?')+' <button class="danger small" data-a="modDelYes" data-m="'+mi+'">Yes, delete</button><button class="small" data-a="modDelNo">Cancel</button></div>':'';
+    return '<div class="mod"><div class="modhead"><span class="num">'+(isLinks?"BUTTONS":"MODULE "+n)+'</span>'+
+      '<input type="text" value="'+esc(m.title)+'" data-a="modTitle" data-m="'+mi+'" aria-label="Module title">'+
+      '<input type="text" class="note" value="'+esc(m.note||"")+'" data-a="modNote" data-m="'+mi+'" placeholder="Short note under the module title" aria-label="Module note">'+
+      '<select data-a="modLayout" data-m="'+mi+'" aria-label="Module style"><option value="cards"'+(isLinks?"":" selected")+'>Lesson cards</option><option value="links"'+(isLinks?" selected":"")+'>Link buttons</option></select>'+
+      '<span class="acts"><button class="small" data-a="modUp" data-m="'+mi+'" '+(mi===0?"disabled":"")+' title="Move module up">↑</button><button class="small" data-a="modDown" data-m="'+mi+'" '+(mi===data.modules.length-1?"disabled":"")+' title="Move module down">↓</button><button class="small danger" data-a="modDel" data-m="'+mi+'">Delete module</button></span>'+mc+'</div>'+
+      '<ul class="items">'+(items.length?items.map((it,ii)=>itemRow(it,mi,ii,items.length)).join(""):'<li class="empty">No items yet. Add one above.</li>')+'</ul></div>';
+  }).join("");
+}
+function itemRow(it,mi,ii,len){
+  const key=mi+":"+ii;
+  let extra="";
+  if(openEdit===key){
+    const fileTypes=it.type==="html"||it.type==="pdf"||(it.type==="ppt"&&it.file);
+    extra='<div class="edit"><div class="row">'+
+      '<div class="field w2"><label>Title</label><input type="text" id="eTitle" value="'+esc(it.title)+'"></div>'+
+      '<div class="field w1"><label>Tags (comma separated)</label><input type="text" id="eTags" value="'+esc((it.tags||[]).join(", "))+'"></div>'+
+      '<div class="field w1"><label>Move to module</label><select id="eMod">'+data.modules.map((m,k)=>'<option value="'+k+'"'+(k===mi?" selected":"")+'>'+esc(m.title)+'</option>').join("")+'</select></div></div>'+
+      '<div class="field"><label>Description</label><textarea id="eDesc">'+esc(it.desc||"")+'</textarea></div>'+
+      (fileTypes?'<div class="row"><div class="field w2"><label>File on the site</label><input type="text" id="eFile" value="'+esc(it.file||"")+'"></div><div class="field w2"><label>Replace with a new file (optional)</label><input type="file" id="eNewFile"></div></div>'
+                :'<div class="field"><label>Link (URL)</label><input type="url" id="eUrl" value="'+esc(it.url||"")+'"></div>')+
+      '<div class="row"><button class="primary small" data-a="editSave" data-m="'+mi+'" data-i="'+ii+'">Done</button><button class="small" data-a="editCancel">Cancel</button></div></div>';
+  }
+  if(openConfirm===key){
+    extra='<div class="confirm">Remove “'+esc(it.title)+'” from the site?'+(it.file&&!PROTECTED.includes(it.file)?' <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="cDelFile" checked> Also delete the file <span class="mono">'+esc(it.file)+'</span></label>':'')+
+      ' <button class="danger small" data-a="delYes" data-m="'+mi+'" data-i="'+ii+'">Yes, remove</button><button class="small" data-a="delNo">Cancel</button></div>';
+  }
+  return '<li class="item"><span class="badge '+it.type+'">'+(TYPES[it.type]||it.type)+'</span><div><div class="t">'+esc(it.title)+'</div><div class="src">'+esc(srcText(it))+'</div></div>'+
+    '<span class="acts"><button class="small" data-a="up" data-m="'+mi+'" data-i="'+ii+'" '+(ii===0?"disabled":"")+' title="Move up">↑</button><button class="small" data-a="down" data-m="'+mi+'" data-i="'+ii+'" '+(ii===len-1?"disabled":"")+' title="Move down">↓</button><button class="small" data-a="edit" data-m="'+mi+'" data-i="'+ii+'">Edit</button><button class="small danger" data-a="del" data-m="'+mi+'" data-i="'+ii+'">Delete</button></span>'+extra+'</li>';
+}
+function renderUnused(){
+  const used=usedFiles(),pend=new Set(pendingDeletes);
+  const list=repoFiles.filter(f=>/\.(html?|pdf|pptx?|ppsx)$/i.test(f)&&!PROTECTED.includes(f)&&!used.has(f)&&!pend.has(f));
+  $("unused").innerHTML=list.length?list.map(f=>'<li><span class="mono">'+esc(f)+'</span><a href="'+esc(f)+'" target="_blank" rel="noopener">Open</a><button class="small danger" data-a="rmFile" data-f="'+esc(f)+'">Delete file</button></li>').join(""):'<li style="border:0;padding:0;color:var(--muted)">None. Every file is in use.</li>';
+}
+
+// ---------- module field edits ----------
+$("mods").addEventListener("input",e=>{
+  const a=e.target.dataset.a,mi=+e.target.dataset.m;if(!a)return;
+  if(a==="modTitle"){data.modules[mi].title=e.target.value;setDirty(true);renderAddSelectors();}
+  if(a==="modNote"){data.modules[mi].note=e.target.value;setDirty(true);}
+});
+$("mods").addEventListener("change",e=>{
+  if(e.target.dataset.a==="modLayout"){data.modules[+e.target.dataset.m].layout=e.target.value;setDirty(true);renderMods();}
+});
+
+// ---------- clicks ----------
+$("mods").addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b||!b.dataset.a)return;
+  const a=b.dataset.a,mi=+b.dataset.m,ii=+b.dataset.i,M=data.modules;
+  const swap=(arr,i,j)=>{[arr[i],arr[j]]=[arr[j],arr[i]];};
+  if(a==="up"){swap(M[mi].items,ii,ii-1);setDirty(true);}
+  else if(a==="down"){swap(M[mi].items,ii,ii+1);setDirty(true);}
+  else if(a==="modUp"){swap(M,mi,mi-1);setDirty(true);}
+  else if(a==="modDown"){swap(M,mi,mi+1);setDirty(true);}
+  else if(a==="modDel"){modConfirm=mi;}
+  else if(a==="modDelNo"){modConfirm=null;}
+  else if(a==="modDelYes"){M.splice(mi,1);modConfirm=null;setDirty(true);}
+  else if(a==="edit"){openEdit=mi+":"+ii;openConfirm=null;}
+  else if(a==="editCancel"){openEdit=null;}
+  else if(a==="del"){openConfirm=mi+":"+ii;openEdit=null;}
+  else if(a==="delNo"){openConfirm=null;}
+  else if(a==="delYes"){
+    const it=M[mi].items[ii];const alsoFile=$("cDelFile")&&$("cDelFile").checked;
+    M[mi].items.splice(ii,1);openConfirm=null;
+    if(alsoFile&&it.file&&!usedFiles().has(it.file))pendingDeletes.push(it.file);
+    setDirty(true);
+  }
+  else if(a==="editSave"){
+    const it=M[mi].items[ii];
+    it.title=$("eTitle").value.trim()||it.title;
+    it.desc=$("eDesc").value.trim();
+    it.tags=$("eTags").value.split(",").map(s=>s.trim()).filter(Boolean);
+    if($("eUrl"))it.url=$("eUrl").value.trim();
+    if($("eFile"))it.file=$("eFile").value.trim();
+    const nf=$("eNewFile")&&$("eNewFile").files[0];
+    if(nf){
+      if(busy)return;busy=true;
+      try{status("Uploading "+nf.name+"…");const b64=bytesToB64(new Uint8Array(await nf.arrayBuffer()));
+        await putFile(it.file,b64,"Replace "+it.file+" (admin)");log("Replaced file "+it.file);await refreshFiles();}
+      catch(err){status("Upload failed: "+err.message,"bad");log("Error: "+err.message);busy=false;return;}
+      busy=false;
+    }
+    const to=+$("eMod").value;
+    if(to!==mi){M[mi].items.splice(ii,1);(M[to].items=M[to].items||[]).push(it);}
+    openEdit=null;setDirty(true);
+  }
+  renderAll();
+});
+$("unused").addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  const f=b.dataset.f;
+  if(b.dataset.a==="rmFile"){b.textContent="Click again to delete";b.dataset.a="rmFileYes";return;}
+  if(b.dataset.a==="rmFileYes"){
+    try{status("Deleting "+f+"…");await delFile(f,"Delete "+f+" (admin)");log("Deleted file "+f);await refreshFiles();renderUnused();status("Deleted "+f+".","ok");}
+    catch(err){status("Delete failed: "+err.message,"bad");}
+  }
+});
+
+// ---------- add form ----------
+function syncAddForm(){
+  const t=$("aType").value,isFile=["html","ppt","pdf"].includes(t);
+  $("aFileWrap").hidden=!isFile;$("aUrlWrap").hidden=isFile;
+  $("aFile").accept=t==="html"?".html,.htm":t==="ppt"?".pptx,.ppt,.ppsx":t==="pdf"?".pdf":"";
+  $("aUrl").placeholder=t==="form"?"https://forms.gle/…":t==="slides"?"https://docs.google.com/presentation/d/e/…/embed":"https://…";
+  $("aNote").textContent="";
+}
+$("aType").onchange=syncAddForm;syncAddForm();
+$("aFile").onchange=async()=>{
+  const f=$("aFile").files[0];if(!f)return;
+  const name=safeName(f.name),exists=repoFiles.includes(name);
+  $("aNote").textContent="Will be saved as "+name+(exists?" — a file with this name already exists and will be replaced.":".")+(f.size>50e6?" Warning: this file is larger than 50 MB and may fail to upload.":"");
+  if(!$("aTitle").value&&/\.html?$/i.test(f.name)){
+    try{const txt=await f.slice(0,20000).text();const m=txt.match(/<title[^>]*>([^<]+)<\/title>/i);if(m)$("aTitle").value=m[1].trim();}catch(e){}
+  }
+  if(!$("aTitle").value)$("aTitle").value=f.name.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ");
+};
+$("addBtn").onclick=async()=>{
+  if(busy)return;
+  const t=$("aType").value,title=$("aTitle").value.trim(),mi=+$("aMod").value,M=data.modules[mi];
+  if(!M){status("Create a module first.","bad");return;}
+  if(!title){status("Enter a title.","bad");return;}
+  const item={type:t==="slides"?"ppt":t,title,desc:$("aDesc").value.trim(),tags:$("aTags").value.split(",").map(s=>s.trim()).filter(Boolean)};
+  if(["html","ppt","pdf"].includes(t)){
+    const f=$("aFile").files[0];if(!f){status("Choose a file to upload.","bad");return;}
+    const name=safeName(f.name);if(PROTECTED.includes(name)){status("That file name is reserved. Rename the file and try again.","bad");return;}
+    busy=true;$("addBtn").disabled=true;
+    try{status("Uploading "+name+"… keep this page open.");
+      const b64=bytesToB64(new Uint8Array(await f.arrayBuffer()));
+      await putFile(name,b64,"Upload "+name+" (admin)");log("Uploaded "+name);
+      item.file=name;await refreshFiles();
+    }catch(err){status("Upload failed: "+err.message,"bad");log("Error: "+err.message);busy=false;$("addBtn").disabled=false;return;}
+    busy=false;$("addBtn").disabled=false;
+    item.id=uniqueId(slug(name));
+  }else{
+    const u=$("aUrl").value.trim();if(!/^https?:\/\//i.test(u)){status("Enter a full link starting with https://","bad");return;}
+    item.url=u;item.id=uniqueId(slug(title));
+  }
+  M.items=M.items||[];
+  const pos=$("aPos").value;
+  if(pos==="end")M.items.push(item);else M.items.splice(+pos,0,item);
+  ["aTitle","aDesc","aTags","aUrl"].forEach(id=>$(id).value="");$("aFile").value="";$("aNote").textContent="";
+  setDirty(true);renderAll();
+  status("Added “"+title+"” to "+M.title+". Click “Publish changes” to put it on the live site.","dirty");
+};
+$("addModBtn").onclick=()=>{
+  const title="New module";data.modules.push({id:uniqueModId("module"),title,note:"",layout:"cards",items:[]});
+  setDirty(true);renderAll();$("aMod").value=String(data.modules.length-1);renderPos();
+  const inputs=$("mods").querySelectorAll('input[data-a="modTitle"]');const last=inputs[inputs.length-1];if(last){last.focus();last.select();last.scrollIntoView({block:"center"});}
+};
+
+// ---------- publish ----------
+$("publishBtn").onclick=async()=>{
+  if(busy)return;busy=true;$("publishBtn").disabled=true;
+  try{
+    status("Publishing…");
+    const fresh=await getMeta("content.json");
+    if(fresh&&fresh.sha!==contentSha){throw new Error("content.json was changed somewhere else since you signed in. Copy your changes, reload this page and try again");}
+    const json=JSON.stringify(data,null,1);
+    const res=await api("/contents/content.json",{method:"PUT",body:JSON.stringify({message:"Update site content (admin)",content:bytesToB64(new TextEncoder().encode(json)),branch:cfg.branch,...(contentSha?{sha:contentSha}:{})})});
+    contentSha=res.content.sha;log("Published content.json");
+    const still=usedFiles();
+    for(const f of pendingDeletes){if(still.has(f))continue;try{await delFile(f,"Delete "+f+" (admin)");log("Deleted file "+f);}catch(err){log("Could not delete "+f+": "+err.message);}}
+    pendingDeletes=[];await refreshFiles();
+    setDirty(false);renderAll();
+    status("Published. The live site updates in about 1 minute; refresh it to check.","ok");
+  }catch(err){status("Publish failed: "+err.message+".","bad");log("Error: "+err.message);}
+  busy=false;$("publishBtn").disabled=false;
+};
+</script>
+</body>
+</html>

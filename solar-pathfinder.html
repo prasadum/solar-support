@@ -1,0 +1,1472 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Solar Pathfinder Trainer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&display=swap">
+<style>
+/* Layout: instrument-panel header + site strip, sticky section rail, one wide working panel per section (each section works as a projector slide) */
+:root{
+  --bg:#EDF2F5; --surface:#FFFFFF; --ink:#12212C; --muted:#4D5F6D; --line:#C3D0D9; --chip:#E1EAF0;
+  --accent:#0A6A8A; --sun:#D27F00; --sunsoft:#FFE6B0; --sky:#D6E7F2; --obst:#3B4CA6; --ok:#1C7548; --bad:#B42318; --glass:#FFFFFF;
+  --f-display:"Barlow Condensed","Noto Sans Devanagari","Noto Sans Malayalam","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans","Noto Sans Devanagari","Noto Sans Malayalam",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono","Noto Sans Devanagari","Noto Sans Malayalam",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]):not([data-theme="hc"]){
+    --bg:#0E151B; --surface:#16212A; --ink:#E4ECF1; --muted:#9BAAB6; --line:#2C3B47; --chip:#1E2C37;
+    --accent:#4DB6D8; --sun:#FFB21F; --sunsoft:#47330E; --sky:#132B3C; --obst:#8D9DFF; --ok:#4CC98A; --bad:#FF6B5E; --glass:#BFE3FF; color-scheme:dark }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#16212A; --ink:#E4ECF1; --muted:#9BAAB6; --line:#2C3B47; --chip:#1E2C37;
+  --accent:#4DB6D8; --sun:#FFB21F; --sunsoft:#47330E; --sky:#132B3C; --obst:#8D9DFF; --ok:#4CC98A; --bad:#FF6B5E; --glass:#BFE3FF; color-scheme:dark }
+:root[data-theme="hc"]{
+  --bg:#000000; --surface:#000000; --ink:#FFFFFF; --muted:#F2F2F2; --line:#FFFFFF; --chip:#1A1A1A;
+  --accent:#FFE500; --sun:#FFE500; --sunsoft:#3A3300; --sky:#001A33; --obst:#00E5FF; --ok:#00FF6A; --bad:#FF5A5A; --glass:#FFFFFF; color-scheme:dark }
+
+*{box-sizing:border-box}
+html{font-size:18px}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 3rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1320px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:2rem;letter-spacing:.01em}
+h2{font-size:1.9rem}
+h3{font-size:1.3rem}
+p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:.8rem 1.5rem;align-items:center;justify-content:space-between;padding-block:1rem .6rem}
+.brand{display:flex;gap:.8rem;align-items:center;min-width:0}
+.brand svg{flex:none;width:3rem;height:3rem}
+.brand small{display:block;color:var(--muted);font-size:.8rem;letter-spacing:.02em}
+.ctrls{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center}
+.ctl{display:flex;align-items:center;gap:.35rem}
+.ctl > span{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:.3rem .65rem;font-size:.85rem;min-height:2.1rem}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.fsval{font-family:var(--f-mono);font-size:.8rem;min-width:2.6rem;text-align:center}
+
+/* site strip */
+.site{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;margin-bottom:.8rem}
+.fld{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.fld label{font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+.fld input,.fld select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:.3rem .5rem;width:7.5rem;font-family:var(--f-mono);font-size:.9rem}
+.fld.wide input{width:11rem;font-family:var(--f-body)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:.4rem .8rem;font-size:.9rem;min-height:2.3rem}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.site .note{flex:1 1 16rem;font-size:.8rem;color:var(--muted)}
+
+/* nav */
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:.4rem;overflow-x:auto;border-bottom:2px solid var(--line);margin-bottom:1.2rem}
+nav.rail ol{display:flex;gap:.25rem;list-style:none;margin:0;padding:0;min-width:max-content}
+nav.rail button{border:0;background:transparent;padding:.5rem .85rem;border-radius:8px 8px 0 0;font-size:.95rem;color:var(--muted);display:flex;gap:.45rem;align-items:baseline}
+nav.rail button b{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+nav.rail button[aria-selected="true"]{color:var(--ink);background:var(--surface);box-shadow:inset 0 -3px 0 var(--sun);font-weight:600}
+
+section.panel{display:none}
+section.panel.on{display:block;animation:rise .35s ease}
+@keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+.lead{max-width:65ch;font-size:1.1rem;color:var(--ink);margin-top:.6rem}
+.split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.4rem;align-items:start;margin-top:1.2rem}
+@media (max-width:900px){.split{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;min-width:0}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.6rem;min-width:0}
+.fig svg{display:block;width:100%;height:auto}
+.cap{font-size:.85rem;color:var(--muted);margin-top:.4rem;padding-inline:.3rem}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:600;margin-bottom:.3rem}
+
+/* analogies */
+.analog{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin-top:1.4rem}
+.analog .card h3{margin-bottom:.35rem}
+.analog .card p{font-size:.95rem}
+.ico{width:2.6rem;height:2.6rem;margin-bottom:.4rem}
+ul.ticks{list-style:none;padding:0;margin:.5rem 0 0;display:grid;gap:.45rem}
+ul.ticks li{padding-left:1.4rem;position:relative}
+ul.ticks li::before{content:"";position:absolute;left:0;top:.55em;width:.7rem;height:.7rem;border-radius:50%;background:var(--sun)}
+.toggle{display:flex;gap:.5rem;align-items:center;font-size:.9rem;margin-top:.5rem;flex-wrap:wrap}
+.meter{height:1rem;background:var(--chip);border-radius:6px;overflow:hidden;flex:1 1 10rem;min-width:8rem}
+.meter i{display:block;height:100%;background:var(--sun);transition:width .2s}
+
+/* parts */
+.plist{list-style:none;margin:.8rem 0 0;padding:0;display:grid;gap:.3rem}
+.plist button{width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:8px;padding:.35rem .5rem;display:flex;gap:.6rem;align-items:center}
+.plist button .n{flex:none;width:1.7rem;height:1.7rem;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font-family:var(--f-mono);font-size:.8rem}
+.plist button[aria-pressed="true"]{border-color:var(--sun);background:var(--sunsoft)}
+.pdesc{margin-top:.9rem;padding:.8rem;border-left:4px solid var(--sun);background:var(--chip);border-radius:0 8px 8px 0;min-height:5rem}
+.hot{cursor:pointer}
+.hot circle{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.hot text{fill:var(--bg);font-family:var(--f-mono);font-size:15px;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.hot.on circle{fill:var(--sun)}
+.hot.on text{fill:#000}
+.small{font-size:.82rem;color:var(--muted)}
+a{color:var(--accent)}
+
+/* diagram */
+.ol{margin:.6rem 0 0;padding-left:1.2rem;display:grid;gap:.5rem}
+.callout{margin-top:1rem;border:2px solid var(--sun);border-radius:10px;padding:.8rem 1rem;background:var(--sunsoft)}
+.callout h3{font-size:1.15rem;margin-bottom:.25rem}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+
+/* chart svg classes */
+.c-sky{fill:var(--sky)}
+.c-edge{fill:none;stroke:var(--ink);stroke-width:2}
+.c-ring{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:4 5;opacity:.6}
+.c-tick{stroke:var(--muted);stroke-width:1}
+.c-dir{fill:var(--ink);font-family:var(--f-display);font-size:30px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+.c-deg{fill:var(--muted);font-family:var(--f-mono);font-size:13px;text-anchor:middle;dominant-baseline:central}
+.c-arc{fill:none;stroke:var(--muted);stroke-width:1.6}
+.c-arc.sel{stroke:var(--sun);stroke-width:5}
+.c-hr{fill:none;stroke:var(--muted);stroke-width:1;opacity:.55}
+.c-hrl{fill:var(--muted);font-family:var(--f-mono);font-size:13px;text-anchor:middle;dominant-baseline:central}
+.c-ml{fill:var(--ink);font-family:var(--f-body);font-size:13px;dominant-baseline:central;paint-order:stroke;stroke:var(--sky);stroke-width:4px}
+.c-obs{fill:var(--obst);fill-opacity:.42;stroke:var(--obst);stroke-width:2.5;stroke-linejoin:round}
+.c-obl{fill:var(--ink);font-family:var(--f-body);font-size:14px;font-weight:600;text-anchor:middle;paint-order:stroke;stroke:var(--sky);stroke-width:4px}
+.c-num{fill:var(--ink);font-family:var(--f-mono);font-size:13px;font-weight:600;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--sky);stroke-width:3px}
+.c-num.sh{fill:var(--bad);opacity:.85}
+.c-sun{fill:var(--sun);stroke:var(--ink);stroke-width:1.5}
+.c-sun.sh{fill:var(--muted);stroke:var(--bad);stroke-width:3}
+.c-glare{opacity:.3;pointer-events:none}
+:root[data-theme="hc"] .c-glare{display:none}
+
+/* simulator */
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:.5rem;margin-top:.6rem}
+.readout div{background:var(--chip);border-radius:8px;padding:.4rem .6rem}
+.readout span{display:block;font-size:.72rem;color:var(--muted)}
+.readout b{font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:.15rem .6rem;border-radius:99px;font-weight:600;font-size:.85rem}
+.pill.sun{background:var(--sun);color:#000}
+.pill.shade{background:var(--obst);color:var(--bg)}
+input[type=range]{width:100%;accent-color:var(--sun)}
+.obs{display:grid;gap:.5rem;margin-top:.5rem}
+.ob{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(4,minmax(0,1fr)) auto;gap:.35rem;align-items:end;border-bottom:1px solid var(--line);padding-bottom:.45rem}
+.ob .fld input,.ob .fld select{width:100%}
+@media (max-width:620px){.ob{grid-template-columns:repeat(3,minmax(0,1fr))}.ob .nm{grid-column:1/-1}}
+.calc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin-top:.4rem}
+.calc .fld input{width:100%}
+.big{font-family:var(--f-display);font-size:2.6rem;font-weight:700;line-height:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.8rem;margin-top:.6rem}
+.stats .fld input{width:100%}
+.sumline{margin-top:.5rem;font-size:.95rem;padding:.5rem .7rem;background:var(--chip);border-radius:8px}
+.b-bar{fill:var(--sun)}
+.b-sh{fill:var(--obst);opacity:.5}
+.b-lbl{fill:var(--ink);font-family:var(--f-mono);font-size:14px;text-anchor:middle}
+.b-m{fill:var(--muted);font-family:var(--f-body);font-size:13px;text-anchor:middle}
+.b-sel{fill:none;stroke:var(--ink);stroke-width:2.5}
+.b-grid{stroke:var(--line);stroke-width:1}
+.bar-g{cursor:pointer}
+details.sub{margin-top:.8rem}
+details.sub summary{cursor:pointer;font-weight:600}
+
+/* setup */
+.steps{display:flex;flex-wrap:wrap;gap:.3rem;margin:.8rem 0}
+.steps button{width:2.4rem;height:2.4rem;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-weight:600}
+.steps button[aria-current="true"]{background:var(--sun);border-color:var(--sun);color:#000}
+.steps button.done{border-color:var(--ok)}
+.stage text{font-family:var(--f-body)}
+.s-ink{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.s-fill{fill:var(--chip);stroke:var(--ink);stroke-width:2}
+.s-t{fill:var(--ink);font-size:16px}
+.s-tm{fill:var(--muted);font-size:14px}
+.s-sun{fill:var(--sun)}
+.s-ok{fill:none;stroke:var(--ok);stroke-width:5;stroke-linecap:round}
+.s-bad{fill:none;stroke:var(--bad);stroke-width:5;stroke-linecap:round}
+.anim-bubble{animation:bub 3s ease-in-out infinite alternate}
+@keyframes bub{0%{transform:translate(38px,-22px)}70%,100%{transform:translate(0,0)}}
+.anim-rot{transform-box:fill-box;transform-origin:center;animation:rot 3.5s ease-in-out infinite alternate}
+@keyframes rot{0%{transform:rotate(38deg)}75%,100%{transform:rotate(0)}}
+.anim-draw{stroke-dasharray:900;animation:draw 4s ease-in-out infinite}
+@keyframes draw{0%{stroke-dashoffset:900}70%,100%{stroke-dashoffset:0}}
+.anim-pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.anim-ptr{animation:ptr 3s ease-in-out infinite alternate}
+@keyframes ptr{0%{transform:translateX(0)}70%,100%{transform:translateX(var(--dx))}}
+.anim-eye{animation:eye 3s ease-in-out infinite alternate}
+@keyframes eye{0%{transform:translateY(-30px)}100%{transform:translateY(0)}}
+.anim-leg{animation:leg 3s ease-in-out infinite alternate}
+@keyframes leg{0%{transform:translateY(-14px)}70%,100%{transform:translateY(0)}}
+.stepnav{display:flex;gap:.6rem;margin-top:1rem}
+
+/* examples */
+.exs{display:grid;gap:1.2rem;margin-top:1rem}
+.ex{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,16rem);gap:1.2rem;align-items:start}
+@media (max-width:780px){.ex{grid-template-columns:minmax(0,1fr)}}
+.mgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.25rem;margin-top:.6rem}
+.mgrid div{text-align:center;border-radius:6px;padding:.2rem 0;font-size:.8rem;background:var(--chip)}
+.mgrid div b{display:block;font-family:var(--f-mono);font-size:.95rem}
+.mgrid div.loss{background:var(--obst);color:var(--bg)}
+/* true north + placement */
+.pt{display:flex;gap:.7rem;align-items:flex-start;padding:.35rem 0}
+.pt .n{flex:none;min-width:3.4rem;height:1.9rem;border-radius:99px;background:var(--sun);color:#000;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.85rem}
+.pt .n.obx{background:var(--obst);color:var(--bg)}
+.pt .n.out{background:transparent;border:2px solid var(--sun);color:var(--ink)}
+.anim-wander{animation:wander 5s ease-in-out infinite alternate}
+@keyframes wander{to{transform:translate(9px,5px)}}
+/* label guide + explainer */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem}
+.chips button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:.35rem .85rem;font-size:.92rem}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.lgbody{margin-top:.8rem;padding:.8rem .9rem;border-left:4px solid var(--accent);background:var(--chip);border-radius:0 8px 8px 0}
+.lgbody h3{margin-bottom:.3rem}
+.minis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin-top:.6rem}
+@media (max-width:760px){.minis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.minis figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.4rem;text-align:center;min-width:0}
+.minis figcaption{font-size:.85rem;font-weight:600;margin-top:.2rem}
+svg.hlon .g{opacity:.12;transition:opacity .35s}
+svg.hl-month .g-mo,svg.hl-hour .g-hr,svg.hl-pct .g-num,svg.hl-pct .g-mo,svg.hl-ring .g-ring,svg.hl-brg .g-brg,svg.hl-lat .g-lat,svg.hl-lat .g-mo{opacity:1;animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{50%{opacity:.55}}
+svg.hl-hour .c-hr{stroke:var(--accent);stroke-width:2.6;opacity:1}
+svg.hl-hour .c-hrl{fill:var(--accent);font-weight:700;font-size:17px}
+svg.hl-ring .c-ring{stroke:var(--accent);stroke-width:3;opacity:1}
+svg.hl-ring .g-ring .c-deg{fill:var(--accent);font-weight:700;font-size:16px}
+svg.hl-month .c-arc{stroke:var(--ink);stroke-width:2.6}
+svg.hl-month .c-arc.sel{stroke:var(--sun);stroke-width:6}
+svg.hl-brg .c-tick{stroke:var(--accent);stroke-width:2.5}
+svg.hl-brg .c-deg{fill:var(--accent);font-weight:700}
+.c-latl{fill:var(--ink);font-family:var(--f-display);font-size:24px;font-weight:700}
+.c-latb{fill:var(--sunsoft);stroke:var(--sun);stroke-width:2}
+.x-grid{fill:none;stroke:var(--line);stroke-width:1.2}
+.x-ax{fill:none;stroke:var(--ink);stroke-width:2}
+.x-lbl{fill:var(--muted);font-family:var(--f-mono);font-size:13px;text-anchor:middle;dominant-baseline:central}
+.x-ttl{fill:var(--accent);font-family:var(--f-body);font-size:15px;font-weight:600}
+.x-box{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+.x-rd{fill:var(--ink);font-family:var(--f-mono);font-size:14px}
+.lesson{margin-top:.6rem;padding:.6rem .8rem;border-left:4px solid var(--accent);background:var(--chip);border-radius:0 8px 8px 0}
+
+/* quiz */
+.qs{display:grid;gap:1rem;margin-top:1rem;counter-reset:q}
+.q h3{font-family:var(--f-body);font-size:1.05rem;font-weight:600;line-height:1.4}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.4rem;margin-top:.5rem}
+.opts button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:.5rem .7rem}
+.opts button.right{border-color:var(--ok);background:var(--ok);color:var(--bg);font-weight:600}
+.opts button.wrong{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.qex{margin-top:.5rem;font-size:.92rem;color:var(--muted)}
+.score{font-family:var(--f-display);font-size:1.6rem;font-weight:700}
+.kbd{font-size:.78rem;color:var(--muted);margin-top:.6rem}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="28" r="16" fill="var(--sky)" stroke="var(--ink)" stroke-width="2"/><path d="M8 28a16 16 0 0 1 32 0" fill="none" stroke="var(--ink)" stroke-width="2"/><path d="M12 28c3-9 21-9 24 0" fill="none" stroke="var(--sun)" stroke-width="3"/><circle cx="31" cy="21.5" r="3.5" fill="var(--sun)"/><rect x="6" y="40" width="36" height="4" rx="2" fill="var(--ink)"/></svg>
+      <div><h1 data-i="title"></h1><small data-i="sub"></small></div>
+    </div>
+    <div class="ctrls">
+      <div class="ctl"><span data-i="font"></span>
+        <div class="seg"><button id="fsDn" aria-label="Smaller text">A−</button><button id="fsVal" class="fsval" aria-label="Reset text size">18</button><button id="fsUp" aria-label="Larger text">A+</button></div></div>
+      <div class="ctl"><span data-i="theme"></span>
+        <div class="seg" id="themeSeg"><button data-th="light" data-i="light"></button><button data-th="dark" data-i="dark"></button><button data-th="hc" data-i="hc"></button></div></div>
+      <div class="ctl"><span data-i="lang"></span>
+        <div class="seg" id="langSeg"><button data-lg="en">English</button><button data-lg="hi">हिन्दी</button><button data-lg="ml">മലയാളം</button></div></div>
+      <button class="btn" id="fsBtn" data-i="full"></button>
+    </div>
+  </header>
+
+  <div class="site" role="group" aria-label="Site">
+    <div class="fld wide"><label for="locName" data-i="place"></label><input id="locName" value="Kozhikode, Kerala"></div>
+    <div class="fld"><label for="locLat" data-i="lat"></label><input id="locLat" type="number" step="0.0001" min="-60" max="60" value="11.2588"></div>
+    <div class="fld"><label for="locLon" data-i="lon"></label><input id="locLon" type="number" step="0.0001" min="-180" max="180" value="75.7804"></div>
+    <div class="fld"><label for="locTz" data-i="tz"></label><input id="locTz" type="number" step="0.5" min="-12" max="14" value="5.5"></div>
+    <div class="fld"><label for="locDec" data-i="mdec"></label><input id="locDec" type="number" step="0.1" min="-30" max="30" value="-1.5"></div>
+    <button class="btn" id="locReset" data-i="resetLoc"></button>
+    <p class="note" data-i="locNote"></p>
+  </div>
+
+  <nav class="rail" aria-label="Sections"><ol id="tabs" role="tablist"></ol></nav>
+
+  <!-- 1 WHY -->
+  <section class="panel" id="p0">
+    <h2 data-i="i_h"></h2>
+    <p class="lead" data-i="i_p"></p>
+    <div class="split">
+      <div class="fig">
+        <svg id="scene" viewBox="0 0 640 300" role="img" aria-label="Animated roof with coconut tree shading modules"></svg>
+        <div class="toggle"><button class="btn" id="scPlay"></button>
+          <label><input type="checkbox" id="scBy" checked> <span data-i="i_bypass"></span></label>
+          <span data-i="i_power"></span><div class="meter"><i id="scMeter"></i></div><b class="mono" id="scPct"></b></div>
+        <p class="cap" data-i="i_cap"></p>
+      </div>
+      <div class="card">
+        <div class="eyebrow" data-i="i_use_h"></div>
+        <ul class="ticks" id="useList"></ul>
+        <p class="small" style="margin-top:1rem" data-i="i_src"></p>
+      </div>
+    </div>
+    <div class="analog" id="analog"></div>
+  </section>
+
+  <!-- 2 PARTS -->
+  <section class="panel" id="p1">
+    <h2 data-i="p_h"></h2>
+    <p class="lead" data-i="p_hint"></p>
+    <div class="split">
+      <div style="display:grid;gap:1rem;min-width:0">
+        <div class="fig"><div class="eyebrow" data-i="side"></div><svg id="partsSide" viewBox="0 0 560 430" role="img" aria-label="Side view of the instrument"></svg></div>
+        <div class="fig"><div class="eyebrow" data-i="top"></div><svg id="partsTop" viewBox="0 0 560 330" role="img" aria-label="Top view of the instrument"></svg></div>
+      </div>
+      <div class="card">
+        <ul class="plist" id="plist"></ul>
+        <div class="pdesc" id="pdesc" aria-live="polite"></div>
+        <p class="small" style="margin-top:.8rem" data-i="p_note"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUE NORTH -->
+  <section class="panel" id="pTN">
+    <h2 data-i="tn_h"></h2>
+    <p class="lead" data-i="tn_p"></p>
+    <div class="split">
+      <div class="fig"><svg id="tnGlobe" viewBox="0 0 420 380" role="img" aria-label="Earth with true and magnetic north poles"></svg><p class="cap" data-i="tn_g"></p></div>
+      <div class="fig"><svg id="tnComp" viewBox="0 0 420 460" role="img" aria-label="Compass needle and true north line"></svg>
+        <label class="toggle" style="padding-inline:.3rem"><input type="checkbox" id="tnX" checked> <span data-i="tn_x"></span></label><p class="cap" data-i="tn_c"></p></div>
+    </div>
+    <div class="split">
+      <div class="card"><div class="eyebrow" data-i="tn_an_h"></div><p data-i="tn_an"></p></div>
+      <div class="card"><h3 data-i="tn_f_h"></h3><p class="mono" data-i="tn_f" style="margin-top:.3rem;font-weight:600"></p>
+        <div class="row" style="margin-top:.6rem;gap:1.4rem"><div class="fld"><label for="tnMag" data-i="tn_mag"></label><input id="tnMag" type="number" step="0.5" value="181.5"></div><div><span class="small" data-i="tn_true"></span><div class="big" id="tnTrue"></div></div></div>
+        <p id="tnEx" class="sumline"></p></div>
+    </div>
+    <h3 style="margin-top:1.6rem" data-i="tn_m_h"></h3>
+    <div class="analog" id="tnMethods" style="margin-top:.6rem"></div>
+    <div class="split">
+      <div class="fig"><svg id="tnShadow" viewBox="0 0 420 420" role="img" aria-label="Noon shadow method"></svg>
+        <div class="row" style="padding:.4rem"><div class="fld"><label for="tnMonth" data-i="month"></label><select id="tnMonth"></select></div><button class="btn pri" id="tnPlay"></button><b class="mono" id="tnTime"></b></div></div>
+      <div class="card"><h3 data-i="tn_s_h"></h3><p style="margin-top:.3rem" data-i="tn_s"></p><div class="callout"><p id="tnNoon"></p></div></div>
+    </div>
+  </section>
+
+  <!-- PLACEMENT -->
+  <section class="panel" id="pPL">
+    <h2 data-i="pl_h"></h2>
+    <p class="lead" data-i="pl_p"></p>
+    <div class="split">
+      <div class="fig"><div class="eyebrow" data-i="lb_plan"></div><svg id="plPlan" viewBox="0 0 600 390" role="img" aria-label="Rooftop plan with reading points"></svg></div>
+      <div class="card"><ul class="plist" id="plPts"></ul></div>
+    </div>
+    <div class="split">
+      <div class="fig"><div class="eyebrow" data-i="lb_side"></div><svg id="plSide" viewBox="0 0 600 310" role="img" aria-label="Correct and wrong instrument height"></svg></div>
+      <div class="card"><h3 data-i="pl_ht_h"></h3><p data-i="pl_ht" style="margin-top:.3rem"></p><h3 data-i="pl_use_h" style="margin-top:1rem"></h3><p data-i="pl_use" style="margin-top:.3rem"></p></div>
+    </div>
+  </section>
+
+  <!-- EXPLAINER -->
+  <section class="panel" id="pXP">
+    <h2 data-i="xp_h"></h2>
+    <p class="lead" data-i="xp_p"></p>
+    <div class="steps" id="xpDots"></div>
+    <div class="split">
+      <div class="fig"><svg id="xpSvg" viewBox="0 0 640 480" role="img" aria-label="Animated explainer of the sun chart"></svg>
+        <div class="row" style="padding:.4rem">
+          <div class="fld"><label for="xpMonth" data-i="month"></label><select id="xpMonth"></select></div>
+          <button class="btn pri" id="xpPlay"></button>
+          <button class="btn" id="xpReplay" data-i="xp_replay"></button>
+          <div class="fld" id="xpKw" hidden style="flex:1 1 10rem"><label for="xpK" data-i="xp_k"></label><input type="range" id="xpK" min="0" max="1" step="0.01" value="0"></div>
+        </div></div>
+      <div class="card"><div class="eyebrow" id="xpNo"></div><h3 id="xpTitle" style="font-size:1.7rem"></h3><p id="xpBody" style="margin-top:.6rem;font-size:1.08rem"></p>
+        <p class="sumline" id="xpAxes" style="margin-top:.8rem;font-weight:600"></p>
+        <div class="stepnav"><button class="btn" id="xpPrev" data-i="prev"></button><button class="btn pri" id="xpNext" data-i="next"></button></div></div>
+    </div>
+  </section>
+
+  <!-- 3 DIAGRAM -->
+  <section class="panel" id="p2">
+    <h2 data-i="d_h"></h2>
+    <div class="split">
+      <div class="fig">
+        <svg id="dChart" viewBox="-40 -40 680 680" role="img" aria-label="Sunpath diagram"></svg>
+        <div class="row" style="padding:.4rem">
+          <div class="fld"><label for="dMonth" data-i="month"></label><select id="dMonth"></select></div>
+          <label class="toggle"><input type="checkbox" id="dNums" checked> <span data-i="d_nums"></span></label>
+          <button class="btn pri" id="dPlay"></button>
+          <b class="mono" id="dTime"></b>
+        </div>
+      </div>
+      <div class="card">
+        <div class="eyebrow" data-i="lg_h"></div>
+        <div class="chips" id="lgChips"></div>
+        <div class="lgbody" id="lgBody" aria-live="polite"></div>
+        <div class="callout"><h3 data-i="d_k_h"></h3><p id="dKerala"></p></div>
+        <div style="margin-top:1rem"><h3 data-i="d_t_h"></h3><p id="dTimeTxt" style="margin-top:.3rem"></p></div>
+      </div>
+    </div>
+    <h3 style="margin-top:1.6rem" data-i="lg_mini_h"></h3>
+    <div class="minis" id="latMinis"></div>
+    <p class="cap" data-i="lg_mini_c"></p>
+  </section>
+
+  <!-- 4 SETUP -->
+  <section class="panel" id="p3">
+    <h2 data-i="st_h"></h2>
+    <div class="steps" id="stepDots"></div>
+    <div class="split">
+      <div class="fig"><svg id="stage" class="stage" viewBox="0 0 600 360" role="img" aria-label="Step illustration"></svg></div>
+      <div class="card">
+        <div class="eyebrow" id="stepNo"></div>
+        <h3 id="stepTitle" style="font-size:1.7rem"></h3>
+        <p id="stepBody" style="margin-top:.6rem;font-size:1.08rem"></p>
+        <div class="stepnav"><button class="btn" id="stPrev" data-i="prev"></button><button class="btn pri" id="stNext" data-i="next"></button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 SIMULATOR -->
+  <section class="panel" id="p4">
+    <h2 data-i="sim_h"></h2>
+    <p class="lead" data-i="sim_p"></p>
+    <div class="split">
+      <div class="fig">
+        <svg id="sChart" viewBox="-40 -40 680 680" role="img" aria-label="Dome view with obstacles"></svg>
+        <div style="padding:.4rem">
+          <div class="row">
+            <div class="fld"><label for="sMonth" data-i="month"></label><select id="sMonth"></select></div>
+            <button class="btn pri" id="sPlay"></button>
+            <span id="sState"></span>
+          </div>
+          <input type="range" id="sTime" min="5" max="19" step="0.05" value="9" aria-label="Solar time">
+          <div class="readout">
+            <div><span data-i="tsol"></span><b id="rSol"></b></div>
+            <div><span data-i="tclk"></span><b id="rClk"></b></div>
+            <div><span data-i="alt"></span><b id="rAlt"></b></div>
+            <div><span data-i="brg"></span><b id="rBrg"></b></div>
+          </div>
+          <p class="sumline" id="sSum"></p>
+        </div>
+      </div>
+      <div style="display:grid;gap:1rem;min-width:0">
+        <div class="card">
+          <div class="fld"><label for="sPreset" data-i="preset"></label><select id="sPreset" style="width:100%"></select></div>
+          <h3 style="margin-top:.8rem" data-i="obs_h"></h3>
+          <div class="obs" id="obsList"></div>
+          <button class="btn" id="obAdd" style="margin-top:.6rem" data-i="add"></button>
+          <details class="sub" open>
+            <summary data-i="calc_h"></summary>
+            <div class="calc">
+              <div class="fld"><label for="cH" data-i="H"></label><input id="cH" type="number" step="0.1" value="10"></div>
+              <div class="fld"><label for="ch" data-i="h"></label><input id="ch" type="number" step="0.1" value="1"></div>
+              <div class="fld"><label for="cD" data-i="Dist"></label><input id="cD" type="number" step="0.1" value="10"></div>
+            </div>
+            <p class="mono" style="margin-top:.4rem">θ = tan⁻¹((H − h) ÷ D) = <b id="cOut"></b></p>
+            <p class="small" data-i="calc_n"></p>
+          </details>
+        </div>
+        <div class="card">
+          <h3 data-i="acc_h"></h3>
+          <svg id="bars" viewBox="0 0 600 230" style="width:100%;height:auto;margin-top:.4rem" role="img" aria-label="Monthly solar access"></svg>
+          <div class="stats">
+            <div><span class="small" data-i="annual"></span><div class="big" id="sAvg"></div></div>
+            <div class="fld"><label for="sKwp" data-i="kwp"></label><input id="sKwp" type="number" step="0.5" value="3"></div>
+            <div class="fld"><label for="sYld" data-i="yld"></label><input id="sYld" type="number" step="0.1" value="4"></div>
+          </div>
+          <p style="margin-top:.6rem"><span data-i="energy"></span>: <b class="mono" id="sEn"></b> · <span data-i="lost"></span>: <b class="mono" id="sLost" style="color:var(--bad)"></b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 EXAMPLES -->
+  <section class="panel" id="p5">
+    <h2 data-i="ex_h"></h2>
+    <p class="lead" data-i="ex_p"></p>
+    <div class="exs" id="exList"></div>
+  </section>
+
+  <!-- 7 QUIZ -->
+  <section class="panel" id="p6">
+    <div class="row" style="justify-content:space-between"><h2 data-i="q_h"></h2><span class="score" id="qScore"></span></div>
+    <div class="qs" id="qList"></div>
+    <button class="btn" id="qReset" style="margin-top:1rem" data-i="q_reset"></button>
+  </section>
+
+  <p class="kbd" data-i="kbd"></p>
+</div>
+
+<script>
+/* ================= TEXT ================= */
+const T={
+en:{title:'Solar Pathfinder Trainer',sub:'Shade survey for solar PV sites · CTS Electrician',font:'Text',theme:'Theme',light:'Light',dark:'Dark',hc:'Projector',lang:'Language',full:'Full screen',
+place:'Place',lat:'Latitude (° N +)',lon:'Longitude (° E +)',tz:'UTC offset (h)',mdec:'Magnetic declination (° E +)',resetLoc:'Reset to Kozhikode',
+locNote:'Default site: Kozhikode, Kerala. Change latitude and longitude to survey any other site. Declination is approximate; confirm it with the NOAA or IGRF calculator for the survey date.',
+tabs:['Why shade matters','Parts','Sunpath diagram','Set-up & measure','Simulator','Examples','Quiz'],
+i_h:'One shadow can pull down a whole string',
+i_p:'A Solar Pathfinder shows how much of the year’s sunlight will reach a chosen spot, before a single module is fixed. It has no battery and no electronics. A clear dome reflects everything around the site onto a printed chart of the sun’s path.',
+i_cap:'Watch the coconut tree. In the morning its shadow crosses the modules on the roof, and the string output drops.',
+i_bypass:'Bypass diodes',i_power:'String power (approx.)',i_play:'Play',i_pause:'Pause',
+i_use_h:'Use the survey to decide',
+i_use:['Where to place the array on the roof or ground','Which trees or structures to trim, shift or avoid','Whether the site is worth quoting at all','How to group modules into strings so shade hits one string, not all'],
+i_src:'Reference: CTS Electrician trade theory on solar PV systems and site survey; instrument details from the manufacturer (solarpathfinder.com).',
+an:[['hose','Garden hose','Step on any point of a hose and the flow out of the whole hose drops. Modules in a series string behave the same way: one shaded module pulls down the string current. Bypass diodes limit the loss but do not remove it.'],
+['mirror','Ghat-road mirror','The round mirror at a hairpin bend on the Thamarassery churam shows the whole bend in one look. The Pathfinder dome works the same way: it shows the full 360° horizon in one view.'],
+['train','Train timetable','The sun runs on the same track on the same date every year, the way a train keeps its timetable. The sunpath chart is that timetable, drawn for your latitude.'],
+['shirt','Tailored shirt','A chart printed for Delhi (28.6° N) does not fit Kozhikode (11.3° N). The sun runs higher here, so each chart is made for one latitude band.']],
+p_h:'Parts of the Solar Pathfinder',p_hint:'Tap a number or a name to see what the part does.',side:'Side view',top:'Top view',
+p_note:'Teaching schematic, not to scale. Exact layout varies by model. For photographs and the official manual, see solarpathfinder.com.',
+parts:[['Dome','Clear, polished plastic dome. It works like a convex mirror and reflects the whole sky and every obstacle around the site onto the chart below it.'],
+['Sunpath diagram','Paper chart printed for one latitude band. Curved lines are the sun’s path for each month, radial lines are solar hours, and the number in each half-hour cell is the % of that day’s solar energy.'],
+['Declination tab','Tab and scale used to turn the chart by the local magnetic declination, so the chart points to true south and not magnetic south.'],
+['Compass','Built-in compass. Turn the whole unit until the needle lines up with the south mark.'],
+['Bubble level','Spirit level. The unit must be level, the way a mason levels a floor tile. A tilted unit shifts every obstacle on the chart.'],
+['Instrument body','Holds the chart, dome, level and compass together in a fixed position.'],
+['Base','Stable platform with a tripod mount. On a sloping roof it can rest on a beanbag.'],
+['Tripod','Adjustable legs set the height and bring the bubble to the centre.'],
+['Grease pencil','White wax pencil for tracing the outline of obstacles onto the chart. It wipes off for the next site.']],
+d_h:'Reading the sunpath diagram',month:'Month',d_nums:'Show % numbers',
+d_list:['<b>Top edge = equator side</b> (south in India). You stand on the north side and look down.',
+'<b>Curved lines</b> = the sun’s path for a month. Months with the same sun height share one line: Jan & Nov, Feb & Oct, Mar & Sep, Apr & Aug, May & Jul.',
+'<b>Radial lines</b> = solar time, one per hour. Morning is on the east side, afternoon on the west side.',
+'<b>Numbers</b> = % of that day’s solar energy in each half hour. All cells on one month line add up to 100. Noon cells are the largest.',
+'<b>Centre</b> = straight overhead (90°). <b>Outer ring</b> = horizon (0°). Dashed rings mark 30° and 60°.'],
+d_k_h:'Low latitude: watch the north side too',
+d_k:'At this site the sun is straight overhead around {d1} and {d2}. Between those dates the noon sun is north of overhead, so a wall or tank on the north side can shade the modules.',
+d_no:'At this latitude the sun never passes overhead. It stays on the equator side all year.',
+d_t_h:'Solar time and clock time',
+d_t:'The chart uses solar time. Your watch shows standard time, which differs because of longitude and the equation of time. For this site, solar noon falls between {a} and {b} clock time.',
+st_h:'Set-up and measuring, step by step',step:'Step',prev:'Back',next:'Next',
+steps:[['Pick the chart for your latitude','Kozhikode is at about 11.3° N. Insert the sunpath chart made for the latitude band that contains your site. A chart for another band puts the sun on the wrong track.'],
+['Set the magnetic declination','A compass points to magnetic north, not true north. Find the declination for the site and date (small at Kozhikode, about 1 to 2° W) and turn the chart to that value with the tab. It is like a wall clock that runs 2 minutes slow: you know the error, so you set it off once.'],
+['Place the unit where the modules will be','Set it at the lower edge of the planned array, where shade arrives first. For a long array, take readings at both ends, and at the corners of a large roof.'],
+['Level it','Adjust the tripod legs until the bubble sits inside the centre circle. A tilted unit moves every obstacle on the chart, just as a tilted spirit level gives a sloping floor.'],
+['Point it to the equator','In India, turn the whole unit until the compass needle lines up with the south mark. Because declination is already set, the chart now faces true south.'],
+['Look straight down','Stand on the north side. Hold your eye 30 to 45 cm above the dome, directly over the centre, so your own head sits in the middle of the reflection. Trees, buildings and tanks now show as outlines on the chart.'],
+['Trace the outline','With the white grease pencil, trace the skyline seen in the dome onto the chart, or take a photo from directly above for the software. Recheck level and direction before tracing.'],
+['Read the numbers','On each month line, add the numbers in the cells that are NOT inside the traced shade. The total is the % solar access for that month. Example: 100 − 18 shaded = 82% access.'],
+['Record and repeat','Write down site, date, latitude, declination, position and the monthly results. Clean the chart and repeat at the next position.']],
+sv_right:'Your band',sv_wrong:'Wrong band',sv_lower:'Lower edge of array',sv_true:'True S',sv_view:'Eye 30–45 cm above',date:'Date',pos:'Position',
+sim_h:'Shade simulator',sim_p:'Enter obstacles as compass bearings (true north 0°, east 90°, south 180°, west 270°) with the angle of their top above the horizon. Play the sun along any month and watch when it goes into shade.',
+preset:'Site preset',presets:['Open site','Coconut trees, east to south-east','Two-storey block, west','Water tank tower, north-east','Mixed: trees + block + tank'],
+obs_h:'Obstacles',add:'Add obstacle',name:'Name',type:'Type',tree:'Tree',bldg:'Building',b1:'Bearing from °',b2:'Bearing to °',elev:'Top angle °',rm:'Remove',none:'No obstacles. The site is open.',newob:'New obstacle',
+calc_h:'Find the top angle of an obstacle',H:'Object height (m)',h:'Instrument height (m)',Dist:'Distance (m)',calc_n:'Measure height with a tape or clinometer and distance with a tape. Use the result as “Top angle”.',
+acc_h:'Monthly solar access',annual:'Average of 12 months',kwp:'System size (kWp)',yld:'Yield kWh/kWp/day (assumed)',energy:'Estimated energy per year',lost:'Lost to shade',
+tsol:'Solar time',tclk:'Clock time',alt:'Sun altitude',brg:'Sun bearing',insun:'In sun',inshade:'In shade',play:'Play',pause:'Pause',
+sumtxt:'Unshaded cells for {m} add up to <b>{v}</b>, so solar access for {m} is <b>{v}%</b>.',
+ex_h:'Worked examples',ex_p:'All three are computed for Kozhikode (11.26° N). Open any one in the simulator to play the sun through it.',
+ex:[['Terrace in Kozhikode, coconut trees to the east and south-east','Tree tops are 9 m above the instrument and 10 m away, from bearing 95° to 150°.','θ = tan⁻¹(9 ÷ 10) = 42°','Loss comes on mornings from October to March, when the sun rises low in the south-east. Shifting the array west or trimming the fronds recovers most of it.'],
+['ITI workshop roof, two-storey block to the west','The block is 7 m above the instrument and 10 m away, from bearing 235° to 300°.','θ = tan⁻¹(7 ÷ 10) = 35°','Loss every afternoon in every month, because the sun sets in the west all year. A west obstacle costs more than its size suggests.'],
+['House terrace, water tank tower to the north-east','The tank top is 6 m above the instrument and 4 m away, from bearing 15° to 75°.','θ = tan⁻¹(6 ÷ 4) = 56°','Shade appears only in May, June and July, the months when the sun runs north of overhead at Kozhikode. A survey that looks only south would miss it.']],
+ex_open:'Open in simulator',ex_avg:'Average access',ex_worst:'Worst month',
+q_h:'Check your understanding',q_reset:'Reset quiz',
+qs:[['At Kozhikode, the top (equator side) of the chart must face…',['Magnetic north','True south','True east','Any direction'],1,'Kozhikode is north of the equator, so the chart faces true south. Set declination first, then align with the compass.'],
+['Why must the chart match the site latitude?',['The dome size changes','The height of the sun’s path changes with latitude','The compass needs it','For the colour of the chart'],1,'The sun runs higher near the equator. A chart for another band puts every month line in the wrong place.'],
+['The bubble is not in the centre. What do you do first?',['Trace quickly','Adjust the tripod legs until level','Rotate the chart','Ignore it'],1,'Level first. A tilted dome shifts every reflected obstacle.'],
+['At Kozhikode in June, where is the sun at solar noon?',['Low in the south','Exactly overhead','Slightly north of overhead','Below the horizon'],2,'In June the sun’s declination (23.4° N) is more than the latitude (11.3° N), so the noon sun is about 12° north of overhead.'],
+['For March, the shaded cells add up to 18. Solar access for March is…',['18%','82%','118%','Cannot say'],1,'All cells add up to 100, so access = 100 − 18 = 82%.'],
+['A tree top is 9 m above the instrument and 12 m away. Its top angle is about…',['24°','37°','53°','75°'],1,'tan⁻¹(9 ÷ 12) = tan⁻¹(0.75) ≈ 36.9°.'],
+['Which tool marks the obstacle outline on the chart?',['Chalk line','White grease pencil','Marker on the dome','Soldering iron'],1,'The white grease pencil marks the chart and wipes off afterwards.']],
+q_score:'Score',kbd:'Tip: use the ← and → keys to move between sections on the projector.',
+dirs:['N','E','S','W'],months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],loc:'en-IN'},
+
+hi:{title:'सोलर पाथफाइंडर ट्रेनर',sub:'सोलर PV साइट का छाया सर्वेक्षण · CTS इलेक्ट्रीशियन',font:'अक्षर',theme:'थीम',light:'लाइट',dark:'डार्क',hc:'प्रोजेक्टर',lang:'भाषा',full:'पूर्ण स्क्रीन',
+place:'स्थान',lat:'अक्षांश (° N +)',lon:'देशांतर (° E +)',tz:'UTC अंतर (घंटे)',mdec:'चुंबकीय दिक्पात (° E +)',resetLoc:'कोझिकोड पर वापस',
+locNote:'डिफ़ॉल्ट साइट: कोझिकोड, केरल। किसी और साइट के लिए अक्षांश और देशांतर बदलें। दिक्पात अनुमानित है; सर्वे की तारीख के लिए NOAA या IGRF कैलकुलेटर से पुष्टि करें।',
+tabs:['छाया क्यों ज़रूरी','भाग','सूर्य-पथ चार्ट','सेट-अप और माप','सिम्युलेटर','उदाहरण','क्विज़'],
+i_h:'एक छाया पूरी स्ट्रिंग की बिजली घटा सकती है',
+i_p:'सोलर पाथफाइंडर एक भी मॉड्यूल लगाने से पहले बताता है कि चुनी हुई जगह पर साल भर की धूप का कितना हिस्सा पहुँचेगा। इसमें न बैटरी है, न इलेक्ट्रॉनिक्स। एक पारदर्शी गुंबद (dome) आसपास की हर चीज़ को सूर्य-पथ के छपे चार्ट पर प्रतिबिंबित करता है।',
+i_cap:'नारियल के पेड़ को देखें। सुबह उसकी छाया छत के मॉड्यूल पर पड़ती है और स्ट्रिंग का आउटपुट घट जाता है।',
+i_bypass:'बाईपास डायोड',i_power:'स्ट्रिंग पावर (लगभग)',i_play:'चलाएँ',i_pause:'रोकें',
+i_use_h:'सर्वे से यह तय करें',
+i_use:['ऐरे छत या ज़मीन पर कहाँ लगे','कौन-से पेड़ या ढाँचे छाँटें, हटाएँ या उनसे बचें','साइट कोटेशन देने लायक है या नहीं','मॉड्यूल को स्ट्रिंग में कैसे बाँटें ताकि छाया सब पर नहीं, एक स्ट्रिंग पर पड़े'],
+i_src:'संदर्भ: CTS इलेक्ट्रीशियन ट्रेड थ्योरी (सोलर PV सिस्टम और साइट सर्वे); उपकरण की जानकारी निर्माता से (solarpathfinder.com)।',
+an:[['hose','बगीचे का पाइप','पाइप को किसी भी जगह दबाइए, पूरे पाइप से निकलने वाला पानी घट जाता है। सीरीज़ स्ट्रिंग के मॉड्यूल भी ऐसे ही हैं: एक मॉड्यूल पर छाया पूरी स्ट्रिंग का करंट घटा देती है। बाईपास डायोड नुकसान कम करते हैं, खत्म नहीं करते।'],
+['mirror','घाट रोड का दर्पण','घाट रोड के तीखे मोड़ पर लगा गोल दर्पण पूरा मोड़ एक नज़र में दिखा देता है। पाथफाइंडर का गुंबद भी पूरा 360° क्षितिज एक ही नज़र में दिखाता है।'],
+['train','रेल समय-सारणी','सूरज हर साल उसी तारीख को उसी पटरी पर चलता है, जैसे ट्रेन अपनी समय-सारणी पर चलती है। सूर्य-पथ चार्ट आपके अक्षांश के लिए वही समय-सारणी है।'],
+['shirt','नाप का कपड़ा','दिल्ली (28.6° N) के लिए छपा चार्ट कोझिकोड (11.3° N) में फिट नहीं होता। यहाँ सूरज ज़्यादा ऊँचाई पर चलता है, इसलिए हर चार्ट एक अक्षांश पट्टी के लिए बनता है।']],
+p_h:'सोलर पाथफाइंडर के भाग',p_hint:'भाग का काम देखने के लिए नंबर या नाम पर टैप करें।',side:'साइड व्यू',top:'ऊपर से दृश्य',
+p_note:'प्रशिक्षण हेतु रेखाचित्र, पैमाने पर नहीं। वास्तविक बनावट मॉडल के अनुसार बदलती है। फ़ोटो और आधिकारिक मैनुअल के लिए solarpathfinder.com देखें।',
+parts:[['गुंबद (Dome)','पारदर्शी, चिकना प्लास्टिक गुंबद। यह उत्तल दर्पण की तरह काम करता है और पूरा आकाश तथा आसपास की हर बाधा नीचे के चार्ट पर दिखाता है।'],
+['सूर्य-पथ चार्ट','एक अक्षांश पट्टी के लिए छपा कागज़ी चार्ट। घुमावदार रेखाएँ हर महीने का सूर्य-पथ हैं, त्रिज्य (radial) रेखाएँ सौर घंटे हैं, और हर आधे घंटे के खाने की संख्या उस दिन की सौर ऊर्जा का % है।'],
+['दिक्पात टैब','टैब और स्केल, जिससे चार्ट को स्थानीय चुंबकीय दिक्पात जितना घुमाया जाता है, ताकि चार्ट चुंबकीय दक्षिण नहीं, वास्तविक (true) दक्षिण की ओर रहे।'],
+['कम्पास','अंतर्निर्मित कम्पास। पूरी यूनिट को तब तक घुमाएँ जब तक सुई दक्षिण निशान से न मिल जाए।'],
+['बबल लेवल','स्पिरिट लेवल। यूनिट समतल होनी चाहिए, जैसे राजमिस्त्री फर्श की टाइल समतल करता है। झुकी यूनिट चार्ट पर हर बाधा की जगह बदल देती है।'],
+['उपकरण बॉडी','चार्ट, गुंबद, लेवल और कम्पास को एक निश्चित स्थिति में साथ रखती है।'],
+['बेस','ट्राइपॉड माउंट वाला स्थिर आधार। ढलवाँ छत पर इसे बीनबैग पर रखा जा सकता है।'],
+['ट्राइपॉड','समायोज्य पैर ऊँचाई तय करते हैं और बबल को बीच में लाते हैं।'],
+['ग्रीस पेंसिल','चार्ट पर बाधाओं की रूपरेखा बनाने के लिए सफ़ेद मोम पेंसिल। अगली साइट के लिए पोंछी जा सकती है।']],
+d_h:'सूर्य-पथ चार्ट पढ़ना',month:'महीना',d_nums:'% संख्याएँ दिखाएँ',
+d_list:['<b>ऊपरी किनारा = भूमध्य रेखा की ओर</b> (भारत में दक्षिण)। आप उत्तर की ओर खड़े होकर नीचे देखते हैं।',
+'<b>घुमावदार रेखाएँ</b> = किसी महीने का सूर्य-पथ। जिन महीनों में सूरज की ऊँचाई एक जैसी है, वे एक ही रेखा साझा करते हैं: जन-नव, फर-अक्टू, मार्च-सित, अप्रैल-अग, मई-जुलाई।',
+'<b>त्रिज्य रेखाएँ</b> = सौर समय, हर घंटे की एक। सुबह पूर्व की ओर, दोपहर बाद पश्चिम की ओर।',
+'<b>संख्याएँ</b> = हर आधे घंटे में उस दिन की सौर ऊर्जा का %। एक महीने की रेखा के सभी खानों का योग 100 है। दोपहर के खाने सबसे बड़े होते हैं।',
+'<b>केंद्र</b> = ठीक सिर के ऊपर (90°)। <b>बाहरी घेरा</b> = क्षितिज (0°)। डैश वाले घेरे 30° और 60° दिखाते हैं।'],
+d_k_h:'कम अक्षांश: उत्तर की ओर भी ध्यान दें',
+d_k:'इस साइट पर सूरज लगभग {d1} और {d2} को ठीक सिर के ऊपर होता है। इन तारीखों के बीच दोपहर का सूरज सिर से उत्तर में रहता है, इसलिए उत्तर की दीवार या टंकी भी मॉड्यूल पर छाया डाल सकती है।',
+d_no:'इस अक्षांश पर सूरज कभी ठीक सिर के ऊपर नहीं आता। साल भर भूमध्य रेखा की ओर ही रहता है।',
+d_t_h:'सौर समय और घड़ी का समय',
+d_t:'चार्ट सौर समय पर आधारित है। घड़ी मानक समय दिखाती है, जो देशांतर और समय-समीकरण (equation of time) के कारण अलग होता है। इस साइट पर सौर दोपहर घड़ी के समय {a} से {b} के बीच होती है।',
+st_h:'सेट-अप और माप, चरण दर चरण',step:'चरण',prev:'पीछे',next:'आगे',
+steps:[['अपने अक्षांश का चार्ट चुनें','कोझिकोड लगभग 11.3° N पर है। उस अक्षांश पट्टी का चार्ट लगाएँ जिसमें आपकी साइट आती है। दूसरी पट्टी का चार्ट सूरज को गलत पटरी पर दिखाएगा।'],
+['चुंबकीय दिक्पात सेट करें','कम्पास चुंबकीय उत्तर दिखाता है, वास्तविक उत्तर नहीं। साइट और तारीख का दिक्पात पता करें (कोझिकोड में कम, लगभग 1 से 2° W) और टैब से चार्ट को उतना घुमाएँ। जैसे 2 मिनट पीछे चलने वाली दीवार घड़ी: गलती पता है, तो एक बार सुधार दो।'],
+['यूनिट वहाँ रखें जहाँ मॉड्यूल लगेंगे','इसे प्रस्तावित ऐरे के निचले किनारे पर रखें, जहाँ छाया सबसे पहले आती है। लंबे ऐरे के लिए दोनों सिरों पर, और बड़ी छत के कोनों पर रीडिंग लें।'],
+['समतल करें','ट्राइपॉड के पैर तब तक ठीक करें जब तक बबल बीच के घेरे में न आ जाए। झुकी यूनिट हर बाधा की जगह बदल देती है, जैसे झुका स्पिरिट लेवल फर्श को ढलवाँ बना देता है।'],
+['भूमध्य रेखा की ओर मोड़ें','भारत में पूरी यूनिट को तब तक घुमाएँ जब तक कम्पास की सुई दक्षिण निशान से न मिल जाए। दिक्पात पहले से सेट है, इसलिए चार्ट अब वास्तविक दक्षिण की ओर है।'],
+['सीधा नीचे देखें','उत्तर की ओर खड़े हों। आँख गुंबद से 30 से 45 cm ऊपर, ठीक केंद्र पर रखें, ताकि आपका सिर प्रतिबिंब के बीच में दिखे। पेड़, इमारतें और टंकियाँ अब चार्ट पर आकृति के रूप में दिखेंगी।'],
+['रूपरेखा बनाएँ','सफ़ेद ग्रीस पेंसिल से गुंबद में दिखने वाली क्षितिज-रेखा चार्ट पर उतारें, या सॉफ़्टवेयर के लिए ठीक ऊपर से फ़ोटो लें। बनाने से पहले लेवल और दिशा दोबारा जाँचें।'],
+['संख्याएँ पढ़ें','हर महीने की रेखा पर, छाया के बाहर वाले खानों की संख्याएँ जोड़ें। योग उस महीने की % सौर उपलब्धता (solar access) है। उदाहरण: 100 − 18 छाया = 82% उपलब्धता।'],
+['दर्ज करें और दोहराएँ','साइट, तारीख, अक्षांश, दिक्पात, स्थिति और मासिक परिणाम लिखें। चार्ट साफ़ करें और अगली स्थिति पर दोहराएँ।']],
+sv_right:'आपकी पट्टी',sv_wrong:'गलत पट्टी',sv_lower:'ऐरे का निचला किनारा',sv_true:'वास्तविक द',sv_view:'आँख 30–45 cm ऊपर',date:'तारीख',pos:'स्थिति',
+sim_h:'छाया सिम्युलेटर',sim_p:'बाधाएँ कम्पास दिशा-कोण (bearing) में दें (वास्तविक उत्तर 0°, पूर्व 90°, दक्षिण 180°, पश्चिम 270°) और उनके शीर्ष का क्षितिज से कोण भी। किसी भी महीने में सूरज चलाएँ और देखें कि वह कब छाया में जाता है।',
+preset:'साइट प्रीसेट',presets:['खुली साइट','नारियल के पेड़, पूर्व से दक्षिण-पूर्व','दो-मंज़िला भवन, पश्चिम','पानी टंकी टावर, उत्तर-पूर्व','मिश्रित: पेड़ + भवन + टंकी'],
+obs_h:'बाधाएँ',add:'बाधा जोड़ें',name:'नाम',type:'प्रकार',tree:'पेड़',bldg:'भवन',b1:'दिशा-कोण से °',b2:'दिशा-कोण तक °',elev:'शीर्ष कोण °',rm:'हटाएँ',none:'कोई बाधा नहीं। साइट खुली है।',newob:'नई बाधा',
+calc_h:'बाधा का शीर्ष कोण निकालें',H:'वस्तु की ऊँचाई (m)',h:'उपकरण की ऊँचाई (m)',Dist:'दूरी (m)',calc_n:'ऊँचाई टेप या क्लिनोमीटर से और दूरी टेप से नापें। परिणाम को “शीर्ष कोण” में डालें।',
+acc_h:'मासिक सौर उपलब्धता',annual:'12 महीनों का औसत',kwp:'सिस्टम क्षमता (kWp)',yld:'उत्पादन kWh/kWp/दिन (मान लिया)',energy:'अनुमानित वार्षिक ऊर्जा',lost:'छाया से नुकसान',
+tsol:'सौर समय',tclk:'घड़ी का समय',alt:'सूर्य की ऊँचाई',brg:'सूर्य का दिशा-कोण',insun:'धूप में',inshade:'छाया में',play:'चलाएँ',pause:'रोकें',
+sumtxt:'{m} के छाया-रहित खानों का योग <b>{v}</b> है, इसलिए {m} की सौर उपलब्धता <b>{v}%</b> है।',
+ex_h:'हल किए गए उदाहरण',ex_p:'तीनों कोझिकोड (11.26° N) के लिए गणना किए गए हैं। किसी को भी सिम्युलेटर में खोलकर सूरज चलाएँ।',
+ex:[['कोझिकोड की छत, पूर्व और दक्षिण-पूर्व में नारियल के पेड़','पेड़ों के शीर्ष उपकरण से 9 m ऊपर और 10 m दूर हैं, दिशा-कोण 95° से 150°।','θ = tan⁻¹(9 ÷ 10) = 42°','नुकसान अक्टूबर से मार्च की सुबह होता है, जब सूरज दक्षिण-पूर्व में नीचे उगता है। ऐरे को पश्चिम खिसकाने या पत्तियाँ छाँटने से ज़्यादातर नुकसान वापस मिल जाता है।'],
+['ITI वर्कशॉप की छत, पश्चिम में दो-मंज़िला भवन','भवन उपकरण से 7 m ऊपर और 10 m दूर है, दिशा-कोण 235° से 300°।','θ = tan⁻¹(7 ÷ 10) = 35°','हर महीने हर दोपहर बाद नुकसान, क्योंकि सूरज साल भर पश्चिम में डूबता है। पश्चिम की बाधा अपने आकार से ज़्यादा नुकसान करती है।'],
+['घर की छत, उत्तर-पूर्व में पानी टंकी टावर','टंकी का शीर्ष उपकरण से 6 m ऊपर और 4 m दूर है, दिशा-कोण 15° से 75°।','θ = tan⁻¹(6 ÷ 4) = 56°','छाया केवल मई, जून और जुलाई में आती है, जब कोझिकोड में सूरज सिर से उत्तर में चलता है। केवल दक्षिण देखने वाला सर्वे इसे चूक जाएगा।']],
+ex_open:'सिम्युलेटर में खोलें',ex_avg:'औसत उपलब्धता',ex_worst:'सबसे खराब महीना',
+q_h:'अपनी समझ जाँचें',q_reset:'क्विज़ दोबारा',
+qs:[['कोझिकोड में चार्ट का ऊपरी (भूमध्य रेखा वाला) किनारा किस ओर होना चाहिए?',['चुंबकीय उत्तर','वास्तविक दक्षिण','वास्तविक पूर्व','किसी भी ओर'],1,'कोझिकोड भूमध्य रेखा के उत्तर में है, इसलिए चार्ट वास्तविक दक्षिण की ओर। पहले दिक्पात सेट करें, फिर कम्पास से मिलाएँ।'],
+['चार्ट साइट के अक्षांश से क्यों मिलना चाहिए?',['गुंबद का आकार बदलता है','अक्षांश के साथ सूर्य-पथ की ऊँचाई बदलती है','कम्पास को चाहिए','चार्ट के रंग के लिए'],1,'भूमध्य रेखा के पास सूरज ऊँचा चलता है। दूसरी पट्टी का चार्ट हर महीने की रेखा गलत जगह रखता है।'],
+['बबल बीच में नहीं है। पहले क्या करें?',['जल्दी से रूपरेखा बनाएँ','ट्राइपॉड के पैर ठीक कर समतल करें','चार्ट घुमाएँ','अनदेखा करें'],1,'पहले समतल करें। झुका गुंबद हर प्रतिबिंबित बाधा को खिसका देता है।'],
+['कोझिकोड में जून में सौर दोपहर पर सूरज कहाँ होता है?',['दक्षिण में नीचे','ठीक सिर के ऊपर','सिर से थोड़ा उत्तर में','क्षितिज के नीचे'],2,'जून में सूर्य का झुकाव (23.4° N) अक्षांश (11.3° N) से ज़्यादा है, इसलिए दोपहर का सूरज सिर से लगभग 12° उत्तर में होता है।'],
+['मार्च में छाया वाले खानों का योग 18 है। मार्च की सौर उपलब्धता है…',['18%','82%','118%','कह नहीं सकते'],1,'सभी खानों का योग 100 है, इसलिए उपलब्धता = 100 − 18 = 82%।'],
+['पेड़ का शीर्ष उपकरण से 9 m ऊपर और 12 m दूर है। उसका शीर्ष कोण लगभग…',['24°','37°','53°','75°'],1,'tan⁻¹(9 ÷ 12) = tan⁻¹(0.75) ≈ 36.9°।'],
+['चार्ट पर बाधा की रूपरेखा किससे बनाते हैं?',['चॉक लाइन','सफ़ेद ग्रीस पेंसिल','गुंबद पर मार्कर','सोल्डरिंग आयरन'],1,'सफ़ेद ग्रीस पेंसिल चार्ट पर निशान लगाती है और बाद में पोंछ दी जाती है।']],
+q_score:'अंक',kbd:'सुझाव: प्रोजेक्टर पर ← और → कुंजियों से भाग बदलें।',
+dirs:['उ','पू','द','प'],months:['जन','फर','मार्च','अप्रै','मई','जून','जुला','अग','सित','अक्टू','नव','दिस'],loc:'hi-IN'},
+
+ml:{title:'സോളാർ പാത്ത്ഫൈൻഡർ പരിശീലനം',sub:'സോളാർ PV സൈറ്റിലെ നിഴൽ സർവേ · CTS ഇലക്ട്രീഷ്യൻ',font:'അക്ഷരം',theme:'തീം',light:'ലൈറ്റ്',dark:'ഡാർക്ക്',hc:'പ്രൊജക്ടർ',lang:'ഭാഷ',full:'പൂർണ്ണ സ്ക്രീൻ',
+place:'സ്ഥലം',lat:'അക്ഷാംശം (° N +)',lon:'രേഖാംശം (° E +)',tz:'UTC വ്യത്യാസം (മണിക്കൂർ)',mdec:'കാന്തിക ദിക്ഭ്രംശം (° E +)',resetLoc:'കോഴിക്കോട്ടേക്ക് മടങ്ങുക',
+locNote:'സ്ഥിരം സൈറ്റ്: കോഴിക്കോട്, കേരളം. മറ്റേതു സൈറ്റിനും അക്ഷാംശവും രേഖാംശവും മാറ്റാം. ദിക്ഭ്രംശം ഏകദേശ മൂല്യമാണ്; സർവേ തീയതിക്ക് NOAA അല്ലെങ്കിൽ IGRF കാൽക്കുലേറ്ററിൽ ഉറപ്പാക്കുക.',
+tabs:['നിഴൽ എന്തിന് ശ്രദ്ധിക്കണം','ഭാഗങ്ങൾ','സൂര്യപഥ ചാർട്ട്','സെറ്റപ്പ്, അളവ്','സിമുലേറ്റർ','ഉദാഹരണങ്ങൾ','ക്വിസ്'],
+i_h:'ഒരു നിഴൽ മതി, മുഴുവൻ സ്ട്രിംഗിന്റെയും ഉൽപാദനം കുറയാൻ',
+i_p:'ഒരു മൊഡ്യൂൾ പോലും ഘടിപ്പിക്കുന്നതിനു മുമ്പ്, തിരഞ്ഞെടുത്ത സ്ഥലത്ത് ഒരു വർഷത്തെ സൂര്യപ്രകാശത്തിന്റെ എത്ര ഭാഗം എത്തും എന്ന് സോളാർ പാത്ത്ഫൈൻഡർ കാണിക്കുന്നു. ഇതിന് ബാറ്ററിയോ ഇലക്ട്രോണിക്സോ ഇല്ല. സുതാര്യമായ ഒരു ഡോം (dome) ചുറ്റുമുള്ളതെല്ലാം സൂര്യപഥം അച്ചടിച്ച ചാർട്ടിൽ പ്രതിഫലിപ്പിക്കുന്നു.',
+i_cap:'തെങ്ങ് ശ്രദ്ധിക്കുക. രാവിലെ അതിന്റെ നിഴൽ മേൽക്കൂരയിലെ മൊഡ്യൂളുകളിൽ വീഴുന്നു, സ്ട്രിംഗിന്റെ ഉൽപാദനം കുറയുന്നു.',
+i_bypass:'ബൈപാസ് ഡയോഡ്',i_power:'സ്ട്രിംഗ് പവർ (ഏകദേശം)',i_play:'പ്ലേ',i_pause:'നിർത്തുക',
+i_use_h:'സർവേ ഉപയോഗിച്ച് തീരുമാനിക്കാം',
+i_use:['അറേ മേൽക്കൂരയിലോ നിലത്തോ എവിടെ സ്ഥാപിക്കണം','ഏത് മരങ്ങളോ നിർമ്മിതികളോ വെട്ടിയൊതുക്കണം, മാറ്റണം, ഒഴിവാക്കണം','സൈറ്റിന് ക്വട്ടേഷൻ നൽകാൻ യോഗ്യതയുണ്ടോ','നിഴൽ എല്ലാറ്റിലും വീഴാതെ ഒരു സ്ട്രിംഗിൽ മാത്രം വീഴാൻ മൊഡ്യൂളുകൾ എങ്ങനെ സ്ട്രിംഗുകളായി തിരിക്കണം'],
+i_src:'റഫറൻസ്: CTS ഇലക്ട്രീഷ്യൻ ട്രേഡ് തിയറി (സോളാർ PV സിസ്റ്റം, സൈറ്റ് സർവേ); ഉപകരണ വിവരങ്ങൾ നിർമ്മാതാവിൽ നിന്ന് (solarpathfinder.com).',
+an:[['hose','ഗാർഡൻ ഹോസ്','ഹോസിന്റെ ഏതെങ്കിലും ഒരു ഭാഗത്ത് ചവിട്ടിയാൽ മുഴുവൻ ഹോസിൽ നിന്നുമുള്ള വെള്ളം കുറയും. സീരീസ് സ്ട്രിംഗിലെ മൊഡ്യൂളുകളും അങ്ങനെ തന്നെ: ഒരു മൊഡ്യൂളിലെ നിഴൽ സ്ട്രിംഗിന്റെ മുഴുവൻ കറന്റും കുറയ്ക്കും. ബൈപാസ് ഡയോഡുകൾ നഷ്ടം കുറയ്ക്കും, പൂർണ്ണമായി ഒഴിവാക്കില്ല.'],
+['mirror','ചുരത്തിലെ കണ്ണാടി','താമരശ്ശേരി ചുരത്തിലെ ഹെയർപിൻ വളവിലെ വട്ടക്കണ്ണാടി മുഴുവൻ വളവും ഒറ്റനോട്ടത്തിൽ കാണിക്കുന്നു. പാത്ത്ഫൈൻഡറിന്റെ ഡോമും അതുപോലെ ചുറ്റുമുള്ള 360° ചക്രവാളം ഒറ്റനോട്ടത്തിൽ കാണിക്കുന്നു.'],
+['train','ട്രെയിൻ ടൈംടേബിൾ','ട്രെയിൻ ടൈംടേബിൾ പാലിക്കുന്നതുപോലെ, എല്ലാ വർഷവും ഒരേ തീയതിയിൽ സൂര്യൻ ഒരേ പാതയിൽ സഞ്ചരിക്കുന്നു. നിങ്ങളുടെ അക്ഷാംശത്തിനായി വരച്ച ആ ടൈംടേബിളാണ് സൂര്യപഥ ചാർട്ട്.'],
+['shirt','അളവെടുത്ത് തുന്നിയ ഷർട്ട്','ഡൽഹിക്ക് (28.6° N) വേണ്ടി അച്ചടിച്ച ചാർട്ട് കോഴിക്കോടിന് (11.3° N) ചേരില്ല. ഇവിടെ സൂര്യൻ കൂടുതൽ ഉയരത്തിലാണ് സഞ്ചരിക്കുന്നത്. അതിനാൽ ഓരോ ചാർട്ടും ഒരു അക്ഷാംശ മേഖലയ്ക്ക് വേണ്ടിയുള്ളതാണ്.']],
+p_h:'സോളാർ പാത്ത്ഫൈൻഡറിന്റെ ഭാഗങ്ങൾ',p_hint:'ഭാഗത്തിന്റെ ധർമ്മം കാണാൻ നമ്പറിലോ പേരിലോ ടാപ്പ് ചെയ്യുക.',side:'വശത്തുനിന്നുള്ള കാഴ്ച',top:'മുകളിൽ നിന്നുള്ള കാഴ്ച',
+p_note:'പരിശീലനത്തിനുള്ള രേഖാചിത്രം, അളവിനനുസരിച്ചല്ല. യഥാർത്ഥ ഘടന മോഡൽ അനുസരിച്ച് മാറാം. ഫോട്ടോകൾക്കും ഔദ്യോഗിക മാനുവലിനും solarpathfinder.com കാണുക.',
+parts:[['ഡോം (Dome)','സുതാര്യവും മിനുസമുള്ളതുമായ പ്ലാസ്റ്റിക് ഡോം. ഇത് ഒരു കോൺവെക്സ് കണ്ണാടി പോലെ പ്രവർത്തിച്ച് ആകാശവും ചുറ്റുമുള്ള എല്ലാ തടസ്സങ്ങളും താഴെയുള്ള ചാർട്ടിൽ പ്രതിഫലിപ്പിക്കുന്നു.'],
+['സൂര്യപഥ ചാർട്ട്','ഒരു അക്ഷാംശ മേഖലയ്ക്കായി അച്ചടിച്ച കടലാസ് ചാർട്ട്. വളഞ്ഞ വരകൾ ഓരോ മാസത്തെയും സൂര്യപഥം, കേന്ദ്രത്തിൽ നിന്നുള്ള വരകൾ സൗരസമയം (മണിക്കൂർ), ഓരോ അര മണിക്കൂർ കള്ളിയിലെയും സംഖ്യ ആ ദിവസത്തെ സൗരോർജ്ജത്തിന്റെ %.'],
+['ദിക്ഭ്രംശ ടാബ്','പ്രാദേശിക കാന്തിക ദിക്ഭ്രംശത്തിന് അനുസരിച്ച് ചാർട്ട് തിരിക്കാനുള്ള ടാബും സ്കെയിലും. അപ്പോൾ ചാർട്ട് കാന്തിക തെക്കിലേക്കല്ല, യഥാർത്ഥ (true) തെക്കിലേക്ക് തിരിയും.'],
+['കോമ്പസ്','ഉള്ളിൽ ഘടിപ്പിച്ച കോമ്പസ്. സൂചി തെക്ക് അടയാളവുമായി ഒത്തുവരുന്നതുവരെ യൂണിറ്റ് മുഴുവൻ തിരിക്കുക.'],
+['ബബിൾ ലെവൽ','സ്പിരിറ്റ് ലെവൽ. മേസൺ തറയോട് നിരപ്പാക്കുന്നതുപോലെ യൂണിറ്റ് നിരപ്പിലായിരിക്കണം. ചരിഞ്ഞ യൂണിറ്റ് ചാർട്ടിലെ എല്ലാ തടസ്സങ്ങളുടെയും സ്ഥാനം മാറ്റും.'],
+['ഉപകരണ ബോഡി','ചാർട്ട്, ഡോം, ലെവൽ, കോമ്പസ് എന്നിവ ഒരു നിശ്ചിത സ്ഥാനത്ത് ഒരുമിച്ച് ഉറപ്പിച്ചു നിർത്തുന്നു.'],
+['ബേസ്','ട്രൈപോഡ് ഘടിപ്പിക്കാവുന്ന ഉറച്ച അടിത്തറ. ചരിഞ്ഞ മേൽക്കൂരയിൽ ഒരു ബീൻബാഗിൽ വെക്കാം.'],
+['ട്രൈപോഡ്','ക്രമീകരിക്കാവുന്ന കാലുകൾ ഉയരം നിശ്ചയിക്കുകയും ബബിൾ നടുവിൽ കൊണ്ടുവരികയും ചെയ്യുന്നു.'],
+['ഗ്രീസ് പെൻസിൽ','തടസ്സങ്ങളുടെ രൂപരേഖ ചാർട്ടിൽ വരയ്ക്കാനുള്ള വെള്ള മെഴുക് പെൻസിൽ. അടുത്ത സൈറ്റിനായി തുടച്ചുമാറ്റാം.']],
+d_h:'സൂര്യപഥ ചാർട്ട് വായിക്കുന്ന വിധം',month:'മാസം',d_nums:'% സംഖ്യകൾ കാണിക്കുക',
+d_list:['<b>മുകൾ അറ്റം = ഭൂമധ്യരേഖയുടെ ദിശ</b> (ഇന്ത്യയിൽ തെക്ക്). നിങ്ങൾ വടക്കുവശത്ത് നിന്ന് താഴേക്ക് നോക്കുന്നു.',
+'<b>വളഞ്ഞ വരകൾ</b> = ഒരു മാസത്തെ സൂര്യപഥം. സൂര്യന്റെ ഉയരം ഒരുപോലെയുള്ള മാസങ്ങൾ ഒരേ വര പങ്കിടുന്നു: ജനു-നവം, ഫെബ്രു-ഒക്ടോ, മാർച്ച്-സെപ്റ്റം, ഏപ്രിൽ-ഓഗ, മേയ്-ജൂലൈ.',
+'<b>കേന്ദ്രത്തിൽ നിന്നുള്ള വരകൾ</b> = സൗരസമയം, ഓരോ മണിക്കൂറിനും ഒന്ന്. രാവിലെ കിഴക്കുഭാഗത്ത്, ഉച്ചകഴിഞ്ഞ് പടിഞ്ഞാറുഭാഗത്ത്.',
+'<b>സംഖ്യകൾ</b> = ഓരോ അര മണിക്കൂറിലും ആ ദിവസത്തെ സൗരോർജ്ജത്തിന്റെ %. ഒരു മാസവരയിലെ എല്ലാ കള്ളികളുടെയും ആകെത്തുക 100. ഉച്ചസമയത്തെ കള്ളികളാണ് ഏറ്റവും വലുത്.',
+'<b>കേന്ദ്രം</b> = നേരെ തലയ്ക്കു മുകളിൽ (90°). <b>പുറം വൃത്തം</b> = ചക്രവാളം (0°). കുത്തുവര വൃത്തങ്ങൾ 30°, 60° കാണിക്കുന്നു.'],
+d_k_h:'താഴ്ന്ന അക്ഷാംശം: വടക്കുവശവും ശ്രദ്ധിക്കുക',
+d_k:'ഈ സൈറ്റിൽ ഏകദേശം {d1}, {d2} തീയതികളിൽ സൂര്യൻ നേരെ തലയ്ക്കു മുകളിലാണ്. ഈ തീയതികൾക്കിടയിൽ ഉച്ചസൂര്യൻ വടക്കുമാറിയാണ്. അതിനാൽ വടക്കുവശത്തെ മതിലോ ടാങ്കോ മൊഡ്യൂളുകളിൽ നിഴൽ വീഴ്ത്താം.',
+d_no:'ഈ അക്ഷാംശത്തിൽ സൂര്യൻ ഒരിക്കലും നേരെ തലയ്ക്കു മുകളിൽ വരില്ല. വർഷം മുഴുവൻ ഭൂമധ്യരേഖയുടെ ഭാഗത്തായിരിക്കും.',
+d_t_h:'സൗരസമയവും ക്ലോക്ക് സമയവും',
+d_t:'ചാർട്ട് സൗരസമയത്തിലാണ്. വാച്ച് കാണിക്കുന്നത് സ്റ്റാൻഡേർഡ് സമയമാണ്; രേഖാംശവും സമയസമവാക്യവും (equation of time) കാരണം ഇത് വ്യത്യാസപ്പെടും. ഈ സൈറ്റിൽ സൗര ഉച്ച ക്ലോക്ക് സമയം {a} മുതൽ {b} വരെയാണ്.',
+st_h:'സെറ്റപ്പും അളവെടുപ്പും, ഘട്ടം ഘട്ടമായി',step:'ഘട്ടം',prev:'പിന്നോട്ട്',next:'അടുത്തത്',
+steps:[['അക്ഷാംശത്തിനുള്ള ചാർട്ട് തിരഞ്ഞെടുക്കുക','കോഴിക്കോട് ഏകദേശം 11.3° N ൽ ആണ്. സൈറ്റ് ഉൾപ്പെടുന്ന അക്ഷാംശ മേഖലയ്ക്കുള്ള ചാർട്ട് ഇടുക. മറ്റൊരു മേഖലയുടെ ചാർട്ട് സൂര്യനെ തെറ്റായ പാതയിൽ കാണിക്കും.'],
+['കാന്തിക ദിക്ഭ്രംശം ക്രമീകരിക്കുക','കോമ്പസ് കാണിക്കുന്നത് കാന്തിക വടക്കാണ്, യഥാർത്ഥ വടക്കല്ല. സൈറ്റിനും തീയതിക്കുമുള്ള ദിക്ഭ്രംശം കണ്ടെത്തി (കോഴിക്കോട് ചെറുതാണ്, ഏകദേശം 1 മുതൽ 2° W) ടാബ് ഉപയോഗിച്ച് ചാർട്ട് അത്രയും തിരിക്കുക. 2 മിനിറ്റ് പിന്നിൽ ഓടുന്ന ചുമർ ക്ലോക്ക് പോലെ: തെറ്റ് അറിയാം, ഒരിക്കൽ തിരുത്തിവെക്കുക.'],
+['മൊഡ്യൂൾ വരുന്നിടത്ത് യൂണിറ്റ് വെക്കുക','ആസൂത്രണം ചെയ്ത അറേയുടെ താഴത്തെ അറ്റത്ത് വെക്കുക; നിഴൽ ആദ്യം എത്തുന്നത് അവിടെയാണ്. നീളമുള്ള അറേയ്ക്ക് രണ്ടറ്റത്തും, വലിയ മേൽക്കൂരയുടെ മൂലകളിലും റീഡിംഗ് എടുക്കുക.'],
+['നിരപ്പാക്കുക','ബബിൾ നടുവിലെ വൃത്തത്തിൽ വരുന്നതുവരെ ട്രൈപോഡ് കാലുകൾ ക്രമീകരിക്കുക. ചരിഞ്ഞ സ്പിരിറ്റ് ലെവൽ തറ ചരിക്കുന്നതുപോലെ, ചരിഞ്ഞ യൂണിറ്റ് എല്ലാ തടസ്സങ്ങളുടെയും സ്ഥാനം മാറ്റും.'],
+['ഭൂമധ്യരേഖയിലേക്ക് തിരിക്കുക','ഇന്ത്യയിൽ, കോമ്പസ് സൂചി തെക്ക് അടയാളവുമായി ഒത്തുവരുന്നതുവരെ യൂണിറ്റ് മുഴുവൻ തിരിക്കുക. ദിക്ഭ്രംശം നേരത്തെ ക്രമീകരിച്ചതിനാൽ ചാർട്ട് ഇപ്പോൾ യഥാർത്ഥ തെക്കിലേക്കാണ്.'],
+['നേരെ താഴേക്ക് നോക്കുക','വടക്കുവശത്ത് നിൽക്കുക. കണ്ണ് ഡോമിന് 30 മുതൽ 45 cm മുകളിൽ, കൃത്യം നടുവിൽ വെക്കുക; നിങ്ങളുടെ തല പ്രതിബിംബത്തിന്റെ നടുവിൽ കാണണം. മരങ്ങളും കെട്ടിടങ്ങളും ടാങ്കുകളും ഇപ്പോൾ ചാർട്ടിൽ രൂപരേഖകളായി കാണാം.'],
+['രൂപരേഖ വരയ്ക്കുക','വെള്ള ഗ്രീസ് പെൻസിൽ കൊണ്ട് ഡോമിൽ കാണുന്ന ചക്രവാളരേഖ ചാർട്ടിൽ പകർത്തുക, അല്ലെങ്കിൽ സോഫ്റ്റ്‌വെയറിനായി നേരെ മുകളിൽ നിന്ന് ഫോട്ടോ എടുക്കുക. വരയ്ക്കുന്നതിനു മുമ്പ് ലെവലും ദിശയും വീണ്ടും പരിശോധിക്കുക.'],
+['സംഖ്യകൾ വായിക്കുക','ഓരോ മാസവരയിലും, വരച്ച നിഴലിന് പുറത്തുള്ള കള്ളികളിലെ സംഖ്യകൾ കൂട്ടുക. ആകെത്തുകയാണ് ആ മാസത്തെ % സോളാർ ആക്സസ്. ഉദാഹരണം: 100 − 18 നിഴൽ = 82% ആക്സസ്.'],
+['രേഖപ്പെടുത്തുക, ആവർത്തിക്കുക','സൈറ്റ്, തീയതി, അക്ഷാംശം, ദിക്ഭ്രംശം, സ്ഥാനം, മാസ ഫലങ്ങൾ എന്നിവ എഴുതുക. ചാർട്ട് വൃത്തിയാക്കി അടുത്ത സ്ഥാനത്ത് ആവർത്തിക്കുക.']],
+sv_right:'നിങ്ങളുടെ മേഖല',sv_wrong:'തെറ്റായ മേഖല',sv_lower:'അറേയുടെ താഴത്തെ അറ്റം',sv_true:'യഥാർത്ഥ തെ',sv_view:'കണ്ണ് 30–45 cm മുകളിൽ',date:'തീയതി',pos:'സ്ഥാനം',
+sim_h:'നിഴൽ സിമുലേറ്റർ',sim_p:'തടസ്സങ്ങൾ കോമ്പസ് ദിശാകോണിൽ (bearing) നൽകുക (യഥാർത്ഥ വടക്ക് 0°, കിഴക്ക് 90°, തെക്ക് 180°, പടിഞ്ഞാറ് 270°), കൂടെ അവയുടെ മുകൾഭാഗം ചക്രവാളത്തിൽ നിന്നുള്ള കോണും. ഏതു മാസത്തിലും സൂര്യനെ ചലിപ്പിച്ച് എപ്പോൾ നിഴലിലാകുന്നു എന്ന് കാണുക.',
+preset:'സൈറ്റ് പ്രീസെറ്റ്',presets:['തുറന്ന സൈറ്റ്','തെങ്ങുകൾ, കിഴക്ക് മുതൽ തെക്കുകിഴക്ക് വരെ','ഇരുനില കെട്ടിടം, പടിഞ്ഞാറ്','വാട്ടർ ടാങ്ക് ടവർ, വടക്കുകിഴക്ക്','മിശ്രിതം: തെങ്ങ് + കെട്ടിടം + ടാങ്ക്'],
+obs_h:'തടസ്സങ്ങൾ',add:'തടസ്സം ചേർക്കുക',name:'പേര്',type:'തരം',tree:'മരം',bldg:'കെട്ടിടം',b1:'ദിശാകോൺ മുതൽ °',b2:'ദിശാകോൺ വരെ °',elev:'മുകൾ കോൺ °',rm:'നീക്കുക',none:'തടസ്സങ്ങളില്ല. സൈറ്റ് തുറന്നതാണ്.',newob:'പുതിയ തടസ്സം',
+calc_h:'തടസ്സത്തിന്റെ മുകൾ കോൺ കണ്ടെത്തുക',H:'വസ്തുവിന്റെ ഉയരം (m)',h:'ഉപകരണത്തിന്റെ ഉയരം (m)',Dist:'ദൂരം (m)',calc_n:'ഉയരം ടേപ്പ് അല്ലെങ്കിൽ ക്ലിനോമീറ്റർ കൊണ്ടും ദൂരം ടേപ്പ് കൊണ്ടും അളക്കുക. ഫലം “മുകൾ കോൺ” ആയി ഉപയോഗിക്കുക.',
+acc_h:'മാസംതോറുമുള്ള സോളാർ ആക്സസ്',annual:'12 മാസത്തെ ശരാശരി',kwp:'സിസ്റ്റം ശേഷി (kWp)',yld:'ഉൽപാദനം kWh/kWp/ദിവസം (അനുമാനം)',energy:'ഒരു വർഷത്തെ ഏകദേശ ഊർജ്ജം',lost:'നിഴൽ മൂലമുള്ള നഷ്ടം',
+tsol:'സൗരസമയം',tclk:'ക്ലോക്ക് സമയം',alt:'സൂര്യന്റെ ഉയരം',brg:'സൂര്യന്റെ ദിശാകോൺ',insun:'വെയിലിൽ',inshade:'നിഴലിൽ',play:'പ്ലേ',pause:'നിർത്തുക',
+sumtxt:'{m} മാസത്തിലെ നിഴലില്ലാത്ത കള്ളികളുടെ ആകെത്തുക <b>{v}</b>. അതിനാൽ {m} മാസത്തെ സോളാർ ആക്സസ് <b>{v}%</b>.',
+ex_h:'ചെയ്തു കാണിച്ച ഉദാഹരണങ്ങൾ',ex_p:'മൂന്നും കോഴിക്കോടിന് (11.26° N) വേണ്ടി കണക്കാക്കിയതാണ്. ഏതും സിമുലേറ്ററിൽ തുറന്ന് സൂര്യനെ ചലിപ്പിക്കാം.',
+ex:[['കോഴിക്കോട്ടെ ടെറസ്, കിഴക്കും തെക്കുകിഴക്കും തെങ്ങുകൾ','തെങ്ങിൻതലപ്പുകൾ ഉപകരണത്തിൽ നിന്ന് 9 m ഉയരത്തിലും 10 m അകലെയുമാണ്, ദിശാകോൺ 95° മുതൽ 150° വരെ.','θ = tan⁻¹(9 ÷ 10) = 42°','ഒക്ടോബർ മുതൽ മാർച്ച് വരെ രാവിലെയാണ് നഷ്ടം; അപ്പോൾ സൂര്യൻ തെക്കുകിഴക്ക് താഴ്ന്ന് ഉദിക്കുന്നു. അറേ പടിഞ്ഞാറോട്ട് മാറ്റുകയോ ഓലകൾ വെട്ടിയൊതുക്കുകയോ ചെയ്താൽ മിക്കതും തിരികെ കിട്ടും.'],
+['ITI വർക്ക്ഷോപ്പ് മേൽക്കൂര, പടിഞ്ഞാറ് ഇരുനില കെട്ടിടം','കെട്ടിടം ഉപകരണത്തിൽ നിന്ന് 7 m ഉയരത്തിലും 10 m അകലെയുമാണ്, ദിശാകോൺ 235° മുതൽ 300° വരെ.','θ = tan⁻¹(7 ÷ 10) = 35°','എല്ലാ മാസവും എല്ലാ ഉച്ചകഴിഞ്ഞും നഷ്ടം, കാരണം വർഷം മുഴുവൻ സൂര്യൻ പടിഞ്ഞാറ് അസ്തമിക്കുന്നു. പടിഞ്ഞാറുള്ള തടസ്സം വലിപ്പത്തേക്കാൾ കൂടുതൽ നഷ്ടം വരുത്തും.'],
+['വീടിന്റെ ടെറസ്, വടക്കുകിഴക്ക് വാട്ടർ ടാങ്ക് ടവർ','ടാങ്കിന്റെ മുകൾഭാഗം ഉപകരണത്തിൽ നിന്ന് 6 m ഉയരത്തിലും 4 m അകലെയുമാണ്, ദിശാകോൺ 15° മുതൽ 75° വരെ.','θ = tan⁻¹(6 ÷ 4) = 56°','മേയ്, ജൂൺ, ജൂലൈ മാസങ്ങളിൽ മാത്രമാണ് നിഴൽ; അപ്പോൾ കോഴിക്കോട് സൂര്യൻ തലയ്ക്കു മുകളിൽ നിന്ന് വടക്കുമാറി സഞ്ചരിക്കുന്നു. തെക്കുവശം മാത്രം നോക്കുന്ന സർവേ ഇത് കാണാതെ പോകും.']],
+ex_open:'സിമുലേറ്ററിൽ തുറക്കുക',ex_avg:'ശരാശരി ആക്സസ്',ex_worst:'ഏറ്റവും മോശം മാസം',
+q_h:'നിങ്ങളുടെ ധാരണ പരിശോധിക്കുക',q_reset:'ക്വിസ് വീണ്ടും',
+qs:[['കോഴിക്കോട്, ചാർട്ടിന്റെ മുകൾ (ഭൂമധ്യരേഖാ) അറ്റം ഏതു ദിശയിലേക്ക് ആയിരിക്കണം?',['കാന്തിക വടക്ക്','യഥാർത്ഥ തെക്ക്','യഥാർത്ഥ കിഴക്ക്','ഏതു ദിശയും'],1,'കോഴിക്കോട് ഭൂമധ്യരേഖയ്ക്ക് വടക്കാണ്, അതിനാൽ ചാർട്ട് യഥാർത്ഥ തെക്കിലേക്ക്. ആദ്യം ദിക്ഭ്രംശം ക്രമീകരിക്കുക, പിന്നെ കോമ്പസുമായി ഒപ്പിക്കുക.'],
+['ചാർട്ട് സൈറ്റിന്റെ അക്ഷാംശവുമായി ചേരേണ്ടത് എന്തിന്?',['ഡോമിന്റെ വലിപ്പം മാറും','അക്ഷാംശം അനുസരിച്ച് സൂര്യപഥത്തിന്റെ ഉയരം മാറും','കോമ്പസിന് ആവശ്യമാണ്','ചാർട്ടിന്റെ നിറത്തിന്'],1,'ഭൂമധ്യരേഖയ്ക്ക് അടുത്ത് സൂര്യൻ ഉയരത്തിൽ സഞ്ചരിക്കും. മറ്റൊരു മേഖലയുടെ ചാർട്ട് എല്ലാ മാസവരകളും തെറ്റായ സ്ഥാനത്ത് കാണിക്കും.'],
+['ബബിൾ നടുവിലല്ല. ആദ്യം എന്തു ചെയ്യണം?',['വേഗം വരയ്ക്കുക','ട്രൈപോഡ് കാലുകൾ ക്രമീകരിച്ച് നിരപ്പാക്കുക','ചാർട്ട് തിരിക്കുക','അവഗണിക്കുക'],1,'ആദ്യം നിരപ്പാക്കുക. ചരിഞ്ഞ ഡോം പ്രതിഫലിക്കുന്ന എല്ലാ തടസ്സങ്ങളെയും സ്ഥാനം മാറ്റും.'],
+['ജൂണിൽ കോഴിക്കോട്, സൗര ഉച്ചയ്ക്ക് സൂര്യൻ എവിടെയാണ്?',['തെക്ക് താഴെ','കൃത്യം തലയ്ക്കു മുകളിൽ','തലയ്ക്കു മുകളിൽ നിന്ന് അല്പം വടക്ക്','ചക്രവാളത്തിന് താഴെ'],2,'ജൂണിൽ സൂര്യന്റെ ഡിക്ലിനേഷൻ (23.4° N) അക്ഷാംശത്തേക്കാൾ (11.3° N) കൂടുതലാണ്, അതിനാൽ ഉച്ചസൂര്യൻ തലയ്ക്കു മുകളിൽ നിന്ന് ഏകദേശം 12° വടക്കാണ്.'],
+['മാർച്ചിൽ നിഴലുള്ള കള്ളികളുടെ ആകെത്തുക 18. മാർച്ചിലെ സോളാർ ആക്സസ്…',['18%','82%','118%','പറയാനാവില്ല'],1,'എല്ലാ കള്ളികളും കൂടി 100, അതിനാൽ ആക്സസ് = 100 − 18 = 82%.'],
+['ഒരു മരത്തിന്റെ മുകൾഭാഗം ഉപകരണത്തിൽ നിന്ന് 9 m ഉയരത്തിലും 12 m അകലെയുമാണ്. മുകൾ കോൺ ഏകദേശം…',['24°','37°','53°','75°'],1,'tan⁻¹(9 ÷ 12) = tan⁻¹(0.75) ≈ 36.9°.'],
+['ചാർട്ടിൽ തടസ്സത്തിന്റെ രൂപരേഖ വരയ്ക്കുന്നത് ഏതുകൊണ്ട്?',['ചോക്ക് ലൈൻ','വെള്ള ഗ്രീസ് പെൻസിൽ','ഡോമിൽ മാർക്കർ','സോൾഡറിംഗ് അയൺ'],1,'വെള്ള ഗ്രീസ് പെൻസിൽ ചാർട്ടിൽ അടയാളമിടും, പിന്നീട് തുടച്ചുമാറ്റാം.']],
+q_score:'സ്കോർ',kbd:'സൂചന: പ്രൊജക്ടറിൽ ← → കീകൾ ഉപയോഗിച്ച് വിഭാഗങ്ങൾ മാറ്റാം.',
+dirs:['വ','കി','തെ','പ'],months:['ജനു','ഫെബ്രു','മാർച്ച്','ഏപ്രി','മേയ്','ജൂൺ','ജൂലൈ','ഓഗ','സെപ്റ്റം','ഒക്ടോ','നവം','ഡിസം'],loc:'ml-IN'}
+};
+
+Object.assign(T.en,{tabs:['Why shade matters','Parts','True north','Placement','Sunpath diagram','Set-up & measure','Simulator','Examples','Quiz'],
+tn_h:'True north and magnetic north',
+tn_p:'The sunpath chart is drawn for true (geographic) north, the direction of the Earth’s spin axis. A compass needle points to magnetic north. The small angle between the two at your site is the magnetic declination.',
+tn_g:'The Earth spins about an axis through the true North Pole. The magnetic pole lies some distance away and drifts a little every year, so declination depends on place and year.',
+tn_c:'At the site the needle sits away from the true N–S line by the declination angle.',
+tn_x:'Exaggerate the angle ×10 for viewing',
+tn_an_h:'Like the zero error of a meter',
+tn_an:'Before reading an analog meter you bring the pointer to zero with the adjusting screw. Declination is the compass’s zero error for your place and year. Find it once and correct every reading by it.',
+tn_f_h:'Converting a compass reading',tn_f:'True bearing = Magnetic bearing + Declination (East +, West −)',
+tn_mag:'Compass (magnetic) bearing °',tn_true:'True bearing',
+tn_ex:'To face true {sd} ({s}°) with declination {d}°, turn the unit until the compass reads {m}°.',sdS:'south',sdN:'north',
+tn_m_h:'Four ways to find true north on site',
+tn_m:[['compass','Compass + declination','Quickest. Keep the compass 1 to 2 m away from GI structures, RCC rods, inverters, batteries, earthing strips and vehicles. Steel and current pull the needle.'],
+['rod','Noon shadow','At solar noon a vertical rod’s shadow lies exactly on the true N–S line. The shortest shadow of the day marks it.'],
+['star','Pole Star (Dhruva)','The Pole Star sits almost exactly over true north. Its height above the horizon equals your latitude: about {lat}° here, so look low over the northern horizon.'],
+['phone','Phone or GPS compass','Set the app to “true north” and confirm with another method. Calibrate it away from steel.']],
+tn_s_h:'Noon-shadow method',tn_s:'Plan view, north at top. The rod’s shadow swings through the day and its tip traces a curve. The shortest shadow, at solar noon, lies on the true N–S line.',
+dirN:'{m}: the noon shadow points north, because the sun is to the south.',dirS:'{m}: the noon shadow points south, because the sun is north of overhead.',dirZ:'{m}: almost no shadow at noon, because the sun is nearly overhead.',
+lb_tn:'True North',lb_mn:'Magnetic North',lb_axis:'Spin axis',lb_dec:'Declination',lb_merid:'True N–S line',lb_noon:'Solar noon',lb_rod:'Rod',
+pl_h:'Where to place the unit on a rooftop',pl_p:'Not at the centre alone. Shade enters from an edge first, so take readings at the corners of the planned array.',
+pl_pts:[['A, B','','Bottom corners on the equator (south) side. Minimum two readings: the shadow of a south, east or west obstacle reaches this edge first.'],['C','out','Bottom centre, for a long array or when an obstacle such as a tank or column sits mid-way.'],['D, E','obx','Top corners, when a tank, stair room or building stands on the north side. At Kozhikode these matter from May to July.']],
+pl_ht_h:'At what height',pl_ht:'Set the dome at the height of the module’s lower edge. On a raised GI structure 1 to 2 m high, a reading taken at floor level sees the parapet and trees much higher and reports shade the modules will never get.',
+pl_use_h:'Using the readings',pl_use:'Record each point separately. Judge the site by the worst reading or the average. If one corner is much worse, shift the array, shorten that row, or put those modules in their own string.',
+lb_array:'Planned array',lb_tank:'Water tank',lb_stair:'Stair room',lb_parapet:'Parapet',lb_ok:'Correct: module lower edge',lb_bad:'Wrong: floor level',lb_tree:'Tree',lb_plan:'Plan view (north at top)',lb_side:'Side view',lb_gi:'GI structure'});
+Object.assign(T.hi,{tabs:['छाया क्यों ज़रूरी','भाग','वास्तविक उत्तर','स्थापना स्थान','सूर्य-पथ चार्ट','सेट-अप और माप','सिम्युलेटर','उदाहरण','क्विज़'],
+tn_h:'वास्तविक उत्तर और चुंबकीय उत्तर',
+tn_p:'सूर्य-पथ चार्ट वास्तविक (भौगोलिक) उत्तर के लिए बना है, जो पृथ्वी के घूर्णन अक्ष की दिशा है। कम्पास की सुई चुंबकीय उत्तर दिखाती है। आपकी साइट पर दोनों के बीच का छोटा कोण चुंबकीय दिक्पात (declination) है।',
+tn_g:'पृथ्वी वास्तविक उत्तरी ध्रुव से गुज़रने वाले अक्ष पर घूमती है। चुंबकीय ध्रुव उससे कुछ दूर है और हर साल थोड़ा खिसकता है, इसलिए दिक्पात स्थान और वर्ष पर निर्भर है।',
+tn_c:'साइट पर सुई वास्तविक उ–द रेखा से दिक्पात कोण जितनी हटी रहती है।',
+tn_x:'देखने के लिए कोण ×10 बढ़ाकर दिखाएँ',
+tn_an_h:'मीटर की ज़ीरो त्रुटि जैसा',
+tn_an:'एनालॉग मीटर पढ़ने से पहले आप एडजस्टिंग स्क्रू से सुई को शून्य पर लाते हैं। दिक्पात आपके स्थान और वर्ष के लिए कम्पास की ज़ीरो त्रुटि है। इसे एक बार पता करें और हर रीडिंग में सुधारें।',
+tn_f_h:'कम्पास रीडिंग बदलना',tn_f:'वास्तविक दिशा-कोण = चुंबकीय दिशा-कोण + दिक्पात (पूर्व +, पश्चिम −)',
+tn_mag:'कम्पास (चुंबकीय) दिशा-कोण °',tn_true:'वास्तविक दिशा-कोण',
+tn_ex:'दिक्पात {d}° होने पर वास्तविक {sd} ({s}°) की ओर करने के लिए यूनिट को तब तक घुमाएँ जब तक कम्पास {m}° न पढ़े।',sdS:'दक्षिण',sdN:'उत्तर',
+tn_m_h:'साइट पर वास्तविक उत्तर पता करने के चार तरीके',
+tn_m:[['compass','कम्पास + दिक्पात','सबसे तेज़। कम्पास को GI स्ट्रक्चर, RCC सरियों, इन्वर्टर, बैटरी, अर्थिंग स्ट्रिप और वाहनों से 1 से 2 m दूर रखें। लोहा और करंट सुई को खींचते हैं।'],
+['rod','दोपहर की छाया','सौर दोपहर पर खड़ी छड़ की छाया ठीक वास्तविक उ–द रेखा पर पड़ती है। दिन की सबसे छोटी छाया यही दिखाती है।'],
+['star','ध्रुव तारा','ध्रुव तारा लगभग ठीक वास्तविक उत्तर के ऊपर रहता है। क्षितिज से उसकी ऊँचाई आपके अक्षांश के बराबर है: यहाँ लगभग {lat}°, इसलिए उत्तरी क्षितिज के पास नीचे देखें।'],
+['phone','फ़ोन या GPS कम्पास','ऐप को “true north” पर सेट करें और किसी दूसरे तरीके से पुष्टि करें। लोहे से दूर कैलिब्रेट करें।']],
+tn_s_h:'दोपहर-छाया विधि',tn_s:'ऊपर से दृश्य, उत्तर ऊपर। दिन भर छड़ की छाया घूमती है और उसका सिरा एक वक्र बनाता है। सौर दोपहर की सबसे छोटी छाया वास्तविक उ–द रेखा पर होती है।',
+dirN:'{m}: दोपहर की छाया उत्तर की ओर, क्योंकि सूरज दक्षिण में है।',dirS:'{m}: दोपहर की छाया दक्षिण की ओर, क्योंकि सूरज सिर से उत्तर में है।',dirZ:'{m}: दोपहर में लगभग कोई छाया नहीं, क्योंकि सूरज लगभग ठीक ऊपर है।',
+lb_tn:'वास्तविक उत्तर',lb_mn:'चुंबकीय उत्तर',lb_axis:'घूर्णन अक्ष',lb_dec:'दिक्पात',lb_merid:'वास्तविक उ–द रेखा',lb_noon:'सौर दोपहर',lb_rod:'छड़',
+pl_h:'छत पर यूनिट कहाँ रखें',pl_p:'केवल बीच में नहीं। छाया पहले किनारे से आती है, इसलिए प्रस्तावित ऐरे के कोनों पर रीडिंग लें।',
+pl_pts:[['A, B','','भूमध्य रेखा (दक्षिण) की ओर के निचले कोने। कम से कम दो रीडिंग: दक्षिण, पूर्व या पश्चिम की बाधा की छाया सबसे पहले इसी किनारे पर आती है।'],['C','out','निचले किनारे का बीच, लंबे ऐरे के लिए या जब टंकी या कॉलम जैसी बाधा बीच में हो।'],['D, E','obx','ऊपरी कोने, जब उत्तर की ओर टंकी, सीढ़ी-कक्ष या भवन हो। कोझिकोड में ये मई से जुलाई में मायने रखते हैं।']],
+pl_ht_h:'किस ऊँचाई पर',pl_ht:'गुंबद को मॉड्यूल के निचले किनारे की ऊँचाई पर रखें। 1 से 2 m ऊँचे GI स्ट्रक्चर पर, फर्श से ली गई रीडिंग में पैरापेट और पेड़ बहुत ऊँचे दिखते हैं और वह छाया बताती है जो मॉड्यूल पर कभी नहीं पड़ेगी।',
+pl_use_h:'रीडिंग का उपयोग',pl_use:'हर बिंदु अलग से दर्ज करें। साइट को सबसे खराब रीडिंग या औसत से आँकें। अगर एक कोना बहुत खराब है, तो ऐरे खिसकाएँ, वह पंक्ति छोटी करें, या उन मॉड्यूल की अलग स्ट्रिंग बनाएँ।',
+lb_array:'प्रस्तावित ऐरे',lb_tank:'पानी टंकी',lb_stair:'सीढ़ी-कक्ष',lb_parapet:'पैरापेट',lb_ok:'सही: मॉड्यूल का निचला किनारा',lb_bad:'गलत: फर्श का स्तर',lb_tree:'पेड़',lb_plan:'ऊपर से दृश्य (उत्तर ऊपर)',lb_side:'साइड व्यू',lb_gi:'GI स्ट्रक्चर'});
+Object.assign(T.ml,{tabs:['നിഴൽ എന്തിന് ശ്രദ്ധിക്കണം','ഭാഗങ്ങൾ','യഥാർത്ഥ വടക്ക്','സ്ഥാപിക്കേണ്ട സ്ഥലം','സൂര്യപഥ ചാർട്ട്','സെറ്റപ്പ്, അളവ്','സിമുലേറ്റർ','ഉദാഹരണങ്ങൾ','ക്വിസ്'],
+tn_h:'യഥാർത്ഥ വടക്കും കാന്തിക വടക്കും',
+tn_p:'സൂര്യപഥ ചാർട്ട് വരച്ചിരിക്കുന്നത് യഥാർത്ഥ (ഭൂമിശാസ്ത്ര) വടക്കിനനുസരിച്ചാണ്; ഭൂമിയുടെ ഭ്രമണ അച്ചുതണ്ടിന്റെ ദിശയാണത്. കോമ്പസ് സൂചി കാണിക്കുന്നത് കാന്തിക വടക്കാണ്. നിങ്ങളുടെ സൈറ്റിൽ ഇവ തമ്മിലുള്ള ചെറിയ കോണാണ് കാന്തിക ദിക്ഭ്രംശം (declination).',
+tn_g:'യഥാർത്ഥ ഉത്തരധ്രുവത്തിലൂടെ കടന്നുപോകുന്ന അച്ചുതണ്ടിൽ ഭൂമി കറങ്ങുന്നു. കാന്തിക ധ്രുവം അതിൽ നിന്ന് കുറച്ചകലെയാണ്, ഓരോ വർഷവും അല്പം നീങ്ങുന്നു. അതിനാൽ ദിക്ഭ്രംശം സ്ഥലത്തെയും വർഷത്തെയും ആശ്രയിക്കുന്നു.',
+tn_c:'സൈറ്റിൽ, സൂചി യഥാർത്ഥ വ–തെ രേഖയിൽ നിന്ന് ദിക്ഭ്രംശ കോണിന്റെ അളവിൽ മാറിനിൽക്കുന്നു.',
+tn_x:'കാണാനായി കോൺ ×10 വലുതാക്കുക',
+tn_an_h:'മീറ്ററിന്റെ സീറോ എറർ പോലെ',
+tn_an:'അനലോഗ് മീറ്റർ വായിക്കുന്നതിനു മുമ്പ് അഡ്ജസ്റ്റിംഗ് സ്ക്രൂ ഉപയോഗിച്ച് സൂചി പൂജ്യത്തിൽ കൊണ്ടുവരുന്നു. നിങ്ങളുടെ സ്ഥലത്തിനും വർഷത്തിനുമുള്ള കോമ്പസിന്റെ സീറോ എററാണ് ദിക്ഭ്രംശം. ഒരിക്കൽ കണ്ടെത്തി എല്ലാ റീഡിംഗും തിരുത്തുക.',
+tn_f_h:'കോമ്പസ് റീഡിംഗ് മാറ്റുന്ന വിധം',tn_f:'യഥാർത്ഥ ദിശാകോൺ = കാന്തിക ദിശാകോൺ + ദിക്ഭ്രംശം (കിഴക്ക് +, പടിഞ്ഞാറ് −)',
+tn_mag:'കോമ്പസ് (കാന്തിക) ദിശാകോൺ °',tn_true:'യഥാർത്ഥ ദിശാകോൺ',
+tn_ex:'ദിക്ഭ്രംശം {d}° ആകുമ്പോൾ യഥാർത്ഥ {sd} ({s}°) ദിശയിലേക്ക് തിരിക്കാൻ, കോമ്പസ് {m}° കാണിക്കുന്നതുവരെ യൂണിറ്റ് തിരിക്കുക.',sdS:'തെക്ക്',sdN:'വടക്ക്',
+tn_m_h:'സൈറ്റിൽ യഥാർത്ഥ വടക്ക് കണ്ടെത്താൻ നാല് വഴികൾ',
+tn_m:[['compass','കോമ്പസ് + ദിക്ഭ്രംശം','ഏറ്റവും വേഗം. GI സ്ട്രക്ചർ, RCC കമ്പികൾ, ഇൻവെർട്ടർ, ബാറ്ററി, എർത്തിംഗ് സ്ട്രിപ്പ്, വാഹനങ്ങൾ എന്നിവയിൽ നിന്ന് കോമ്പസ് 1 മുതൽ 2 m അകലെ വെക്കുക. ഇരുമ്പും കറന്റും സൂചിയെ വലിക്കും.'],
+['rod','ഉച്ചനിഴൽ','സൗര ഉച്ചയ്ക്ക് കുത്തനെ നിർത്തിയ കമ്പിന്റെ നിഴൽ കൃത്യം യഥാർത്ഥ വ–തെ രേഖയിൽ വീഴും. ആ ദിവസത്തെ ഏറ്റവും ചെറിയ നിഴലാണ് അത് കാണിക്കുന്നത്.'],
+['star','ധ്രുവനക്ഷത്രം','ധ്രുവനക്ഷത്രം ഏകദേശം യഥാർത്ഥ വടക്കിന് നേരെ മുകളിലാണ്. ചക്രവാളത്തിൽ നിന്നുള്ള അതിന്റെ ഉയരം നിങ്ങളുടെ അക്ഷാംശത്തിന് തുല്യം: ഇവിടെ ഏകദേശം {lat}°, അതിനാൽ വടക്കൻ ചക്രവാളത്തിനു തൊട്ടുമുകളിൽ നോക്കുക.'],
+['phone','ഫോൺ / GPS കോമ്പസ്','ആപ്പ് “true north” ആയി സെറ്റ് ചെയ്ത് മറ്റൊരു രീതി കൊണ്ട് ഉറപ്പാക്കുക. ഇരുമ്പിൽ നിന്ന് അകലെ കാലിബ്രേറ്റ് ചെയ്യുക.']],
+tn_s_h:'ഉച്ചനിഴൽ രീതി',tn_s:'മുകളിൽ നിന്നുള്ള കാഴ്ച, വടക്ക് മുകളിൽ. ദിവസം മുഴുവൻ കമ്പിന്റെ നിഴൽ തിരിയുന്നു; അതിന്റെ അറ്റം ഒരു വക്രം വരയ്ക്കുന്നു. സൗര ഉച്ചയിലെ ഏറ്റവും ചെറിയ നിഴൽ യഥാർത്ഥ വ–തെ രേഖയിലാണ്.',
+dirN:'{m}: ഉച്ചനിഴൽ വടക്കോട്ട്, കാരണം സൂര്യൻ തെക്കുഭാഗത്താണ്.',dirS:'{m}: ഉച്ചനിഴൽ തെക്കോട്ട്, കാരണം സൂര്യൻ തലയ്ക്കു മുകളിൽ നിന്ന് വടക്കുമാറിയാണ്.',dirZ:'{m}: ഉച്ചയ്ക്ക് നിഴൽ ഏതാണ്ട് ഇല്ല, കാരണം സൂര്യൻ ഏകദേശം നേരെ മുകളിലാണ്.',
+lb_tn:'യഥാർത്ഥ വടക്ക്',lb_mn:'കാന്തിക വടക്ക്',lb_axis:'ഭ്രമണ അച്ചുതണ്ട്',lb_dec:'ദിക്ഭ്രംശം',lb_merid:'യഥാർത്ഥ വ–തെ രേഖ',lb_noon:'സൗര ഉച്ച',lb_rod:'കമ്പ്',
+pl_h:'മേൽക്കൂരയിൽ യൂണിറ്റ് എവിടെ വെക്കണം',pl_p:'നടുവിൽ മാത്രം പോരാ. നിഴൽ ആദ്യം എത്തുന്നത് അറ്റത്താണ്, അതിനാൽ ആസൂത്രണം ചെയ്ത അറേയുടെ മൂലകളിൽ റീഡിംഗ് എടുക്കുക.',
+pl_pts:[['A, B','','ഭൂമധ്യരേഖാ (തെക്ക്) ഭാഗത്തെ താഴത്തെ മൂലകൾ. കുറഞ്ഞത് രണ്ട് റീഡിംഗ്: തെക്ക്, കിഴക്ക്, പടിഞ്ഞാറ് തടസ്സങ്ങളുടെ നിഴൽ ആദ്യം ഈ അറ്റത്താണ് എത്തുന്നത്.'],['C','out','താഴത്തെ അറ്റത്തിന്റെ നടുവ്; നീളമുള്ള അറേയ്ക്കോ, ടാങ്ക്, കോളം പോലുള്ള തടസ്സം നടുവിലുള്ളപ്പോഴോ.'],['D, E','obx','മുകളിലെ മൂലകൾ; വടക്കുഭാഗത്ത് ടാങ്ക്, സ്റ്റെയർ റൂം, കെട്ടിടം എന്നിവ ഉള്ളപ്പോൾ. കോഴിക്കോട് മേയ് മുതൽ ജൂലൈ വരെ ഇവ പ്രധാനമാണ്.']],
+pl_ht_h:'ഏത് ഉയരത്തിൽ',pl_ht:'ഡോം മൊഡ്യൂളിന്റെ താഴത്തെ അറ്റത്തിന്റെ ഉയരത്തിൽ വെക്കുക. 1 മുതൽ 2 m ഉയരമുള്ള GI സ്ട്രക്ചറിൽ, തറനിരപ്പിൽ നിന്നുള്ള റീഡിംഗിൽ പാരപ്പറ്റും മരങ്ങളും വളരെ ഉയരത്തിൽ കാണും; മൊഡ്യൂളിൽ ഒരിക്കലും വീഴാത്ത നിഴൽ അത് കാണിക്കും.',
+pl_use_h:'റീഡിംഗുകൾ ഉപയോഗിക്കുന്ന വിധം',pl_use:'ഓരോ പോയിന്റും വെവ്വേറെ രേഖപ്പെടുത്തുക. ഏറ്റവും മോശം റീഡിംഗോ ശരാശരിയോ വെച്ച് സൈറ്റ് വിലയിരുത്തുക. ഒരു മൂല വളരെ മോശമാണെങ്കിൽ അറേ മാറ്റുക, ആ നിര ചെറുതാക്കുക, അല്ലെങ്കിൽ ആ മൊഡ്യൂളുകൾ പ്രത്യേക സ്ട്രിംഗ് ആക്കുക.',
+lb_array:'ആസൂത്രിത അറേ',lb_tank:'വാട്ടർ ടാങ്ക്',lb_stair:'സ്റ്റെയർ റൂം',lb_parapet:'പാരപ്പറ്റ്',lb_ok:'ശരി: മൊഡ്യൂളിന്റെ താഴത്തെ അറ്റം',lb_bad:'തെറ്റ്: തറനിരപ്പ്',lb_tree:'മരം',lb_plan:'മുകളിൽ നിന്നുള്ള കാഴ്ച (വടക്ക് മുകളിൽ)',lb_side:'വശത്തുനിന്നുള്ള കാഴ്ച',lb_gi:'GI സ്ട്രക്ചർ'});
+
+Object.assign(T.en,{tabs:['Why shade matters','Parts','True north','Placement','How the chart is made','Sunpath diagram','Set-up & measure','Simulator','Examples','Quiz'],
+xp_h:'Sun chart: what is plotted against what',
+xp_p:'The sunpath chart is a graph. It plots the sun’s direction (bearing) against its height above the horizon (altitude), hour by hour, for one day in each month. Step through to see it built.',
+xp_st:[['The sky as a dome','Stand at the site and imagine the sky as a dome over you. At any moment the sun’s position needs just two numbers. Altitude is its height above the horizon: 0° at the horizon, 90° straight overhead. Bearing (azimuth) is its direction round the horizon, measured from true north: E 90°, S 180°, W 270°.'],
+['Plot one day: bearing vs altitude','Draw a graph with bearing on the horizontal axis and altitude on the vertical axis. Every hour, mark the sun’s (bearing, altitude) as a point. Joined together, the points make the sun’s path for that day.'],
+['Add every month','Repeat for the middle day of each month. June gives the highest path and December the lowest. Months with the same sun height, like March and September, fall on one line. At Kozhikode the May to July paths pass north of overhead, so on this flat graph they break at the edges. Choose June to see it.'],
+['Bend the graph into a circle','Now roll the bearing axis into a circle. Bearing becomes the direction round the centre. Altitude becomes the distance in from the rim: horizon (0°) on the rim, overhead (90°) at the centre. The break disappears. This round graph matches what the dome reflects. Drag the slider to bend it yourself.'],
+['Join the hours','Join the points that share the same solar time across all months. These are the hour lines. The 12 line runs along the true N–S line. The Earth turns 15° each hour, so the lines are evenly spaced in time.'],
+['Write the % in each half hour','Split each month line into half-hour cells. In each cell write the share of that day’s solar energy that arrives then. The sun is highest at noon, so noon cells hold the biggest numbers. The cells on one line add up to 100.'],
+['Trace obstacles, add up what is left','The dome reflects trees and buildings onto the chart. Any cell inside a traced obstacle is lost. Add the numbers that remain on a month line: that total is the solar access for the month.']],
+xp_alt:'Altitude',xp_brg:'Bearing',xp_xaxis:'Bearing (°) →',xp_yaxis:'Altitude (°) ↑',xp_hz:'Horizon 0°',xp_zen:'Overhead 90°',xp_sum:'Total',xp_k:'Bend the graph',xp_access:'Solar access',xp_replay:'Replay',xp_time:'Solar time',
+xp_ax:['Two angles fix the sun: altitude and bearing','X axis: bearing 0–360° · Y axis: altitude 0–90°','Angle round the centre: bearing · Distance in from the rim: altitude'],
+lg_h:'Labels on the chart: tap one to highlight it',lg_none:'Tap a label above to highlight it on the chart.',
+lg:[['month','Month lines','Each curved line is the sun’s path on the middle day of a month, from sunrise on the east side to sunset on the west side. The sun’s height repeats twice a year, so one line serves two months: Jan/Nov, Feb/Oct, Mar/Sep, Apr/Aug and May/Jul. June and December have a line each. The month names are printed near the west end of each line. The Mar/Sep line is the equinox: the sun rises due east and sets due west. Choose a month under the chart to highlight its line.'],
+['hour','Hour lines','The lines crossing the month lines are solar hours, numbered near the horizon end. Solar time 12 (solar noon) lies on the true N–S line, when the sun is highest. Morning hours are on the east (left) side and afternoon hours on the west (right). The Earth turns 15° each hour. The space between two hour lines holds two half-hour cells, for example 9:00–9:30 and 9:30–10:00. These are solar times, not watch times; use the box below to convert.'],
+['pct','Percentage numbers','Each number sits in a half-hour cell on a month line. It is the share of that day’s total solar energy that arrives during that half hour. In {m}, the largest cell is {a}–{b} with “{v}”: {v}% of the day’s energy arrives then. The cells on one line add up to 100. Midday cells are largest because the sun is high and its light passes through less air; early morning and late evening cells are small. In this trainer the numbers come from a clear-sky model; on the printed chart they come from the manufacturer.'],
+['ring','Altitude rings','Distance from the centre shows the sun’s height. The outer rim is the horizon (0°). The dashed rings are 30° and 60°. The centre is straight overhead (90°). An obstacle whose top reaches the 30° ring blocks the sun whenever the sun is lower than 30° in that direction. In this trainer the rings are evenly spaced; the printed chart’s scale is matched to its dome.'],
+['brg','Bearing scale','The degrees round the rim give the direction from true north: N 0°, E 90°, S 180°, W 270°, with a tick every 10°. For a site north of the equator, S is at the top of the chart, E on the left and W on the right. Use it to locate obstacles and to check that the chart has been turned by the magnetic declination.'],
+['lat','Latitude','Each printed chart is made for one band of latitude, and the band is printed on it (top-left corner here). Latitude decides how high the sun runs. Near the equator the paths are high and the June line crosses to the north side. Further north they sink toward the south rim. Your site, {p}, is at {lat}. The four small charts below compare latitudes with the June line highlighted.']],
+lg_mini_h:'How the chart changes with latitude',lg_mini_c:'June line highlighted. Where the latitude is less than 23.4°, it passes north of the centre.',lg_eq:'Equator',lg_trop:'Tropic of Cancer',lg_bar:'Half-hour shares for {m}'});
+Object.assign(T.hi,{tabs:['छाया क्यों ज़रूरी','भाग','वास्तविक उत्तर','स्थापना स्थान','चार्ट कैसे बनता है','सूर्य-पथ चार्ट','सेट-अप और माप','सिम्युलेटर','उदाहरण','क्विज़'],
+xp_h:'सूर्य चार्ट: किसके विरुद्ध क्या प्लॉट होता है',
+xp_p:'सूर्य-पथ चार्ट एक ग्राफ़ है। इसमें हर महीने के एक दिन के लिए, घंटे दर घंटे, सूर्य की दिशा (दिशा-कोण) को क्षितिज से उसकी ऊँचाई (उन्नतांश) के विरुद्ध प्लॉट किया जाता है। चरण दर चरण देखें कि यह कैसे बनता है।',
+xp_st:[['आकाश एक गुंबद की तरह','साइट पर खड़े होकर आकाश को अपने ऊपर एक गुंबद मानें। किसी भी क्षण सूर्य की स्थिति के लिए बस दो संख्याएँ चाहिए। उन्नतांश (altitude) क्षितिज से उसकी ऊँचाई है: क्षितिज पर 0°, ठीक सिर के ऊपर 90°। दिशा-कोण (azimuth/bearing) वास्तविक उत्तर से क्षितिज के साथ मापी गई दिशा है: पूर्व 90°, दक्षिण 180°, पश्चिम 270°।'],
+['एक दिन प्लॉट करें: दिशा-कोण बनाम उन्नतांश','एक ग्राफ़ बनाएँ जिसके क्षैतिज अक्ष पर दिशा-कोण और ऊर्ध्वाधर अक्ष पर उन्नतांश हो। हर घंटे सूर्य का (दिशा-कोण, उन्नतांश) एक बिंदु के रूप में अंकित करें। बिंदुओं को जोड़ने पर उस दिन का सूर्य-पथ बनता है।'],
+['हर महीना जोड़ें','हर महीने के मध्य दिन के लिए यही दोहराएँ। जून का पथ सबसे ऊँचा और दिसंबर का सबसे नीचा होता है। जिन महीनों में सूरज की ऊँचाई एक जैसी है, जैसे मार्च और सितंबर, वे एक ही रेखा पर आते हैं। कोझिकोड में मई से जुलाई के पथ सिर से उत्तर में जाते हैं, इसलिए इस सपाट ग्राफ़ पर वे किनारों पर टूट जाते हैं। देखने के लिए जून चुनें।'],
+['ग्राफ़ को मोड़कर वृत्त बनाएँ','अब दिशा-कोण अक्ष को मोड़कर वृत्त बना दें। दिशा-कोण केंद्र के चारों ओर की दिशा बन जाता है। उन्नतांश किनारे से अंदर की दूरी बन जाता है: क्षितिज (0°) किनारे पर, सिर के ऊपर (90°) केंद्र पर। टूटन गायब हो जाती है। यह गोल ग्राफ़ वही दिखाता है जो गुंबद प्रतिबिंबित करता है। स्लाइडर खींचकर खुद मोड़ें।'],
+['घंटों को जोड़ें','सभी महीनों में एक ही सौर समय वाले बिंदुओं को जोड़ें। ये घंटा रेखाएँ हैं। 12 की रेखा वास्तविक उ–द रेखा पर रहती है। पृथ्वी हर घंटे 15° घूमती है, इसलिए रेखाएँ समय में बराबर दूरी पर हैं।'],
+['हर आधे घंटे में % लिखें','हर महीने की रेखा को आधे-आधे घंटे के खानों में बाँटें। हर खाने में लिखें कि उस दिन की सौर ऊर्जा का कितना हिस्सा उस समय आता है। दोपहर में सूरज सबसे ऊँचा होता है, इसलिए दोपहर के खानों में सबसे बड़ी संख्याएँ होती हैं। एक रेखा के सभी खानों का योग 100 है।'],
+['बाधाएँ बनाएँ, बचा हुआ जोड़ें','गुंबद पेड़ों और इमारतों को चार्ट पर प्रतिबिंबित करता है। बनाई गई बाधा के अंदर का हर खाना नष्ट हो जाता है। किसी महीने की रेखा पर बची संख्याएँ जोड़ें: यही उस महीने की सौर उपलब्धता है।']],
+xp_alt:'उन्नतांश',xp_brg:'दिशा-कोण',xp_xaxis:'दिशा-कोण (°) →',xp_yaxis:'उन्नतांश (°) ↑',xp_hz:'क्षितिज 0°',xp_zen:'सिर के ऊपर 90°',xp_sum:'योग',xp_k:'ग्राफ़ मोड़ें',xp_access:'सौर उपलब्धता',xp_replay:'दोबारा',xp_time:'सौर समय',
+xp_ax:['दो कोण सूर्य की स्थिति तय करते हैं: उन्नतांश और दिशा-कोण','X अक्ष: दिशा-कोण 0–360° · Y अक्ष: उन्नतांश 0–90°','केंद्र के चारों ओर कोण: दिशा-कोण · किनारे से अंदर की दूरी: उन्नतांश'],
+lg_h:'चार्ट के लेबल: हाइलाइट करने के लिए एक पर टैप करें',lg_none:'चार्ट पर हाइलाइट करने के लिए ऊपर किसी लेबल पर टैप करें।',
+lg:[['month','महीने की रेखाएँ','हर घुमावदार रेखा किसी महीने के मध्य दिन का सूर्य-पथ है, पूर्व की ओर सूर्योदय से पश्चिम की ओर सूर्यास्त तक। सूरज की ऊँचाई साल में दो बार दोहराती है, इसलिए एक रेखा दो महीनों के काम आती है: जन/नव, फर/अक्टू, मार्च/सित, अप्रै/अग और मई/जुला। जून और दिसंबर की अपनी-अपनी रेखा है। महीनों के नाम हर रेखा के पश्चिमी सिरे के पास छपे हैं। मार्च/सित रेखा विषुव (equinox) है: सूरज ठीक पूर्व में उगता और ठीक पश्चिम में डूबता है। चार्ट के नीचे महीना चुनकर उसकी रेखा हाइलाइट करें।'],
+['hour','घंटा रेखाएँ','महीने की रेखाओं को काटने वाली रेखाएँ सौर घंटे हैं, जिनके नंबर क्षितिज वाले सिरे के पास हैं। सौर समय 12 (सौर दोपहर) वास्तविक उ–द रेखा पर है, जब सूरज सबसे ऊँचा होता है। सुबह के घंटे पूर्व (बाईं) ओर और दोपहर बाद के पश्चिम (दाईं) ओर हैं। पृथ्वी हर घंटे 15° घूमती है। दो घंटा रेखाओं के बीच आधे घंटे के दो खाने हैं, जैसे 9:00–9:30 और 9:30–10:00। ये सौर समय हैं, घड़ी का समय नहीं; बदलने के लिए नीचे का बॉक्स देखें।'],
+['pct','प्रतिशत संख्याएँ','हर संख्या किसी महीने की रेखा पर आधे घंटे के एक खाने में है। यह उस दिन की कुल सौर ऊर्जा का वह हिस्सा है जो उस आधे घंटे में आता है। {m} में सबसे बड़ा खाना {a}–{b} है, जिसमें “{v}” है: दिन की {v}% ऊर्जा उसी समय आती है। एक रेखा के सभी खानों का योग 100 है। दोपहर के खाने सबसे बड़े हैं क्योंकि सूरज ऊँचा होता है और उसकी रोशनी कम हवा से गुज़रती है; सुबह-शाम के खाने छोटे हैं। इस ट्रेनर में संख्याएँ साफ़-आकाश मॉडल से निकाली गई हैं; छपे चार्ट पर ये निर्माता की होती हैं।'],
+['ring','उन्नतांश वृत्त','केंद्र से दूरी सूरज की ऊँचाई दिखाती है। बाहरी किनारा क्षितिज (0°) है। डैश वाले वृत्त 30° और 60° हैं। केंद्र ठीक सिर के ऊपर (90°) है। जिस बाधा का शीर्ष 30° वृत्त तक पहुँचता है, वह उस दिशा में सूरज के 30° से नीचे रहने पर उसे रोकती है। इस ट्रेनर में वृत्त बराबर दूरी पर हैं; छपे चार्ट का पैमाना उसके गुंबद से मिलाया जाता है।'],
+['brg','दिशा-कोण स्केल','किनारे के चारों ओर की डिग्री वास्तविक उत्तर से दिशा बताती हैं: उ 0°, पू 90°, द 180°, प 270°, हर 10° पर निशान। भूमध्य रेखा के उत्तर की साइट के लिए चार्ट में द ऊपर, पू बाईं ओर और प दाईं ओर है। बाधाओं की दिशा पता करने और यह जाँचने के लिए इसका उपयोग करें कि चार्ट चुंबकीय दिक्पात जितना घुमाया गया है।'],
+['lat','अक्षांश','हर छपा चार्ट एक अक्षांश पट्टी के लिए बनता है, और वह पट्टी उस पर छपी होती है (यहाँ ऊपर बाएँ कोने में)। अक्षांश तय करता है कि सूरज कितना ऊँचा चलेगा। भूमध्य रेखा के पास पथ ऊँचे होते हैं और जून की रेखा उत्तर की ओर चली जाती है। और उत्तर में वे दक्षिणी किनारे की ओर नीचे आ जाते हैं। आपकी साइट, {p}, {lat} पर है। नीचे के चार छोटे चार्ट जून की रेखा हाइलाइट करके अक्षांशों की तुलना करते हैं।']],
+lg_mini_h:'अक्षांश के साथ चार्ट कैसे बदलता है',lg_mini_c:'जून की रेखा हाइलाइट है। जहाँ अक्षांश 23.4° से कम है, वहाँ यह केंद्र के उत्तर से गुज़रती है।',lg_eq:'भूमध्य रेखा',lg_trop:'कर्क रेखा',lg_bar:'{m} के आधे घंटे के हिस्से'});
+Object.assign(T.ml,{tabs:['നിഴൽ എന്തിന് ശ്രദ്ധിക്കണം','ഭാഗങ്ങൾ','യഥാർത്ഥ വടക്ക്','സ്ഥാപിക്കേണ്ട സ്ഥലം','ചാർട്ട് എങ്ങനെ ഉണ്ടാക്കുന്നു','സൂര്യപഥ ചാർട്ട്','സെറ്റപ്പ്, അളവ്','സിമുലേറ്റർ','ഉദാഹരണങ്ങൾ','ക്വിസ്'],
+xp_h:'സൂര്യ ചാർട്ട്: എന്തിനെതിരെ എന്ത് പ്ലോട്ട് ചെയ്യുന്നു',
+xp_p:'സൂര്യപഥ ചാർട്ട് ഒരു ഗ്രാഫാണ്. ഓരോ മാസത്തെയും ഒരു ദിവസത്തിനായി, മണിക്കൂർ തോറും, സൂര്യന്റെ ദിശയെ (ദിശാകോൺ) ചക്രവാളത്തിൽ നിന്നുള്ള ഉയരത്തിനെതിരെ (ഉന്നതി) ഇതിൽ പ്ലോട്ട് ചെയ്യുന്നു. ഘട്ടം ഘട്ടമായി ഇത് ഉണ്ടാകുന്നത് കാണുക.',
+xp_st:[['ആകാശം ഒരു ഡോം പോലെ','സൈറ്റിൽ നിന്ന് ആകാശത്തെ നിങ്ങൾക്കു മുകളിലുള്ള ഒരു ഡോം ആയി സങ്കൽപ്പിക്കുക. ഏതു നിമിഷവും സൂര്യന്റെ സ്ഥാനം അറിയാൻ രണ്ട് സംഖ്യകൾ മതി. ഉന്നതി (altitude) ചക്രവാളത്തിൽ നിന്നുള്ള ഉയരമാണ്: ചക്രവാളത്തിൽ 0°, നേരെ തലയ്ക്കു മുകളിൽ 90°. ദിശാകോൺ (azimuth/bearing) യഥാർത്ഥ വടക്കിൽ നിന്ന് ചക്രവാളത്തിലൂടെ അളക്കുന്ന ദിശയാണ്: കിഴക്ക് 90°, തെക്ക് 180°, പടിഞ്ഞാറ് 270°.'],
+['ഒരു ദിവസം പ്ലോട്ട് ചെയ്യുക: ദിശാകോൺ × ഉന്നതി','തിരശ്ചീന അക്ഷത്തിൽ ദിശാകോണും ലംബ അക്ഷത്തിൽ ഉന്നതിയും ഉള്ള ഒരു ഗ്രാഫ് വരയ്ക്കുക. ഓരോ മണിക്കൂറിലും സൂര്യന്റെ (ദിശാകോൺ, ഉന്നതി) ഒരു ബിന്ദുവായി അടയാളപ്പെടുത്തുക. ബിന്ദുക്കൾ യോജിപ്പിച്ചാൽ ആ ദിവസത്തെ സൂര്യപഥം കിട്ടും.'],
+['എല്ലാ മാസവും ചേർക്കുക','ഓരോ മാസത്തിന്റെയും മധ്യദിവസത്തിനായി ഇത് ആവർത്തിക്കുക. ജൂണിലെ പഥം ഏറ്റവും ഉയരത്തിലും ഡിസംബറിലേത് ഏറ്റവും താഴെയുമാണ്. മാർച്ച്, സെപ്റ്റംബർ പോലെ സൂര്യന്റെ ഉയരം ഒരുപോലെയുള്ള മാസങ്ങൾ ഒരേ വരയിൽ വരും. കോഴിക്കോട് മേയ് മുതൽ ജൂലൈ വരെയുള്ള പഥങ്ങൾ തലയ്ക്കു മുകളിൽ നിന്ന് വടക്കോട്ട് കടക്കുന്നു; അതിനാൽ ഈ പരന്ന ഗ്രാഫിൽ അവ അറ്റങ്ങളിൽ മുറിയുന്നു. കാണാൻ ജൂൺ തിരഞ്ഞെടുക്കുക.'],
+['ഗ്രാഫ് വളച്ച് വൃത്തമാക്കുക','ഇനി ദിശാകോൺ അക്ഷം വളച്ച് ഒരു വൃത്തമാക്കുക. ദിശാകോൺ കേന്ദ്രത്തിനു ചുറ്റുമുള്ള ദിശയാകുന്നു. ഉന്നതി അരികിൽ നിന്ന് ഉള്ളിലേക്കുള്ള ദൂരമാകുന്നു: ചക്രവാളം (0°) അരികിൽ, തലയ്ക്കു മുകളിൽ (90°) കേന്ദ്രത്തിൽ. മുറിവ് ഇല്ലാതാകുന്നു. ഡോം പ്രതിഫലിപ്പിക്കുന്നതിനോട് ഈ വട്ട ഗ്രാഫ് ചേരുന്നു. സ്ലൈഡർ വലിച്ച് സ്വയം വളയ്ക്കുക.'],
+['മണിക്കൂറുകൾ യോജിപ്പിക്കുക','എല്ലാ മാസങ്ങളിലും ഒരേ സൗരസമയമുള്ള ബിന്ദുക്കൾ യോജിപ്പിക്കുക. ഇവയാണ് മണിക്കൂർ വരകൾ. 12 ന്റെ വര യഥാർത്ഥ വ–തെ രേഖയിലാണ്. ഭൂമി ഓരോ മണിക്കൂറിലും 15° തിരിയുന്നതിനാൽ വരകൾ സമയത്തിൽ തുല്യ അകലത്തിലാണ്.'],
+['ഓരോ അര മണിക്കൂറിലും % എഴുതുക','ഓരോ മാസവരയും അര മണിക്കൂർ കള്ളികളായി തിരിക്കുക. ആ ദിവസത്തെ സൗരോർജ്ജത്തിന്റെ എത്ര ഭാഗം ആ സമയത്ത് എത്തുന്നു എന്ന് ഓരോ കള്ളിയിലും എഴുതുക. ഉച്ചയ്ക്ക് സൂര്യൻ ഏറ്റവും ഉയരത്തിലായതിനാൽ ഉച്ചസമയ കള്ളികളിൽ ഏറ്റവും വലിയ സംഖ്യകൾ. ഒരു വരയിലെ എല്ലാ കള്ളികളും കൂടി 100.'],
+['തടസ്സങ്ങൾ വരയ്ക്കുക, ബാക്കി കൂട്ടുക','ഡോം മരങ്ങളെയും കെട്ടിടങ്ങളെയും ചാർട്ടിൽ പ്രതിഫലിപ്പിക്കുന്നു. വരച്ച തടസ്സത്തിനുള്ളിലെ ഓരോ കള്ളിയും നഷ്ടമാണ്. ഒരു മാസവരയിൽ ബാക്കിയുള്ള സംഖ്യകൾ കൂട്ടുക: അതാണ് ആ മാസത്തെ സോളാർ ആക്സസ്.']],
+xp_alt:'ഉന്നതി',xp_brg:'ദിശാകോൺ',xp_xaxis:'ദിശാകോൺ (°) →',xp_yaxis:'ഉന്നതി (°) ↑',xp_hz:'ചക്രവാളം 0°',xp_zen:'തലയ്ക്കു മുകളിൽ 90°',xp_sum:'ആകെ',xp_k:'ഗ്രാഫ് വളയ്ക്കുക',xp_access:'സോളാർ ആക്സസ്',xp_replay:'വീണ്ടും',xp_time:'സൗരസമയം',
+xp_ax:['രണ്ട് കോണുകൾ സൂര്യന്റെ സ്ഥാനം നിശ്ചയിക്കുന്നു: ഉന്നതി, ദിശാകോൺ','X അക്ഷം: ദിശാകോൺ 0–360° · Y അക്ഷം: ഉന്നതി 0–90°','കേന്ദ്രത്തിനു ചുറ്റുമുള്ള കോൺ: ദിശാകോൺ · അരികിൽ നിന്ന് ഉള്ളിലേക്കുള്ള ദൂരം: ഉന്നതി'],
+lg_h:'ചാർട്ടിലെ ലേബലുകൾ: ഹൈലൈറ്റ് ചെയ്യാൻ ഒന്നിൽ ടാപ്പ് ചെയ്യുക',lg_none:'ചാർട്ടിൽ ഹൈലൈറ്റ് ചെയ്യാൻ മുകളിലെ ഒരു ലേബലിൽ ടാപ്പ് ചെയ്യുക.',
+lg:[['month','മാസ വരകൾ','ഓരോ വളഞ്ഞ വരയും ഒരു മാസത്തിന്റെ മധ്യദിവസത്തെ സൂര്യപഥമാണ്, കിഴക്കുവശത്തെ ഉദയം മുതൽ പടിഞ്ഞാറുവശത്തെ അസ്തമയം വരെ. സൂര്യന്റെ ഉയരം വർഷത്തിൽ രണ്ടുതവണ ആവർത്തിക്കുന്നതിനാൽ ഒരു വര രണ്ട് മാസങ്ങൾക്ക് ഉപയോഗിക്കുന്നു: ജനു/നവം, ഫെബ്രു/ഒക്ടോ, മാർച്ച്/സെപ്റ്റം, ഏപ്രി/ഓഗ, മേയ്/ജൂലൈ. ജൂണിനും ഡിസംബറിനും ഓരോ വര സ്വന്തമായുണ്ട്. മാസപ്പേരുകൾ ഓരോ വരയുടെയും പടിഞ്ഞാറേ അറ്റത്തിനടുത്താണ്. മാർച്ച്/സെപ്റ്റം വര വിഷുവമാണ് (equinox): സൂര്യൻ കൃത്യം കിഴക്ക് ഉദിച്ച് കൃത്യം പടിഞ്ഞാറ് അസ്തമിക്കുന്നു. ചാർട്ടിനു താഴെ മാസം തിരഞ്ഞെടുത്ത് അതിന്റെ വര ഹൈലൈറ്റ് ചെയ്യുക.'],
+['hour','മണിക്കൂർ വരകൾ','മാസവരകളെ മുറിച്ചുകടക്കുന്ന വരകൾ സൗര മണിക്കൂറുകളാണ്; അവയുടെ നമ്പറുകൾ ചക്രവാള അറ്റത്തിനടുത്താണ്. സൗരസമയം 12 (സൗര ഉച്ച) യഥാർത്ഥ വ–തെ രേഖയിലാണ്; അപ്പോൾ സൂര്യൻ ഏറ്റവും ഉയരത്തിൽ. രാവിലത്തെ മണിക്കൂറുകൾ കിഴക്ക് (ഇടത്) ഭാഗത്തും ഉച്ചകഴിഞ്ഞുള്ളവ പടിഞ്ഞാറ് (വലത്) ഭാഗത്തും. ഭൂമി ഓരോ മണിക്കൂറിലും 15° തിരിയുന്നു. രണ്ട് മണിക്കൂർ വരകൾക്കിടയിൽ രണ്ട് അര മണിക്കൂർ കള്ളികൾ, ഉദാഹരണം 9:00–9:30, 9:30–10:00. ഇവ സൗരസമയമാണ്, വാച്ചിലെ സമയമല്ല; മാറ്റാൻ താഴെയുള്ള ബോക്സ് കാണുക.'],
+['pct','ശതമാന സംഖ്യകൾ','ഓരോ സംഖ്യയും ഒരു മാസവരയിലെ ഒരു അര മണിക്കൂർ കള്ളിയിലാണ്. ആ ദിവസത്തെ ആകെ സൗരോർജ്ജത്തിൽ ആ അര മണിക്കൂറിൽ എത്തുന്ന ഭാഗമാണ് അത്. {m} മാസത്തിൽ ഏറ്റവും വലിയ കള്ളി {a}–{b} ആണ്, അതിൽ “{v}”: ദിവസത്തെ ഊർജ്ജത്തിന്റെ {v}% ആ സമയത്ത് എത്തുന്നു. ഒരു വരയിലെ എല്ലാ കള്ളികളും കൂടി 100. സൂര്യൻ ഉയരത്തിലായതിനാലും പ്രകാശം കുറഞ്ഞ വായുവിലൂടെ കടന്നുപോകുന്നതിനാലും ഉച്ചസമയ കള്ളികൾ ഏറ്റവും വലുതാണ്; അതിരാവിലെയും വൈകുന്നേരവുമുള്ളവ ചെറുതാണ്. ഈ ട്രെയിനറിൽ സംഖ്യകൾ തെളിഞ്ഞ ആകാശ മോഡലിൽ നിന്നാണ്; അച്ചടിച്ച ചാർട്ടിൽ അവ നിർമ്മാതാവിന്റേതാണ്.'],
+['ring','ഉന്നതി വൃത്തങ്ങൾ','കേന്ദ്രത്തിൽ നിന്നുള്ള ദൂരം സൂര്യന്റെ ഉയരം കാണിക്കുന്നു. പുറം അരിക് ചക്രവാളം (0°). കുത്തുവര വൃത്തങ്ങൾ 30°, 60°. കേന്ദ്രം നേരെ തലയ്ക്കു മുകളിൽ (90°). മുകൾഭാഗം 30° വൃത്തം വരെ എത്തുന്ന തടസ്സം, ആ ദിശയിൽ സൂര്യൻ 30° ൽ താഴെയാകുമ്പോഴെല്ലാം അതിനെ മറയ്ക്കും. ഈ ട്രെയിനറിൽ വൃത്തങ്ങൾ തുല്യ അകലത്തിലാണ്; അച്ചടിച്ച ചാർട്ടിന്റെ സ്കെയിൽ അതിന്റെ ഡോമിനനുസരിച്ചാണ്.'],
+['brg','ദിശാകോൺ സ്കെയിൽ','അരികിനു ചുറ്റുമുള്ള ഡിഗ്രികൾ യഥാർത്ഥ വടക്കിൽ നിന്നുള്ള ദിശ കാണിക്കുന്നു: വ 0°, കി 90°, തെ 180°, പ 270°, ഓരോ 10° ലും ഒരു അടയാളം. ഭൂമധ്യരേഖയ്ക്ക് വടക്കുള്ള സൈറ്റിന് ചാർട്ടിൽ തെ മുകളിൽ, കി ഇടതുവശത്ത്, പ വലതുവശത്ത്. തടസ്സങ്ങളുടെ ദിശ കണ്ടെത്താനും ചാർട്ട് കാന്തിക ദിക്ഭ്രംശത്തിന്റെ അളവിൽ തിരിച്ചിട്ടുണ്ടോ എന്ന് പരിശോധിക്കാനും ഇത് ഉപയോഗിക്കുക.'],
+['lat','അക്ഷാംശം','അച്ചടിച്ച ഓരോ ചാർട്ടും ഒരു അക്ഷാംശ മേഖലയ്ക്കായി ഉണ്ടാക്കിയതാണ്; ആ മേഖല അതിൽ അച്ചടിച്ചിരിക്കും (ഇവിടെ മുകളിൽ ഇടത് മൂലയിൽ). സൂര്യൻ എത്ര ഉയരത്തിൽ സഞ്ചരിക്കും എന്ന് അക്ഷാംശം തീരുമാനിക്കുന്നു. ഭൂമധ്യരേഖയ്ക്കടുത്ത് പഥങ്ങൾ ഉയരത്തിലാണ്, ജൂൺ വര വടക്കുഭാഗത്തേക്ക് കടക്കുന്നു. കൂടുതൽ വടക്കോട്ട് പോകുമ്പോൾ അവ തെക്കേ അരികിലേക്ക് താഴുന്നു. നിങ്ങളുടെ സൈറ്റ്, {p}, {lat} ൽ ആണ്. താഴെയുള്ള നാല് ചെറിയ ചാർട്ടുകൾ ജൂൺ വര ഹൈലൈറ്റ് ചെയ്ത് അക്ഷാംശങ്ങളെ താരതമ്യം ചെയ്യുന്നു.']],
+lg_mini_h:'അക്ഷാംശത്തിനനുസരിച്ച് ചാർട്ട് എങ്ങനെ മാറുന്നു',lg_mini_c:'ജൂൺ വര ഹൈലൈറ്റ് ചെയ്തിരിക്കുന്നു. അക്ഷാംശം 23.4° ൽ കുറവുള്ളിടത്ത് അത് കേന്ദ്രത്തിന് വടക്കുകൂടി കടന്നുപോകുന്നു.',lg_eq:'ഭൂമധ്യരേഖ',lg_trop:'ഉത്തരായനരേഖ',lg_bar:'{m} മാസത്തെ അര മണിക്കൂർ ഭാഗങ്ങൾ'});
+
+/* ================= STATE ================= */
+const KOZ={name:'Kozhikode, Kerala',lat:11.2588,lon:75.7804,tz:5.5,dec:-1.5};
+const S={lang:'en',theme:null,fs:18,tab:0,lat:KOZ.lat,lon:KOZ.lon,tz:KOZ.tz,mdec:KOZ.dec,
+  dMonth:11,dT:9,dPlaying:false,sMonth:11,sT:8.5,sPlaying:false,preset:1,obs:[],step:0,part:0,quiz:{},tnMonth:5,tnT:9,tnPlaying:false};
+const TAB={why:0,parts:1,tn:2,pl:3,xp:4,diag:5,setup:6,sim:7,ex:8,quiz:9},NP=10;S.hl='month';
+const XP={st:0,t:0,play:!matchMedia('(prefers-reduced-motion: reduce)').matches,m:11,k:null};
+const t=k=>(T[S.lang][k]??T.en[k]);
+const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]);
+const $=id=>document.getElementById(id);
+const store={get(){try{return JSON.parse(localStorage.getItem('spf-trainer')||'{}')}catch(e){return{}}},set(v){try{localStorage.setItem('spf-trainer',JSON.stringify(v))}catch(e){}}};
+
+/* ================= SOLAR ENGINE ================= */
+const D2R=Math.PI/180, norm360=b=>((b%360)+360)%360;
+const decl=n=>23.45*Math.sin(D2R*360*(284+n)/365);
+const eot=n=>{const B=D2R*360*(n-81)/364;return 9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B)};
+const MID=[17,47,75,105,135,162,198,228,258,288,318,344];
+function sunAt(lat,dec,ts){const p=lat*D2R,d=dec*D2R,h=15*(ts-12)*D2R;
+  const alt=Math.asin(Math.sin(p)*Math.sin(d)+Math.cos(p)*Math.cos(d)*Math.cos(h))/D2R;
+  const A=Math.atan2(Math.sin(h),Math.cos(h)*Math.sin(p)-Math.tan(d)*Math.cos(p))/D2R;
+  return {alt,brg:norm360(180+A)}}
+function dayLen(lat,dec){const x=-Math.tan(lat*D2R)*Math.tan(dec*D2R);if(x<=-1)return 12;if(x>=1)return 0;return Math.acos(x)/D2R/15}
+function slots(lat,n){const dec=decl(n),out=[];let sum=0;
+  for(let k=0;k<48;k++){const ts=k*.5+.25,s=sunAt(lat,dec,ts);let w=0;
+    if(s.alt>.5){const sa=Math.sin(Math.max(s.alt,1)*D2R);w=sa*Math.pow(.7,Math.pow(1/sa,.678))}
+    sum+=w;out.push({ts,alt:s.alt,brg:s.brg,w})}
+  out.forEach(o=>o.w=sum?o.w/sum*100:0);return out.filter(o=>o.w>0)}
+function inSpan(b,b1,b2){const sp=norm360(b2-b1)||360,d=norm360(b-b1);return d<=sp?(d/sp)*2-1:null}
+function obsElev(o,b){const u=inSpan(b,o.b1,o.b2);if(u===null)return 0;return o.type==='tree'?o.e*(.6+.4*Math.sqrt(Math.max(0,1-u*u))):o.e}
+const blocked=(alt,brg,obs)=>obs.some(o=>alt<obsElev(o,brg));
+function access(lat,m,obs){let a=0;slots(lat,MID[m]).forEach(s=>{if(!blocked(s.alt,s.brg,obs))a+=s.w});return a}
+function clockOf(ts,n){return ts-(4*(S.lon-15*S.tz)+eot(n))/60}
+function hhmm(h){h=((h%24)+24)%24;let H=Math.floor(h),M=Math.round((h-H)*60);if(M===60){H=(H+1)%24;M=0}return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0')}
+
+/* ================= CHART (dome view) ================= */
+const CX=300,CY=300,R=262;
+const eqB=()=>S.lat>=0?180:0;
+function P(alt,brg){const r=R*(90-Math.max(0,Math.min(90,alt)))/90,d=(brg-eqB())*D2R;return [CX+r*Math.sin(d),CY-r*Math.cos(d)]}
+const pts=a=>a.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const PAIRS=[[11],[0,10],[1,9],[2,8],[3,7],[4,6],[5]];
+function pairName(pr){const m=t('months');return pr.map(i=>m[i]).join('/')}
+function chartSVG(o){
+  const lat=S.lat;let s='';const gid='g'+Math.random().toString(36).slice(2,7);
+  s+=`<defs><radialGradient id="${gid}" cx="38%" cy="30%" r="70%"><stop offset="0" stop-color="var(--glass)" stop-opacity=".9"/><stop offset=".35" stop-color="var(--glass)" stop-opacity=".15"/><stop offset="1" stop-color="var(--glass)" stop-opacity="0"/></radialGradient></defs>`;
+  s+=`<circle cx="${CX}" cy="${CY}" r="${R}" class="c-sky"/><g class="g g-ring">`;
+  [30,60].forEach(a=>s+=`<circle cx="${CX}" cy="${CY}" r="${(R*(90-a)/90).toFixed(1)}" class="c-ring"/>`);
+  if(!o.compact){
+    s+=`<text x="${CX+4}" y="${CY-R*60/90+12}" class="c-deg" text-anchor="start">30°</text><text x="${CX+4}" y="${CY-R*30/90+12}" class="c-deg">60°</text>`;
+    if(o.ringX)s+=`<text x="${CX+4}" y="${CY-R+12}" class="c-deg">0°</text><circle cx="${CX}" cy="${CY}" r="5" fill="var(--accent)"/><text x="${CX+10}" y="${CY+14}" class="c-deg" text-anchor="start">90°</text>`;
+  }
+  s+=`</g><g class="g g-hr">`;
+  // hour lines
+  for(let hr=5;hr<=19;hr++){const ln=[];let lab=null,minA=99;
+    for(let d=-23.44;d<=23.45;d+=1){const sp=sunAt(lat,d,hr);if(sp.alt>0){const p=P(sp.alt,sp.brg);ln.push(p);if(sp.alt<minA&&sp.alt>2){minA=sp.alt;lab={p,alt:sp.alt,brg:sp.brg}}}}
+    if(ln.length>1){s+=`<polyline points="${pts(ln)}" class="c-hr"/>`;
+      if(lab&&!o.compact){const q=P(lab.alt-9,lab.brg);s+=`<text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" class="c-hrl">${hr}</text>`}}}
+  s+=`</g><g class="g g-mo">`;
+  // month arcs (paired)
+  PAIRS.forEach((pr,i)=>{const dec=pr.reduce((a,m)=>a+decl(MID[m]),0)/pr.length,H=dayLen(lat,dec);if(H<=0)return;const ln=[];
+    for(let ts=12-H;ts<=12+H+1e-6;ts+=H/40){const sp=sunAt(lat,dec,ts);ln.push(P(sp.alt,sp.brg))}
+    const sel=o.month!=null&&pr.includes(o.month);
+    s+=`<polyline points="${pts(ln)}" class="c-arc${sel?' sel':''}"/>`;
+    if(!o.compact){const ss=sunAt(lat,dec,12+H-.45),q=P(ss.alt,ss.brg),rt=q[0]>CX;s+=`<text x="${(q[0]+(rt?-6:6)).toFixed(1)}" y="${(q[1]).toFixed(1)}" class="c-ml" text-anchor="${rt?'end':'start'}">${pairName(pr)}</text>`}});
+  s+=`</g>`;
+  // obstacles
+  (o.obs||[]).forEach(ob=>{const sp=norm360(ob.b2-ob.b1)||360,up=[],dn=[];
+    for(let d=0;d<=sp+1e-6;d+=Math.max(.5,sp/80)){const b=ob.b1+d;up.push(P(obsElev(ob,norm360(b)+0),b));dn.unshift(P(0,b))}
+    s+=`<polygon points="${pts(up.concat(dn))}" class="c-obs"/>`;
+    if(!o.compact&&ob.name){const mb=ob.b1+sp/2,q=P(Math.max(ob.e*.45,4),mb);s+=`<text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" class="c-obl">${esc(ob.name)}</text>`}});
+  // numbers
+  s+=`<g class="g g-num">`;
+  if(o.nums&&o.month!=null){slots(lat,MID[o.month]).forEach(c=>{const v=Math.round(c.w);if(v<1)return;const q=P(c.alt,c.brg);const sh=blocked(c.alt,c.brg,o.obs||[]);
+    s+=`<text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" class="c-num${sh?' sh':''}">${v}</text>`})}
+  s+=`</g>`;
+  // edge + ticks + labels
+  s+=`<circle cx="${CX}" cy="${CY}" r="${R}" class="c-edge"/><g class="g g-brg">`;
+  const dirs=t('dirs');
+  for(let b=0;b<360;b+=10){const a=P(0,b),c=P(b%30?3:6,b);s+=`<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${c[0].toFixed(1)}" y2="${c[1].toFixed(1)}" class="c-tick"/>`;
+    const d=(b-eqB())*D2R,rr=R+(b%90?18:24),x=CX+rr*Math.sin(d),y=CY-rr*Math.cos(d);
+    if(b%90===0)s+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="c-dir">${dirs[b/90]}</text>`;
+    else if(b%30===0&&!o.compact)s+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="c-deg">${b}°</text>`}
+  s+=`</g>`;
+  if(o.latLabel){const lt=`${Math.abs(lat).toFixed(1)}° ${lat>=0?'N':'S'}`;s+=`<g class="g g-lat"><rect x="-36" y="-36" width="150" height="40" rx="6" class="c-latb"/><text x="-26" y="-8" class="c-latl">${lt}</text></g>`}
+  // sun
+  if(o.sun&&o.sun.alt>0){const q=P(o.sun.alt,o.sun.brg),sh=blocked(o.sun.alt,o.sun.brg,o.obs||[]);
+    s+=`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="15" class="c-sun${sh?' sh':''}"/>`;
+    if(!sh)for(let k=0;k<8;k++){const a=k*Math.PI/4;s+=`<line x1="${(q[0]+19*Math.cos(a)).toFixed(1)}" y1="${(q[1]+19*Math.sin(a)).toFixed(1)}" x2="${(q[0]+26*Math.cos(a)).toFixed(1)}" y2="${(q[1]+26*Math.sin(a)).toFixed(1)}" stroke="var(--sun)" stroke-width="3" stroke-linecap="round"/>`}}
+  if(o.glass)s+=`<circle cx="${CX}" cy="${CY}" r="${R}" fill="url(#${gid})" class="c-glare"/>`;
+  return s}
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= APPLY TEXT ================= */
+function applyText(){
+  document.documentElement.lang=S.lang==='en'?'en':S.lang;
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.dataset.i);if(typeof v==='string')el.innerHTML=v});
+  document.title=T.en.title;
+  $('tabs').innerHTML=t('tabs').map((n,i)=>`<li><button role="tab" id="tab${i}" aria-selected="${i===S.tab}" data-tab="${i}"><b>${i+1}</b>${n}</button></li>`).join('');
+  $('useList').innerHTML=t('i_use').map(x=>`<li>${x}</li>`).join('');
+  $('analog').innerHTML=t('an').map(a=>`<div class="card">${ICON[a[0]]}<h3>${a[1]}</h3><p>${a[2]}</p></div>`).join('');
+  
+  const mo=t('months').map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  $('dMonth').innerHTML=mo;$('xpMonth').innerHTML=mo;$('xpMonth').value=XP.m;$('tnMonth').innerHTML=mo;$('tnMonth').value=S.tnMonth;$('dMonth').value=S.dMonth;$('sMonth').innerHTML=mo;$('sMonth').value=S.sMonth;
+  $('sPreset').innerHTML=`<option value="-1">—</option>`+t('presets').map((p,i)=>`<option value="${i}">${p}</option>`).join('');$('sPreset').value=S.preset;
+  document.querySelectorAll('#langSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lg===S.lang));
+  renderAll();}
+function renderAll(){xpCard();xpRender();renderScene();renderParts();renderTN();renderPL();renderDiagram();renderStep();renderObsList();renderSim();renderExamples();renderQuiz()}
+
+/* ================= ICONS ================= */
+const ICON={
+hose:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M4 30c8 0 8-12 18-12s8 14 18 14" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/><path d="M18 8l4 10M26 8l-4 10" stroke="var(--bad)" stroke-width="3" stroke-linecap="round"/><path d="M40 32l4 4M41 30l5 1" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>`,
+mirror:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="18" r="13" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5"/><path d="M14 22c4-8 16-8 20 0" fill="none" stroke="var(--muted)" stroke-width="2"/><line x1="24" y1="31" x2="24" y2="46" stroke="var(--ink)" stroke-width="3"/><circle cx="19" cy="13" r="3" fill="var(--glass)" opacity=".8"/></svg>`,
+train:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="10" width="32" height="24" rx="5" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/><rect x="13" y="15" width="22" height="8" rx="2" fill="var(--sky)"/><circle cx="16" cy="29" r="2" fill="var(--ink)"/><circle cx="32" cy="29" r="2" fill="var(--ink)"/><path d="M4 42h40M12 38l-4 6M36 38l4 6" stroke="var(--ink)" stroke-width="2.5"/></svg>`,
+shirt:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M17 6l-11 7 5 8 5-3v24h16V18l5 3 5-8-11-7c-1 4-4 6-7 6s-6-2-7-6z" fill="var(--sunsoft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 26h8M20 31h8" stroke="var(--sun)" stroke-width="2" stroke-dasharray="2 2"/></svg>`};
+
+/* ================= 1. SCENE ================= */
+let scT=0.15,scPlay=!matchMedia('(prefers-reduced-motion: reduce)').matches,scLast=0;
+const MODS=[[262,148],[312,140],[362,132],[412,124]],TREE={x:118,top:66},GROUND=250;
+function renderScene(){
+  const th=scT*Math.PI,sx=320-262*Math.cos(th),sy=GROUND-210*Math.sin(th);
+  let s=`<rect x="0" y="0" width="640" height="300" fill="var(--sky)"/>`;
+  s+=`<path d="M58 ${GROUND} A262 210 0 0 1 582 ${GROUND}" fill="none" stroke="var(--sun)" stroke-width="1.5" stroke-dasharray="3 6" opacity=".7"/>`;
+  // shading
+  const shaded=MODS.map(([mx,my])=>{if(sx>=TREE.x)return false;const yAt=my+(sy-my)*(TREE.x-mx)/(sx-mx);return yAt>TREE.top-6});
+  if(sx<TREE.x&&sy<TREE.top){const yE=150,xE=TREE.x+(yE-TREE.top)*(TREE.x-sx)/(TREE.top-sy);
+    s+=`<line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${Math.min(xE,620).toFixed(1)}" y2="${(xE>620?TREE.top+(620-TREE.x)*(TREE.top-sy)/(TREE.x-sx):yE).toFixed(1)}" stroke="var(--obst)" stroke-width="2" stroke-dasharray="6 5"/>`}
+  s+=`<rect x="0" y="${GROUND}" width="640" height="${300-GROUND}" fill="var(--chip)"/><line x1="0" y1="${GROUND}" x2="640" y2="${GROUND}" stroke="var(--ink)" stroke-width="2"/>`;
+  // house
+  s+=`<rect x="250" y="160" width="230" height="${GROUND-160}" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/><polygon points="236,164 496,120 496,132 236,176" fill="var(--muted)" stroke="var(--ink)" stroke-width="2"/>`;
+  s+=`<rect x="330" y="200" width="34" height="${GROUND-200}" fill="var(--chip)" stroke="var(--ink)" stroke-width="2"/><rect x="400" y="190" width="44" height="30" fill="var(--sky)" stroke="var(--ink)" stroke-width="2"/>`;
+  MODS.forEach(([mx,my],i)=>{s+=`<g transform="translate(${mx},${my}) rotate(-9.6)"><rect x="-22" y="-14" width="46" height="12" rx="2" fill="${shaded[i]?'var(--obst)':'var(--accent)'}" stroke="var(--ink)" stroke-width="1.5"/><line x1="1" y1="-14" x2="1" y2="-2" stroke="var(--surface)" stroke-width="1"/></g>`});
+  // tree
+  s+=`<path d="M112 ${GROUND} Q118 160 ${TREE.x} ${TREE.top+8}" fill="none" stroke="#7a5a38" stroke-width="8" stroke-linecap="round"/>`;
+  [[-60,-4],[-38,10],[-10,-30],[20,-26],[46,8],[60,-8],[-22,22],[30,26]].forEach(([dx,dy])=>s+=`<path d="M${TREE.x} ${TREE.top+6} q${dx*.5} ${dy-20} ${dx} ${dy}" fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round"/>`);
+  s+=`<circle cx="${TREE.x}" cy="${TREE.top+10}" r="6" fill="#8a6a3a"/>`;
+  // sun
+  if(sy<GROUND)s+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="18" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  const dirs=t('dirs');s+=`<text x="16" y="${GROUND+30}" class="s-t" font-weight="700">${dirs[1]}</text><text x="612" y="${GROUND+30}" class="s-t" font-weight="700">${dirs[3]}</text>`;
+  $('scene').innerHTML=s;
+  const n=shaded.filter(Boolean).length,irr=shaded.map(x=>x?.2:1);
+  const pct=n===0?100:$('scBy').checked?irr.reduce((a,b)=>a+b)/4*100:Math.min(...irr)*100;
+  $('scMeter').style.width=pct+'%';$('scPct').textContent=Math.round(pct)+'%';
+  $('scPlay').textContent=scPlay?t('i_pause'):t('i_play');}
+function scLoop(ts){if(scPlay&&S.tab===0){if(scLast)scT+=(ts-scLast)/12000;if(scT>1)scT=0;renderScene()}scLast=ts;requestAnimationFrame(scLoop)}
+
+/* ================= 2. PARTS ================= */
+const HOT_SIDE=[[300,92,300,150],[480,190,372,226],[80,176,150,232],[100,286,218,262],[488,246,352,262],[488,302,392,252],[488,352,362,288],[430,412,352,372],[58,318,82,360]];
+const HOT_TOP=[[0,450,52,330,104],[1,486,136,300,186],[2,62,120,128,168],[3,150,312,240,292],[4,470,300,376,282]];
+function lead(x1,y1,x2,y2){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="1.5"/><circle cx="${x2}" cy="${y2}" r="3.5" fill="var(--ink)"/>`}
+function domeDefs(id){return `<radialGradient id="${id}g" cx="34%" cy="22%" r="85%"><stop offset="0" stop-color="var(--glass)" stop-opacity=".95"/><stop offset=".3" stop-color="var(--glass)" stop-opacity=".35"/><stop offset=".7" stop-color="var(--sky)" stop-opacity=".55"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".35"/></radialGradient>`}
+function reflections(){ // silhouettes seen in the dome (tree, building, tank)
+  return `<path d="M200 226 C204 200 206 186 212 174" stroke="var(--ink)" stroke-width="4" fill="none"/>
+  <path d="M212 174 q-14 -4 -22 6 M212 174 q-4 -14 -16 -16 M212 174 q10 -12 22 -8 M212 174 q14 2 18 14 M212 174 q-2 12 -12 20" stroke="var(--ok)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <rect x="330" y="186" width="30" height="40" fill="var(--ink)"/><rect x="336" y="194" width="6" height="6" fill="var(--sky)"/><rect x="348" y="194" width="6" height="6" fill="var(--sky)"/><rect x="336" y="206" width="6" height="6" fill="var(--sky)"/>
+  <rect x="298" y="170" width="22" height="16" fill="var(--obst)"/><line x1="302" y1="186" x2="302" y2="226" stroke="var(--obst)" stroke-width="2"/><line x1="316" y1="186" x2="316" y2="226" stroke="var(--obst)" stroke-width="2"/>`}
+function renderParts(){
+  const P0=t('parts');
+  $('plist').innerHTML=P0.map((p,i)=>`<li><button data-part="${i}" aria-pressed="${i===S.part}"><span class="n">${i+1}</span>${p[0]}</button></li>`).join('');
+  $('pdesc').innerHTML=`<h3>${P0[S.part][0]}</h3><p style="margin-top:.3rem">${P0[S.part][1]}</p>`;
+  let s=`<defs>${domeDefs('ps')}<clipPath id="psC"><path d="M180 228 A100 100 0 0 1 380 228 Z"/></clipPath>
+   <linearGradient id="psB" x1="0" x2="1"><stop offset="0" stop-color="var(--muted)"/><stop offset=".45" stop-color="var(--chip)"/><stop offset="1" stop-color="var(--muted)"/></linearGradient></defs>`;
+  s+=`<rect width="560" height="430" fill="var(--surface)"/><ellipse cx="282" cy="418" rx="160" ry="9" fill="var(--ink)" opacity=".12"/>`;
+  // tripod: back leg, centre column, front legs with clamps and feet
+  s+=`<line x1="282" y1="300" x2="306" y2="404" stroke="var(--muted)" stroke-width="6" stroke-linecap="round"/>`;
+  s+=`<rect x="275" y="282" width="14" height="52" fill="var(--muted)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s+=`<line x1="282" y1="330" x2="226" y2="352" stroke="var(--ink)" stroke-width="2"/><line x1="282" y1="330" x2="338" y2="352" stroke="var(--ink)" stroke-width="2"/>`;
+  [[276,302,184,412],[288,302,380,412]].forEach(([a,b,c,d])=>{const mx=(a+c)/2,my=(b+d)/2;
+    s+=`<line x1="${a}" y1="${b}" x2="${mx}" y2="${my}" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/><line x1="${mx}" y1="${my}" x2="${c}" y2="${d}" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/><circle cx="${mx}" cy="${my}" r="6" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/><ellipse cx="${c}" cy="${d+3}" rx="9" ry="4" fill="var(--ink)"/>`});
+  s+=`<rect x="258" y="276" width="48" height="10" rx="3" fill="var(--ink)"/>`;
+  // base plate
+  s+=`<ellipse cx="280" cy="274" rx="96" ry="13" fill="var(--muted)" stroke="var(--ink)" stroke-width="2"/>`;
+  // body drum
+  s+=`<path d="M162 232 L172 262 A108 16 0 0 0 388 262 L398 232 Z" fill="url(#psB)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  s+=`<ellipse cx="280" cy="232" rx="118" ry="20" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  // chart disc
+  s+=`<ellipse cx="280" cy="230" rx="104" ry="15" fill="var(--sunsoft)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  [0,5,10].forEach(k=>s+=`<path d="M${196+k*3} ${236-k*.4} Q280 ${214+k} ${364-k*3} ${236-k*.4}" fill="none" stroke="var(--sun)" stroke-width="1.6"/>`);
+  // declination tab with scale
+  s+=`<path d="M130 228 h40 v9 h-40 z" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  for(let k=0;k<7;k++)s+=`<line x1="${134+k*5}" y1="228" x2="${134+k*5}" y2="${k%3?231:233}" stroke="var(--ink)" stroke-width="1"/>`;
+  // compass on the drum front
+  s+=`<ellipse cx="218" cy="252" rx="20" ry="9" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><ellipse cx="218" cy="252" rx="14" ry="5.5" fill="none" stroke="var(--muted)"/><path d="M206 254 L218 251 L230 250 L218 253 Z" fill="var(--bad)" stroke="var(--ink)" stroke-width=".8"/>`;
+  // bubble level
+  s+=`<rect x="330" y="246" width="44" height="13" rx="6.5" fill="var(--sky)" stroke="var(--ink)" stroke-width="2"/><line x1="347" y1="246" x2="347" y2="259" stroke="var(--ink)"/><line x1="357" y1="246" x2="357" y2="259" stroke="var(--ink)"/><ellipse cx="352" cy="252.5" rx="5" ry="4" fill="var(--glass)" stroke="var(--ok)" stroke-width="2"/>`;
+  // dome with reflections
+  s+=`<path d="M180 228 A100 100 0 0 1 380 228 Z" fill="var(--sky)"/>`;
+  s+=`<g clip-path="url(#psC)" opacity=".45">${reflections()}</g>`;
+  s+=`<path d="M180 228 A100 100 0 0 1 380 228 Z" fill="url(#psg)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  s+=`<ellipse cx="280" cy="228" rx="100" ry="9" fill="none" stroke="var(--ink)" stroke-width="1.2" opacity=".7"/>`;
+  s+=`<path d="M214 190 A78 78 0 0 1 282 146" fill="none" stroke="var(--glass)" stroke-width="7" stroke-linecap="round" opacity=".9"/><circle cx="300" cy="150" r="4" fill="var(--glass)" opacity=".9"/>`;
+  // grease pencil
+  s+=`<g transform="translate(56,388) rotate(-38)"><rect x="0" y="-7" width="96" height="14" rx="2" fill="var(--glass)" stroke="var(--ink)" stroke-width="2"/><rect x="0" y="-7" width="22" height="14" fill="var(--chip)" stroke="var(--ink)" stroke-width="2"/><path d="M96 -7 L112 0 L96 7 Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/></g>`;
+  HOT_SIDE.forEach((h,i)=>s+=lead(h[0],h[1],h[2],h[3])+hot([h[0],h[1]],i));
+  $('partsSide').innerHTML=s;
+  // top view
+  const dirs=t('dirs');
+  let u=`<defs>${domeDefs('pt')}<clipPath id="ptC"><circle cx="258" cy="166" r="96"/></clipPath></defs><rect width="560" height="330" fill="var(--surface)"/>`;
+  u+=`<circle cx="258" cy="168" r="134" fill="var(--muted)" opacity=".35"/><circle cx="258" cy="166" r="130" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  u+=`<g transform="translate(150,58) scale(0.36)">${chartSVG({compact:true,month:null,obs:[]})}</g>`;
+  u+=`<g clip-path="url(#ptC)"><g opacity=".4"><path d="M162 166 q20 -50 30 -60 q12 30 4 70 z" fill="var(--ok)"/><rect x="318" y="118" width="36" height="70" fill="var(--ink)"/></g><circle cx="258" cy="166" r="96" fill="url(#ptg)"/><circle cx="258" cy="166" r="14" fill="var(--ink)" opacity=".45"/></g>`;
+  u+=`<circle cx="258" cy="166" r="96" fill="none" stroke="var(--ink)" stroke-width="2"/><path d="M196 120 A76 76 0 0 1 252 92" fill="none" stroke="var(--glass)" stroke-width="7" stroke-linecap="round" opacity=".9"/>`;
+  u+=`<path d="M102 162 h28 v10 h-28 z" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  u+=`<circle cx="240" cy="292" r="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/><path d="M240 278 L245 292 L240 306 L235 292 Z" fill="var(--bad)"/><path d="M240 306 L245 292 L235 292 Z" fill="var(--muted)"/>`;
+  u+=`<circle cx="376" cy="282" r="13" fill="var(--sky)" stroke="var(--ink)" stroke-width="2"/><circle cx="376" cy="282" r="5" fill="none" stroke="var(--ink)"/><circle cx="376" cy="282" r="3.5" fill="var(--ok)"/>`;
+  u+=`<text x="258" y="22" class="c-dir" style="font-size:22px">${S.lat>=0?dirs[2]:dirs[0]}</text>`;
+  u+=`<text x="530" y="170" class="c-dir" style="font-size:18px">${dirs[3]}</text><text x="30" y="170" class="c-dir" style="font-size:18px">${dirs[1]}</text>`;
+  HOT_TOP.forEach(([i,mx,my,px,py])=>u+=lead(mx,my,px,py)+hot([mx,my],i));
+  $('partsTop').innerHTML=u;}
+function hot([x,y],i){return `<g class="hot${i===S.part?' on':''}" data-part="${i}" tabindex="0" role="button" aria-label="${esc(t('parts')[i][0])}"><circle cx="${x}" cy="${y}" r="15"/><text x="${x}" y="${y}">${i+1}</text></g>`}
+
+/* ================= TRUE NORTH ================= */
+const TNICON={
+compass:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/><path d="M24 8 L28 24 L24 40 L20 24Z" fill="var(--bad)"/><path d="M24 40 L28 24 L20 24Z" fill="var(--muted)"/></svg>`,
+rod:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="38" cy="10" r="6" fill="var(--sun)"/><line x1="16" y1="14" x2="16" y2="40" stroke="var(--ink)" stroke-width="3"/><line x1="16" y1="40" x2="4" y2="44" stroke="var(--obst)" stroke-width="4" stroke-linecap="round"/><line x1="2" y1="40" x2="46" y2="40" stroke="var(--muted)" stroke-width="1.5"/></svg>`,
+star:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="8" fill="var(--ink)"/><path d="M24 8 l3 8 8 .5 -6 5 2 8 -7 -4.5 -7 4.5 2 -8 -6 -5 8 -.5z" fill="var(--sun)"/><path d="M4 42 q20 -8 40 0" stroke="var(--sky)" stroke-width="2" fill="none"/></svg>`,
+phone:`<svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="13" y="4" width="22" height="40" rx="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/><circle cx="24" cy="23" r="7" fill="none" stroke="var(--accent)" stroke-width="2"/><path d="M24 15 l2 8 -2 8 -2 -8z" fill="var(--bad)"/></svg>`};
+function renderTN(){
+  const d=t('dirs'),dec=S.mdec,lat=S.lat;
+  // globe
+  const cx=210,cy=200,R=140;
+  let g=`<rect width="420" height="380" fill="var(--surface)"/><circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  [-60,-30,0,30,60].forEach(l=>{const y=cy-R*Math.sin(l*D2R),rx=R*Math.cos(l*D2R);g+=`<path d="M${(cx-rx).toFixed(1)} ${y.toFixed(1)} A${rx.toFixed(1)} ${(rx*.18).toFixed(1)} 0 0 0 ${(cx+rx).toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="var(--muted)" stroke-width="${l?1:2.2}" opacity=".75"/>`});
+  [28,58].forEach(k=>{const rx=R*Math.sin(k*D2R);g+=`<ellipse cx="${cx}" cy="${cy}" rx="${rx.toFixed(1)}" ry="${R}" fill="none" stroke="var(--muted)" opacity=".4"/>`});
+  g+=`<line x1="${cx}" y1="${cy-R-44}" x2="${cx}" y2="${cy+R+24}" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+  g+=`<path d="M${cx-30} ${cy-R-26} A30 9 0 1 0 ${cx+30} ${cy-R-26}" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M${cx+30} ${cy-R-26} l-10 -6 l1 10 z" fill="var(--accent)"/>`;
+  const tn=[cx,cy-R],mn=[cx+44,cy-R+18];
+  const ph=Math.max(-60,Math.min(60,lat))*D2R,site=[cx-R*Math.cos(ph)*Math.sin(24*D2R),cy-R*Math.sin(ph)];
+  g+=`<path d="M${site[0].toFixed(1)} ${site[1].toFixed(1)} Q${(site[0]+8).toFixed(1)} ${((site[1]+tn[1])/2).toFixed(1)} ${tn[0]} ${tn[1]}" fill="none" stroke="var(--ink)" stroke-width="3"/>`;
+  g+=`<g class="anim-wander"><path d="M${site[0].toFixed(1)} ${site[1].toFixed(1)} Q${(site[0]+40).toFixed(1)} ${((site[1]+mn[1])/2).toFixed(1)} ${mn[0]} ${mn[1]}" fill="none" stroke="var(--bad)" stroke-width="2.5" stroke-dasharray="6 5"/><circle cx="${mn[0]}" cy="${mn[1]}" r="8" fill="var(--bad)" stroke="var(--ink)" stroke-width="1.5"/><text x="${mn[0]+14}" y="${mn[1]+18}" class="s-t" style="fill:var(--bad);font-weight:600">${t('lb_mn')}</text></g>`;
+  g+=`<path d="M${tn[0]} ${tn[1]-12} l3.5 8 8.5 .5 -6.5 5.5 2 8.5 -7.5 -4.5 -7.5 4.5 2 -8.5 -6.5 -5.5 8.5 -.5z" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  g+=`<text x="${tn[0]-40}" y="${tn[1]-14}" class="s-t" text-anchor="end" font-weight="700">${t('lb_tn')}</text><text x="${cx+8}" y="${cy+R+20}" class="s-tm">${t('lb_axis')}</text>`;
+  g+=`<circle cx="${site[0].toFixed(1)}" cy="${site[1].toFixed(1)}" r="7" fill="var(--sun)" stroke="var(--ink)" stroke-width="2"/><text x="${(site[0]-12).toFixed(1)}" y="${(site[1]+24).toFixed(1)}" class="s-t" text-anchor="middle" font-weight="600">${esc($('locName').value.split(',')[0])}</text>`;
+  g+=`<path d="M${(site[0]+2).toFixed(1)} ${(site[1]-28).toFixed(1)} q14 -2 22 6" fill="none" stroke="var(--sun)" stroke-width="3"/><text x="${(site[0]+28).toFixed(1)}" y="${(site[1]-26).toFixed(1)}" class="s-tm">${t('lb_dec')}</text>`;
+  $('tnGlobe').innerHTML=g;
+  // compass
+  const C=210,Rc=158,k=$('tnX').checked?10:1,ang=Math.max(-80,Math.min(80,dec*k));
+  let c=`<rect width="420" height="460" fill="var(--surface)"/><circle cx="${C}" cy="${C}" r="${Rc}" fill="var(--chip)" stroke="var(--ink)" stroke-width="3"/><circle cx="${C}" cy="${C}" r="${Rc-30}" fill="var(--surface)" stroke="var(--line)"/>`;
+  for(let b=0;b<360;b+=5){const a=b*D2R,r1=Rc-(b%30?8:16);c+=`<line x1="${(C+Rc*Math.sin(a)).toFixed(1)}" y1="${(C-Rc*Math.cos(a)).toFixed(1)}" x2="${(C+r1*Math.sin(a)).toFixed(1)}" y2="${(C-r1*Math.cos(a)).toFixed(1)}" stroke="var(--ink)" stroke-width="${b%30?1:2}"/>`;
+    if(b%90===0){const r2=Rc-30+10;c+=`<text x="${(C+(Rc+18)*Math.sin(a)).toFixed(1)}" y="${(C-(Rc+18)*Math.cos(a)).toFixed(1)}" class="c-dir" style="font-size:24px">${d[b/90]}</text>`}}
+  c+=`<line x1="${C}" y1="${C+Rc-30}" x2="${C}" y2="${C-Rc+6}" stroke="var(--ink)" stroke-width="4"/><path d="M${C} ${C-Rc+2} l-9 18 h18z" fill="var(--ink)"/>`;
+  c+=`<text x="${C-10}" y="${C+60}" class="s-tm" text-anchor="end" transform="rotate(-90 ${C-10} ${C+60})">${t('lb_merid')}</text>`;
+  const ar=96,ex=C+ar*Math.sin(ang*D2R),ey=C-ar*Math.cos(ang*D2R);
+  c+=`<path d="M${C} ${C-ar} A${ar} ${ar} 0 0 ${ang>=0?1:0} ${ex.toFixed(1)} ${ey.toFixed(1)}" fill="none" stroke="var(--sun)" stroke-width="5"/>`;
+  c+=`<g style="transform:rotate(${ang}deg);transform-origin:${C}px ${C}px;transition:transform .8s"><path d="M${C} ${C-120} L${C+11} ${C} L${C-11} ${C}Z" fill="var(--bad)" stroke="var(--ink)" stroke-width="1.5"/><path d="M${C} ${C+120} L${C+11} ${C} L${C-11} ${C}Z" fill="var(--muted)" stroke="var(--ink)" stroke-width="1.5"/><text x="${ang>=0?C+16:C-16}" y="${C-78}" text-anchor="${ang>=0?'start':'end'}" class="s-t" style="fill:var(--bad);font-weight:600">${t('lb_mn')}</text></g>`;
+  c+=`<circle cx="${C}" cy="${C}" r="8" fill="var(--ink)"/><text x="${C+(ang>=0?-10:10)}" y="${C-ar-20}" class="s-t" text-anchor="${ang>=0?'end':'start'}" font-weight="700">${t('lb_tn')}</text>`;
+  c+=`<rect x="12" y="414" width="260" height="32" rx="6" fill="var(--sunsoft)"/><text x="22" y="436" class="s-t">${t('lb_dec')}: <tspan font-weight="700">${dec>0?'+':''}${dec}° ${dec<0?'(W)':dec>0?'(E)':''}</tspan>${k>1?' ×10':''}</text>`;
+  $('tnComp').innerHTML=c;
+  // converter
+  const mag=+$('tnMag').value||0;$('tnTrue').textContent=norm360(mag+dec).toFixed(1)+'°';
+  const sd=lat>=0?180:0;$('tnEx').textContent=fmt(t('tn_ex'),{sd:lat>=0?t('sdS'):t('sdN'),s:sd,d:dec,m:norm360(sd-dec).toFixed(1)});
+  $('tnMethods').innerHTML=t('tn_m').map(m=>`<div class="card">${TNICON[m[0]]}<h3>${m[1]}</h3><p>${fmt(m[2],{lat:Math.abs(lat).toFixed(0)})}</p></div>`).join('');
+  renderShadow();}
+function renderShadow(){
+  const n=MID[S.tnMonth],dc=decl(n),H=dayLen(S.lat,dc),O=210,rod=90,d=t('dirs');
+  if(S.tnT<12-H+.3||S.tnT>12+H-.2)S.tnT=12-H+.3;
+  let s=`<rect width="420" height="420" fill="var(--surface)"/><rect x="20" y="20" width="380" height="380" rx="10" fill="var(--chip)"/>`;
+  for(let k=60;k<=360;k+=50)s+=`<line x1="${k}" y1="20" x2="${k}" y2="400" stroke="var(--line)"/><line x1="20" y1="${k}" x2="400" y2="${k}" stroke="var(--line)"/>`;
+  s+=`<line x1="${O}" y1="24" x2="${O}" y2="396" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="8 6"/><text x="${O+8}" y="392" class="s-tm" style="fill:var(--accent)">${t('lb_merid')}</text>`;
+  s+=`<text x="${O}" y="14" class="c-dir" style="font-size:20px">${d[0]}</text>`;
+  const tip=ts=>{const sp=sunAt(S.lat,dc,ts);if(sp.alt<5)return null;const L=Math.min(185,rod/Math.tan(sp.alt*D2R)),az=(sp.brg+180)*D2R;return [O+L*Math.sin(az),O-L*Math.cos(az),sp]};
+  const tr=[];for(let ts=12-H+.2;ts<=12+H-.2;ts+=.1){const p=tip(ts);if(p)tr.push(p)}
+  s+=`<polyline points="${tr.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="var(--obst)" stroke-width="2" stroke-dasharray="3 4"/>`;
+  for(let h=Math.ceil(12-H);h<=Math.floor(12+H);h++){const p=tip(h);if(p&&Math.hypot(p[0]-O,p[1]-O)>34)s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--obst)"/><text x="${(p[0]+8).toFixed(1)}" y="${(p[1]-6).toFixed(1)}" class="s-tm" style="font-size:12px">${h}</text>`}
+  const nn=tip(12);if(nn)s+=`<line x1="${O}" y1="${O}" x2="${nn[0].toFixed(1)}" y2="${nn[1].toFixed(1)}" stroke="var(--sun)" stroke-width="5" opacity=".6"/><circle cx="${nn[0].toFixed(1)}" cy="${nn[1].toFixed(1)}" r="7" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/><text x="${(nn[0]+14).toFixed(1)}" y="${(nn[1]+(nn[1]<O?-14:28)).toFixed(1)}" class="s-t" font-weight="700">${t('lb_noon')}</text>`;
+  const cur=tip(S.tnT);
+  if(cur){s+=`<line x1="${O}" y1="${O}" x2="${cur[0].toFixed(1)}" y2="${cur[1].toFixed(1)}" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" opacity=".8"/>`;
+    const sa=cur[2].brg*D2R;s+=`<circle cx="${(O+180*Math.sin(sa)).toFixed(1)}" cy="${(O-180*Math.cos(sa)).toFixed(1)}" r="13" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`}
+  s+=`<circle cx="${O}" cy="${O}" r="8" fill="var(--bad)" stroke="var(--ink)" stroke-width="2"/><text x="${O-14}" y="${O-14}" class="s-tm" text-anchor="end">${t('lb_rod')}</text>`;
+  $('tnShadow').innerHTML=s;
+  $('tnTime').textContent=hhmm(S.tnT);$('tnPlay').textContent=S.tnPlaying?t('pause'):t('play');
+  const noonAlt=sunAt(S.lat,dc,12).alt,m=t('months')[S.tnMonth];
+  $('tnNoon').textContent=fmt(noonAlt>88.5?t('dirZ'):(S.lat>dc?t('dirN'):t('dirS')),{m});}
+
+/* ================= PLACEMENT ================= */
+function renderPL(){
+  $('plPts').innerHTML=t('pl_pts').map(p=>`<li class="pt"><span class="n ${p[1]}">${p[0]}</span><span>${p[2]}</span></li>`).join('');
+  const d=t('dirs');
+  let s=`<rect width="600" height="390" fill="var(--surface)"/>`;
+  s+=`<rect x="40" y="40" width="500" height="320" fill="var(--muted)" stroke="var(--ink)" stroke-width="3"/><rect x="52" y="52" width="476" height="296" fill="var(--chip)"/>`;
+  s+=`<text x="290" y="374" class="s-tm" text-anchor="middle" style="font-size:12px;fill:var(--surface)">${t('lb_parapet')}</text>`;
+  s+=`<rect x="84" y="66" width="86" height="56" fill="var(--obst)" fill-opacity=".35" stroke="var(--obst)" stroke-width="2.5"/><text x="127" y="99" class="s-t" text-anchor="middle" style="font-size:14px">${t('lb_tank')}</text>`;
+  s+=`<rect x="404" y="62" width="110" height="74" fill="var(--obst)" fill-opacity=".35" stroke="var(--obst)" stroke-width="2.5"/><text x="459" y="104" class="s-t" text-anchor="middle" style="font-size:14px">${t('lb_stair')}</text>`;
+  const x0=100,x1=480,y0=170,y1=310;
+  s+=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="var(--accent)" fill-opacity=".22" stroke="var(--accent)" stroke-width="3"/>`;
+  for(let x=x0+38;x<x1;x+=38)s+=`<line x1="${x}" y1="${y0}" x2="${x}" y2="${y1}" stroke="var(--accent)" stroke-width="1" opacity=".6"/>`;
+  s+=`<line x1="${x0}" y1="${(y0+y1)/2}" x2="${x1}" y2="${(y0+y1)/2}" stroke="var(--accent)" stroke-width="1" opacity=".6"/>`;
+  s+=`<text x="${(x0+x1)/2}" y="${(y0+y1)/2-12}" class="s-t" text-anchor="middle" font-weight="600">${t('lb_array')}</text>`;
+  const pt=(x,y,l,f,cls)=>`<g class="${cls||''}"><circle cx="${x}" cy="${y}" r="15" fill="${f}" stroke="var(--ink)" stroke-width="2"/><text x="${x}" y="${y+5}" text-anchor="middle" style="font-family:var(--f-mono);font-weight:700;font-size:15px;fill:${f==='var(--obst)'?'var(--bg)':'#000'}">${l}</text></g>`;
+  s+=pt(x0,y1,'A','var(--sun)','anim-pulse')+pt(x1,y1,'B','var(--sun)','anim-pulse')+`<circle cx="${(x0+x1)/2}" cy="${y1}" r="15" fill="var(--surface)" stroke="var(--sun)" stroke-width="3"/><text x="${(x0+x1)/2}" y="${y1+5}" text-anchor="middle" class="s-t" style="font-family:var(--f-mono);font-weight:700">C</text>`+pt(x0,y0,'D','var(--obst)')+pt(x1,y0,'E','var(--obst)');
+  s+=`<g transform="translate(566,90)"><path d="M0 -36 L9 0 L0 -8 L-9 0Z" fill="var(--ink)"/><text y="-44" class="c-dir" style="font-size:18px">${d[0]}</text><text y="20" class="c-dir" style="font-size:14px">${d[2]}</text></g>`;
+  s+=`<text x="290" y="30" class="s-tm" text-anchor="middle">↑ ${d[0]}</text>`;
+  $('plPlan').innerHTML=s;
+  // side view: south on the left
+  let v=`<rect width="600" height="310" fill="var(--sky)"/><rect x="0" y="250" width="600" height="60" fill="var(--chip)"/><line x1="0" y1="250" x2="600" y2="250" stroke="var(--ink)" stroke-width="3"/>`;
+  v+=`<rect x="70" y="214" width="16" height="36" fill="var(--muted)" stroke="var(--ink)" stroke-width="2"/><text x="78" y="276" class="s-tm" text-anchor="middle">${t('lb_parapet')}</text>`;
+  v+=`<path d="M32 250 Q36 140 30 70" stroke="#7a5a38" stroke-width="7" fill="none"/>`;
+  [[-34,0],[-20,16],[0,-20],[22,-12],[34,10],[-6,24]].forEach(([dx,dy])=>v+=`<path d="M30 70 q${dx*.5} ${dy-16} ${dx} ${dy}" stroke="var(--ok)" stroke-width="5" fill="none" stroke-linecap="round"/>`);
+  v+=`<text x="30" y="48" class="s-tm" text-anchor="middle">${t('lb_tree')}</text>`;
+  // GI structure and module
+  v+=`<line x1="240" y1="250" x2="240" y2="190" stroke="var(--muted)" stroke-width="5"/><line x1="420" y1="250" x2="420" y2="130" stroke="var(--muted)" stroke-width="5"/><line x1="240" y1="250" x2="420" y2="160" stroke="var(--muted)" stroke-width="2"/>`;
+  v+=`<line x1="226" y1="196" x2="434" y2="124" stroke="var(--accent)" stroke-width="12" stroke-linecap="round"/><text x="330" y="236" class="s-tm" text-anchor="middle">${t('lb_gi')}</text>`;
+  // correct unit at module lower edge
+  const dome=(x,y)=>`<line x1="${x}" y1="${y+8}" x2="${x-18}" y2="250" stroke="var(--ink)" stroke-width="2.5"/><line x1="${x}" y1="${y+8}" x2="${x+18}" y2="250" stroke="var(--ink)" stroke-width="2.5"/><rect x="${x-14}" y="${y}" width="28" height="8" rx="2" fill="var(--chip)" stroke="var(--ink)" stroke-width="1.5"/><path d="M${x-11} ${y} A11 11 0 0 1 ${x+11} ${y}" fill="var(--glass)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  const ok=[196,196],bad=[150,238];
+  v+=`<line x1="${ok[0]}" y1="${ok[1]-6}" x2="30" y2="70" stroke="var(--ok)" stroke-width="2.5" stroke-dasharray="7 5"/><line x1="${bad[0]}" y1="${bad[1]-6}" x2="30" y2="70" stroke="var(--bad)" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+  v+=`<line x1="${ok[0]}" y1="${ok[1]-6}" x2="80" y2="214" stroke="var(--ok)" stroke-width="1.5" opacity=".7"/><line x1="${bad[0]}" y1="${bad[1]-6}" x2="80" y2="214" stroke="var(--bad)" stroke-width="1.5" opacity=".7"/>`;
+  v+=`<line x1="${ok[0]}" y1="${ok[1]+8}" x2="${ok[0]}" y2="250" stroke="var(--ink)" stroke-width="2.5"/>`+dome(ok[0],ok[1])+dome(bad[0],bad[1]).replace(/y2="250"/g,'y2="250"');
+  v+=`<path d="M${ok[0]+16} ${ok[1]-22} l7 7 l14 -16" class="s-ok"/><path d="M${bad[0]+14} ${bad[1]-34} l16 16 m0 -16 l-16 16" class="s-bad"/>`;
+  v+=`<text x="250" y="70" class="s-t" style="fill:var(--ok);font-weight:600">${t('lb_ok')}</text><text x="${bad[0]+20}" y="296" class="s-t" style="fill:var(--bad);font-weight:600">${t('lb_bad')}</text>`;
+  v+=`<text x="16" y="296" class="c-dir" style="font-size:18px">${d[2]}</text><text x="584" y="296" class="c-dir" style="font-size:18px">${d[0]}</text>`;
+  $('plSide').innerHTML=v;}
+
+/* ================= LABEL GUIDE (diagram tab) ================= */
+function renderLG(){
+  const L=t('lg');
+  $('lgChips').innerHTML=L.map(x=>`<button data-lgd="${x[0]}" aria-pressed="${S.hl===x[0]}">${x[1]}</button>`).join('');
+  const it=L.find(x=>x[0]===S.hl);
+  if(!it){$('lgBody').innerHTML=`<p>${t('lg_none')}</p>`;}
+  else{
+    const cells=slots(S.lat,MID[S.dMonth]),mx=cells.reduce((a,c)=>c.w>a.w?c:a,cells[0]);
+    const lt=`${Math.abs(S.lat).toFixed(1)}° ${S.lat>=0?'N':'S'}`;
+    let body=fmt(it[2],{m:t('months')[S.dMonth],v:Math.round(mx.w),a:hhmm(mx.ts-.25),b:hhmm(mx.ts+.25),lat:lt,p:esc($('locName').value.split(',')[0])});
+    let extra='';
+    if(S.hl==='pct')extra=pctBars(cells,mx);
+    $('lgBody').innerHTML=`<h3>${it[1]}</h3><p>${body}</p>${extra}`;}
+  // latitude small multiples
+  const site=Math.round(S.lat*10)/10;
+  const L4=[[0,t('lg_eq')],[site,esc($('locName').value.split(',')[0])],[23.4,t('lg_trop')],[40,'']];
+  $('latMinis').innerHTML=L4.map(([la,nm])=>`<figure><svg viewBox="-40 -40 680 680" role="img" aria-label="${la}°">${miniChart(la)}</svg><figcaption>${Math.abs(la).toFixed(1)}° ${la>=0?'N':'S'}${nm?' · '+nm:''}</figcaption></figure>`).join('');}
+function miniChart(la){const o=S.lat;S.lat=la;const r=chartSVG({compact:true,month:5,obs:[]});S.lat=o;return r}
+function pctBars(cells,mx){
+  const W=600,Hh=190,x0=30,x1=590,y0=20,y1=150,t0=5,t1=19,maxw=Math.max(...cells.map(c=>c.w));
+  const X=ts=>x0+(ts-t0)/(t1-t0)*(x1-x0),bw=(x1-x0)/((t1-t0)*2)-2;
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" style="width:100%;height:auto;margin-top:.6rem" role="img" aria-label="Half-hour shares">`;
+  s+=`<line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" class="b-grid"/>`;
+  let sum=0;
+  cells.forEach(c=>{const h=c.w/maxw*(y1-y0),x=X(c.ts)-bw/2;sum+=c.w;
+    s+=`<rect x="${x.toFixed(1)}" y="${(y1-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" class="b-bar" ${c===mx?'stroke="var(--ink)" stroke-width="2.5"':''}/>`;
+    if(c.w>=1.5)s+=`<text x="${X(c.ts).toFixed(1)}" y="${(y1-h-5).toFixed(1)}" class="b-lbl" style="font-size:11px">${Math.round(c.w)}</text>`});
+  for(let h=6;h<=18;h+=2)s+=`<text x="${X(h)}" y="${y1+18}" class="b-m">${h}:00</text>`;
+  s+=`<text x="${x1}" y="${y1+36}" class="b-lbl" style="font-weight:600;text-anchor:end">${fmt(t('lg_bar'),{m:t('months')[S.dMonth]})}: Σ = ${Math.round(sum)}</text>`;
+  return s+'</svg>';}
+
+/* ================= EXPLAINER ================= */
+const XPC={cx:330,cy:244,R:196},NXP=7;
+const xpCart=(b,a)=>[64+b/360*536,420-Math.max(0,a)/90*360];
+function xpPol(b,a){const r=XPC.R*(90-Math.max(0,Math.min(90,a)))/90,d=(b-eqB())*D2R;return [XPC.cx+r*Math.sin(d),XPC.cy-r*Math.cos(d)]}
+function xpMix(b,a,k){const c=xpCart(b,a),p=xpPol(b,a);return [c[0]+(p[0]-c[0])*k,c[1]+(p[1]-c[1])*k]}
+function xpLine(arr,k,attrs){const segs=[[]];arr.forEach((q,i)=>{if(i&&Math.abs(q.b-arr[i-1].b)>180&&k<.999)segs.push([]);segs[segs.length-1].push(xpMix(q.b,q.a,k))});
+  return segs.filter(x=>x.length>1).map(x=>`<polyline points="${pts(x)}" ${attrs}/>`).join('')}
+function dayPts(dec,step){const H=dayLen(S.lat,dec),o=[];if(H<=0)return o;for(let ts=12-H;ts<=12+H+1e-6;ts+=step||.05){const p=sunAt(S.lat,dec,ts);o.push({b:p.brg,a:Math.max(0,p.alt),ts})}return o}
+const pairDec=pr=>pr.reduce((a,m)=>a+decl(MID[m]),0)/pr.length;
+const selPair=()=>PAIRS.findIndex(pr=>pr.includes(XP.m));
+const clamp01=x=>Math.max(0,Math.min(1,x)),ease=x=>x*x*(3-2*x);
+function xpBox(lines,right){const w=Math.max(...lines.map(l=>l.length))*8.6+20,bx=right?630-w:10;return `<rect x="${bx}" y="10" width="${w}" height="${lines.length*22+12}" rx="6" class="x-box"/>`+lines.map((l,i)=>`<text x="${bx+10}" y="${32+i*22}" class="x-rd">${esc(l)}</text>`).join('')}
+function xpGo(i){XP.st=Math.max(0,Math.min(NXP-1,i));XP.t=0;XP.k=null;XP.play=true;xpCard();xpRender()}
+function xpCard(){
+  const st=t('xp_st'),i=XP.st;
+  $('xpDots').innerHTML=st.map((x,k)=>`<button data-xp="${k}" aria-current="${k===i}" class="${k<i?'done':''}" aria-label="${t('step')} ${k+1}">${k+1}</button>`).join('');
+  $('xpNo').textContent=`${t('step')} ${i+1} / ${st.length}`;$('xpTitle').textContent=st[i][0];$('xpBody').textContent=st[i][1];
+  $('xpAxes').textContent=t('xp_ax')[[0,1,1,2,2,2,2][i]];
+  $('xpPrev').disabled=i===0;$('xpNext').disabled=i===st.length-1;$('xpKw').hidden=i!==3;}
+function xpRender(){
+  const st=XP.st,T0=XP.t;let s=`<rect width="640" height="480" fill="var(--surface)"/>`;
+  $('xpPlay').textContent=XP.play?t('pause'):t('play');
+  if(st===0)s+=xpDome(((T0/8)%1));
+  else if(st<=3){
+    const k=st<3?0:(XP.k!=null?XP.k:ease(clamp01((T0-.8)/3.2)));
+    if(st===3&&XP.k==null)$('xpK').value=k.toFixed(2);
+    s+=xpGrid(k);
+    if(st===1)s+=xpOneDay(Math.min(1,(T0%10)/8));
+    else s+=xpMonths(st===2?Math.floor(T0/.9)+1:7,k);}
+  else s+=xpPolar(st,T0);
+  $('xpSvg').innerHTML=s;}
+function xpDome(frac){
+  const ox=320,oy=338,R=220,ky=.30,kz=.86,d=t('dirs');
+  const pr=(a,b)=>{const A=a*D2R,B=b*D2R;return [ox+R*Math.cos(A)*Math.sin(B),oy-R*Math.sin(A)*kz-R*Math.cos(A)*Math.cos(B)*ky]};
+  const sc=(p,f)=>[ox+(p[0]-ox)*f,oy+(p[1]-oy)*f];
+  const dec=decl(MID[XP.m]),H=dayLen(S.lat,dec),ts=12-H+2*H*frac,sp=sunAt(S.lat,dec,ts),alt=Math.max(0,sp.alt);
+  let s=`<ellipse cx="${ox}" cy="${oy}" rx="${R}" ry="${R*ky}" fill="var(--chip)" stroke="var(--ink)" stroke-width="2"/>`;
+  s+=`<path d="M${ox-R} ${oy} A${R} ${R*kz} 0 0 1 ${ox+R} ${oy}" fill="var(--sky)" fill-opacity=".5" stroke="var(--muted)" stroke-width="1.5"/>`;
+  [0,90].forEach(b=>{const q=[];for(let a=0;a<=180;a+=5)q.push(pr(a<=90?a:180-a,a<=90?b:b+180));s+=`<polyline points="${pts(q)}" fill="none" stroke="var(--muted)" stroke-width="1" opacity=".5"/>`});
+  [0,90,180,270].forEach((b,i)=>{const q=sc(pr(0,b),1.12);s+=`<text x="${q[0].toFixed(1)}" y="${q[1].toFixed(1)}" class="c-dir" style="font-size:22px">${d[i]}</text>`});
+  const path=dayPts(dec).map(q=>pr(q.a,q.b));s+=`<polyline points="${pts(path)}" fill="none" stroke="var(--sun)" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+  for(let h=Math.ceil(12-H);h<=12+H;h++){const q=sunAt(S.lat,dec,h);if(q.alt>0){const p=pr(q.alt,q.brg);s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="var(--sun)"/>`}}
+  const SP=pr(alt,sp.brg),F=pr(0,sp.brg),N0=pr(0,0);
+  s+=`<line x1="${ox}" y1="${oy}" x2="${N0[0].toFixed(1)}" y2="${N0[1].toFixed(1)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<line x1="${ox}" y1="${oy}" x2="${F[0].toFixed(1)}" y2="${F[1].toFixed(1)}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/><line x1="${F[0].toFixed(1)}" y1="${F[1].toFixed(1)}" x2="${SP[0].toFixed(1)}" y2="${SP[1].toFixed(1)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<line x1="${ox}" y1="${oy}" x2="${SP[0].toFixed(1)}" y2="${SP[1].toFixed(1)}" stroke="var(--ink)" stroke-width="2.5"/>`;
+  const aa=[];for(let a=0;a<=alt;a+=2)aa.push(sc(pr(a,sp.brg),.34));if(aa.length>1)s+=`<polyline points="${pts(aa)}" fill="none" stroke="var(--sun)" stroke-width="5" stroke-linecap="round"/>`;
+  const am=sc(pr(alt/2,sp.brg),.42);s+=`<text x="${am[0].toFixed(1)}" y="${am[1].toFixed(1)}" class="x-ttl" style="fill:var(--ink)">${t('xp_alt')} ${alt.toFixed(0)}°</text>`;
+  const bb=[];for(let b=0;b<=sp.brg;b+=3)bb.push(sc(pr(0,b),.36));if(bb.length>1)s+=`<polyline points="${pts(bb)}" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>`;
+  const bm=sc(pr(0,sp.brg/2),.5);s+=`<text x="${bm[0].toFixed(1)}" y="${(bm[1]+26).toFixed(1)}" class="x-ttl" text-anchor="middle">${t('xp_brg')} ${sp.brg.toFixed(0)}°</text>`;
+  s+=`<circle cx="${ox}" cy="${oy-16}" r="7" fill="var(--ink)"/><line x1="${ox}" y1="${oy-9}" x2="${ox}" y2="${oy}" stroke="var(--ink)" stroke-width="4"/>`;
+  if(sp.alt>0)s+=`<circle cx="${SP[0].toFixed(1)}" cy="${SP[1].toFixed(1)}" r="15" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s+=xpBox([`${t('xp_time')} ${hhmm(ts)} · ${t('months')[XP.m]}`,`${t('xp_alt')}: ${alt.toFixed(0)}°`,`${t('xp_brg')}: ${sp.brg.toFixed(0)}°`]);
+  return s;}
+function xpGrid(k){
+  let s='';const d=t('dirs');
+  if(k>0)s+=`<circle cx="${XPC.cx}" cy="${XPC.cy}" r="${XPC.R}" class="c-sky" opacity="${k}"/>`;
+  [0,30,60].forEach(a=>{const q=[];for(let b=0;b<=360;b+=5)q.push({b,a});s+=xpLine(q,k,`class="${a?'x-grid':'x-ax'}"`)});
+  if(k<.6){const q=[];for(let b=0;b<=360;b+=5)q.push({b,a:90});s+=xpLine(q,k,`class="x-grid" opacity="${1-k/.6}"`)}
+  for(let b=0;b<=360;b+=30){const q=[];for(let a=0;a<=90;a+=5)q.push({b,a});s+=xpLine(q,k,`class="${b===0&&k<.5?'x-ax':'x-grid'}"`)}
+  const o1=(1-k).toFixed(2),o2=k.toFixed(2);
+  s+=`<g opacity="${o1}">`;
+  for(let b=0;b<=360;b+=30){const p=xpCart(b,0);s+=`<text x="${p[0]}" y="${p[1]+16}" class="x-lbl">${b}</text>`;if(b%90===0)s+=`<text x="${p[0]}" y="${p[1]+36}" class="c-dir" style="font-size:20px">${d[(b/90)%4]}</text>`}
+  [0,30,60,90].forEach(a=>{const p=xpCart(0,a);s+=`<text x="${p[0]-14}" y="${p[1]}" class="x-lbl" text-anchor="end">${a}</text>`});
+  s+=`<text x="600" y="472" class="x-ttl" text-anchor="end">${t('xp_xaxis')}</text><text x="14" y="40" class="x-ttl" transform="rotate(-90 14 40)" text-anchor="end">${t('xp_yaxis')}</text></g>`;
+  if(k>.02){s+=`<g opacity="${o2}">`;
+    for(let b=0;b<360;b+=90){const dd=(b-eqB())*D2R,r=XPC.R+22;s+=`<text x="${(XPC.cx+r*Math.sin(dd)).toFixed(1)}" y="${(XPC.cy-r*Math.cos(dd)).toFixed(1)}" class="c-dir" style="font-size:22px">${d[b/90]}</text>`}
+    [30,60].forEach(a=>{const p=xpPol(eqB(),a);s+=`<text x="${p[0]+5}" y="${p[1]+12}" class="c-deg" text-anchor="start">${a}°</text>`});
+    s+=`<text x="${XPC.cx+XPC.R*.72}" y="${XPC.cy+XPC.R*.82}" class="x-ttl">${t('xp_hz')}</text><text x="${XPC.cx+8}" y="${XPC.cy+4}" class="x-ttl">· ${t('xp_zen')}</text></g>`}
+  return s;}
+function xpOneDay(f){
+  const dec=decl(MID[XP.m]),H=dayLen(S.lat,dec),ts=12-H+2*H*f,arr=dayPts(dec).filter(q=>q.ts<=ts);
+  let s=xpLine(arr,0,`fill="none" stroke="var(--sun)" stroke-width="4"`);
+  for(let h=Math.ceil(12-H);h<=ts;h++){const q=sunAt(S.lat,dec,h);if(q.alt>0){const p=xpCart(q.brg,q.alt);s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="5" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.2"/><text x="${p[0].toFixed(1)}" y="${(p[1]-14).toFixed(1)}" class="x-lbl" style="fill:var(--ink)">${h}</text>`}}
+  const sp=sunAt(S.lat,dec,ts);if(sp.alt>0){const p=xpCart(sp.brg,sp.alt),bx=xpCart(sp.brg,0),ay=xpCart(0,sp.alt);
+    s+=`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${bx[0].toFixed(1)}" y2="${bx[1]}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/><line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${ay[0]}" y2="${ay[1].toFixed(1)}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="13" fill="var(--sun)" stroke="var(--ink)" stroke-width="1.5"/>`;
+    s+=xpBox([`${t('xp_time')} ${hhmm(ts)} · ${t('months')[XP.m]}`,`x = ${t('xp_brg')} ${sp.brg.toFixed(0)}°`,`y = ${t('xp_alt')} ${sp.alt.toFixed(0)}°`],true);}
+  return s;}
+function xpMonths(n,k){
+  let s='';const order=[0,1,2,3,4,5,6].slice(0,Math.min(7,n)),sel=selPair();
+  order.forEach(i=>{const pr=PAIRS[i],arr=dayPts(pairDec(pr));if(!arr.length)return;const on=i===sel;
+    s+=xpLine(arr,k,`fill="none" stroke="${on?'var(--sun)':'var(--muted)'}" stroke-width="${on?5:2}"`);
+    const lt=12+[-2.5,2.5,-3.5,3,-2,4.5,-4.5][i],q=sunAt(S.lat,pairDec(pr),lt),p=xpMix(q.brg,Math.max(0,q.alt),k);
+    s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="var(--ink)"/><text x="${(p[0]+(i%2?8:-8)).toFixed(1)}" y="${(p[1]-8).toFixed(1)}" class="c-ml" text-anchor="${i%2?'start':'end'}" style="font-size:13px">${pairName(pr)}</text>`});
+  return s;}
+function xpPolar(st,T0){
+  let s=xpGrid(1);const sel=selPair(),dec=pairDec(PAIRS[sel]);
+  PAIRS.forEach((pr,i)=>{const arr=dayPts(pairDec(pr));const on=i===sel;
+    s+=xpLine(arr,1,`fill="none" stroke="${on&&st>=5?'var(--sun)':'var(--muted)'}" stroke-width="${on&&st>=5?4:1.8}" opacity="${st>=5&&!on?.5:1}"`)});
+  // hour lines
+  const hrs=[];for(let h=5;h<=19;h++)hrs.push(h);
+  const nH=st===4?Math.floor(T0/.35)+1:99;
+  hrs.slice(0,nH).forEach(h=>{const q=[];let lab=null,mn=99;for(let d=-23.44;d<=23.45;d+=1){const p=sunAt(S.lat,d,h);if(p.alt>0){q.push({b:p.brg,a:p.alt});if(p.alt<mn&&p.alt>2){mn=p.alt;lab=p}}}
+    if(q.length>1){s+=xpLine(q,1,`fill="none" stroke="var(--accent)" stroke-width="${st===4?2.2:1}" opacity="${st===4?1:.45}"`);
+      if(lab){const p=xpPol(lab.brg,lab.alt-9);s+=`<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" class="c-hrl" style="fill:var(--accent);font-weight:${st===4?700:400}">${h}</text>`}}});
+  if(st===4){const p=xpPol(eqB(),0),c=xpPol(0,90);s+=`<line x1="${p[0]}" y1="${p[1]}" x2="${c[0]}" y2="${c[1]}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 5"/>`}
+  if(st>=5){
+    const cells=slots(S.lat,MID[XP.m]);const obs=st===6?[{type:'tree',b1:95,b2:150,e:42*clamp01(T0/2.5),name:''}]:[];
+    if(st===6){const ob=obs[0],up=[],dn=[];for(let b=ob.b1;b<=ob.b2;b+=1){up.push(xpPol(b,obsElev(ob,b)));dn.unshift(xpPol(b,0))}s+=`<polygon points="${pts(up.concat(dn))}" class="c-obs"/>`}
+    const nC=st===5?Math.floor(T0/.22)+1:99;let sum=0,lost=0;
+    cells.slice(0,nC).forEach(c=>{const v=c.w;sum+=v;const sh=st===6&&blocked(c.alt,c.brg,obs);if(sh)lost+=v;const p=xpPol(c.brg,c.alt);
+      s+=`<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" class="c-num${sh?' sh':''}">${Math.round(v)}</text>`;if(sh)s+=`<line x1="${(p[0]-7).toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${(p[0]+7).toFixed(1)}" y2="${p[1].toFixed(1)}" stroke="var(--bad)" stroke-width="2"/>`});
+    if(st===5){const c=cells[Math.min(nC,cells.length)-1];if(c){const p=xpPol(c.brg,c.alt);s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="13" fill="none" stroke="var(--sun)" stroke-width="3"/>`}
+      s+=xpBox([`${t('months')[XP.m]}: ${t('xp_sum')} Σ = ${Math.round(sum)}${nC>=cells.length?' ✓':''}`]);}
+    else s+=xpBox([`${t('months')[XP.m]}: 100 − ${Math.round(lost)} = ${Math.round(100-lost)}%`,`${t('xp_access')} = ${Math.round(100-lost)}%`]);}
+  return s;}
+
+/* ================= 3. DIAGRAM ================= */
+function renderDiagram(){
+  const n=MID[S.dMonth],dec=decl(n),H=dayLen(S.lat,dec);
+  if(S.dT<12-H)S.dT=12-H+.05;
+  const sp=sunAt(S.lat,dec,S.dT);
+  $('dChart').innerHTML=chartSVG({month:S.dMonth,nums:$('dNums').checked||S.hl==='pct',obs:[],sun:S.hl?null:sp,glass:true,latLabel:true,ringX:S.hl==='ring'});
+  $('dChart').setAttribute('class',S.hl?'hlon hl-'+S.hl:'');
+  renderLG();
+  $('dTime').textContent=`${hhmm(S.dT)} · ${sp.alt.toFixed(0)}°`;
+  $('dPlay').textContent=S.dPlaying?t('pause'):t('play');
+  // overhead dates
+  const lat=S.lat;let txt;
+  if(Math.abs(lat)<23.44){const days=[];for(let d=1;d<=365;d++){const a=decl(d)-lat,b=decl(d+1)-lat;if(a===0||a*b<0)days.push(d)}
+    const f=d=>new Intl.DateTimeFormat(t('loc'),{day:'numeric',month:'long'}).format(new Date(2026,0,d));
+    txt=days.length>=2?fmt(t('d_k'),{d1:f(days[0]),d2:f(days[1])}):t('d_no')}else txt=t('d_no');
+  $('dKerala').textContent=txt;
+  const noons=MID.map(n=>clockOf(12,n));$('dTimeTxt').textContent=fmt(t('d_t'),{a:hhmm(Math.min(...noons)),b:hhmm(Math.max(...noons))});}
+
+/* ================= 4. SETUP ================= */
+function renderStep(){
+  const st=t('steps'),i=S.step;
+  $('stepDots').innerHTML=st.map((x,k)=>`<button data-step="${k}" aria-current="${k===i}" class="${k<i?'done':''}" aria-label="${t('step')} ${k+1}">${k+1}</button>`).join('');
+  $('stepNo').textContent=`${t('step')} ${i+1} / ${st.length}`;$('stepTitle').textContent=st[i][0];$('stepBody').textContent=st[i][1];
+  $('stPrev').disabled=i===0;$('stNext').disabled=i===st.length-1;
+  $('stage').innerHTML=`<rect width="600" height="360" fill="var(--surface)"/>`+STAGE[i]();}
+const dirs=()=>t('dirs');
+const STAGE=[
+ ()=>{let s=`<line x1="60" y1="200" x2="540" y2="200" class="s-ink"/>`;for(let l=0;l<=30;l+=5){const x=60+l*16;s+=`<line x1="${x}" y1="192" x2="${x}" y2="208" class="s-ink"/><text x="${x}" y="232" class="s-tm" text-anchor="middle">${l}°</text>`}
+  const xk=60+S.lat*16,xd=60+28.6*16;
+  s+=`<rect x="${60+8*16}" y="150" width="${7*16}" height="36" rx="6" fill="var(--sunsoft)" stroke="var(--sun)" stroke-width="2.5"/><text x="${60+11.5*16}" y="140" class="s-t" text-anchor="middle" font-weight="600">${t('sv_right')}</text>`;
+  s+=`<circle cx="${Math.max(60,Math.min(540,xk))}" cy="200" r="9" class="s-sun anim-pulse"/><text x="${Math.max(60,Math.min(540,xk))}" y="262" class="s-t" text-anchor="middle">${esc($('locName').value.split(',')[0])} ${S.lat.toFixed(1)}°</text>`;
+  s+=`<circle cx="${xd}" cy="200" r="7" fill="var(--muted)"/><text x="${xd}" y="262" class="s-tm" text-anchor="middle">Delhi 28.6°</text><text x="${xd}" y="140" class="s-tm" text-anchor="middle">${t('sv_wrong')}</text><path d="M${xd-14} 152 l28 28 M${xd+14} 152 l-28 28" class="s-bad"/>`;
+  s+=`<path d="M${60+10*16} 300 l12 12 l24 -26" class="s-ok"/>`;return s},
+ ()=>{const v=S.mdec,dx=Math.max(-10,Math.min(10,v))*22;let s=`<g transform="translate(300,200)"><circle r="120" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  s+=`<g style="transform:rotate(${(-v*3).toFixed(1)}deg);transition:transform 1s"><path d="M-80 -40 Q0 -110 80 -40" class="s-ink" stroke="var(--sun)"/><path d="M-90 -10 Q0 -70 90 -10" class="s-ink"/><text y="-128" class="s-t" text-anchor="middle" font-weight="700">${S.lat>=0?dirs()[2]:dirs()[0]}</text></g></g>`;
+  s+=`<g transform="translate(300,330)">`;for(let k=-10;k<=10;k++){s+=`<line x1="${k*22}" y1="${k%5?-6:-12}" x2="${k*22}" y2="0" class="s-ink" stroke-width="1.5"/>`;if(k%5===0)s+=`<text x="${k*22}" y="18" class="s-tm" text-anchor="middle">${k}°</text>`}
+  s+=`<path d="M0 -26 l-8 -12 h16z" fill="var(--sun)" class="anim-ptr" style="--dx:${dx}px"/></g>`;
+  s+=`<text x="20" y="40" class="s-t">${t('mdec').split('(')[0]}: <tspan font-weight="700">${v}°</tspan></text>`;return s},
+ ()=>`<polygon points="80,300 200,90 540,90 420,300" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/>
+  <polygon points="180,255 245,140 425,140 360,255" fill="var(--accent)" fill-opacity=".25" stroke="var(--accent)" stroke-width="3" stroke-dasharray="8 6"/>
+  <circle cx="180" cy="255" r="12" class="s-sun anim-pulse"/><circle cx="360" cy="255" r="12" class="s-sun anim-pulse"/>
+  <text x="300" y="290" class="s-t" text-anchor="middle" font-weight="600">${t('sv_lower')}</text><text x="300" y="80" class="s-t" text-anchor="middle" font-weight="700">↑ ${S.lat>=0?dirs()[2]:dirs()[0]}</text>`,
+ ()=>`<g transform="translate(180,120)"><circle r="80" fill="var(--sky)" stroke="var(--ink)" stroke-width="3"/><circle r="24" fill="none" stroke="var(--ink)" stroke-width="2.5"/><g class="anim-bubble"><circle r="17" fill="var(--glass)" stroke="var(--ok)" stroke-width="3"/></g></g>
+  <g transform="translate(430,60)"><path d="M-60 140 L60 140 L50 120 L-50 120 Z" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/><line x1="0" y1="140" x2="-80" y2="280" class="s-ink"/><line x1="0" y1="140" x2="80" y2="280" class="s-ink"/><g class="anim-leg"><line x1="0" y1="140" x2="0" y2="290" class="s-ink" stroke="var(--sun)" stroke-width="4"/></g></g>`,
+ ()=>`<g transform="translate(300,185)"><circle r="140" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5"/><g class="anim-rot"><rect x="-90" y="-60" width="180" height="120" rx="12" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/><text y="-30" class="s-t" text-anchor="middle" font-weight="700">${S.lat>=0?dirs()[2]:dirs()[0]}</text><line x1="0" y1="-18" x2="0" y2="40" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4"/></g>
+  <path d="M0 -110 L10 0 L0 110 L-10 0Z" fill="var(--bad)" opacity=".9"/><path d="M0 110 L10 0 L-10 0Z" fill="var(--muted)"/><circle r="7" fill="var(--ink)"/></g>`,
+ ()=>`<line x1="40" y1="330" x2="560" y2="330" class="s-ink"/><g transform="translate(250,0)"><line x1="0" y1="250" x2="-50" y2="330" class="s-ink"/><line x1="0" y1="250" x2="50" y2="330" class="s-ink"/><rect x="-50" y="236" width="100" height="14" rx="4" fill="var(--chip)" stroke="var(--ink)" stroke-width="2"/><path d="M-40 236 A40 40 0 0 1 40 236" fill="var(--sky)" stroke="var(--ink)" stroke-width="2.5"/></g>
+  <g class="anim-eye"><circle cx="250" cy="90" r="26" fill="var(--sunsoft)" stroke="var(--ink)" stroke-width="2.5"/><ellipse cx="250" cy="104" rx="8" ry="5" fill="var(--ink)"/><line x1="250" y1="116" x2="250" y2="190" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="6 5"/></g>
+  <line x1="330" y1="110" x2="330" y2="196" class="s-ink" stroke="var(--sun)"/><path d="M322 120 l8 -12 l8 12 M322 186 l8 12 l8 -12" fill="none" stroke="var(--sun)" stroke-width="2.5"/><text x="346" y="158" class="s-t" font-weight="600">${t('sv_view')}</text>
+  <text x="60" y="320" class="s-t" font-weight="700">${S.lat>=0?dirs()[0]:dirs()[2]}</text><text x="530" y="320" class="s-t" font-weight="700">${S.lat>=0?dirs()[2]:dirs()[0]}</text>`,
+ ()=>`<g transform="translate(150,30) scale(0.5)">${chartSVG({compact:true,month:null,obs:[]})}</g><path d="M195 230 L200 175 L218 160 L232 172 L246 150 L262 158 L268 200 L276 230" fill="none" stroke="var(--glass)" stroke-width="5" class="anim-draw" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ink)"/><g transform="translate(420,140) rotate(35)"><rect x="0" y="-8" width="120" height="16" rx="3" fill="var(--glass)" stroke="var(--ink)" stroke-width="2"/><path d="M0 -8 L-18 0 L0 8Z" fill="var(--chip)" stroke="var(--ink)" stroke-width="2"/></g>`,
+ ()=>{const ex=[{name:'',type:'tree',b1:100,b2:150,e:42}];return `<g transform="translate(100,0) scale(0.6)">${chartSVG({compact:false,month:2,nums:true,obs:ex})}</g>`},
+ ()=>{const rows=[t('place'),t('date'),t('lat'),t('mdec'),t('pos')];let s=`<rect x="150" y="30" width="300" height="300" rx="10" fill="var(--chip)" stroke="var(--ink)" stroke-width="2.5"/><rect x="250" y="20" width="100" height="22" rx="6" fill="var(--muted)"/>`;
+  rows.forEach((r,k)=>s+=`<text x="170" y="${80+k*34}" class="s-tm">${esc(r.split('(')[0])}</text><line x1="330" y1="${84+k*34}" x2="430" y2="${84+k*34}" stroke="var(--muted)" stroke-dasharray="3 3"/>`);
+  t('months').forEach((m,k)=>s+=`<rect x="${170+(k%6)*44}" y="${258+Math.floor(k/6)*32}" width="38" height="26" rx="4" fill="var(--surface)" stroke="var(--line)"/><text x="${189+(k%6)*44}" y="${276+Math.floor(k/6)*32}" class="s-tm" text-anchor="middle" style="font-size:11px">${m}</text>`);return s}];
+
+/* ================= 5. SIMULATOR ================= */
+const PRESETS=[[],
+ [{name:'Coconut',type:'tree',b1:95,b2:150,e:42}],
+ [{name:'Block',type:'bldg',b1:235,b2:300,e:35}],
+ [{name:'Tank',type:'bldg',b1:15,b2:75,e:56}],
+ [{name:'Coconut',type:'tree',b1:95,b2:150,e:42},{name:'Block',type:'bldg',b1:235,b2:300,e:35},{name:'Tank',type:'bldg',b1:15,b2:75,e:56}]];
+function loadPreset(i){S.preset=i;if(i>=0)S.obs=PRESETS[i].map(o=>({...o,name:presetName(o.name)}))}
+function presetName(n){return n==='Tank'?(S.lang==='hi'?'टंकी':S.lang==='ml'?'ടാങ്ക്':'Tank'):n==='Coconut'?(S.lang==='hi'?'नारियल':S.lang==='ml'?'തെങ്ങ്':'Coconut'):(S.lang==='hi'?'भवन':S.lang==='ml'?'കെട്ടിടം':'Block')}
+function renderObsList(){
+  const L=$('obsList');if(!S.obs.length){L.innerHTML=`<p class="small">${t('none')}</p>`;return}
+  L.innerHTML=S.obs.map((o,i)=>`<div class="ob">
+   <div class="fld nm"><label for="ob${i}n">${t('name')}</label><input id="ob${i}n" data-ob="${i}" data-k="name" value="${esc(o.name)}"></div>
+   <div class="fld"><label for="ob${i}t">${t('type')}</label><select id="ob${i}t" data-ob="${i}" data-k="type"><option value="tree"${o.type==='tree'?' selected':''}>${t('tree')}</option><option value="bldg"${o.type==='bldg'?' selected':''}>${t('bldg')}</option></select></div>
+   <div class="fld"><label for="ob${i}a">${t('b1')}</label><input id="ob${i}a" type="number" data-ob="${i}" data-k="b1" value="${o.b1}"></div>
+   <div class="fld"><label for="ob${i}b">${t('b2')}</label><input id="ob${i}b" type="number" data-ob="${i}" data-k="b2" value="${o.b2}"></div>
+   <div class="fld"><label for="ob${i}e">${t('elev')}</label><input id="ob${i}e" type="number" step="0.5" data-ob="${i}" data-k="e" value="${o.e}"></div>
+   <button class="btn" data-rm="${i}" aria-label="${t('rm')}">✕</button></div>`).join('')}
+function renderSim(){
+  const n=MID[S.sMonth],dec=decl(n),H=dayLen(S.lat,dec);
+  const r=$('sTime');r.min=(12-H).toFixed(2);r.max=(12+H).toFixed(2);
+  if(S.sT<12-H||S.sT>12+H)S.sT=12-H+.1;r.value=S.sT;
+  const sp=sunAt(S.lat,dec,S.sT),sh=blocked(sp.alt,sp.brg,S.obs);
+  $('sChart').innerHTML=chartSVG({month:S.sMonth,nums:true,obs:S.obs,sun:sp,glass:true});
+  $('rSol').textContent=hhmm(S.sT);$('rClk').textContent=hhmm(clockOf(S.sT,n));$('rAlt').textContent=sp.alt.toFixed(1)+'°';$('rBrg').textContent=sp.brg.toFixed(0)+'°';
+  $('sState').innerHTML=sp.alt<=0?'':sh?`<span class="pill shade">${t('inshade')}</span>`:`<span class="pill sun">${t('insun')}</span>`;
+  $('sPlay').textContent=S.sPlaying?t('pause'):t('play');
+  const acc=[...Array(12)].map((_,m)=>access(S.lat,m,S.obs)),mn=t('months')[S.sMonth];
+  $('sSum').innerHTML=fmt(t('sumtxt'),{m:mn,v:Math.round(acc[S.sMonth])});
+  // bars
+  let b=`<line x1="20" y1="30" x2="590" y2="30" class="b-grid"/><line x1="20" y1="180" x2="590" y2="180" class="b-grid"/>`;
+  acc.forEach((a,m)=>{const x=24+m*47.5,h=a*1.5;b+=`<g class="bar-g" data-m="${m}"><rect x="${x}" y="30" width="38" height="${Math.max(0,150-h).toFixed(1)}" class="b-sh"/><rect x="${x}" y="${180-h}" width="38" height="${h}" class="b-bar"/>${m===S.sMonth?`<rect x="${x-2}" y="28" width="42" height="154" class="b-sel" rx="3"/>`:''}<text x="${x+19}" y="${a>88?24:175-h}" class="b-lbl">${Math.round(a)}</text><text x="${x+19}" y="202" class="b-m">${t('months')[m]}</text></g>`});
+  $('bars').innerHTML=b;
+  const avg=acc.reduce((p,c)=>p+c)/12;$('sAvg').textContent=avg.toFixed(1)+'%';
+  const kwp=+$('sKwp').value||0,y=+$('sYld').value||0,full=kwp*y*365;
+  $('sEn').textContent=Math.round(full*avg/100).toLocaleString('en-IN')+' kWh';$('sLost').textContent=Math.round(full*(1-avg/100)).toLocaleString('en-IN')+' kWh';
+  const H1=+$('cH').value,h1=+$('ch').value,D1=+$('cD').value;$('cOut').textContent=D1>0?(Math.atan((H1-h1)/D1)/D2R).toFixed(1)+'°':'—';}
+
+/* ================= 6. EXAMPLES ================= */
+function renderExamples(){
+  const EX=t('ex'),save=S.lat;const months=t('months');
+  $('exList').innerHTML=EX.map((e,i)=>{const obs=PRESETS[i+1];const acc=[...Array(12)].map((_,m)=>access(KOZ.lat,m,obs));
+    const avg=acc.reduce((p,c)=>p+c)/12,w=acc.indexOf(Math.min(...acc));
+    return `<div class="card ex"><div><div class="eyebrow">${i+1} / ${EX.length}</div><h3>${e[0]}</h3><p style="margin-top:.4rem">${e[1]}</p><p class="mono" style="margin-top:.3rem;font-weight:600">${e[2]}</p>
+     <div class="mgrid">${acc.map((a,m)=>`<div class="${a<99.5?'loss':''}">${months[m]}<b>${Math.round(a)}</b></div>`).join('')}</div>
+     <p class="lesson">${e[3]}</p></div>
+     <div><div class="fig" style="padding:.3rem"><svg viewBox="-40 -40 680 680">${chartSVGFor(KOZ.lat,obs,w)}</svg></div>
+     <p style="margin-top:.5rem">${t('ex_avg')}: <b class="mono">${avg.toFixed(1)}%</b><br>${t('ex_worst')}: <b class="mono">${months[w]} ${Math.round(acc[w])}%</b></p>
+     <button class="btn pri" data-ex="${i+1}" data-wm="${w}" style="margin-top:.5rem">${t('ex_open')}</button></div></div>`}).join('')}
+function chartSVGFor(lat,obs,m){const o=S.lat;S.lat=lat;const s=chartSVG({month:m,nums:false,obs:obs.map(x=>({...x,name:''})),compact:false});S.lat=o;return s}
+
+/* ================= 7. QUIZ ================= */
+function renderQuiz(){const Q=t('qs');let sc=0;
+  $('qList').innerHTML=Q.map((q,i)=>{const a=S.quiz[i];if(a===q[2])sc++;
+    return `<div class="card q"><h3>${i+1}. ${q[0]}</h3><div class="opts">${q[1].map((o,k)=>`<button data-q="${i}" data-o="${k}" class="${a!=null?(k===q[2]?'right':(k===a?'wrong':'')):''}" ${a!=null?'disabled':''}>${o}</button>`).join('')}</div>${a!=null?`<p class="qex">${q[3]}</p>`:''}</div>`}).join('');
+  $('qScore').textContent=`${t('q_score')}: ${sc} / ${Q.length}`}
+
+/* ================= NAV / EVENTS ================= */
+function setTab(i){S.tab=((i%NP)+NP)%NP;document.querySelectorAll('section.panel').forEach((p,k)=>p.classList.toggle('on',k===S.tab));
+  document.querySelectorAll('#tabs button').forEach((b,k)=>b.setAttribute('aria-selected',k===S.tab));
+  const b=$('tab'+S.tab);b&&b.scrollIntoView({block:'nearest',inline:'nearest'});savePrefs()}
+function setTheme(th){S.theme=th;if(th)document.documentElement.setAttribute('data-theme',th);else document.documentElement.removeAttribute('data-theme');
+  document.querySelectorAll('#themeSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.th===th));savePrefs()}
+function setFs(v){S.fs=Math.max(12,Math.min(36,v));document.documentElement.style.fontSize=S.fs+'px';$('fsVal').textContent=S.fs;savePrefs()}
+function savePrefs(){store.set({lang:S.lang,theme:S.theme,fs:S.fs,tab:S.tab})}
+function readLoc(){S.lat=Math.max(-66,Math.min(66,+$('locLat').value||0));S.lon=+$('locLon').value||0;S.tz=+$('locTz').value||0;S.mdec=+$('locDec').value||0;
+  renderParts();renderTN();renderPL();renderDiagram();renderStep();renderSim();}
+
+document.addEventListener('click',e=>{const el=e.target.closest('[data-lgd],[data-xp],[data-tab],[data-part],[data-step],[data-rm],[data-q],[data-ex],.bar-g,[data-th],[data-lg]');if(!el)return;
+  if(el.dataset.lgd!=null){S.hl=S.hl===el.dataset.lgd?null:el.dataset.lgd;renderDiagram()}
+  else if(el.dataset.xp!=null){xpGo(+el.dataset.xp)}
+  else if(el.dataset.tab!=null)setTab(+el.dataset.tab);
+  else if(el.dataset.part!=null){S.part=+el.dataset.part;renderParts()}
+  else if(el.dataset.step!=null){S.step=+el.dataset.step;renderStep()}
+  else if(el.dataset.rm!=null){S.obs.splice(+el.dataset.rm,1);S.preset=-1;$('sPreset').value=-1;renderObsList();renderSim()}
+  else if(el.dataset.q!=null){S.quiz[+el.dataset.q]=+el.dataset.o;renderQuiz()}
+  else if(el.dataset.ex!=null){$('locLat').value=KOZ.lat;$('locLon').value=KOZ.lon;$('locTz').value=KOZ.tz;$('locName').value=KOZ.name;loadPreset(+el.dataset.ex);$('sPreset').value=S.preset;S.sMonth=+el.dataset.wm;$('sMonth').value=S.sMonth;S.sT=7;readLoc();renderObsList();renderSim();setTab(TAB.sim)}
+  else if(el.classList.contains('bar-g')){S.sMonth=+el.dataset.m;$('sMonth').value=S.sMonth;renderSim()}
+  else if(el.dataset.th!=null)setTheme(S.theme===el.dataset.th?null:el.dataset.th);
+  else if(el.dataset.lg!=null){S.lang=el.dataset.lg;S.obs=S.obs.map(o=>o);if(S.preset>=0)loadPreset(S.preset);savePrefs();applyText()}});
+document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;
+  if(e.key==='ArrowRight'){setTab(S.tab+1);e.preventDefault()}else if(e.key==='ArrowLeft'){setTab(S.tab-1);e.preventDefault()}
+  else if((e.key==='Enter'||e.key===' ')&&e.target.closest('.hot')){S.part=+e.target.closest('.hot').dataset.part;renderParts();e.preventDefault()}});
+$('fsDn').onclick=()=>setFs(S.fs-2);$('fsUp').onclick=()=>setFs(S.fs+2);$('fsVal').onclick=()=>setFs(18);
+$('fsBtn').onclick=()=>{try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})}catch(err){}};
+['locLat','locLon','locTz','locDec'].forEach(id=>$(id).addEventListener('input',readLoc));
+$('locName').addEventListener('input',()=>renderStep());
+$('locReset').onclick=()=>{$('locName').value=KOZ.name;$('locLat').value=KOZ.lat;$('locLon').value=KOZ.lon;$('locTz').value=KOZ.tz;$('locDec').value=KOZ.dec;readLoc()};
+$('scPlay').onclick=()=>{scPlay=!scPlay;renderScene()};$('scBy').onchange=renderScene;
+$('stPrev').onclick=()=>{S.step=Math.max(0,S.step-1);renderStep()};$('stNext').onclick=()=>{S.step=Math.min(8,S.step+1);renderStep()};
+$('dMonth').onchange=e=>{S.dMonth=+e.target.value;S.dT=12-dayLen(S.lat,decl(MID[S.dMonth]))+.05;renderDiagram()};
+$('dNums').onchange=renderDiagram;$('dPlay').onclick=()=>{S.dPlaying=!S.dPlaying;renderDiagram()};
+$('sMonth').onchange=e=>{S.sMonth=+e.target.value;renderSim()};
+$('sTime').oninput=e=>{S.sT=+e.target.value;S.sPlaying=false;renderSim()};
+$('sPlay').onclick=()=>{S.sPlaying=!S.sPlaying;renderSim()};
+$('sPreset').onchange=e=>{loadPreset(+e.target.value);renderObsList();renderSim()};
+$('obsList').addEventListener('input',e=>{const el=e.target;if(el.dataset.ob==null)return;const o=S.obs[+el.dataset.ob],k=el.dataset.k;
+  o[k]=(k==='name'||k==='type')?el.value:(+el.value||0);if(k==='e')o.e=Math.max(0,Math.min(89,o.e));S.preset=-1;$('sPreset').value=-1;renderSim()});
+$('obAdd').onclick=()=>{const H1=+$('cH').value,h1=+$('ch').value,D1=+$('cD').value;const e=D1>0?Math.round(Math.atan((H1-h1)/D1)/D2R*10)/10:30;
+  S.obs.push({name:t('newob'),type:'bldg',b1:200,b2:230,e:Math.max(0,e)});S.preset=-1;$('sPreset').value=-1;renderObsList();renderSim()};
+['cH','ch','cD','sKwp','sYld'].forEach(id=>$(id).addEventListener('input',renderSim));
+$('tnX').onchange=renderTN;$('tnMag').addEventListener('input',renderTN);
+$('tnMonth').onchange=e=>{S.tnMonth=+e.target.value;renderShadow()};
+$('tnPlay').onclick=()=>{S.tnPlaying=!S.tnPlaying;renderShadow()};
+$('xpPrev').onclick=()=>xpGo(XP.st-1);$('xpNext').onclick=()=>xpGo(XP.st+1);
+$('xpPlay').onclick=()=>{XP.play=!XP.play;xpRender()};
+$('xpReplay').onclick=()=>{XP.t=0;XP.k=null;XP.play=true;xpRender()};
+$('xpMonth').onchange=e=>{XP.m=+e.target.value;xpRender()};
+$('xpK').oninput=e=>{XP.k=+e.target.value;XP.play=false;xpRender()};
+$('qReset').onclick=()=>{S.quiz={};renderQuiz()};
+
+let last=0;function loop(ts){const dt=last?(ts-last)/1000:0;last=ts;
+  if(S.dPlaying&&S.tab===TAB.diag){const H=dayLen(S.lat,decl(MID[S.dMonth]));S.dT+=dt*1.2;if(S.dT>12+H)S.dT=12-H+.05;renderDiagram()}
+  if(S.sPlaying&&S.tab===TAB.sim){const H=dayLen(S.lat,decl(MID[S.sMonth]));S.sT+=dt*1.0;if(S.sT>12+H)S.sT=12-H+.05;renderSim()}
+  if(S.tnPlaying&&S.tab===TAB.tn){const H=dayLen(S.lat,decl(MID[S.tnMonth]));S.tnT+=dt*1.0;if(S.tnT>12+H-.2)S.tnT=12-H+.3;renderShadow()}
+  if(S.tab===TAB.xp&&XP.play){XP.t+=dt;xpRender()}
+  requestAnimationFrame(loop)}
+
+/* ================= INIT ================= */
+(function init(){const p=store.get();if(p.lang&&T[p.lang])S.lang=p.lang;if(p.fs)S.fs=p.fs;if(p.tab!=null&&p.tab<NP)S.tab=p.tab;
+  setFs(S.fs);setTheme(p.theme||null);loadPreset(1);applyText();setTab(S.tab);requestAnimationFrame(scLoop);requestAnimationFrame(loop)})();
+</script>
+
+</body></html>
