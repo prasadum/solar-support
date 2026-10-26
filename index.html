@@ -165,7 +165,7 @@ function build(){
   if(s.eyebrow)$("eyebrow").textContent=s.eyebrow;
   if(s.title){$("title").textContent=s.title;document.title=s.title+" – "+(s.org||"");}
   if(s.lede)$("lede").textContent=s.lede;
-  $("meta").innerHTML=(s.author?'<span>Prepared by <b>'+esc(s.author)+'</b></span>':'')+(s.org?'<span>Vocational Instructor, <b>'+esc(s.org)+'</b></span>':'')+(s.course?'<span>'+esc(s.course)+'</span>':'');
+  $("meta").innerHTML=(s.org?'<span><b>'+esc(s.org)+'</b></span>':'')+(s.course?'<span>'+esc(s.course)+'</span>':'');
   MODS=DATA.modules||[];FLAT=[];
   MODS.forEach(m=>(m.items||[]).forEach(it=>{if(OPENABLE[it.type]&&(it.file||it.url)){it.n=String(FLAT.length+1).padStart(2,"0");FLAT.push(it);}}));
   const jump=$("jump");jump.querySelectorAll("a").forEach(a=>a.remove());
