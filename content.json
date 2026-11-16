@@ -88,6 +88,14 @@
      "tags": [],
      "file": "solar_radiation_geometry_3d_explorer.html",
      "id": "solar-radiation-geometry-3d-explorer"
+    },
+    {
+     "type": "html",
+     "title": "Campbell–Stokes Solar Sunshine Recorder — Interactive 3D Class",
+     "desc": "The Campbell–Stokes Solar Sunshine Recorder measures bright sunshine duration by focusing direct solar rays through a solid crown glass sphere onto a graduated blue card, scorching a continuous carbon trace whenever solar irradiance exceeds 120 W/m². By tracking the position and total length of the burned path across the hourly markings (6 to 18), technicians determine the exact hours of daily sunshine and identify intermittent cloud cover.",
+     "tags": [],
+     "file": "campbell_stokes_solar_sunshine_recorder_3d_class.html",
+     "id": "campbell-stokes-solar-sunshine-recorder-3d-class"
     }
    ]
   },
