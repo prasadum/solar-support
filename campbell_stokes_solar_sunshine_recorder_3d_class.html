@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Campbell–Stokes Solar Sunshine Recorder — Interactive 3D Class</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-app: #0f172a;
+      --bg-panel: rgba(15, 23, 42, 0.88);
+      --bg-card: rgba(30, 41, 59, 0.78);
+      --border-color: rgba(148, 163, 184, 0.25);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --accent-text: #0f172a;
+      --badge-bg: rgba(245, 158, 11, 0.16);
+      --font-scale: 1;
+    }
+
+    [data-theme="light"] {
+      --bg-app: #e2e8f0;
+      --bg-panel: rgba(255, 255, 255, 0.92);
+      --bg-card: rgba(241, 245, 249, 0.92);
+      --border-color: rgba(15, 23, 42, 0.16);
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #475569;
+      --accent: #d97706;
+      --accent-hover: #b45309;
+      --accent-text: #ffffff;
+      --badge-bg: rgba(217, 119, 6, 0.14);
+    }
+
+    [data-theme="projector"] {
+      --bg-app: #000000;
+      --bg-panel: #000000;
+      --bg-card: #111111;
+      --border-color: #facc15;
+      --text-primary: #ffffff;
+      --text-secondary: #fef08a;
+      --text-muted: #fde047;
+      --accent: #facc15;
+      --accent-hover: #eab308;
+      --accent-text: #000000;
+      --badge-bg: rgba(250, 204, 21, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      font-family: 'Inter', 'Noto Sans Devanagari', 'Noto Sans Malayalam', sans-serif;
+      font-size: calc(15px * var(--font-scale));
+    }
+
+    .panel-surface {
+      background: var(--bg-panel);
+      border-color: var(--border-color);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .card-surface {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+    }
+
+    .accent-btn {
+      background-color: var(--accent);
+      color: var(--accent-text);
+      font-weight: 600;
+    }
+    .accent-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+
+    /* Range input styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(148, 163, 184, 0.35);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .hotspot-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      transition: transform 0.18s ease, opacity 0.2s ease;
+      z-index: 15;
+    }
+    .hotspot-pin:hover {
+      transform: translate(-50%, -50%) scale(1.08);
+      z-index: 25;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- Full-Viewport 3D Canvas Container -->
+  <div id="canvas-container" class="fixed inset-0 w-full h-full z-0"></div>
+
+  <!-- 3D Floating Hotspot Labels Layer -->
+  <div id="hotspots-layer" class="fixed inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+  <!-- Top Navigation & Accessibility Bar -->
+  <header class="fixed top-0 left-0 right-0 z-30 panel-surface border-b px-3 py-2 sm:px-4 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+    <div class="flex items-center gap-2.5">
+      <button id="toggle-sidebar-btn" class="p-2 rounded-xl border card-surface hover:opacity-90 transition flex items-center justify-center" title="Toggle Lesson Panel" aria-label="Toggle Lesson Panel">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+        </svg>
+      </button>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <h1 id="app-title" class="font-bold text-sm sm:text-base leading-tight">Campbell–Stokes Sunshine Recorder</h1>
+        </div>
+        <p id="app-subtitle" class="text-[11px] sm:text-xs opacity-75 hidden sm:block">Interactive 3D Meteorological Laboratory &amp; Optical Simulation</p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Language, Theme, Font Scale, Hotspots -->
+    <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+      <!-- Language Selector -->
+      <div class="flex items-center rounded-xl border card-surface p-0.5 text-xs font-medium" role="group" aria-label="Language Switcher">
+        <button data-lang="en" class="lang-btn px-2 py-1 rounded-lg transition accent-btn">EN</button>
+        <button data-lang="hi" class="lang-btn px-2 py-1 rounded-lg transition opacity-80 hover:opacity-100">हिन्दी</button>
+        <button data-lang="ml" class="lang-btn px-2 py-1 rounded-lg transition opacity-80 hover:opacity-100">മലയാളം</button>
+      </div>
+
+      <!-- Theme Switcher -->
+      <div class="flex items-center rounded-xl border card-surface p-0.5 text-xs" role="group" aria-label="Theme Switcher">
+        <button data-theme-btn="dark" class="theme-btn px-2 py-1 rounded-lg transition accent-btn" title="Dark Mode">🌙</button>
+        <button data-theme-btn="light" class="theme-btn px-2 py-1 rounded-lg transition opacity-80 hover:opacity-100" title="Light Mode">☀️</button>
+        <button data-theme-btn="projector" class="theme-btn px-2 py-1 rounded-lg transition opacity-80 hover:opacity-100 font-bold" title="High-Contrast Projector Mode">📽️</button>
+      </div>
+
+      <!-- Font Scaling -->
+      <div class="hidden md:flex items-center rounded-xl border card-surface p-0.5 text-xs font-semibold">
+        <button id="font-dec-btn" class="px-2 py-1 rounded-lg hover:opacity-80" title="Decrease Font Size">A-</button>
+        <button id="font-inc-btn" class="px-2 py-1 rounded-lg hover:opacity-80" title="Increase Font Size">A+</button>
+      </div>
+
+      <!-- Hotspots Toggle -->
+      <button id="toggle-hotspots-btn" class="px-2.5 py-1.5 rounded-xl border card-surface text-xs font-semibold flex items-center gap-1.5 transition" title="Toggle 3D Labels">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span id="lbl-hotspots">Labels</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Left Collapsible Educational Sidebar -->
+  <aside id="lesson-sidebar" class="fixed top-[54px] sm:top-[58px] bottom-[96px] sm:bottom-[86px] left-0 z-20 w-[90vw] sm:w-[360px] md:w-[390px] panel-surface border-r flex flex-col transition-transform duration-300 ease-out shadow-2xl">
+    <!-- Sidebar Header -->
+    <div class="p-3 border-b flex items-center justify-between" style="border-color: var(--border-color);">
+      <span id="lbl-course-modules" class="text-xs font-bold uppercase tracking-wider opacity-80">Class Curriculum &amp; Guide</span>
+      <button id="close-sidebar-btn" class="sm:hidden p-1.5 rounded-lg border card-surface text-xs">✕</button>
+    </div>
+
+    <!-- Accordion List -->
+    <div id="accordion-container" class="flex-1 overflow-y-auto p-3 space-y-2.5">
+      <!-- Dynamically populated with localized accordions -->
+    </div>
+
+    <!-- Quick Interactive Quiz / Lab Tip Box -->
+    <div class="p-3 border-t text-xs" style="border-color: var(--border-color); background: var(--badge-bg);">
+      <div class="font-bold flex items-center gap-1.5 mb-1">
+        <span>🔬</span>
+        <span id="lbl-lab-note-title">WMO Standard Threshold</span>
+      </div>
+      <p id="lbl-lab-note-body" class="opacity-90 leading-relaxed">
+        Bright sunshine is officially defined when direct solar irradiance reaches or exceeds 120 W/m², scorching the blue heliograph card.
+      </p>
+    </div>
+  </aside>
+
+  <!-- Right Floating Telemetry & Simulation Control Drawer -->
+  <section id="controls-drawer" class="fixed top-[62px] right-3 z-20 w-[280px] sm:w-[310px] max-h-[calc(100vh-165px)] overflow-y-auto panel-surface border rounded-2xl p-3 shadow-2xl space-y-3 transition-all">
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between">
+      <span id="lbl-sim-controls" class="text-xs font-bold uppercase tracking-wider opacity-85">Simulation Controls</span>
+      <button id="collapse-controls-btn" class="text-xs px-2 py-0.5 rounded-lg border card-surface font-semibold">−</button>
+    </div>
+
+    <div id="controls-body" class="space-y-3">
+      <!-- Live Telemetry Readouts Grid -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="p-2 rounded-xl border card-surface">
+          <div id="lbl-readout-time" class="text-[10px] uppercase opacity-70">Apparent Solar Time</div>
+          <div id="val-solar-time" class="text-sm font-bold text-amber-400">10:30 AM</div>
+        </div>
+        <div class="p-2 rounded-xl border card-surface">
+          <div id="lbl-readout-sunshine" class="text-[10px] uppercase opacity-70">Bright Sunshine</div>
+          <div id="val-sunshine-hours" class="text-sm font-bold text-emerald-400">3.4 hrs</div>
+        </div>
+        <div class="p-2 rounded-xl border card-surface">
+          <div id="lbl-readout-irradiance" class="text-[10px] uppercase opacity-70">Solar Irradiance</div>
+          <div id="val-irradiance" class="text-sm font-bold">845 W/m²</div>
+        </div>
+        <div class="p-2 rounded-xl border card-surface">
+          <div id="lbl-readout-elev" class="text-[10px] uppercase opacity-70">Solar Elevation</div>
+          <div id="val-elevation" class="text-sm font-bold">54.2°</div>
+        </div>
+      </div>
+
+      <!-- Time of Day Slider & Play Sweep -->
+      <div class="p-2.5 rounded-xl border card-surface space-y-2">
+        <div class="flex items-center justify-between text-xs font-semibold">
+          <span id="lbl-time-slider">Sun Position (06:00 – 18:00)</span>
+          <button id="play-sun-btn" class="px-2.5 py-1 rounded-lg accent-btn text-xs flex items-center gap-1">
+            <span id="play-sun-icon">▶</span>
+            <span id="lbl-play-sun">Sweep Day</span>
+          </button>
+        </div>
+        <input id="time-slider" type="range" min="6" max="18" step="0.05" value="10.5" />
+        <div class="flex justify-between text-[10px] opacity-70 font-mono">
+          <span>06:00</span>
+          <span>12:00 (Noon)</span>
+          <span>18:00</span>
+        </div>
+      </div>
+
+      <!-- Season / Card Slot Selector -->
+      <div class="p-2.5 rounded-xl border card-surface space-y-1.5">
+        <div class="flex items-center justify-between">
+          <label for="season-select" id="lbl-season-select" class="text-xs font-semibold">Season &amp; Card Groove</label>
+          <button id="clear-burn-btn" class="text-[11px] px-2 py-0.5 rounded-lg border card-surface hover:opacity-80" title="Replace with fresh blue card">🔄 <span id="lbl-new-card">New Card</span></button>
+        </div>
+        <select id="season-select" class="w-full p-2 rounded-xl border card-surface text-xs font-medium outline-none">
+          <option value="equinox">Equinoctial Straight Card (Mar/Sep)</option>
+          <option value="summer">Summer Solstice Short Curved (Apr–Aug)</option>
+          <option value="winter">Winter Solstice Long Curved (Oct–Feb)</option>
+        </select>
+      </div>
+
+      <!-- Cloud Cover / Intermittent Clouds -->
+      <div class="p-2.5 rounded-xl border card-surface space-y-1.5">
+        <div class="flex items-center justify-between text-xs font-semibold">
+          <span id="lbl-cloud-cover">Sky Condition / Clouds</span>
+          <span id="val-cloud-mode" class="text-amber-400">Clear Sky</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1 text-[11px]">
+          <button data-sky="clear" class="sky-btn py-1.5 px-1 rounded-lg border font-semibold accent-btn">☀️ Clear</button>
+          <button data-sky="partly" class="sky-btn py-1.5 px-1 rounded-lg border card-surface font-medium">⛅ Broken</button>
+          <button data-sky="overcast" class="sky-btn py-1.5 px-1 rounded-lg border card-surface font-medium">☁️ Overcast</button>
+        </div>
+      </div>
+
+      <!-- Latitude Adjustment Slider -->
+      <div class="p-2.5 rounded-xl border card-surface space-y-1.5">
+        <div class="flex items-center justify-between text-xs font-semibold">
+          <span id="lbl-latitude">Latitude Scale Tilt</span>
+          <span id="val-latitude" class="font-mono text-amber-400">28° N</span>
+        </div>
+        <input id="latitude-slider" type="range" min="0" max="60" step="1" value="28" />
+      </div>
+
+      <!-- Camera Viewpoints -->
+      <div class="p-2.5 rounded-xl border card-surface space-y-1.5">
+        <span id="lbl-camera-views" class="text-xs font-semibold block">Camera Viewpoints</span>
+        <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+          <button data-view="overview" class="view-btn py-1.5 px-2 rounded-lg border accent-btn font-semibold text-left truncate">1. Overview</button>
+          <button data-view="sphere" class="view-btn py-1.5 px-2 rounded-lg border card-surface font-medium text-left truncate">2. Glass Sphere</button>
+          <button data-view="bowl" class="view-btn py-1.5 px-2 rounded-lg border card-surface font-medium text-left truncate">3. Bowl &amp; Card</button>
+          <button data-view="base" class="view-btn py-1.5 px-2 rounded-lg border card-surface font-medium text-left truncate">4. Spirit Level</button>
+          <button data-view="burn" class="view-btn py-1.5 px-2 rounded-lg border card-surface font-medium text-left truncate col-span-2">5. Focal Burn Track Close-up</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Voice Narration & Teleprompter Subtitle Bar -->
+  <footer class="fixed bottom-0 left-0 right-0 z-30 panel-surface border-t px-3 py-2 sm:px-5 sm:py-2.5 shadow-2xl">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+      <!-- Narration Audio Controls -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="narrate-play-btn" class="px-3 py-1.5 rounded-xl accent-btn text-xs font-bold flex items-center gap-1.5 shadow">
+          <span id="narrate-icon">🔊</span>
+          <span id="lbl-narrate-btn">Narrate Lesson</span>
+        </button>
+        <button id="narrate-replay-btn" class="p-2 rounded-xl border card-surface text-xs hover:opacity-80" title="Replay Narration">↺</button>
+      </div>
+
+      <!-- Live Teleprompter Subtitle Box -->
+      <div class="flex-1 w-full rounded-xl border card-surface px-3 py-1.5 flex items-center gap-2.5 min-h-[42px]">
+        <span id="teleprompter-badge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md shrink-0" style="background: var(--badge-bg); color: var(--accent);">
+          Topic 1
+        </span>
+        <p id="teleprompter-text" class="text-xs sm:text-sm leading-snug line-clamp-2">
+          Welcome to the 3D laboratory class on the Campbell–Stokes Solar Sunshine Recorder. Select any lesson topic or sweep the sun across the sky to observe optical scorching.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. MULTILINGUAL CONTENT DATABASE (ENGLISH, HINDI, MALAYALAM)
+    // =========================================================================
+    const I18N = {
+      en: {
+        appTitle: "Campbell–Stokes Sunshine Recorder",
+        appSubtitle: "Interactive 3D Meteorological Laboratory & Optical Simulation",
+        hotspots: "Labels",
+        courseModules: "Class Curriculum & Guide",
+        labNoteTitle: "WMO Standard Threshold",
+        labNoteBody: "Bright sunshine is officially defined when direct solar irradiance reaches or exceeds 120 W/m², scorching a distinct trace on the blue heliograph card.",
+        simControls: "Simulation Controls",
+        readoutTime: "Apparent Solar Time",
+        readoutSunshine: "Bright Sunshine",
+        readoutIrradiance: "Solar Irradiance",
+        readoutElev: "Solar Elevation",
+        timeSlider: "Sun Position (06:00 – 18:00)",
+        playSun: "Sweep Day",
+        pauseSun: "Pause",
+        seasonSelect: "Season & Card Groove",
+        newCard: "New Card",
+        seasons: {
+          equinox: "Equinoctial Straight Card (Mar/Sep)",
+          summer: "Summer Solstice Short Curved (Apr–Aug)",
+          winter: "Winter Solstice Long Curved (Oct–Feb)"
+        },
+        cloudCover: "Sky Condition / Clouds",
+        skyModes: {
+          clear: "Clear Sky",
+          partly: "Broken Clouds",
+          overcast: "Overcast (<120 W/m²)"
+        },
+        latitude: "Latitude Scale Tilt",
+        cameraViews: "Camera Viewpoints",
+        views: {
+          overview: "1. Overview",
+          sphere: "2. Glass Sphere",
+          bowl: "3. Bowl & Card",
+          base: "4. Spirit Level",
+          burn: "5. Burn Track Close-up"
+        },
+        narrateBtn: "Narrate Lesson",
+        narratePause: "Pause Voice",
+        hotspotLabels: {
+          sphere: {
+            title: "Solid Crown Glass Sphere (10 cm)",
+            desc: "Precision-ground homogeneous optical crown glass sphere (focal length ~75 mm) that acts as a spherical burning lens regardless of the sun's azimuth."
+          },
+          clamps: {
+            title: "C-Clamp Arms & Brass Adjusting Screws",
+            desc: "Curved metallic support arms with knurled brass locking nuts and threaded spindles that hold the glass sphere concentrically inside the spherical bowl."
+          },
+          bowl: {
+            title: "Spherical Gunmetal / Brass Bowl",
+            desc: "Concentric machined bowl featuring three sets of precision flanged grooves to hold seasonal sunshine cards at the exact focal distance from the glass sphere."
+          },
+          card: {
+            title: "Graduated Blue Sunshine Card",
+            desc: "Specially treated Prussian-blue cardboard printed with white hour lines (6 to 18) and 'NORTHERN HEMISPHERE' alignment markings that chars without flaming."
+          },
+          latitude: {
+            title: "Meridional Latitude Scale Bracket",
+            desc: "Curved graduated arc allowing the entire bowl-and-sphere assembly to be tilted to match the station's local geographic latitude (0° to 60°)."
+          },
+          base: {
+            title: "Tri-Foot Base & Spirit Bubble Level",
+            desc: "Heavy cast-iron triangular base with three brass leveling thumb-screws and an integrated circular spirit level to ensure horizontal calibration."
+          }
+        },
+        lessons: [
+          {
+            id: "intro",
+            title: "1. Introduction & Purpose",
+            content: "Invented by John Francis Campbell in 1853 and refined by Sir George Gabriel Stokes in 1879, the Campbell–Stokes recorder measures the duration of bright sunshine in hours per day without requiring electrical power.",
+            narration: "Welcome to the 3D laboratory class on the Campbell Stokes Solar Sunshine Recorder. Invented in 1853 and refined by George Stokes in 1879, this classic meteorological instrument records daily bright sunshine duration purely using solar optics."
+          },
+          {
+            id: "anatomy",
+            title: "2. Anatomy of the Instrument",
+            content: "The instrument consists of a 10-centimeter solid transparent crown glass sphere mounted between two curved metallic C-clamp arms with brass adjusting screws, a concentric grooved bronze bowl, a latitude adjustment bracket, and a cast-iron tri-foot base with a circular spirit bubble level.",
+            narration: "Examine the instrument's precision anatomy. A ten centimeter solid glass sphere is held concentrically by curved metal arms and brass adjusting screws directly inside a machined bronze bowl, supported by a latitude tilt bracket and a three-screw leveling base."
+          },
+          {
+            id: "optics",
+            title: "3. Optical Focusing Principle",
+            content: "Because a sphere is completely symmetrical in all directions, sunlight entering from any angle across the sky is refracted and converged to a sharp, high-temperature focal spot on the inner surface of the spherical bowl, scorching the blue card.",
+            narration: "Because a glass sphere is completely symmetrical, sunlight entering from any elevation or azimuth converges to a sharp burning focal spot on the opposite card surface. When solar irradiance exceeds 120 watts per square meter, it chars a distinct brown-black trace."
+          },
+          {
+            id: "cards",
+            title: "4. Sunshine Card Types & Seasons",
+            content: "As the Sun's declination changes through the year, three card shapes are inserted into three concentric bowl grooves: (1) Long curved cards in winter (upper groove), (2) Straight cards near the equinoxes (middle groove), and (3) Short curved cards in summer (lower groove).",
+            narration: "Because the sun's path shifts north and south across the seasons, three different card shapes fit into three concentric grooves inside the bowl: long curved cards for winter, straight cards for the equinoxes, and short curved cards for summer."
+          },
+          {
+            id: "reading",
+            title: "5. Reading & Measuring Burn Traces",
+            content: "White transverse hour lines printed on the blue card mark apparent solar time from 6 AM to 6 PM. Passing clouds drop irradiance below 120 W/m², interrupting the burn. Meteorologists sum the lengths of all charred segments to determine daily sunshine hours.",
+            narration: "Hour lines printed from six in the morning to six in the evening divide the blue card into apparent solar hours. When clouds pass in front of the sun, burning stops, leaving unburned gaps. Total sunshine duration is measured by summing the burned segments."
+          },
+          {
+            id: "install",
+            title: "6. Installation & Leveling",
+            content: "For accurate readings, the recorder must be installed in an unobstructed exposure, leveled horizontally using the three brass foot screws and circular spirit bubble, aligned along the true North–South meridian, and tilted to the local latitude.",
+            narration: "Proper field installation requires an unobstructed horizon. Technicians level the base using the three brass leveling screws and circular spirit bubble, align the bowl symmetrically along the true north-south meridian, and set the latitude scale."
+          }
+        ]
+      },
+
+      hi: {
+        appTitle: "कैंपबेल-स्टोक्स सौर धूप अभिलेखी (Sunshine Recorder)",
+        appSubtitle: "इंटरैक्टिव 3D मौसम विज्ञान प्रयोगशाला और प्रकाशिक सिमुलेशन",
+        hotspots: "लेबल",
+        courseModules: "पाठ्यक्रम और मार्गदर्शिका",
+        labNoteTitle: "WMO मानक सीमा",
+        labNoteBody: "जब प्रत्यक्ष सौर विकिरण 120 W/m² या उससे अधिक होता है, तो नीले कार्ड पर जलने का निशान बनता है, जिसे चमकीली धूप माना जाता है।",
+        simControls: "सिमुलेशन नियंत्रण",
+        readoutTime: "सौर समय",
+        readoutSunshine: "चमकीली धूप",
+        readoutIrradiance: "सौर विकिरण",
+        readoutElev: "सौर ऊँचाई",
+        timeSlider: "सूर्य की स्थिति (06:00 – 18:00)",
+        playSun: "दिन चलाएं",
+        pauseSun: "रोकें",
+        seasonSelect: "ऋतु और कार्ड खांचा",
+        newCard: "नया कार्ड",
+        seasons: {
+          equinox: "विषुव सीधा कार्ड (मार्च/सितंबर)",
+          summer: "ग्रीष्म संक्रांति छोटा मुड़ा कार्ड (अप्रैल–अगस्त)",
+          winter: "शीत संक्रांति लंबा मुड़ा कार्ड (अक्टूबर–फरवरी)"
+        },
+        cloudCover: "आकाश की स्थिति / बादल",
+        skyModes: {
+          clear: "साफ आकाश",
+          partly: "आंशिक बादल",
+          overcast: "घने बादल (<120 W/m²)"
+        },
+        latitude: "अक्षांश झुकाव (Latitude)",
+        cameraViews: "कैमरा दृष्टिकोण",
+        views: {
+          overview: "1. संपूर्ण दृश्य",
+          sphere: "2. कांच का गोला",
+          bowl: "3. कटोरा और कार्ड",
+          base: "4. स्पिरिट लेवल",
+          burn: "5. फोकल निशान निकट दृश्य"
+        },
+        narrateBtn: "पाठ सुनें",
+        narratePause: "आवाज़ रोकें",
+        hotspotLabels: {
+          sphere: {
+            title: "ठोस क्राउन कांच का गोला (10 सेमी)",
+            desc: "उच्च गुणवत्ता वाला पारदर्शी कांच का गोला जो सूर्य की किरणों को एक तीव्र बिंदु पर केंद्रित करता है।"
+          },
+          clamps: {
+            title: "C-क्लैंप भुजाएं और पीतल के पेंच",
+            desc: "घुमावदार धातु की भुजाएं और पीतल के नट जो कांच के गोले को कटोरे के ठीक केंद्र में स्थिर रखते हैं।"
+          },
+          bowl: {
+            title: "गोलाकार कांस्य/पीतल का कटोरा",
+            desc: "तीन समानांतर खांचों वाला कटोरा जिसमें मौसम के अनुसार धूप रिकॉर्डिंग कार्ड लगाए जाते हैं।"
+          },
+          card: {
+            title: "नीला अंशांकित धूप कार्ड",
+            desc: "विशेष नीले रंग का कार्ड जिस पर सुबह 6 से शाम 6 बजे तक की रेखाएं और 'NORTHERN HEMISPHERE' अंकित होता है।"
+          },
+          latitude: {
+            title: "अक्षांश पैमाना ब्रैकेट",
+            desc: "उपकरण को स्थान के भौगोलिक अक्षांश (0° से 60°) के अनुसार झुकाने के लिए अंशांकित चाप।"
+          },
+          base: {
+            title: "त्रि-पाद आधार और स्पिरिट लेवल",
+            desc: "तीन पीतल के समतल पेंचों और गोलाकार स्पिरिट बबल लेवल वाला मजबूत आधार।"
+          }
+        },
+        lessons: [
+          {
+            id: "intro",
+            title: "1. परिचय और उद्देश्य",
+            content: "1853 में जॉन फ्रांसिस कैंपबेल द्वारा आविष्कृत और 1879 में सर जॉर्ज स्टोक्स द्वारा परिष्कृत, यह यंत्र बिना बिजली के प्रतिदिन चमकीली धूप की अवधि (घंटों में) मापता है।",
+            narration: "कैंपबेल स्टोक्स सौर धूप अभिलेखी की इस थ्री-डी कक्षा में आपका स्वागत है। यह मौसम विज्ञान उपकरण बिना किसी बिजली के सूर्य की किरणों को केंद्रित करके प्रतिदिन चमकीली धूप के घंटों को रिकॉर्ड करता है।"
+          },
+          {
+            id: "anatomy",
+            title: "2. उपकरण की संरचना",
+            content: "इसमें दो घुमावदार C-क्लैंप भुजाओं और पीतल के पेंचों के बीच लगा 10 सेमी का ठोस कांच का गोला, खांचेदार पीतल का कटोरा, अक्षांश पैमाना और स्पिरिट लेवल वाला आधार होता है।",
+            narration: "इस उपकरण की संरचना को देखें। दस सेंटीमीटर का ठोस कांच का गोला पीतल के पेंचों की सहायता से खांचेदार कटोरे के केंद्र में लगा होता है, जिसके नीचे अक्षांश पैमाना और समतल आधार स्थित है।"
+          },
+          {
+            id: "optics",
+            title: "3. प्रकाशिक फोकस सिद्धांत",
+            content: "गोले की पूर्ण समरूपता के कारण आकाश में किसी भी दिशा से आने वाली सूर्य की किरणें अपवर्तित होकर नीले कार्ड पर एक तीव्र गर्म बिंदु बनाती हैं, जिससे कार्ड झुलस जाता है।",
+            narration: "कांच के गोले की समरूपता के कारण सूर्य की किरणें अपवर्तित होकर कार्ड पर एक अत्यधिक गर्म बिंदु बनाती हैं। जब सौर विकिरण 120 वाट प्रति वर्ग मीटर से अधिक होता है, तो कार्ड पर जलने का निशान बनता है।"
+          },
+          {
+            id: "cards",
+            title: "4. धूप कार्ड के प्रकार और ऋतुएं",
+            content: "वर्ष भर सूर्य की स्थिति बदलने के कारण तीन प्रकार के कार्ड उपयोग होते हैं: शीतकाल में लंबा मुड़ा कार्ड, विषुव में सीधा कार्ड, और ग्रीष्मकाल में छोटा मुड़ा कार्ड।",
+            narration: "सूर्य के उत्तरायण और दक्षिणायन होने के कारण कटोरे के तीन खांचों में तीन प्रकार के कार्ड लगाए जाते हैं: सर्दियों में लंबा मुड़ा कार्ड, विषुव पर सीधा कार्ड और गर्मियों में छोटा मुड़ा कार्ड।"
+          },
+          {
+            id: "reading",
+            title: "5. निशान पढ़ना और मापना",
+            content: "कार्ड पर सुबह 6 से शाम 6 बजे तक की रेखाएं बनी होती हैं। बादल आने पर जलना रुक जाता है। जले हुए हिस्सों की कुल लंबाई जोड़कर धूप के घंटे निकाले जाते हैं।",
+            narration: "नीले कार्ड पर सुबह छह से शाम छह बजे तक की रेखाएं समय दर्शाती हैं। बादल आने पर निशान टूट जाता है। सभी जले हुए खंडों को जोड़कर कुल धूप की अवधि ज्ञात की जाती है।"
+          },
+          {
+            id: "install",
+            title: "6. स्थापना और समतलीकरण",
+            content: "सटीक माप के लिए इसे खुले स्थान पर रखकर स्पिरिट लेवल और तीनों पेंचों से समतल किया जाता है, उत्तर-दक्षिण दिशा में संरेखित किया जाता है और स्थानीय अक्षांश पर सेट किया जाता है।",
+            narration: "सही स्थापना के लिए यंत्र को खुले आकाश के नीचे रखकर स्पिरिट लेवल से समतल करें, उत्तर-दक्षिण दिशा में मिलाएं और स्थानीय अक्षांश कोण पर सेट करें।"
+          }
+        ]
+      },
+
+      ml: {
+        appTitle: "കാംബെൽ–സ്റ്റോക്സ് സോളാർ സൺഷൈൻ റെക്കോർഡർ",
+        appSubtitle: "ഇന്ററാക്ടീവ് 3D കാലാവസ്ഥാ ലബോറട്ടറിയും ഒപ്റ്റിക്കൽ സിമുലേഷനും",
+        hotspots: "ലേബലുകൾ",
+        courseModules: "പഠന വിഷയങ്ങൾ",
+        labNoteTitle: "WMO മാനദണ്ഡം",
+        labNoteBody: "നേരിട്ടുള്ള സൗരവികിരണം 120 W/m² അല്ലെങ്കിൽ അതിൽ കൂടുതലാകുമ്പോൾ നീല കാർഡിൽ കരിഞ്ഞ പാട് വീഴുന്നു; ഇതിനെയാണ് തെളിഞ്ഞ സൂര്യപ്രകാശമായി കണക്കാക്കുന്നത്.",
+        simControls: "സിമുലേഷൻ നിയന്ത്രണങ്ങൾ",
+        readoutTime: "സൗര സമയം",
+        readoutSunshine: "സൂര്യപ്രകാശ സമയം",
+        readoutIrradiance: "സൗര തീവ്രത",
+        readoutElev: "സൂര്യന്റെ ഉയരം",
+        timeSlider: "സൂര്യന്റെ സ്ഥാനം (06:00 – 18:00)",
+        playSun: "പകൽ ചലനം",
+        pauseSun: "നിർത്തുക",
+        seasonSelect: "ഋതുവും കാർഡ് ചാലും",
+        newCard: "പുതിയ കാർഡ്",
+        seasons: {
+          equinox: "വിഷുവം നേർരേഖാ കാർഡ് (മാർച്ച്/സെപ്റ്റംബർ)",
+          summer: "ഗ്രീഷ്മ അയനാന്തം ചെറിയ വളഞ്ഞ കാർഡ് (ഏപ്രിൽ–ഓഗസ്റ്റ്)",
+          winter: "ശിശിര അയനാന്തം നീളമുള്ള വളഞ്ഞ കാർഡ് (ഒക്ടോബർ–ഫെബ്രുവരി)"
+        },
+        cloudCover: "ആകാശത്തിന്റെ അവസ്ഥ / മേഘങ്ങൾ",
+        skyModes: {
+          clear: "തെളിഞ്ഞ ആകാശം",
+          partly: "ഭാഗിക മേഘങ്ങൾ",
+          overcast: "മേഘാവൃതം (<120 W/m²)"
+        },
+        latitude: "അക്ഷാംശ ചെരിവ് (Latitude)",
+        cameraViews: "ക്യാമറ കാഴ്ചകൾ",
+        views: {
+          overview: "1. പൂർണ്ണ രൂപം",
+          sphere: "2. ഗ്ലാസ് ഗോളം",
+          bowl: "3. ബൗളും കാർഡും",
+          base: "4. സ്പിരിറ്റ് ലെവൽ",
+          burn: "5. ഫോക്കൽ പാട് അടുത്ത കാഴ്ച"
+        },
+        narrateBtn: "വിവരണം കേൾക്കുക",
+        narratePause: "ശബ്ദം നിർത്തുക",
+        hotspotLabels: {
+          sphere: {
+            title: "ഖര ക്രൗൺ ഗ്ലാസ് ഗോളം (10 സെ.മീ)",
+            desc: "സൂര്യരശ്മികളെ കൃത്യമായ ഒരു ബിന്ദുവിലേക്ക് കേന്ദ്രീകരിക്കുന്ന സുതാര്യമായ ഒപ്റ്റിക്കൽ ഗ്ലാസ് ഗോളം."
+          },
+          clamps: {
+            title: "C-ക്ലാമ്പ് കൈകളും പിച്ചള സ്ക്രൂകളും",
+            desc: "ഗ്ലാസ് ഗോളത്തെ ബൗളിന്റെ കൃത്യം മധ്യത്തിൽ ഉറപ്പിച്ചു നിർത്തുന്ന ലോഹ കൈകളും പിച്ചള സ്ക്രൂകളും."
+          },
+          bowl: {
+            title: "വൃത്താകൃതിയിലുള്ള വെങ്കല ബൗൾ",
+            desc: "വിവിധ ഋതുക്കളിലെ കാർഡുകൾ ഉറപ്പിക്കാൻ മൂന്ന് സമാന്തര ചാലുകളുള്ള (grooves) ലോഹ ബൗൾ."
+          },
+          card: {
+            title: "നീല സൺഷൈൻ റെക്കോർഡ് കാർഡ്",
+            desc: "രാവിലെ 6 മുതൽ വൈകിട്ട് 6 വരെയുള്ള സമയരേഖകളും 'NORTHERN HEMISPHERE' എന്നും രേഖപ്പെടുത്തിയ നീല കാർഡ്."
+          },
+          latitude: {
+            title: "അക്ഷാംശ സ്കെയിൽ ബ്രാക്കറ്റ്",
+            desc: "സ്ഥലത്തിന്റെ അക്ഷാംശത്തിനനുസരിച്ച് (0° മുതൽ 60° വരെ) ഉപകരണം ചരിച്ചു വെക്കാനുള്ള അളവുകോൽ."
+          },
+          base: {
+            title: "ത്രിപാദ അടിത്തറയും സ്പിരിറ്റ് ലെവലും",
+            desc: "മൂന്ന് പിച്ചള ലെവലിംഗ് സ്ക്രൂകളും വൃത്താകൃതിയിലുള്ള സ്പിരിറ്റ് ബബിൾ ലെവലുമുള്ള ഇരുമ്പ് അടിത്തറ."
+          }
+        },
+        lessons: [
+          {
+            id: "intro",
+            title: "1. ആമുഖവും ലക്ഷ്യവും",
+            content: "1853-ൽ ജോൺ ഫ്രാൻസിസ് കാംബെൽ കണ്ടെത്തുകയും 1879-ൽ സർ ജോർജ് സ്റ്റോക്സ് പരിഷ്കരിക്കുകയും ചെയ്ത ഈ ഉപകരണം വൈദ്യുതിയില്ലാതെ പ്രതിദിന സൂര്യപ്രകാശ ദൈർഘ്യം അളക്കുന്നു.",
+            narration: "കാംബെൽ സ്റ്റോക്സ് സോളാർ സൺഷൈൻ റെക്കോർഡറിന്റെ ത്രീഡി ക്ലാസ്സിലേക്ക് സ്വാഗതം. വൈദ്യുതിയുടെ സഹായമില്ലാതെ സൂര്യരശ്മികളെ കേന്ദ്രീകരിച്ച് പ്രതിദിന സൂര്യപ്രകാശ ദൈർഘ്യം അളക്കുന്ന ഉപകരണമാണിത്."
+          },
+          {
+            id: "anatomy",
+            title: "2. ഉപകരണത്തിന്റെ ഭാഗങ്ങൾ",
+            content: "വളഞ്ഞ ലോഹ കൈകൾക്കും പിച്ചള സ്ക്രൂകൾക്കും ഇടയിൽ ഉറപ്പിച്ച 10 സെ.മീ ഗ്ലാസ് ഗോളം, ചാലുകളുള്ള വെങ്കല ബൗൾ, അക്ഷാംശ സ്കെയിൽ, സ്പിരിറ്റ് ലെവലുള്ള അടിത്തറ എന്നിവയാണ് പ്രധാന ഭാഗങ്ങൾ.",
+            narration: "ഉപകരണത്തിന്റെ ഭാഗങ്ങൾ ശ്രദ്ധിക്കൂ. പത്ത് സെന്റീമീറ്റർ വ്യാസമുള്ള ഗ്ലാസ് ഗോളം പിച്ചള സ്ക്രൂകൾ ഉപയോഗിച്ച് വെങ്കല ബൗളിന്റെ മധ്യത്തിൽ ഉറപ്പിച്ചിരിക്കുന്നു. താഴെ അക്ഷാംശ സ്കെയിലും സ്പിരിറ്റ് ലെവലുള്ള അടിത്തറയുമുണ്ട്."
+          },
+          {
+            id: "optics",
+            title: "3. ഒപ്റ്റിക്കൽ ഫോക്കസിംഗ് തത്വം",
+            content: "ഗോളത്തിന്റെ പൂർണ്ണ സമമിതി കാരണം ആകാശത്തിലെ ഏത് കോണിൽ നിന്നുള്ള സൂര്യരശ്മികളും അപവർത്തനം സംഭവിച്ച് നീല കാർഡിൽ ഒരു തീക്ഷ്ണ ബിന്ദുവായി കേന്ദ്രീകരിച്ച് കാർഡ് കരിക്കുന്നു.",
+            narration: "ഗ്ലാസ് ഗോളത്തിന്റെ പ്രത്യേകത കാരണം ഏത് ദിശയിൽ നിന്നുള്ള സൂര്യരശ്മികളും കാർഡിൽ ഒരു ചൂടുള്ള ബിന്ദുവായി കേന്ദ്രീകരിക്കുന്നു. തീവ്രത 120 വാട്ട്സ് പെർ സ്ക്വയർ മീറ്ററിൽ കൂടുമ്പോൾ കാർഡിൽ കരിഞ്ഞ പാട് വീഴുന്നു."
+          },
+          {
+            id: "cards",
+            title: "4. സൺഷൈൻ കാർഡുകളും ഋതുക്കളും",
+            content: "സൂര്യന്റെ സ്ഥാനമാറ്റത്തിനനുസരിച്ച് മൂന്ന് തരം കാർഡുകൾ ഉപയോഗിക്കുന്നു: ശൈത്യകാലത്ത് നീളമുള്ള വളഞ്ഞ കാർഡ്, വിഷുവങ്ങളിൽ നേർരേഖാ കാർഡ്, വേനൽക്കാലത്ത് ചെറിയ വളഞ്ഞ കാർഡ്.",
+            narration: "ഋതുക്കൾ മാറുന്നതിനനുസരിച്ച് ബൗളിലെ മൂന്ന് ചാലുകളിൽ വ്യത്യസ്ത കാർഡുകൾ വെക്കുന്നു. ശൈത്യകാലത്ത് നീളമുള്ള വളഞ്ഞ കാർഡും, വിഷുവങ്ങളിൽ നേർരേഖാ കാർഡും, വേനൽക്കാലത്ത് ചെറിയ വളഞ്ഞ കാർഡും ഉപയോഗിക്കുന്നു."
+          },
+          {
+            id: "reading",
+            title: "5. കരിഞ്ഞ പാടുകൾ അളക്കുന്ന വിധം",
+            content: "കാർഡിലെ 6 മുതൽ 18 വരെയുള്ള വരകൾ സൗര സമയം കാണിക്കുന്നു. മേഘങ്ങൾ സൂര്യനെ മറയ്ക്കുമ്പോൾ കരിയുന്നത് നിൽക്കും. കരിഞ്ഞ ഭാഗങ്ങളുടെ ആകെ നീളം അളന്നാണ് സൂര്യപ്രകാശ മണിക്കൂറുകൾ കണക്കാക്കുന്നത്.",
+            narration: "നീല കാർഡിലെ ആറ് മുതൽ പതിനെട്ട് വരെയുള്ള വരകൾ സമയം സൂചിപ്പിക്കുന്നു. മേഘങ്ങൾ വരുമ്പോൾ കരിയുന്നത് നിലയ്ക്കുകയും വിടവുകൾ ഉണ്ടാവുകയും ചെയ്യുന്നു. കരിഞ്ഞ ഭാഗങ്ങൾ കൂട്ടിച്ചേർത്താണ് ആകെ സമയം അളക്കുന്നത്."
+          },
+          {
+            id: "install",
+            title: "6. സ്ഥാപിക്കലും ലെവലിംഗും",
+            content: "തടസ്സങ്ങളില്ലാത്ത തുറസ്സായ സ്ഥലത്ത് സ്പിരിറ്റ് ലെവൽ നോക്കി ഉപകരണം നിരപ്പാക്കി, കൃത്യമായി വടക്ക്-തെക്ക് ദിശയിൽ ക്രമീകരിച്ച്, സ്ഥലത്തിന്റെ അക്ഷാംശ കോണിൽ ഉറപ്പിക്കണം.",
+            narration: "കൃത്യമായ അളവുകൾക്കായി തുറസ്സായ സ്ഥലത്ത് സ്പിരിറ്റ് ലെവൽ ഉപയോഗിച്ച് ഉപകരണം നിരപ്പാക്കുകയും വടക്ക്-തെക്ക് ദിശയിൽ ക്രമീകരിച്ച് പ്രാദേശിക അക്ഷാംശത്തിൽ ഉറപ്പിക്കുകയും വേണം."
+          }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // 2. APPLICATION STATE
+    // =========================================================================
+    const state = {
+      lang: "en",
+      theme: "dark",
+      fontScale: 1,
+      sidebarOpen: window.innerWidth >= 768,
+      controlsOpen: true,
+      hotspotsVisible: true,
+      activeLessonIndex: 0,
+      solarHour: 10.5, // 6.0 to 18.0
+      isSweeping: false,
+      season: "equinox", // 'equinox', 'summer', 'winter'
+      skyMode: "clear", // 'clear', 'partly', 'overcast'
+      latitude: 28, // 0 to 60 degrees North
+      activeView: "overview",
+      isNarrating: false,
+      burnedSamples: new Set() // stores quantized (season + hour * 20) bins for accurate sunshine hours
+    };
+
+    // =========================================================================
+    // 3. PROCEDURAL TEXTURES FOR REALISM (CARD, BRASS SCALE, TABLETOP)
+    // =========================================================================
+    function createSunshineCardCanvas(seasonType) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d");
+
+      // Rich Prussian / Cobalt Blue card background matching reference photo
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, "#074b83");
+      grad.addColorStop(0.5, "#0a5ea3");
+      grad.addColorStop(1, "#064275");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Subtle paper fiber noise
+      ctx.fillStyle = "rgba(255,255,255,0.03)";
+      for (let i = 0; i < 2400; i++) {
+        ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 1);
+      }
+
+      // White border & central reference line
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+
+      // Center longitudinal alignment line
+      ctx.beginPath();
+      ctx.moveTo(20, canvas.height * 0.5);
+      ctx.lineTo(canvas.width - 20, canvas.height * 0.5);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Hour markings from 6 to 18 (left = 6 AM, center = 12 Noon, right = 18 / 6 PM)
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const marginX = 64;
+      const usableW = canvas.width - marginX * 2;
+
+      for (let h = 6; h <= 18; h++) {
+        const t = (h - 6) / 12;
+        const x = marginX + t * usableW;
+
+        // Major Hour Line
+        ctx.beginPath();
+        ctx.moveTo(x, 22);
+        ctx.lineTo(x, canvas.height - 22);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.lineWidth = h === 12 ? 4 : 2.5;
+        ctx.stroke();
+
+        // Crosshair tick on center line (visible in reference photo!)
+        ctx.beginPath();
+        ctx.moveTo(x - 10, canvas.height * 0.5);
+        ctx.lineTo(x + 10, canvas.height * 0.5);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Hour Numeral top & bottom
+        ctx.font = "bold 22px Inter, sans-serif";
+        ctx.fillText(String(h), x, 38);
+        ctx.fillText(String(h), x, canvas.height - 38);
+
+        // Half-hour tick
+        if (h < 18) {
+          const halfX = x + usableW / 24;
+          ctx.beginPath();
+          ctx.moveTo(halfX, canvas.height * 0.32);
+          ctx.lineTo(halfX, canvas.height * 0.68);
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        }
+      }
+
+      // Label text matching reference photo ("NORTHERN HEMISPHERE" + season code)
+      ctx.font = "bold 20px Inter, sans-serif";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+      ctx.fillText("NORTHERN HEMISPHERE", canvas.width * 0.36, canvas.height - 22);
+
+      const seasonTag = seasonType === "summer" ? "SUMMER SOLSTICE" : seasonType === "winter" ? "WINTER SOLSTICE" : "EQUINOCTIAL";
+      ctx.fillText(seasonTag, canvas.width * 0.66, canvas.height - 22);
+
+      return canvas;
+    }
+
+    function createLatitudeScaleTexture() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#b89b64";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = "#1e293b";
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 20px Inter, sans-serif";
+      ctx.textAlign = "center";
+
+      for (let deg = 0; deg <= 60; deg += 5) {
+        const x = 40 + (deg / 60) * (canvas.width - 80);
+        const isMajor = deg % 10 === 0;
+        ctx.beginPath();
+        ctx.moveTo(x, 10);
+        ctx.lineTo(x, isMajor ? 55 : 35);
+        ctx.lineWidth = isMajor ? 3 : 1.5;
+        ctx.stroke();
+
+        if (isMajor) {
+          ctx.fillText(deg + "°", x, 85);
+        }
+      }
+
+      const tex = new THREE.CanvasTexture(canvas);
+      return tex;
+    }
+
+    function createLabBenchTexture() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#dcd9d0";
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Subtle lab bench speckles
+      for (let i = 0; i < 3500; i++) {
+        const v = 170 + Math.floor(Math.random() * 60);
+        ctx.fillStyle = `rgb(${v},${v - 4},${v - 10})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
+      }
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(6, 6);
+      return tex;
+    }
+
+    // =========================================================================
+    // 4. THREE.JS 3D SCENE SETUP & CAMPBELL-STOKES MODEL CONSTRUCTION
+    // =========================================================================
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b1220);
+    scene.fog = new THREE.FogExp2(0x0b1220, 0.028);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 150);
+    camera.position.set(7.2, 6.2, 8.6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
+    scene.add(ambientLight);
+
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.55);
+    scene.add(hemiLight);
+
+    const sunDirectionalLight = new THREE.DirectionalLight(0xfffbeb, 1.85);
+    sunDirectionalLight.position.set(8, 12, 6);
+    sunDirectionalLight.castShadow = true;
+    sunDirectionalLight.shadow.mapSize.width = 1024;
+    sunDirectionalLight.shadow.mapSize.height = 1024;
+    sunDirectionalLight.shadow.camera.near = 1;
+    sunDirectionalLight.shadow.camera.far = 35;
+    const d = 7;
+    sunDirectionalLight.shadow.camera.left = -d;
+    sunDirectionalLight.shadow.camera.right = d;
+    sunDirectionalLight.shadow.camera.top = d;
+    sunDirectionalLight.shadow.camera.bottom = -d;
+    scene.add(sunDirectionalLight);
+
+    // Rim light to accentuate the glass sphere edges
+    const rimLight = new THREE.PointLight(0x38bdf8, 0.7, 25);
+    rimLight.position.set(-6, 5, -6);
+    scene.add(rimLight);
+
+    // Laboratory Bench Surface
+    const benchGeo = new THREE.CylinderGeometry(14, 14, 0.4, 64);
+    const benchMat = new THREE.MeshStandardMaterial({
+      map: createLabBenchTexture(),
+      roughness: 0.75,
+      metalness: 0.05
+    });
+    const benchMesh = new THREE.Mesh(benchGeo, benchMat);
+    benchMesh.position.y = -0.2;
+    benchMesh.receiveShadow = true;
+    scene.add(benchMesh);
+
+    // Marble Sub-plinth (seen in reference laboratory setup)
+    const plinthGeo = new THREE.BoxGeometry(5.6, 0.28, 5.6);
+    const plinthMat = new THREE.MeshStandardMaterial({
+      color: 0xe5e7eb,
+      roughness: 0.45,
+      metalness: 0.05
+    });
+    const plinthMesh = new THREE.Mesh(plinthGeo, plinthMat);
+    plinthMesh.position.y = 0.14;
+    plinthMesh.receiveShadow = true;
+    plinthMesh.castShadow = true;
+    scene.add(plinthMesh);
+
+    // Materials for the Campbell-Stokes Instrument
+    const castIronMat = new THREE.MeshStandardMaterial({
+      color: 0x181c22,
+      roughness: 0.55,
+      metalness: 0.65
+    });
+
+    const gunmetalMat = new THREE.MeshStandardMaterial({
+      color: 0x6b6257,
+      roughness: 0.35,
+      metalness: 0.82
+    });
+
+    const brushedAluminumMat = new THREE.MeshStandardMaterial({
+      color: 0xbec5ce,
+      roughness: 0.32,
+      metalness: 0.85
+    });
+
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.28,
+      metalness: 0.88
+    });
+
+    const glassSphereMat = new THREE.MeshPhysicalMaterial({
+      color: 0xe0f2fe,
+      transparent: true,
+      opacity: 0.42,
+      roughness: 0.04,
+      metalness: 0.05,
+      ior: 1.52,
+      reflectivity: 0.95,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
+      depthWrite: false
+    });
+
+    // Root Group for the Instrument on top of plinth (y = 0.28)
+    const instrumentRoot = new THREE.Group();
+    instrumentRoot.position.y = 0.28;
+    scene.add(instrumentRoot);
+
+    // -------------------------------------------------------------------------
+    // A. TRI-FOOT CAST-IRON BASE, LEVELING SCREWS & SPIRIT BUBBLE LEVEL
+    // -------------------------------------------------------------------------
+    const baseGroup = new THREE.Group();
+    instrumentRoot.add(baseGroup);
+
+    // Central hub of tri-foot base
+    const centerHub = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.82, 0.45, 32), castIronMat);
+    centerHub.position.y = 0.38;
+    centerHub.castShadow = true;
+    centerHub.receiveShadow = true;
+    baseGroup.add(centerHub);
+
+    // Three radiating legs at 120° intervals
+    const legAngles = [Math.PI * 0.5, Math.PI * 0.5 + (2 * Math.PI) / 3, Math.PI * 0.5 + (4 * Math.PI) / 3];
+    legAngles.forEach((ang, idx) => {
+      const legGroup = new THREE.Group();
+      legGroup.rotation.y = ang;
+
+      // Cast-iron arm
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.22, 1.85), castIronMat);
+      arm.position.set(0, 0.26, 0.95);
+      arm.castShadow = true;
+      legGroup.add(arm);
+
+      // Boss at end of leg
+      const boss = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.32, 24), castIronMat);
+      boss.position.set(0, 0.28, 1.82);
+      boss.castShadow = true;
+      legGroup.add(boss);
+
+      // Brass leveling thumb screw & foot pad
+      const screwShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.55, 16), brassMat);
+      screwShaft.position.set(0, 0.34, 1.82);
+      legGroup.add(screwShaft);
+
+      const knurledKnob = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.14, 24), brassMat);
+      knurledKnob.position.set(0, 0.54, 1.82);
+      legGroup.add(knurledKnob);
+
+      const footPad = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.08, 24), brushedAluminumMat);
+      footPad.position.set(0, 0.04, 1.82);
+      legGroup.add(footPad);
+
+      baseGroup.add(legGroup);
+    });
+
+    // Circular Spirit Bubble Level mounted on front-left of base (as seen in photo)
+    const spiritLevelGroup = new THREE.Group();
+    spiritLevelGroup.position.set(-0.92, 0.38, 0.85);
+    baseGroup.add(spiritLevelGroup);
+
+    const levelCasing = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.14, 32), brushedAluminumMat);
+    spiritLevelGroup.add(levelCasing);
+
+    const levelFluid = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.23, 0.23, 0.15, 32),
+      new THREE.MeshStandardMaterial({ color: 0xbef264, roughness: 0.2, metalness: 0.1 })
+    );
+    levelFluid.position.y = 0.005;
+    spiritLevelGroup.add(levelFluid);
+
+    // Center bullseye ring & air bubble
+    const ringGeo = new THREE.RingGeometry(0.08, 0.10, 32);
+    const ringMesh = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x0f172a, side: THREE.DoubleSide }));
+    ringMesh.rotation.x = -Math.PI / 2;
+    ringMesh.position.y = 0.082;
+    spiritLevelGroup.add(ringMesh);
+
+    const airBubble = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    airBubble.scale.set(1, 0.25, 1);
+    airBubble.position.set(0, 0.08, 0);
+    spiritLevelGroup.add(airBubble);
+
+    // Pedestal & Latitude Quadrant Bracket
+    const pedestalColumn = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.55, 0.85, 28), castIronMat);
+    pedestalColumn.position.y = 0.92;
+    pedestalColumn.castShadow = true;
+    baseGroup.add(pedestalColumn);
+
+    // Curved Latitude Scale Arc (graduated brass)
+    const latArcGeo = new THREE.TorusGeometry(1.15, 0.09, 12, 48, Math.PI * 0.45);
+    const latArcMat = new THREE.MeshStandardMaterial({
+      map: createLatitudeScaleTexture(),
+      roughness: 0.35,
+      metalness: 0.75
+    });
+    const latArc = new THREE.Mesh(latArcGeo, latArcMat);
+    latArc.position.set(0, 1.45, 0);
+    latArc.rotation.y = Math.PI / 2;
+    latArc.rotation.z = Math.PI * 0.9;
+    baseGroup.add(latArc);
+
+    // Brass Locking Clamp Screw on Latitude Scale
+    const latLockScrew = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.35, 20), brassMat);
+    latLockScrew.rotation.z = Math.PI / 2;
+    latLockScrew.position.set(0.25, 1.25, 0.45);
+    baseGroup.add(latLockScrew);
+
+    // -------------------------------------------------------------------------
+    // B. TILTABLE MERIDIONAL ASSEMBLY (BOWL, BLUE CARD, C-CLAMPS, GLASS SPHERE)
+    // -------------------------------------------------------------------------
+    // Pivot point for latitude adjustment
+    const tiltedAssembly = new THREE.Group();
+    tiltedAssembly.position.set(0, 2.55, 0);
+    instrumentRoot.add(tiltedAssembly);
+
+    // Sphere Center in local tiltedAssembly coordinates is (0, 0, 0)
+    const SPHERE_RADIUS = 1.28;
+    const BOWL_RADIUS = 1.72; // Concentric focal radius ~ 1.34 * R_sphere
+
+    // 1. Solid Crown Glass Sphere
+    const glassSphere = new THREE.Mesh(new THREE.SphereGeometry(SPHERE_RADIUS, 64, 64), glassSphereMat);
+    glassSphere.castShadow = false;
+    tiltedAssembly.add(glassSphere);
+
+    // Subtle internal caustic core glow inside sphere for optical realism
+    const innerCaustic = new THREE.Mesh(
+      new THREE.SphereGeometry(SPHERE_RADIUS * 0.96, 32, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.BackSide
+      })
+    );
+    tiltedAssembly.add(innerCaustic);
+
+    // 2. Curved Metallic C-Clamp Arms & Brass Adjusting Screws (Top/North & Bottom/South poles)
+    const clampSubFrame = new THREE.Group();
+    // Tilt the polar axis slightly as seen in the reference photo
+    clampSubFrame.rotation.x = 0.25;
+    tiltedAssembly.add(clampSubFrame);
+
+    // Curved C-clamp bridge connecting the two polar bosses behind the bowl
+    const cArmCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, -1.85, 0),
+      new THREE.Vector3(0, -2.05, -0.95),
+      new THREE.Vector3(0, -1.35, -1.95),
+      new THREE.Vector3(0, 0, -2.25),
+      new THREE.Vector3(0, 1.35, -1.95),
+      new THREE.Vector3(0, 2.05, -0.95),
+      new THREE.Vector3(0, 1.85, 0)
+    ]);
+    const cArmGeo = new THREE.TubeGeometry(cArmCurve, 64, 0.14, 16, false);
+    const cArmMesh = new THREE.Mesh(cArmGeo, brushedAluminumMat);
+    cArmMesh.castShadow = true;
+    clampSubFrame.add(cArmMesh);
+
+    // Polar Clamping Bosses & Threaded Brass Adjusting Screws (North & South poles of sphere)
+    [-1, 1].forEach((dir) => {
+      const poleGroup = new THREE.Group();
+      poleGroup.position.set(0, dir * 1.82, 0);
+
+      // Cylindrical boss on C-arm
+      const boss = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.34, 24), brushedAluminumMat);
+      poleGroup.add(boss);
+
+      // Threaded steel/brass spindle
+      const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.85, 20), brushedAluminumMat);
+      spindle.position.y = -dir * 0.18;
+      poleGroup.add(spindle);
+
+      // Brass knurled locking collar
+      const brassCollar = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.16, 24), brassMat);
+      brassCollar.position.y = -dir * 0.38;
+      poleGroup.add(brassCollar);
+
+      // Brass padded cup touching the glass sphere surface
+      const contactCup = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.12, 24), brassMat);
+      contactCup.position.y = -dir * 0.52;
+      poleGroup.add(contactCup);
+
+      clampSubFrame.add(poleGroup);
+    });
+
+    // 3. Spherical Gunmetal/Brass Bowl (Curved trough wrapping around the lower/back hemisphere)
+    // Bowl spans azimuth from -105° (6 AM) to +105° (6 PM), and polar width ~ 44°
+    const bowlGroup = new THREE.Group();
+    tiltedAssembly.add(bowlGroup);
+
+    const bowlArcAngle = Math.PI * 1.15; // ~207 degrees wrap for 6:00 to 18:00
+    const bowlHalfWidth = 0.46; // radians
+
+    // Outer metallic bowl shell
+    const outerBowlGeo = new THREE.SphereGeometry(
+      BOWL_RADIUS + 0.06,
+      64,
+      24,
+      -bowlArcAngle / 2 + Math.PI,
+      bowlArcAngle,
+      Math.PI / 2 - bowlHalfWidth,
+      bowlHalfWidth * 2
+    );
+    const outerBowlMat = new THREE.MeshStandardMaterial({
+      color: 0x22262c,
+      roughness: 0.45,
+      metalness: 0.78,
+      side: THREE.DoubleSide
+    });
+    const outerBowlMesh = new THREE.Mesh(outerBowlGeo, outerBowlMat);
+    outerBowlMesh.castShadow = true;
+    outerBowlMesh.receiveShadow = true;
+    bowlGroup.add(outerBowlMesh);
+
+    // Inner brass/gunmetal machined groove liner
+    const innerBowlGeo = new THREE.SphereGeometry(
+      BOWL_RADIUS + 0.015,
+      64,
+      24,
+      -bowlArcAngle / 2 + Math.PI,
+      bowlArcAngle,
+      Math.PI / 2 - bowlHalfWidth * 0.94,
+      bowlHalfWidth * 1.88
+    );
+    const innerBowlMat = new THREE.MeshStandardMaterial({
+      color: 0x8c734b,
+      roughness: 0.35,
+      metalness: 0.85,
+      side: THREE.BackSide
+    });
+    const innerBowlMesh = new THREE.Mesh(innerBowlGeo, innerBowlMat);
+    bowlGroup.add(innerBowlMesh);
+
+    // Flanged retaining lips along top and bottom edges of the bowl
+    [-1, 1].forEach((edgeSign) => {
+      const theta = Math.PI / 2 + edgeSign * bowlHalfWidth;
+      const flangeGeo = new THREE.TorusGeometry(
+        (BOWL_RADIUS + 0.03) * Math.sin(theta),
+        0.045,
+        12,
+        64,
+        bowlArcAngle
+      );
+      const flange = new THREE.Mesh(flangeGeo, gunmetalMat);
+      flange.rotation.x = Math.PI / 2;
+      flange.rotation.z = Math.PI / 2 - bowlArcAngle / 2;
+      flange.position.y = (BOWL_RADIUS + 0.03) * Math.cos(theta);
+      bowlGroup.add(flange);
+    });
+
+    // 4. Dynamic Graduated Blue Sunshine Card inside the Bowl Groove
+    let cardCanvas = createSunshineCardCanvas(state.season);
+    let cardCtx = cardCanvas.getContext("2d");
+    const cardTexture = new THREE.CanvasTexture(cardCanvas);
+    cardTexture.anisotropy = 8;
+
+    let sunshineCardMesh = null;
+    function rebuildSunshineCardMesh() {
+      if (sunshineCardMesh) {
+        bowlGroup.remove(sunshineCardMesh);
+        sunshineCardMesh.geometry.dispose();
+      }
+
+      // Regenerate clean blue card texture for selected season
+      cardCanvas = createSunshineCardCanvas(state.season);
+      cardCtx = cardCanvas.getContext("2d");
+      cardTexture.image = cardCanvas;
+      cardTexture.needsUpdate = true;
+
+      // Reset burn tracking on card change
+      state.burnedSamples.clear();
+
+      // Card angular span and vertical groove shift based on season
+      let cardArc = Math.PI * 1.02; // 184 degrees (covers 6:00 to 18:00 cleanly)
+      let grooveOffsetTheta = 0; // Equinox = center groove
+
+      if (state.season === "summer") {
+        // Summer solstice: short curved card placed in LOWER groove of bowl
+        cardArc = Math.PI * 0.96;
+        grooveOffsetTheta = 0.16;
+      } else if (state.season === "winter") {
+        // Winter solstice: long curved card placed in UPPER groove of bowl
+        cardArc = Math.PI * 1.06;
+        grooveOffsetTheta = -0.16;
+      }
+
+      const cardHalfHeight = 0.23;
+      const cardGeo = new THREE.SphereGeometry(
+        BOWL_RADIUS - 0.005,
+        64,
+        16,
+        -cardArc / 2 + Math.PI,
+        cardArc,
+        Math.PI / 2 - cardHalfHeight + grooveOffsetTheta,
+        cardHalfHeight * 2
+      );
+
+      // Flip UVs horizontally so 6 AM is on the East (left when facing South) and 18 PM on the West
+      const uvAttr = cardGeo.attributes.uv;
+      for (let i = 0; i < uvAttr.count; i++) {
+        uvAttr.setX(i, 1 - uvAttr.getX(i));
+      }
+
+      const cardMat = new THREE.MeshStandardMaterial({
+        map: cardTexture,
+        roughness: 0.68,
+        metalness: 0.05,
+        side: THREE.BackSide
+      });
+
+      sunshineCardMesh = new THREE.Mesh(cardGeo, cardMat);
+      bowlGroup.add(sunshineCardMesh);
+    }
+
+    rebuildSunshineCardMesh();
+
+    // -------------------------------------------------------------------------
+    // C. SOLAR RAYS, REFRACTED CONVERGING CONE, FOCAL BURN SPOT & SMOKE
+    // -------------------------------------------------------------------------
+    const opticsGroup = new THREE.Group();
+    tiltedAssembly.add(opticsGroup);
+
+    // Incoming parallel sun beam cylinder
+    const incomingRayGeo = new THREE.CylinderGeometry(SPHERE_RADIUS * 0.88, SPHERE_RADIUS * 0.88, 9.5, 32, 1, true);
+    incomingRayGeo.translate(0, 4.75 + SPHERE_RADIUS * 0.6, 0);
+    const rayMat = new THREE.MeshBasicMaterial({
+      color: 0xfde047,
+      transparent: true,
+      opacity: 0.14,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const incomingRayMesh = new THREE.Mesh(incomingRayGeo, rayMat);
+    opticsGroup.add(incomingRayMesh);
+
+    // Refracted converging cone inside and behind the glass sphere focusing onto the card
+    const coneLen = SPHERE_RADIUS + BOWL_RADIUS;
+    const refractedConeGeo = new THREE.CylinderGeometry(SPHERE_RADIUS * 0.86, 0.02, coneLen, 32, 1, true);
+    refractedConeGeo.translate(0, SPHERE_RADIUS - coneLen / 2, 0);
+    const refractedMat = new THREE.MeshBasicMaterial({
+      color: 0xfbbf24,
+      transparent: true,
+      opacity: 0.28,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const refractedConeMesh = new THREE.Mesh(refractedConeGeo, refractedMat);
+    opticsGroup.add(refractedConeMesh);
+
+    // Glowing Focal Burn Spot on the card surface
+    const focalSpotGroup = new THREE.Group();
+    focalSpotGroup.position.set(0, -BOWL_RADIUS + 0.015, 0);
+    opticsGroup.add(focalSpotGroup);
+
+    const hotCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.055, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    focalSpotGroup.add(hotCore);
+
+    const orangeHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(0.13, 16, 16),
+      new THREE.MeshBasicMaterial({
+        color: 0xff5500,
+        transparent: true,
+        opacity: 0.75,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    focalSpotGroup.add(orangeHalo);
+
+    // Subtle rising smoke particles from focal burn point
+    const smokeCount = 24;
+    const smokeParticles = [];
+    const smokeGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    for (let i = 0; i < smokeCount; i++) {
+      const pMat = new THREE.MeshBasicMaterial({
+        color: 0xe2e8f0,
+        transparent: true,
+        opacity: 0
+      });
+      const p = new THREE.Mesh(smokeGeo, pMat);
+      p.userData = {
+        life: Math.random(),
+        vx: (Math.random() - 0.5) * 0.012,
+        vy: 0.015 + Math.random() * 0.015,
+        vz: (Math.random() - 0.5) * 0.012
+      };
+      scene.add(p);
+      smokeParticles.push(p);
+    }
+
+    // Visible Sun Orb in the sky dome
+    const sunOrb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.45, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a })
+    );
+    scene.add(sunOrb);
+
+    // =========================================================================
+    // 5. CARD SCORCHING / BURNING LOGIC & SOLAR PHYSICS
+    // =========================================================================
+    function isCloudBlocking(hour, skyMode) {
+      if (skyMode === "clear") return false;
+      if (skyMode === "overcast") return true;
+      // Broken / intermittent cumulus clouds pattern
+      const wave = Math.sin(hour * 3.7) + 0.55 * Math.cos(hour * 7.3);
+      return wave > 0.35;
+    }
+
+    function computeSolarPhysics() {
+      // Hour angle H: -90 deg at 06:00, 0 deg at 12:00, +90 deg at 18:00
+      const hourAngleDeg = (state.solarHour - 12) * 15;
+      const hourAngleRad = THREE.MathUtils.degToRad(hourAngleDeg);
+
+      // Seasonal solar declination delta
+      let declinationDeg = 0;
+      if (state.season === "summer") declinationDeg = 23.44;
+      else if (state.season === "winter") declinationDeg = -23.44;
+
+      // Apparent solar elevation above horizon
+      const cosFactor = Math.cos(hourAngleRad);
+      const maxElev = 90 - Math.abs(state.latitude - declinationDeg);
+      const solarElevationDeg = Math.max(2, maxElev * Math.pow(Math.max(0, cosFactor), 0.72));
+
+      // Direct normal irradiance (W/m²)
+      const cloudBlocked = isCloudBlocking(state.solarHour, state.skyMode);
+      let irradiance = 0;
+      if (cloudBlocked) {
+        irradiance = state.skyMode === "overcast" ? 65 : 95; // Below 120 W/m² WMO threshold
+      } else {
+        // Clear sky irradiance peaks ~960 W/m² at solar noon, drops near sunrise/sunset
+        const airMassFactor = Math.sin(THREE.MathUtils.degToRad(solarElevationDeg));
+        irradiance = Math.round(135 + 835 * Math.pow(Math.max(0, airMassFactor), 0.65));
+      }
+
+      const isBurning = irradiance >= 120;
+      return {
+        hourAngleRad,
+        declinationDeg,
+        solarElevationDeg,
+        irradiance,
+        isBurning
+      };
+    }
+
+    function paintBurnMarkOnCard(solarHour, irradiance) {
+      if (irradiance < 120) return;
+
+      // Quantize hour into 0.05-hour (3 minute) bins to compute bright sunshine hours accurately
+      const bin = Math.round(solarHour * 20);
+      state.burnedSamples.add(bin);
+
+      // Map solarHour (6..18) to canvas X coordinate
+      const marginX = 64;
+      const usableW = cardCanvas.width - marginX * 2;
+      const t = THREE.MathUtils.clamp((solarHour - 6) / 12, 0, 1);
+      const x = marginX + t * usableW;
+      const y = cardCanvas.height * 0.5;
+
+      // Burn width scales with irradiance intensity
+      const intensityRatio = THREE.MathUtils.clamp((irradiance - 120) / 850, 0.15, 1.0);
+      const radius = 3.2 + intensityRatio * 4.2;
+
+      // Outer amber/brown scorched halo
+      const scorchGrad = cardCtx.createRadialGradient(x, y, 0.5, x, y, radius * 1.45);
+      scorchGrad.addColorStop(0, "rgba(18, 12, 8, 0.96)");
+      scorchGrad.addColorStop(0.55, "rgba(62, 34, 16, 0.82)");
+      scorchGrad.addColorStop(1, "rgba(180, 120, 60, 0)");
+
+      cardCtx.fillStyle = scorchGrad;
+      cardCtx.beginPath();
+      cardCtx.arc(x, y, radius * 1.45, 0, Math.PI * 2);
+      cardCtx.fill();
+
+      cardTexture.needsUpdate = true;
+    }
+
+    function updateSimulationFrame(dt) {
+      // Advance solar sweep if playing
+      if (state.isSweeping) {
+        state.solarHour += dt * 1.15; // Sweeps 12 hours in ~10.4 seconds
+        if (state.solarHour > 18) {
+          state.solarHour = 6.0;
+        }
+        document.getElementById("time-slider").value = state.solarHour.toFixed(2);
+      }
+
+      // Apply Latitude Tilt to the meridional assembly
+      // At 0° latitude, bowl faces straight up; at higher latitude N, bowl tilts toward the South
+      const tiltRad = THREE.MathUtils.degToRad(state.latitude * 0.72);
+      tiltedAssembly.rotation.x = tiltRad;
+
+      // Update spirit level bubble subtly when latitude changes
+      airBubble.position.x = Math.sin(tiltRad) * 0.015;
+
+      const physics = computeSolarPhysics();
+
+      // Orient opticsGroup so incoming ray points toward the Sun and focal spot hits the card inside the bowl
+      // Note: In Three.js CylinderGeometry, +Y is the incoming sun direction, -Y is the focused focal spot direction!
+      // At solar noon (hourAngle = 0), sun is due South (+Z), so focal spot is on North inner wall of bowl (-Z).
+      const declinationOffsetRad = THREE.MathUtils.degToRad(-physics.declinationDeg * 0.38);
+
+      // Compute unit vector pointing FROM sphere center TO the sun in tiltedAssembly local space
+      const sunDirLocal = new THREE.Vector3(
+        -Math.sin(physics.hourAngleRad), // East (-X) in morning, West (+X) in afternoon
+        Math.sin(THREE.MathUtils.degToRad(Math.max(18, physics.solarElevationDeg))) * 0.55,
+        Math.cos(physics.hourAngleRad) // South (+Z) at noon
+      ).normalize();
+
+      // Align opticsGroup +Y axis with sunDirLocal
+      const upVec = new THREE.Vector3(0, 1, 0);
+      const quat = new THREE.Quaternion().setFromUnitVectors(upVec, sunDirLocal);
+      opticsGroup.quaternion.copy(quat);
+
+      // Position sun orb in world space along sunDirLocal
+      const sunWorldDir = sunDirLocal.clone().applyQuaternion(tiltedAssembly.quaternion).normalize();
+      sunOrb.position.copy(sunWorldDir.multiplyScalar(11.5));
+      sunOrb.position.y = Math.max(1.8, sunOrb.position.y + 2.5);
+      sunDirectionalLight.position.copy(sunOrb.position);
+
+      // Visual intensity of beams & focal spot
+      const beamAlpha = physics.isBurning ? 0.16 : 0.03;
+      rayMat.opacity = beamAlpha;
+      refractedMat.opacity = physics.isBurning ? 0.34 : 0.04;
+      focalSpotGroup.visible = physics.isBurning;
+
+      if (physics.isBurning) {
+        const pulse = 0.9 + 0.2 * Math.sin(performance.now() * 0.02);
+        orangeHalo.scale.setScalar(pulse);
+        paintBurnMarkOnCard(state.solarHour, physics.irradiance);
+      }
+
+      // Update smoke particles rising from the focal burn spot in world space
+      const focalWorldPos = new THREE.Vector3();
+      focalSpotGroup.getWorldPosition(focalWorldPos);
+
+      smokeParticles.forEach((p) => {
+        if (physics.isBurning) {
+          p.userData.life += dt * 0.85;
+          if (p.userData.life >= 1) {
+            p.userData.life = 0;
+            p.position.copy(focalWorldPos);
+          } else {
+            p.position.x += p.userData.vx;
+            p.position.y += p.userData.vy;
+            p.position.z += p.userData.vz;
+          }
+          p.material.opacity = (1 - p.userData.life) * 0.35;
+          p.scale.setScalar(0.6 + p.userData.life * 1.8);
+        } else {
+          p.material.opacity = 0;
+        }
+      });
+
+      // Update Live Telemetry Readouts
+      const hrs = Math.floor(state.solarHour);
+      const mins = Math.floor((state.solarHour - hrs) * 60);
+      const ampm = hrs >= 12 ? "PM" : "AM";
+      const dispHr = hrs > 12 ? hrs - 12 : hrs === 0 ? 12 : hrs;
+      document.getElementById("val-solar-time").textContent =
+        `${String(dispHr).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${ampm}`;
+
+      const accumulatedHours = (state.burnedSamples.size / 20).toFixed(1);
+      document.getElementById("val-sunshine-hours").textContent = `${accumulatedHours} hrs`;
+      document.getElementById("val-irradiance").textContent = `${physics.irradiance} W/m²`;
+      document.getElementById("val-elevation").textContent = `${physics.solarElevationDeg.toFixed(1)}°`;
+    }
+
+    // =========================================================================
+    // 6. CAMERA ORBIT CONTROLS & FIXED VIEWPOINT TRANSITIONS
+    // =========================================================================
+    const cameraPresets = {
+      overview: { pos: new THREE.Vector3(6.6, 5.8, 7.8), target: new THREE.Vector3(0, 2.1, 0) },
+      sphere: { pos: new THREE.Vector3(2.8, 3.4, 3.6), target: new THREE.Vector3(0, 2.55, 0) },
+      bowl: { pos: new THREE.Vector3(3.4, 4.4, 2.2), target: new THREE.Vector3(0, 2.35, -0.4) },
+      base: { pos: new THREE.Vector3(-2.6, 2.1, 3.1), target: new THREE.Vector3(-0.5, 0.7, 0.4) },
+      burn: { pos: new THREE.Vector3(1.6, 3.8, 1.5), target: new THREE.Vector3(0, 2.35, -0.8) }
+    };
+
+    let camTarget = cameraPresets.overview.target.clone();
+    let desiredCamPos = null;
+    let desiredCamTarget = null;
+
+    // Spherical coordinates for smooth manual orbit + zoom
+    let isDragging = false;
+    let prevPointer = { x: 0, y: 0 };
+    let spherical = new THREE.Spherical().setFromVector3(camera.position.clone().sub(camTarget));
+
+    function setCameraView(viewKey) {
+      state.activeView = viewKey;
+      const preset = cameraPresets[viewKey];
+      if (!preset) return;
+      desiredCamPos = preset.pos.clone();
+      desiredCamTarget = preset.target.clone();
+
+      document.querySelectorAll(".view-btn").forEach((btn) => {
+        if (btn.dataset.view === viewKey) {
+          btn.classList.add("accent-btn");
+          btn.classList.remove("card-surface");
+        } else {
+          btn.classList.remove("accent-btn");
+          btn.classList.add("card-surface");
+        }
+      });
+    }
+
+    // Mouse & Touch Orbit Interaction
+    renderer.domElement.addEventListener("pointerdown", (e) => {
+      isDragging = true;
+      desiredCamPos = null; // Cancel auto-transition on manual drag
+      prevPointer = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - prevPointer.x;
+      const dy = e.clientY - prevPointer.y;
+      prevPointer = { x: e.clientX, y: e.clientY };
+
+      spherical.theta -= dx * 0.0075;
+      spherical.phi = THREE.MathUtils.clamp(spherical.phi - dy * 0.0075, 0.18, Math.PI * 0.48);
+
+      camera.position.setFromSpherical(spherical).add(camTarget);
+      camera.lookAt(camTarget);
+    });
+
+    window.addEventListener("pointerup", () => {
+      isDragging = false;
+    });
+
+    renderer.domElement.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        desiredCamPos = null;
+        spherical.radius = THREE.MathUtils.clamp(spherical.radius + e.deltaY * 0.006, 2.5, 18);
+        camera.position.setFromSpherical(spherical).add(camTarget);
+        camera.lookAt(camTarget);
+      },
+      { passive: false }
+    );
+
+    // =========================================================================
+    // 7. 3D HOTSPOT LABELS PROJECTION
+    // =========================================================================
+    const hotspotAnchors = [
+      { key: "sphere", obj: glassSphere, offset: new THREE.Vector3(0, 0.4, 0) },
+      { key: "clamps", obj: clampSubFrame, offset: new THREE.Vector3(0, 1.9, 0) },
+      { key: "bowl", obj: bowlGroup, offset: new THREE.Vector3(1.5, -0.4, -0.6) },
+      { key: "card", obj: bowlGroup, offset: new THREE.Vector3(-1.3, 0.1, -0.9) },
+      { key: "latitude", obj: latArc, offset: new THREE.Vector3(0.4, -0.2, 0.3) },
+      { key: "base", obj: spiritLevelGroup, offset: new THREE.Vector3(0, 0.25, 0) }
+    ];
+
+    const hotspotsLayer = document.getElementById("hotspots-layer");
+    let activeHotspotKey = null;
+
+    function buildHotspotDOM() {
+      hotspotsLayer.innerHTML = "";
+      const labelsData = I18N[state.lang].hotspotLabels;
+
+      hotspotAnchors.forEach((item, index) => {
+        const info = labelsData[item.key];
+        const pin = document.createElement("div");
+        pin.className = "hotspot-pin";
+        pin.dataset.key = item.key;
+
+        pin.innerHTML = `
+          <button class="px-2.5 py-1 rounded-full text-[11px] font-bold shadow-lg border flex items-center gap-1.5 panel-surface hover:scale-105 transition">
+            <span class="w-4 h-4 rounded-full accent-btn flex items-center justify-center text-[10px]">${index + 1}</span>
+            <span>${info.title.split("(")[0].trim()}</span>
+          </button>
+          <div class="hotspot-card hidden mt-1.5 w-60 p-2.5 rounded-xl border panel-surface shadow-2xl text-xs leading-relaxed">
+            <div class="font-bold text-amber-400 mb-1">${info.title}</div>
+            <p class="opacity-90">${info.desc}</p>
+          </div>
+        `;
+
+        pin.querySelector("button").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const card = pin.querySelector(".hotspot-card");
+          const wasOpen = !card.classList.contains("hidden");
+          document.querySelectorAll(".hotspot-card").forEach((c) => c.classList.add("hidden"));
+          if (!wasOpen) {
+            card.classList.remove("hidden");
+            activeHotspotKey = item.key;
+            speakText(info.title + ". " + info.desc);
+          } else {
+            activeHotspotKey = null;
+          }
+        });
+
+        hotspotsLayer.appendChild(pin);
+      });
+    }
+
+    function updateHotspotPositions() {
+      hotspotsLayer.style.display = state.hotspotsVisible ? "block" : "none";
+      if (!state.hotspotsVisible) return;
+
+      const pins = hotspotsLayer.children;
+      const tempVec = new THREE.Vector3();
+
+      hotspotAnchors.forEach((item, idx) => {
+        const pin = pins[idx];
+        if (!pin) return;
+
+        item.obj.getWorldPosition(tempVec);
+        tempVec.add(item.offset);
+        tempVec.project(camera);
+
+        if (tempVec.z > 1) {
+          pin.style.opacity = "0";
+          pin.style.pointerEvents = "none";
+        } else {
+          const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+          const y = (-tempVec.y * 0.5 + 0.5) * window.innerHeight;
+          pin.style.left = `${x}px`;
+          pin.style.top = `${y}px`;
+          pin.style.opacity = "1";
+          pin.style.pointerEvents = "auto";
+        }
+      });
+    }
+
+    // =========================================================================
+    // 8. WEB SPEECH API NARRATION & TELEPROMPTER SUBTITLES
+    // =========================================================================
+    function stopSpeech() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      state.isNarrating = false;
+      updateNarrateButtonUI();
+    }
+
+    function speakText(text) {
+      const teleprompter = document.getElementById("teleprompter-text");
+      teleprompter.textContent = text;
+
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(text);
+      const langCodes = { en: "en-US", hi: "hi-IN", ml: "ml-IN" };
+      utter.lang = langCodes[state.lang] || "en-US";
+      utter.rate = 0.96;
+
+      // Pick matching voice if installed
+      const voices = window.speechSynthesis.getVoices();
+      const matchedVoice = voices.find((v) => v.lang.toLowerCase().startsWith(state.lang));
+      if (matchedVoice) utter.voice = matchedVoice;
+
+      utter.onstart = () => {
+        state.isNarrating = true;
+        updateNarrateButtonUI();
+      };
+      utter.onend = () => {
+        state.isNarrating = false;
+        updateNarrateButtonUI();
+      };
+      utter.onerror = () => {
+        state.isNarrating = false;
+        updateNarrateButtonUI();
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    function updateNarrateButtonUI() {
+      const t = I18N[state.lang];
+      const lbl = document.getElementById("lbl-narrate-btn");
+      const icon = document.getElementById("narrate-icon");
+      if (state.isNarrating) {
+        lbl.textContent = t.narratePause;
+        icon.textContent = "⏸";
+      } else {
+        lbl.textContent = t.narrateBtn;
+        icon.textContent = "🔊";
+      }
+    }
+
+    // =========================================================================
+    // 9. UI RENDERING, LOCALIZATION & EVENT WIRING
+    // =========================================================================
+    function renderAccordions() {
+      const container = document.getElementById("accordion-container");
+      const lessons = I18N[state.lang].lessons;
+      container.innerHTML = "";
+
+      lessons.forEach((lesson, idx) => {
+        const isOpen = idx === state.activeLessonIndex;
+        const card = document.createElement("div");
+        card.className = "rounded-xl border card-surface overflow-hidden transition";
+
+        card.innerHTML = `
+          <button class="w-full p-3 text-left flex items-center justify-between gap-2 font-semibold text-xs sm:text-sm hover:opacity-90">
+            <span>${lesson.title}</span>
+            <span class="text-xs opacity-75">${isOpen ? "▲" : "▼"}</span>
+          </button>
+          <div class="${isOpen ? "block" : "hidden"} px-3 pb-3 text-xs leading-relaxed opacity-90 border-t pt-2" style="border-color: var(--border-color);">
+            <p>${lesson.content}</p>
+          </div>
+        `;
+
+        card.querySelector("button").addEventListener("click", () => {
+          state.activeLessonIndex = idx;
+          renderAccordions();
+          document.getElementById("teleprompter-badge").textContent = `${idx + 1} / ${lessons.length}`;
+          speakText(lesson.narration);
+
+          // Automatically focus relevant camera angle for each topic
+          const topicViewMap = ["overview", "sphere", "burn", "bowl", "burn", "base"];
+          if (topicViewMap[idx]) setCameraView(topicViewMap[idx]);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function applyLocalization() {
+      const t = I18N[state.lang];
+      document.getElementById("app-title").textContent = t.appTitle;
+      document.getElementById("app-subtitle").textContent = t.appSubtitle;
+      document.getElementById("lbl-hotspots").textContent = t.hotspots;
+      document.getElementById("lbl-course-modules").textContent = t.courseModules;
+      document.getElementById("lbl-lab-note-title").textContent = t.labNoteTitle;
+      document.getElementById("lbl-lab-note-body").textContent = t.labNoteBody;
+      document.getElementById("lbl-sim-controls").textContent = t.simControls;
+      document.getElementById("lbl-readout-time").textContent = t.readoutTime;
+      document.getElementById("lbl-readout-sunshine").textContent = t.readoutSunshine;
+      document.getElementById("lbl-readout-irradiance").textContent = t.readoutIrradiance;
+      document.getElementById("lbl-readout-elev").textContent = t.readoutElev;
+      document.getElementById("lbl-time-slider").textContent = t.timeSlider;
+      document.getElementById("lbl-play-sun").textContent = state.isSweeping ? t.pauseSun : t.playSun;
+      document.getElementById("lbl-season-select").textContent = t.seasonSelect;
+      document.getElementById("lbl-new-card").textContent = t.newCard;
+      document.getElementById("lbl-cloud-cover").textContent = t.cloudCover;
+      document.getElementById("val-cloud-mode").textContent = t.skyModes[state.skyMode];
+      document.getElementById("lbl-latitude").textContent = t.latitude;
+      document.getElementById("lbl-camera-views").textContent = t.cameraViews;
+
+      // Update Season dropdown options
+      const seasonSel = document.getElementById("season-select");
+      seasonSel.options[0].text = t.seasons.equinox;
+      seasonSel.options[1].text = t.seasons.summer;
+      seasonSel.options[2].text = t.seasons.winter;
+
+      // Update Camera view buttons
+      document.querySelectorAll(".view-btn").forEach((btn) => {
+        const key = btn.dataset.view;
+        if (t.views[key]) btn.textContent = t.views[key];
+      });
+
+      // Update teleprompter with current lesson narration
+      const currentLesson = t.lessons[state.activeLessonIndex] || t.lessons[0];
+      document.getElementById("teleprompter-badge").textContent = `${state.activeLessonIndex + 1} / ${t.lessons.length}`;
+      document.getElementById("teleprompter-text").textContent = currentLesson.narration;
+
+      updateNarrateButtonUI();
+      renderAccordions();
+      buildHotspotDOM();
+    }
+
+    // Language buttons
+    document.querySelectorAll(".lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        stopSpeech();
+        state.lang = btn.dataset.lang;
+        document.querySelectorAll(".lang-btn").forEach((b) => {
+          b.classList.toggle("accent-btn", b.dataset.lang === state.lang);
+          b.classList.toggle("opacity-80", b.dataset.lang !== state.lang);
+        });
+        applyLocalization();
+      });
+    });
+
+    // Theme Switcher
+    document.querySelectorAll(".theme-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.theme = btn.dataset.themeBtn;
+        document.body.setAttribute("data-theme", state.theme);
+        document.querySelectorAll(".theme-btn").forEach((b) => {
+          b.classList.toggle("accent-btn", b.dataset.themeBtn === state.theme);
+          b.classList.toggle("opacity-80", b.dataset.themeBtn !== state.theme);
+        });
+
+        // Adjust 3D scene background subtly to harmonize with UI theme
+        if (state.theme === "light") {
+          scene.background.setHex(0xcbd5e1);
+          scene.fog.color.setHex(0xcbd5e1);
+        } else if (state.theme === "projector") {
+          scene.background.setHex(0x000000);
+          scene.fog.color.setHex(0x000000);
+        } else {
+          scene.background.setHex(0x0b1220);
+          scene.fog.color.setHex(0x0b1220);
+        }
+      });
+    });
+
+    // Font Scaling
+    document.getElementById("font-inc-btn").addEventListener("click", () => {
+      state.fontScale = Math.min(1.25, +(state.fontScale + 0.08).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", state.fontScale);
+    });
+    document.getElementById("font-dec-btn").addEventListener("click", () => {
+      state.fontScale = Math.max(0.85, +(state.fontScale - 0.08).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", state.fontScale);
+    });
+
+    // Sidebar Toggle
+    const sidebarEl = document.getElementById("lesson-sidebar");
+    function updateSidebarVisibility() {
+      sidebarEl.style.transform = state.sidebarOpen ? "translateX(0)" : "translateX(-105%)";
+    }
+    updateSidebarVisibility();
+
+    document.getElementById("toggle-sidebar-btn").addEventListener("click", () => {
+      state.sidebarOpen = !state.sidebarOpen;
+      updateSidebarVisibility();
+    });
+    document.getElementById("close-sidebar-btn").addEventListener("click", () => {
+      state.sidebarOpen = false;
+      updateSidebarVisibility();
+    });
+
+    // Right Controls Drawer Collapse
+    document.getElementById("collapse-controls-btn").addEventListener("click", (e) => {
+      state.controlsOpen = !state.controlsOpen;
+      document.getElementById("controls-body").style.display = state.controlsOpen ? "block" : "none";
+      e.target.textContent = state.controlsOpen ? "−" : "+";
+    });
+
+    // Hotspots Toggle
+    document.getElementById("toggle-hotspots-btn").addEventListener("click", (e) => {
+      state.hotspotsVisible = !state.hotspotsVisible;
+      e.currentTarget.classList.toggle("accent-btn", state.hotspotsVisible);
+    });
+
+    // Time Slider & Play Sweep
+    document.getElementById("time-slider").addEventListener("input", (e) => {
+      state.solarHour = parseFloat(e.target.value);
+    });
+
+    document.getElementById("play-sun-btn").addEventListener("click", () => {
+      state.isSweeping = !state.isSweeping;
+      const t = I18N[state.lang];
+      document.getElementById("play-sun-icon").textContent = state.isSweeping ? "⏸" : "▶";
+      document.getElementById("lbl-play-sun").textContent = state.isSweeping ? t.pauseSun : t.playSun;
+    });
+
+    // Season & Card Groove Selector
+    document.getElementById("season-select").addEventListener("change", (e) => {
+      state.season = e.target.value;
+      rebuildSunshineCardMesh();
+    });
+
+    document.getElementById("clear-burn-btn").addEventListener("click", () => {
+      rebuildSunshineCardMesh();
+    });
+
+    // Sky / Cloud Condition Buttons
+    document.querySelectorAll(".sky-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.skyMode = btn.dataset.sky;
+        document.getElementById("val-cloud-mode").textContent = I18N[state.lang].skyModes[state.skyMode];
+        document.querySelectorAll(".sky-btn").forEach((b) => {
+          b.classList.toggle("accent-btn", b.dataset.sky === state.skyMode);
+          b.classList.toggle("card-surface", b.dataset.sky !== state.skyMode);
+        });
+      });
+    });
+
+    // Latitude Slider
+    document.getElementById("latitude-slider").addEventListener("input", (e) => {
+      state.latitude = parseInt(e.target.value, 10);
+      document.getElementById("val-latitude").textContent = `${state.latitude}° N`;
+    });
+
+    // Camera View Buttons
+    document.querySelectorAll(".view-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setCameraView(btn.dataset.view);
+      });
+    });
+
+    // Narration Play/Pause & Replay
+    document.getElementById("narrate-play-btn").addEventListener("click", () => {
+      if (state.isNarrating) {
+        stopSpeech();
+      } else {
+        const lesson = I18N[state.lang].lessons[state.activeLessonIndex];
+        speakText(lesson.narration);
+      }
+    });
+
+    document.getElementById("narrate-replay-btn").addEventListener("click", () => {
+      const lesson = I18N[state.lang].lessons[state.activeLessonIndex];
+      speakText(lesson.narration);
+    });
+
+    // Window Resize Handler
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // =========================================================================
+    // 10. MAIN ANIMATION LOOP
+    // =========================================================================
+    let lastTime = performance.now();
+
+    function animate(now = performance.now()) {
+      requestAnimationFrame(animate);
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      // Smooth camera transition when viewpoint button is clicked
+      if (desiredCamPos && desiredCamTarget) {
+        camera.position.lerp(desiredCamPos, 0.08);
+        camTarget.lerp(desiredCamTarget, 0.08);
+        camera.lookAt(camTarget);
+        spherical.setFromVector3(camera.position.clone().sub(camTarget));
+
+        if (camera.position.distanceTo(desiredCamPos) < 0.03) {
+          desiredCamPos = null;
+        }
+      }
+
+      updateSimulationFrame(dt);
+      updateHotspotPositions();
+      renderer.render(scene, camera);
+    }
+
+    window.onload = function () {
+      applyLocalization();
+      animate();
+    };
+  </script>
+</body>
+</html>
