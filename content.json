@@ -84,7 +84,7 @@
     {
      "type": "html",
      "title": "Solar Radiation & Geometry 3D Explorer",
-     "desc": "",
+     "desc": "Global Horizontal Irradiance (GHI) is the total solar power hitting a flat horizontal surface ($\\text{GHI} = \\text{DNI}\\cos\\theta_z + \\text{DHI}$), combining Direct Normal Irradiance (DNI / beam radiation) arriving straight from the Sun and Diffuse Horizontal Irradiance (DHI) scattered across the sky. While Altitude/Elevation ($\\alpha$) and Azimuth ($\\gamma_s$) define the Sun's vertical height and compass direction, Albedo ($\\rho$) measures the fraction of sunlight reflected off the ground onto tilted solar panels.",
      "tags": [],
      "file": "solar_radiation_geometry_3d_explorer.html",
      "id": "solar-radiation-geometry-3d-explorer"
