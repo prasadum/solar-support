@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Radiation & Geometry 3D Explorer</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Google Fonts for English, Hindi (Devanagari), and Malayalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-scale: 1;
+      --bg-panel: rgba(15, 23, 42, 0.88);
+      --bg-card: rgba(30, 41, 59, 0.78);
+      --border-color: rgba(148, 163, 184, 0.25);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --accent-primary: #f59e0b;
+      --accent-secondary: #38bdf8;
+    }
+
+    body.theme-light {
+      --bg-panel: rgba(255, 255, 255, 0.92);
+      --bg-card: rgba(241, 245, 249, 0.9);
+      --border-color: rgba(15, 23, 42, 0.15);
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --accent-primary: #d97706;
+      --accent-secondary: #0284c7;
+    }
+
+    body.theme-projector {
+      --bg-panel: #000000;
+      --bg-card: #111111;
+      --border-color: #ffffff;
+      --text-primary: #ffffff;
+      --text-secondary: #ffff00;
+      --accent-primary: #00ffcc;
+      --accent-secondary: #ff66ff;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Inter', 'Noto Sans Devanagari', 'Noto Sans Malayalam', sans-serif;
+      font-size: calc(15px * var(--font-scale));
+      color: var(--text-primary);
+      background-color: #020617;
+      user-select: none;
+    }
+
+    .glass-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--text-primary);
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .text-sec {
+      color: var(--text-secondary);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+
+    /* Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.35);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    /* 3D Floating HTML Labels */
+    .label-3d {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-weight: 700;
+      font-size: calc(12px * var(--font-scale));
+      padding: 3px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: opacity 0.2s ease;
+      z-index: 5;
+    }
+
+    body.theme-projector .glass-panel,
+    body.theme-projector .glass-card {
+      border-width: 2px;
+      backdrop-filter: none;
+    }
+
+    /* Accordion Transition */
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), padding 0.32s ease;
+    }
+    .accordion-item.open .accordion-content {
+      max-height: 450px;
+    }
+    .accordion-item.open .accordion-chevron {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container" class="fixed inset-0 w-full h-full z-0"></div>
+
+  <!-- 3D Floating Spatial Labels Container -->
+  <div id="labels-container" class="fixed inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+  <!-- Top Navigation & Accessibility Bar -->
+  <header class="fixed top-2 left-2 right-2 z-30 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+    <!-- Brand & Sidebar Toggle -->
+    <div class="glass-panel rounded-2xl px-3 py-2 flex items-center gap-3 pointer-events-auto shadow-xl">
+      <button id="toggle-sidebar-btn" class="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 transition flex items-center justify-center" title="Toggle Controls Sidebar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <div>
+        <h1 id="app-title" class="font-extrabold text-sm sm:text-base tracking-tight leading-tight">Solar Radiation &amp; Geometry 3D</h1>
+        <p id="app-subtitle" class="text-[11px] text-sec hidden sm:block">Interactive Irradiance &amp; Solar Angles Explorer</p>
+      </div>
+    </div>
+
+    <!-- Language, Theme, Font Scale & Narration Bar -->
+    <div class="glass-panel rounded-2xl px-3 py-2 flex flex-wrap items-center gap-2 pointer-events-auto shadow-xl">
+      <!-- Language Selector -->
+      <div class="flex items-center gap-1 bg-slate-500/15 rounded-xl p-1">
+        <button data-lang="en" class="lang-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950">EN</button>
+        <button data-lang="hi" class="lang-btn px-2.5 py-1 rounded-lg text-xs font-bold transition hover:bg-slate-500/20">हिन्दी</button>
+        <button data-lang="ml" class="lang-btn px-2.5 py-1 rounded-lg text-xs font-bold transition hover:bg-slate-500/20">മലയാളം</button>
+      </div>
+
+      <!-- Theme Switcher (Dark / Light / High-Contrast Projector) -->
+      <div class="flex items-center gap-1 bg-slate-500/15 rounded-xl p-1" title="Theme Mode">
+        <button data-theme="dark" class="theme-btn px-2 py-1 rounded-lg text-xs font-semibold transition bg-sky-500 text-white" id="btn-theme-dark">🌙</button>
+        <button data-theme="light" class="theme-btn px-2 py-1 rounded-lg text-xs font-semibold transition hover:bg-slate-500/20" id="btn-theme-light">☀️</button>
+        <button data-theme="projector" class="theme-btn px-2 py-1 rounded-lg text-xs font-semibold transition hover:bg-slate-500/20" id="btn-theme-proj">📽️ HC</button>
+      </div>
+
+      <!-- Font Scaling -->
+      <div class="flex items-center gap-1 bg-slate-500/15 rounded-xl p-1">
+        <button id="font-dec" class="px-2 py-1 rounded-lg text-xs font-bold hover:bg-slate-500/20" title="Decrease Font Size">A-</button>
+        <button id="font-inc" class="px-2 py-1 rounded-lg text-xs font-bold hover:bg-slate-500/20" title="Increase Font Size">A+</button>
+        <button id="toggle-labels-btn" class="px-2 py-1 rounded-lg text-xs font-bold bg-sky-500/25 text-sky-300 border border-sky-400/40 hover:bg-sky-500/35 transition" title="Toggle 3D Callout Labels">🏷️ Labels</button>
+      </div>
+
+      <!-- Voice Narration Controls -->
+      <div class="flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 rounded-xl p-1">
+        <button id="tts-play" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition flex items-center gap-1">
+          <span>▶</span><span id="lbl-narrate" class="hidden md:inline">Narrate</span>
+        </button>
+        <button id="tts-pause" class="px-2 py-1 rounded-lg text-xs font-bold hover:bg-emerald-500/20 transition" title="Pause">⏸</button>
+        <button id="tts-stop" class="px-2 py-1 rounded-lg text-xs font-bold hover:bg-rose-500/20 transition" title="Stop">⏹</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Collapsible Left Sidebar: Controls & Educational Accordions -->
+  <aside id="sidebar" class="fixed top-20 left-2 bottom-20 w-[92vw] max-w-[390px] z-20 glass-panel rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-transform duration-300 translate-x-0">
+    <!-- Sidebar Tabs -->
+    <div class="flex border-b border-slate-500/25 p-1.5 gap-1.5 shrink-0">
+      <button id="tab-controls" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition">🎛️ <span data-i18n="tabControls">Simulation Controls</span></button>
+      <button id="tab-learn" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition">📚 <span data-i18n="tabLearn">Concepts &amp; Guide</span></button>
+    </div>
+
+    <!-- Tab 1: Simulation Controls -->
+    <div id="panel-controls" class="p-3.5 overflow-y-auto space-y-4 flex-1">
+      <!-- Solar Position Sliders -->
+      <div class="glass-card rounded-xl p-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400" data-i18n="secSunPos">1. Sun Position &amp; Season</span>
+          <button id="btn-animate-sun" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition">
+            ⏯ <span data-i18n="btnAutoSun">Auto Sun</span>
+          </button>
+        </div>
+
+        <!-- Solar Time -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span data-i18n="lblSolarTime">Solar Time (Hour Angle)</span>
+            <span id="val-time" class="font-mono text-amber-400">10:30 AM</span>
+          </div>
+          <input id="slider-time" type="range" min="6.2" max="17.8" step="0.1" value="10.5" class="w-full" />
+        </div>
+
+        <!-- Season / Declination -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span data-i18n="lblSeason">Season (Declination δ)</span>
+            <span id="val-season" class="font-mono text-amber-400">+23.5° (Summer)</span>
+          </div>
+          <input id="slider-season" type="range" min="-23.5" max="23.5" step="0.5" value="15" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Atmosphere & Surface Albedo -->
+      <div class="glass-card rounded-xl p-3 space-y-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-sky-400 block" data-i18n="secAtmAlbedo">2. Atmosphere &amp; Surface Albedo</span>
+
+        <!-- Cloud Cover / Clarity -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span data-i18n="lblCloud">Cloud Cover / Scattering</span>
+            <span id="val-cloud" class="font-mono text-sky-400">20%</span>
+          </div>
+          <input id="slider-cloud" type="range" min="0" max="95" step="1" value="20" class="w-full" />
+        </div>
+
+        <!-- Surface Albedo -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span data-i18n="lblAlbedo">Surface Albedo (ρ)</span>
+            <span id="val-albedo" class="font-mono text-pink-400">0.25 (Grass)</span>
+          </div>
+          <input id="slider-albedo" type="range" min="0.08" max="0.88" step="0.02" value="0.25" class="w-full" />
+          <div class="flex justify-between text-[10px] text-sec mt-1">
+            <span>0.10 Asphalt</span>
+            <span>0.25 Grass</span>
+            <span>0.85 Snow/White</span>
+          </div>
+        </div>
+
+        <!-- Collector Tilt Angle -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span data-i18n="lblTilt">Solar Collector Tilt (β)</span>
+            <span id="val-tilt" class="font-mono text-emerald-400">30°</span>
+          </div>
+          <input id="slider-tilt" type="range" min="0" max="75" step="1" value="30" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Layer & Vector Visibility Toggles -->
+      <div class="glass-card rounded-xl p-3 space-y-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1" data-i18n="secLayers">3. Isolate 3D Vectors &amp; Angles</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-dni" checked class="accent-amber-400 w-4 h-4 rounded">
+            <span class="font-semibold text-amber-300">DNI / Beam</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-dhi" checked class="accent-sky-400 w-4 h-4 rounded">
+            <span class="font-semibold text-sky-300">DHI (Diffuse)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-albedo" checked class="accent-pink-400 w-4 h-4 rounded">
+            <span class="font-semibold text-pink-300">Albedo (Refl.)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-ghi" checked class="accent-emerald-400 w-4 h-4 rounded">
+            <span class="font-semibold text-emerald-300">GHI Sensor</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-altitude" checked class="accent-lime-400 w-4 h-4 rounded">
+            <span class="font-semibold text-lime-300">Altitude (α) &amp; θz</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-azimuth" checked class="accent-purple-400 w-4 h-4 rounded">
+            <span class="font-semibold text-purple-300">Azimuth (γs)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-instruments" checked class="accent-teal-400 w-4 h-4 rounded">
+            <span class="font-semibold text-teal-300">Sensors (FOV)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-500/15">
+            <input type="checkbox" id="chk-shadowring" class="accent-cyan-400 w-4 h-4 rounded">
+            <span class="font-semibold text-cyan-300">Shadow Ring (DHI)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Educational Accordions -->
+    <div id="panel-learn" class="p-3.5 overflow-y-auto space-y-2.5 flex-1 hidden">
+      <p class="text-xs text-sec mb-2" data-i18n="learnIntro">Click any solar term below to expand its scientific explanation, formula, and play voice narration.</p>
+      <div id="accordions-container" class="space-y-2"></div>
+    </div>
+  </aside>
+
+  <!-- Right Floating Telemetry Dashboard (Compact & Responsive) -->
+  <section id="telemetry-panel" class="fixed top-20 right-2 z-20 glass-panel rounded-2xl p-3 w-60 sm:w-68 shadow-2xl pointer-events-auto hidden md:block">
+    <div class="flex items-center justify-between border-b border-slate-500/25 pb-1.5 mb-2">
+      <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-400" data-i18n="telemetryTitle">Live Solar Telemetry</h2>
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    </div>
+
+    <!-- Irradiance Readouts -->
+    <div class="space-y-1.5 text-xs">
+      <div class="glass-card rounded-lg p-2 flex justify-between items-center border-l-4 border-l-emerald-400">
+        <div>
+          <div class="font-bold">GHI <span class="text-[10px] text-sec">(Global Horiz.)</span></div>
+          <div class="text-[10px] text-sec">DNI·cos(θz) + DHI</div>
+        </div>
+        <div id="tel-ghi" class="font-mono font-extrabold text-sm text-emerald-400">842 W/m²</div>
+      </div>
+
+      <div class="glass-card rounded-lg p-2 flex justify-between items-center border-l-4 border-l-amber-400">
+        <div>
+          <div class="font-bold">DNI / Beam</div>
+          <div class="text-[10px] text-sec">Direct Normal</div>
+        </div>
+        <div id="tel-dni" class="font-mono font-extrabold text-sm text-amber-400">790 W/m²</div>
+      </div>
+
+      <div class="glass-card rounded-lg p-2 flex justify-between items-center border-l-4 border-l-sky-400">
+        <div>
+          <div class="font-bold">DHI <span class="text-[10px] text-sec">(Diffuse)</span></div>
+          <div class="text-[10px] text-sec">Sky Scattered</div>
+        </div>
+        <div id="tel-dhi" class="font-mono font-extrabold text-sm text-sky-400">145 W/m²</div>
+      </div>
+
+      <div class="glass-card rounded-lg p-2 flex justify-between items-center border-l-4 border-l-pink-400">
+        <div>
+          <div class="font-bold">Albedo Reflected</div>
+          <div class="text-[10px] text-sec">Ground → Panel</div>
+        </div>
+        <div id="tel-albedo" class="font-mono font-extrabold text-sm text-pink-400">48 W/m²</div>
+      </div>
+
+      <div class="glass-card rounded-lg p-2 flex justify-between items-center border-l-4 border-l-blue-400">
+        <div>
+          <div class="font-bold">POA Irradiance</div>
+          <div class="text-[10px] text-sec">Total on Tilted Panel</div>
+        </div>
+        <div id="tel-poa" class="font-mono font-extrabold text-sm text-blue-400">910 W/m²</div>
+      </div>
+    </div>
+
+    <!-- Solar Geometry Angles -->
+    <div class="mt-2.5 pt-2 border-t border-slate-500/25 grid grid-cols-3 gap-1.5 text-center">
+      <div class="glass-card rounded-lg p-1.5">
+        <div class="text-[10px] text-sec">Altitude (α)</div>
+        <div id="tel-alt" class="font-mono font-bold text-xs text-lime-400">54.2°</div>
+      </div>
+      <div class="glass-card rounded-lg p-1.5">
+        <div class="text-[10px] text-sec">Zenith (θz)</div>
+        <div id="tel-zen" class="font-mono font-bold text-xs text-orange-300">35.8°</div>
+      </div>
+      <div class="glass-card rounded-lg p-1.5">
+        <div class="text-[10px] text-sec">Azimuth (γs)</div>
+        <div id="tel-azi" class="font-mono font-bold text-xs text-purple-400">128.4°</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Bar: Camera Presets & Live Voice Teleprompter Subtitle Bar -->
+  <footer class="fixed bottom-2 left-2 right-2 z-30 flex flex-col items-center gap-2 pointer-events-none">
+    <!-- Live Teleprompter Subtitle Bar -->
+    <div id="teleprompter-box" class="glass-panel rounded-2xl px-4 py-2 max-w-3xl w-full text-center shadow-2xl pointer-events-auto border border-amber-500/40 hidden">
+      <div class="flex items-center justify-center gap-2 mb-0.5">
+        <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        <span id="teleprompter-topic" class="text-[11px] font-extrabold uppercase tracking-wider text-amber-400">Overview</span>
+      </div>
+      <p id="teleprompter-text" class="text-xs sm:text-sm font-medium leading-snug"></p>
+    </div>
+
+    <!-- Camera Viewpoints Strip -->
+    <div class="glass-panel rounded-2xl p-1.5 flex flex-wrap items-center justify-center gap-1.5 pointer-events-auto shadow-xl">
+      <span class="text-[11px] font-bold text-sec px-2 hidden sm:inline" data-i18n="camViews">Camera Views:</span>
+      <button data-cam="iso" class="cam-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition" data-i18n="camIso">🌐 Isometric 3D</button>
+      <button data-cam="elevation" class="cam-btn px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition" data-i18n="camElev">📐 Elevation (α / θz)</button>
+      <button data-cam="azimuth" class="cam-btn px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition" data-i18n="camAzi">🧭 Top Azimuth (γs)</button>
+      <button data-cam="panel" class="cam-btn px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition" data-i18n="camPanel">☀️ Collector &amp; Albedo</button>
+      <button data-cam="sensors" class="cam-btn px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition" data-i18n="camSensors">🔬 Sensors (Pyrano &amp; Pyrhelio)</button>
+    </div>
+  </footer>
+
+  <script>
+    /*************************************************************************
+     * 1. MULTILINGUAL DICTIONARY & EDUCATIONAL CONTENT (EN / HI / ML)
+     *************************************************************************/
+    const I18N = {
+      en: {
+        speechLang: "en-US",
+        appTitle: "Solar Radiation & Geometry 3D",
+        appSubtitle: "Interactive Irradiance & Solar Angles Explorer",
+        tabControls: "Simulation Controls",
+        tabLearn: "Concepts & Guide",
+        secSunPos: "1. Sun Position & Season",
+        btnAutoSun: "Auto Sun",
+        lblSolarTime: "Solar Time (Hour Angle)",
+        lblSeason: "Season (Declination δ)",
+        secAtmAlbedo: "2. Atmosphere & Surface Albedo",
+        lblCloud: "Cloud Cover / Scattering",
+        lblAlbedo: "Surface Albedo (ρ)",
+        lblTilt: "Solar Collector Tilt (β)",
+        secLayers: "3. Isolate 3D Vectors & Angles",
+        learnIntro: "Tap any term or instrument to inspect its formula, real-world uses, and voice narration.",
+        telemetryTitle: "Live Solar Telemetry",
+        camViews: "Camera Views:",
+        camIso: "🌐 Isometric 3D",
+        camElev: "📐 Elevation (α / θz)",
+        camAzi: "🧭 Top Azimuth (γs)",
+        camPanel: "☀️ Collector & Albedo",
+        camSensors: "🔬 Sensors (Pyrano & Pyrhelio)",
+        narrateBtn: "Narrate",
+        overviewNarration: "Welcome to the 3D Solar Radiation and Geometry Explorer. Watch how Direct Normal Irradiance is captured by the 2-axis tracking Pyrheliometer, while Global Horizontal Irradiance is measured across a 180-degree field of view by the horizontal Pyranometer. Use the sliders and camera views to explore solar angles, albedo, and instruments.",
+        topics: [
+          {
+            id: "pyranometer",
+            title: "Pyranometer (Measures GHI / DHI / POA) & Uses",
+            badge: "180° Hemispherical FOV • Thermopile Sensor",
+            color: "text-emerald-400",
+            formula: "Measures GHI (Horizontal), DHI (with Shadow Ring), or POA (Tilted)",
+            desc: "A Pyranometer uses a black thermopile sensor beneath a precision double-glass dome with a 180° hemispherical field of view to measure broadband solar irradiance (300–2800 nm) on a plane. Adding a shadow band blocks direct beam rays so it measures DHI. Two back-to-back pyranometers form an Albedometer.",
+            uses: [
+              "Solar PV Plant Performance Ratio (PR) & IEC 61724 monitoring",
+              "Meteorological & climate weather stations worldwide",
+              "Agricultural evapotranspiration & crop irrigation modeling",
+              "Building thermal load & daylighting simulation",
+              "Dual-pyranometer Albedometers for ground reflectance"
+            ],
+            narration: "A Pyranometer measures Global Horizontal Irradiance across a full 180-degree hemispherical sky view using a thermopile detector under a glass dome. When fitted with a shadow ring, it blocks direct sunlight to measure Diffuse Irradiance. Real-world uses include solar PV plant performance testing, weather stations, agriculture irrigation modeling, and albedometers."
+          },
+          {
+            id: "pyrheliometer",
+            title: "Pyrheliometer (Measures DNI / Beam) & Uses",
+            badge: "5° Collimated FOV • 2-Axis Solar Tracker",
+            color: "text-amber-400",
+            formula: "Measures DNI (W/m²) perpendicular to solar disk (5° aperture)",
+            desc: "A Pyrheliometer is a long collimated tube with precision internal baffles and a 5° narrow acceptance cone, mounted on a motorized 2-axis solar tracker so it always points directly at the Sun. It excludes diffuse sky light and measures only Direct Normal Irradiance (DNI).",
+            uses: [
+              "Concentrated Solar Power (CSP) parabolic trough & solar tower siting",
+              "High-precision solar resource & bankability assessments",
+              "Calibration reference for pyranometers & satellite irradiance models",
+              "Atmospheric turbidity, aerosol optical depth & pollution research",
+              "Concentrating Photovoltaics (CPV) tracking validation"
+            ],
+            narration: "A Pyrheliometer is a collimated tube mounted on a two-axis solar tracker that continuously points straight at the Sun with a narrow 5-degree field of view to measure Direct Normal Irradiance. Its major uses include Concentrated Solar Power plant assessment, calibrating pyranometers, studying atmospheric aerosols, and validating concentrating solar systems."
+          },
+          {
+            id: "ghi",
+            title: "GHI — Global Horizontal Irradiance",
+            badge: "W/m² • Total Horizontal",
+            color: "text-emerald-400",
+            formula: "GHI = DNI × cos(θz) + DHI",
+            desc: "Global Horizontal Irradiance (GHI) is the total solar radiation power per unit area received by a horizontal surface on Earth. It combines both the vertical component of Direct Normal Irradiance and Diffuse Horizontal Irradiance.",
+            narration: "Global Horizontal Irradiance, or GHI, is the total solar power falling on a flat horizontal surface. It equals Direct Normal Irradiance multiplied by the cosine of the Zenith angle, plus Diffuse Horizontal Irradiance."
+          },
+          {
+            id: "dni",
+            title: "DNI & Beam Radiation",
+            badge: "W/m² • Direct Rays",
+            color: "text-amber-400",
+            formula: "Beam Horizontal = DNI × cos(θz)",
+            desc: "Direct Normal Irradiance (DNI) is the solar radiation arriving in a straight line from the solar disk onto a surface held perpendicular (normal) to the sun's rays. Beam radiation refers to this unscattered direct solar flux.",
+            narration: "Direct Normal Irradiance, or DNI, also called Beam Radiation, consists of parallel golden solar rays traveling straight from the Sun without scattering by clouds or aerosols, measured on a plane perpendicular to the sun."
+          },
+          {
+            id: "dhi",
+            title: "DHI — Diffuse Horizontal Irradiance",
+            badge: "W/m² • Sky Scattered",
+            color: "text-sky-400",
+            formula: "DHI = GHI − DNI × cos(θz)",
+            desc: "Diffuse Horizontal Irradiance (DHI) is sunlight scattered by atmospheric molecules, dust, and clouds that arrives at a horizontal surface equally from all directions of the sky dome rather than directly from the sun disk.",
+            narration: "Diffuse Horizontal Irradiance, or DHI, is sunlight scattered by clouds, dust, and air molecules across the entire sky dome. Even on cloudy days when direct beam rays drop to zero, diffuse radiation still illuminates the ground."
+          },
+          {
+            id: "albedo",
+            title: "Albedo (Reflected Radiation)",
+            badge: "ρ (0 to 1) • Ground Reflection",
+            color: "text-pink-400",
+            formula: "I_reflected = GHI × ρ × (1 − cos β) / 2",
+            desc: "Albedo (ρ) is the dimensionless reflectivity of the Earth's surface (0 for a black absorber, 1 for a mirror). Fresh snow has high albedo (~0.85), grass (~0.25), and dark asphalt (~0.10). Reflected rays add extra energy onto tilted solar panels.",
+            narration: "Albedo is the fraction of sunlight reflected by the ground surface. Dark asphalt absorbs most light with an albedo near 0.1, whereas snow or white roofs reflect up to 85 percent, bouncing extra pink rays onto tilted solar collectors."
+          },
+          {
+            id: "altitude",
+            title: "Solar Altitude / Elevation (α) & Zenith (θz)",
+            badge: "Degrees (°) • Vertical Angles",
+            color: "text-lime-400",
+            formula: "α + θz = 90°",
+            desc: "Solar Altitude (or Elevation Angle, α) is the vertical angle between the horizontal ground plane and the center of the Sun (0° at sunrise/sunset, up to 90° directly overhead). Solar Zenith Angle (θz) is its complement measured from the vertical zenith axis.",
+            narration: "Solar Altitude, also called Elevation Angle, is the vertical angle of the Sun measured upward from the horizon. Its complementary angle from the straight overhead Zenith line is the Solar Zenith Angle. Together they always sum to 90 degrees."
+          },
+          {
+            id: "azimuth",
+            title: "Solar Azimuth Angle (γs)",
+            badge: "0° to 360° • Compass Direction",
+            color: "text-purple-400",
+            formula: "Measured clockwise from True North (N=0°, E=90°, S=180°, W=270°)",
+            desc: "Solar Azimuth Angle (γs) defines the compass direction of the Sun along the horizon. It is measured clockwise in the horizontal plane from True North (0°) through East (90°), South (180°), and West (270°).",
+            narration: "Solar Azimuth Angle shows the compass direction of the Sun across the horizontal plane, measured clockwise from True North at 0 degrees, through East at 90 degrees, South at 180 degrees, and West at 270 degrees."
+          }
+        ]
+      },
+      hi: {
+        speechLang: "hi-IN",
+        appTitle: "सौर विकिरण और ज्यामिति 3D",
+        appSubtitle: "सौर ऊर्जा, उपकरण और कोणों का इंटरैक्टिव 3D अध्ययन",
+        tabControls: "सिमुलेशन नियंत्रण",
+        tabLearn: "सिद्धांत और उपकरण",
+        secSunPos: "1. सूर्य की स्थिति और ऋतु",
+        btnAutoSun: "सूर्य गति",
+        lblSolarTime: "सौर समय (Hour Angle)",
+        lblSeason: "ऋतु (क्रांति कोण δ)",
+        secAtmAlbedo: "2. वायुमंडल और सतह एल्बिडो",
+        lblCloud: "बादल और प्रकीर्णन",
+        lblAlbedo: "सतह एल्बिडो (ρ)",
+        lblTilt: "सौर पैनल झुकाव (β)",
+        secLayers: "3. 3D किरणें, कोण और सेंसर",
+        learnIntro: "सूत्र, उपयोग और ध्वनि व्याख्या सुनने के लिए नीचे किसी भी विषय पर क्लिक करें।",
+        telemetryTitle: "लाइव सौर टेलीमेट्री",
+        camViews: "कैमरा दृश्य:",
+        camIso: "🌐 आइसोमेट्रिक 3D",
+        camElev: "📐 ऊंचाई कोण (α / θz)",
+        camAzi: "🧭 दिगंश / एज़िमुथ (γs)",
+        camPanel: "☀️ पैनल और एल्बिडो",
+        camSensors: "🔬 सेंसर (पायरानो और पायरहेलियो)",
+        narrateBtn: "सुनें",
+        overviewNarration: "3D सौर विकिरण और ज्यामिति एक्सप्लोरर में आपका स्वागत है। यहाँ आप 2-अक्ष सोलर ट्रैकर पर लगे पायरहेलियोमीटर (DNI मापक) और 180-डिग्री गुंबद वाले पायरानोमीटर (GHI मापक) को लाइव काम करते देख सकते हैं।",
+        topics: [
+          {
+            id: "pyranometer",
+            title: "पायरानोमीटर (Pyranometer — GHI/DHI) और उपयोग",
+            badge: "180° अर्धगोलाकार दृश्य • थर्मोपाइल सेंसर",
+            color: "text-emerald-400",
+            formula: "GHI (क्षैतिज), DHI (शैडो रिंग के साथ), या POA (झुका हुआ) मापता है",
+            desc: "पायरानोमीटर एक कांच के गुंबद के नीचे लगे थर्मोपाइल सेंसर की मदद से पूरे 180° आकाश से आने वाले कुल सौर विकिरण (GHI) को मापता है। शैडो रिंग लगाने पर यह सीधी किरणों को रोककर केवल विसरित विकिरण (DHI) मापता है।",
+            uses: [
+              "सौर पीवी (Solar PV) संयंत्रों के परफॉरमेंस रेशियो (PR) की जांच",
+              "मौसम विज्ञान केंद्रों (Weather Stations) और जलवायु अनुसंधान में",
+              "कृषि में वाष्पोत्सर्जन (Evapotranspiration) और सिंचाई योजना हेतु",
+              "भवनों की ऊर्जा खपत और डे-लाइटिंग मॉडलिंग में",
+              "दो पायरानोमीटर जोड़कर एल्बिडोमीटर के रूप में सतह परावर्तन मापने में"
+            ],
+            narration: "पायरानोमीटर कांच के गुंबद के नीचे लगे सेंसर से पूरे 180 डिग्री आकाश का वैश्विक क्षैतिज विकिरण या GHI मापता है। इसके मुख्य उपयोग सोलर पीवी प्लांट की दक्षता जांचने, मौसम केंद्रों, कृषि सिंचाई और एल्बिडो मापने में होते हैं।"
+          },
+          {
+            id: "pyrheliometer",
+            title: "पायरहेलियोमीटर (Pyrheliometer — DNI) और उपयोग",
+            badge: "5° संकीर्ण शंकु • 2-अक्ष सोलर ट्रैकर",
+            color: "text-amber-400",
+            formula: "सूर्य की सीधी किरणों (DNI, W/m²) को 5° कोण से मापता है",
+            desc: "पायरहेलियोमीटर एक लंबी नली जैसा उपकरण है जो 2-अक्ष सोलर ट्रैकर पर लगा होता है और हमेशा सीधे सूर्य की ओर लक्षित रहता है। इसका 5° का संकीर्ण दृश्य क्षेत्र बिखरे प्रकाश को रोककर केवल प्रत्यक्ष सामान्य विकिरण (DNI) मापता है।",
+            uses: [
+              "केंद्रित सौर ऊर्जा (CSP - सोलर टावर और पैराबोलिक ट्रफ) संयंत्रों के आकलन में",
+              "उच्च सटीकता वाले सौर संसाधन और निवेश मूल्यांकन में",
+              "पायरानोमीटर और सैटेलाइट डेटा के अंशांकन (Calibration) हेतु",
+              "वायुमंडलीय प्रदूषण, धूल और एयरोसोल (Turbidity) अनुसंधान में",
+              "कंसंट्रेटिंग फोटोवोल्टिक (CPV) ट्रैकिंग प्रणाली के सत्यापन में"
+            ],
+            narration: "पायरहेलियोमीटर एक 2-अक्ष सोलर ट्रैकर पर लगी लंबी नली है जो केवल 5 डिग्री के संकीर्ण कोण से सीधे सूर्य को देखकर प्रत्यक्ष सामान्य विकिरण यानी DNI मापती है। इसका उपयोग CSP सौर ऊर्जा संयंत्रों, मौसम अनुसंधान और सेंसर कैलिब्रेशन में होता है।"
+          },
+          {
+            id: "ghi",
+            title: "GHI — वैश्विक क्षैतिज विकिरण",
+            badge: "W/m² • कुल क्षैतिज ऊर्जा",
+            color: "text-emerald-400",
+            formula: "GHI = DNI × cos(θz) + DHI",
+            desc: "ग्लोबल हॉरिजॉन्टल इरैडिएंस (GHI) पृथ्वी की एक समतल क्षैतिज सतह पर प्राप्त कुल सौर विकिरण शक्ति है। यह प्रत्यक्ष किरण विकिरण और विसरित आकाश विकिरण का योग है।",
+            narration: "ग्लोबल हॉरिजॉन्टल इरैडिएंस, या GHI, पृथ्वी की समतल क्षैतिज सतह पर पड़ने वाली कुल सौर ऊर्जा है। यह प्रत्यक्ष विकिरण और विसरित विकिरण दोनों को जोड़ता है।"
+          },
+          {
+            id: "dni",
+            title: "DNI और बीम विकिरण (Beam Radiation)",
+            badge: "W/m² • सीधी सौर किरणें",
+            color: "text-amber-400",
+            formula: "क्षैतिज बीम = DNI × cos(θz)",
+            desc: "डायरेक्ट नॉर्मल इरैडिएंस (DNI) सूर्य की किरणों के लंबवत रखी सतह पर बिना किसी वायुमंडलीय प्रकीर्णन के सीधी रेखा में आने वाला सौर विकिरण है।",
+            narration: "डायरेक्ट नॉर्मल इरैडिएंस, जिसे बीम विकिरण भी कहते हैं, सूर्य से बिना बिखरे सीधे आने वाली समानांतर सुनहरी किरणें हैं।"
+          },
+          {
+            id: "dhi",
+            title: "DHI — विसरित क्षैतिज विकिरण",
+            badge: "W/m² • आकाश से बिखरा प्रकाश",
+            color: "text-sky-400",
+            formula: "DHI = GHI − DNI × cos(θz)",
+            desc: "डिफ्यूज हॉरिजॉन्टल इरैडिएंस (DHI) बादलों, धूल और वायुमंडलीय अणुओं द्वारा बिखेरा गया सूर्य का प्रकाश है, जो पूरे आकाश गुंबद से क्षैतिज सतह पर आता है।",
+            narration: "डिफ्यूज हॉरिजॉन्टल इरैडिएंस, या DHI, बादलों और वायुमंडल द्वारा बिखेरी गई सूर्य की रोशनी है जो पूरे आकाश से जमीन पर आती है।"
+          },
+          {
+            id: "albedo",
+            title: "एल्बिडो (Albedo - परावर्तित विकिरण)",
+            badge: "ρ (0 से 1) • सतह परावर्तन",
+            color: "text-pink-400",
+            formula: "I_reflected = GHI × ρ × (1 − cos β) / 2",
+            desc: "एल्बिडो (ρ) पृथ्वी की सतह की परावर्तकता का माप है। बर्फ का एल्बिडो बहुत अधिक (~0.85), घास का मध्यम (~0.25) और डामर का कम (~0.10) होता है।",
+            narration: "एल्बिडो जमीन की सतह द्वारा सूर्य के प्रकाश को परावर्तित करने की क्षमता है। सफेद बर्फ 85 प्रतिशत तक प्रकाश परावर्तित करती है, जिससे झुके हुए सोलर पैनलों को अतिरिक्त ऊर्जा मिलती है।"
+          },
+          {
+            id: "altitude",
+            title: "सौर ऊंचाई कोण (α) और शिरोबिंदु कोण (θz)",
+            badge: "डिग्री (°) • ऊर्ध्वाधर कोण",
+            color: "text-lime-400",
+            formula: "α + θz = 90°",
+            desc: "सौर ऊंचाई कोण (Altitude/Elevation, α) क्षितिज और सूर्य के बीच का ऊर्ध्वाधर कोण है। शिरोबिंदु कोण (Zenith, θz) ठीक ऊपर की ऊर्ध्वाधर रेखा से सूर्य का कोण है।",
+            narration: "सौर ऊंचाई कोण क्षितिज से ऊपर की ओर सूर्य का कोण है, जबकि शिरोबिंदु कोण ठीक सिर के ऊपर की रेखा से मापा जाता है। दोनों का योग हमेशा 90 डिग्री होता है।"
+          },
+          {
+            id: "azimuth",
+            title: "सौर दिगंश कोण (Solar Azimuth, γs)",
+            badge: "0° से 360° • दिशा कोण",
+            color: "text-purple-400",
+            formula: "उत्तर (0°) से दक्षिणावर्त: पूर्व 90°, दक्षिण 180°, पश्चिम 270°",
+            desc: "सौर दिगंश कोण (Azimuth, γs) क्षैतिज तल में सूर्य की दिशा बताता है। इसे वास्तविक उत्तर (0°) से घड़ी की दिशा में मापा जाता है।",
+            narration: "सौर दिगंश कोण, या एज़िमुथ, क्षैतिज तल पर सूर्य की दिशा दर्शाता है, जिसे उत्तर दिशा से घड़ी की सुई की दिशा में मापा जाता है।"
+          }
+        ]
+      },
+      ml: {
+        speechLang: "ml-IN",
+        appTitle: "സൗരവികിരണവും ജ്യാമിതിയും 3D",
+        appSubtitle: "സൗരോർജ്ജ വികിരണങ്ങളും ഉപകരണങ്ങളും കോണുകളും",
+        tabControls: "നിയന്ത്രണങ്ങൾ",
+        tabLearn: "പാഠഭാഗങ്ങളും ഉപകരണങ്ങളും",
+        secSunPos: "1. സൂര്യന്റെ സ്ഥാനവും ഋതുവും",
+        btnAutoSun: "സൂര്യചലനം",
+        lblSolarTime: "സൗരസമയം (Hour Angle)",
+        lblSeason: "ഋതു (Declination δ)",
+        secAtmAlbedo: "2. അന്തരീക്ഷവും ആൽബിഡോയും",
+        lblCloud: "മേഘാവൃതം / വിസരണം",
+        lblAlbedo: "പ്രതല ആൽബിഡോ (ρ)",
+        lblTilt: "സോളാർ പാനൽ ചരിവ് (β)",
+        secLayers: "3. 3D രശ്മികൾ, കോണുകൾ, സെൻസറുകൾ",
+        learnIntro: "സൂത്രവാക്യങ്ങളും ഉപയോഗങ്ങളും ശബ്ദവിവരണവും കേൾക്കാൻ താഴെയുള്ള പദങ്ങളിൽ ക്ലിക്ക് ചെയ്യുക.",
+        telemetryTitle: "തത്സമയ സൗര അളവുകൾ",
+        camViews: "ക്യാമറ കാഴ്ചകൾ:",
+        camIso: "🌐 3D കാഴ്ച",
+        camElev: "📐 എലവേഷൻ (α / θz)",
+        camAzi: "🧭 അസിമുത്ത് (γs)",
+        camPanel: "☀️ പാനലും ആൽബിഡോയും",
+        camSensors: "🔬 സെൻസറുകൾ (പൈറാനോ & പൈർഹീലിയോ)",
+        narrateBtn: "കേൾക്കുക",
+        overviewNarration: "3D സൗരവികിരണ ജ്യാമിതി എക്സ്പ്ലോററിലേക്ക് സ്വാഗതം. 2-ആക്സിസ് സോളാർ ട്രാക്കറിൽ ഘടിപ്പിച്ച പൈർഹീലിയോമീറ്ററും 180-ഡിഗ്രി ഗ്ലാസ് ഡോമുള്ള പൈറാനോമീറ്ററും സൗരവികിരണം അളക്കുന്നത് ഇവിടെ കാണാം.",
+        topics: [
+          {
+            id: "pyranometer",
+            title: "പൈറാനോമീറ്റർ (Pyranometer — GHI/DHI) & ഉപയോഗങ്ങൾ",
+            badge: "180° അർദ്ധഗോള വീക്ഷണം • തെർമോപൈൽ സെൻസർ",
+            color: "text-emerald-400",
+            formula: "GHI (തിരശ്ചീനം), DHI (ഷാഡോ റിംഗ്), അല്ലെങ്കിൽ POA (ചരിഞ്ഞത്) അളക്കുന്നു",
+            desc: "ഗ്ലാസ് ഡോമിന് താഴെയുള്ള തെർമോപൈൽ സെൻസർ ഉപയോഗിച്ച് ആകാശത്തിന്റെ 180° ഭാഗത്തുനിന്നും തിരശ്ചീന പ്രതലത്തിൽ പതിക്കുന്ന ആകെ സൗരവികിരണം (GHI) അളക്കുന്ന ഉപകരണമാണ് പൈറാനോമീറ്റർ. ഷാഡോ റിംഗ് ഘടിപ്പിച്ചാൽ നേരിട്ടുള്ള രശ്മികളെ തടഞ്ഞ് DHI അളക്കാം.",
+            uses: [
+              "സോളാർ പി.വി (PV) പ്ലാന്റുകളുടെ പെർഫോമൻസ് റേഷ്യോ (PR) പരിശോധന",
+              "കാലാവസ്ഥാ നിരീക്ഷണ കേന്ദ്രങ്ങളിലും (Weather Stations) ഗവേഷണത്തിലും",
+              "കാർഷിക മേഖലയിലെ ജലസേചന (Evapotranspiration) പഠനങ്ങൾക്ക്",
+              "കെട്ടിടങ്ങളുടെ ഊർജ്ജ ഉപയോഗവും വെളിച്ചവും കണക്കാക്കാൻ",
+              "രണ്ട് പൈറാനോമീറ്ററുകൾ ചേർത്ത് ആൽബിഡോമീറ്ററായി ഭൗമപ്രതിഫലനം അളക്കാൻ"
+            ],
+            narration: "ഗ്ലാസ് ഡോമിന് താഴെയുള്ള സെൻസർ ഉപയോഗിച്ച് 180 ഡിഗ്രി ആകാശത്തുനിന്നുള്ള ആകെ സൗരവികിരണം അളക്കുന്ന ഉപകരണമാണ് പൈറാനോമീറ്റർ. സോളാർ പ്ലാന്റുകളുടെ കാര്യക്ഷമത പരിശോധിക്കാനും കാലാവസ്ഥാ കേന്ദ്രങ്ങളിലും കൃഷിയിലും ഇത് ഉപയോഗിക്കുന്നു."
+          },
+          {
+            id: "pyrheliometer",
+            title: "പൈർഹീലിയോമീറ്റർ (Pyrheliometer — DNI) & ഉപയോഗങ്ങൾ",
+            badge: "5° ഇടുങ്ങിയ കോൺ • 2-ആക്സിസ് സോളാർ ട്രാക്കർ",
+            color: "text-amber-400",
+            formula: "സൂര്യനിൽ നിന്ന് നേരിട്ടുള്ള രശ്മികൾ (DNI, W/m²) 5° കോണിൽ അളക്കുന്നു",
+            desc: "2-ആക്സിസ് സോളാർ ട്രാക്കറിൽ ഘടിപ്പിച്ച് എപ്പോഴും സൂര്യന് നേരെ തിരിഞ്ഞിരിക്കുന്ന നീളമുള്ള കുഴൽ ആകൃതിയിലുള്ള ഉപകരണമാണ് പൈർഹീലിയോമീറ്റർ. ഇതിന്റെ 5° ഇടുങ്ങിയ വീക്ഷണകോൺ ചിതറിയ പ്രകാശത്തെ ഒഴിവാക്കി നേരിട്ടുള്ള സൗരവികിരണം (DNI) മാത്രം അളക്കുന്നു.",
+            uses: [
+              "കേന്ദ്രീകൃത സൗരോർജ്ജ (CSP - സോളാർ ടവർ, പാരബോളിക് ട്രഫ്) നിലയങ്ങളുടെ പഠനത്തിന്",
+              "കൃത്യതയാർന്ന സൗരോർജ്ജ വിഭവ മൂല്യനിർണ്ണയത്തിന്",
+              "പൈറാനോമീറ്ററുകളുടെയും സാറ്റലൈറ്റ് ഡാറ്റയുടെയും കാലിബ്രേഷന്",
+              "അന്തരീക്ഷത്തിലെ പൊടിപടലങ്ങളും മലിനീകരണവും (Aerosols) പഠിക്കാൻ",
+              "കൺസെൻട്രേറ്റിംഗ് ഫോട്ടോവോൾട്ടെയ്ക് (CPV) ട്രാക്കിംഗ് പരിശോധനയ്ക്ക്"
+            ],
+            narration: "2-ആക്സിസ് സോളാർ ട്രാക്കറിൽ ഘടിപ്പിച്ച് എപ്പോഴും സൂര്യന് നേരെ തിരിഞ്ഞിരുന്ന് 5 ഡിഗ്രി കോണിലൂടെ നേരിട്ടുള്ള സൗരവികിരണം അളക്കുന്ന ഉപകരണമാണ് പൈർഹീലിയോമീറ്റർ. സി.എസ്.പി സോളാർ നിലയങ്ങളിലും കാലാവസ്ഥാ ഗവേഷണത്തിലും ഇത് ഉപയോഗിക്കുന്നു."
+          },
+          {
+            id: "ghi",
+            title: "GHI — ഗ്ലോബൽ ഹൊറിസോണ്ടൽ ഇറേഡിയൻസ്",
+            badge: "W/m² • ആകെ തിരശ്ചീന വികിരണം",
+            color: "text-emerald-400",
+            formula: "GHI = DNI × cos(θz) + DHI",
+            desc: "ഭൂമിയിലെ തിരശ്ചീനമായ ഒരു പ്രതലത്തിൽ പതിക്കുന്ന ആകെ സൗരവികിരണ ഊർജ്ജമാണ് GHI. ഇത് നേരിട്ടുള്ള രശ്മികളുടെയും ചിതറിയ രശ്മികളുടെയും ആകെത്തുകയാണ്.",
+            narration: "ഗ്ലോബൽ ഹൊറിസോണ്ടൽ ഇറേഡിയൻസ് അഥവാ G.H.I എന്നത് തിരശ്ചീനമായ ഒരു പ്രതലത്തിൽ പതിക്കുന്ന ആകെ സൗരോർജ്ജമാണ്. നേരിട്ടുള്ള വികിരണവും ചിതറിയ വികിരണവും ചേർന്നതാണിത്."
+          },
+          {
+            id: "dni",
+            title: "DNI & ബീം റേഡിയേഷൻ (Beam Radiation)",
+            badge: "W/m² • നേരിട്ടുള്ള രശ്മികൾ",
+            color: "text-amber-400",
+            formula: "Beam Horizontal = DNI × cos(θz)",
+            desc: "സൂര്യരശ്മികൾക്ക് ലംബമായി വെച്ചിരിക്കുന്ന പ്രതലത്തിൽ അന്തരീക്ഷത്തിൽ ചിതറാതെ നേർരേഖയിൽ പതിക്കുന്ന സൗരവികിരണമാണ് DNI അഥവാ ബീം റേഡിയേഷൻ.",
+            narration: "ഡയറക്ട് നോർമൽ ഇറേഡിയൻസ് അഥവാ ബീം റേഡിയേഷൻ എന്നത് മേഘങ്ങളിൽ തട്ടി ചിതറാതെ സൂര്യനിൽ നിന്ന് നേരിട്ട് നേർരേഖയിൽ വരുന്ന സൗരരശ്മികളാണ്."
+          },
+          {
+            id: "dhi",
+            title: "DHI — ഡിഫ്യൂസ് ഹൊറിസോണ്ടൽ ഇറേഡിയൻസ്",
+            badge: "W/m² • ചിതറിയ പ്രകാശം",
+            color: "text-sky-400",
+            formula: "DHI = GHI − DNI × cos(θz)",
+            desc: "മേഘങ്ങൾ, പൊടിപടലങ്ങൾ, വായു തന്മാത്രകൾ എന്നിവയിൽ തട്ടി ചിതറി ആകാശത്തിന്റെ എല്ലാ ഭാഗത്തുനിന്നും തിരശ്ചീന പ്രതലത്തിൽ എത്തുന്ന സൂര്യപ്രകാശമാണ് DHI.",
+            narration: "ഡിഫ്യൂസ് ഹൊറിസോണ്ടൽ ഇറേഡിയൻസ് എന്നത് മേഘങ്ങളിലും അന്തരീക്ഷത്തിലും തട്ടി ചിതറി ആകാശത്ത് നിന്ന് ഭൂമിയിലേക്ക് എത്തുന്ന പ്രകാശമാണ്."
+          },
+          {
+            id: "albedo",
+            title: "ആൽബിഡോ (Albedo - പ്രതിഫലന വികിരണം)",
+            badge: "ρ (0 മുതൽ 1 വരെ) • ഭൗമ പ്രതിഫലനം",
+            color: "text-pink-400",
+            formula: "I_reflected = GHI × ρ × (1 − cos β) / 2",
+            desc: "ഭൂമിയുടെ ഉപരിതലം സൂര്യപ്രകാശത്തെ പ്രതിഫലിപ്പിക്കുന്നതിന്റെ അളവാണ് ആൽബിഡോ (ρ). മഞ്ഞിന് ഉയർന്ന ആൽബിഡോയും (~0.85) കറുത്ത ടാറിന് കുറഞ്ഞ ആൽബിഡോയും (~0.10) ആണുള്ളത്.",
+            narration: "ഭൂമിയുടെ പ്രതലം സൂര്യപ്രകാശത്തെ തിരികെ പ്രതിഫലിപ്പിക്കുന്നതിന്റെ അളവാണ് ആൽബിഡോ. വെളുത്ത പ്രതലങ്ങൾ കൂടുതൽ പ്രകാശം പ്രതിഫലിപ്പിച്ച് സോളാർ പാനലുകൾക്ക് അധിക ഊർജ്ജം നൽകുന്നു."
+          },
+          {
+            id: "altitude",
+            title: "സോളാർ ആൾട്ടിറ്റ്യൂഡ് / എലവേഷൻ (α) & സെനിത്ത് (θz)",
+            badge: "ഡിഗ്രി (°) • ലംബ കോണുകൾ",
+            color: "text-lime-400",
+            formula: "α + θz = 90°",
+            desc: "ചക്രവാളത്തിൽ നിന്ന് സൂര്യനിലേക്കുള്ള ലംബ കോണാണ് സോളാർ ആൾട്ടിറ്റ്യൂഡ് അല്ലെങ്കിൽ എലവേഷൻ (α). നേരെ മുകളിലുള്ള സെനിത്ത് രേഖയിൽ നിന്നുള്ള കോണാണ് സെനിത്ത് ആംഗിൾ (θz).",
+            narration: "ചക്രവാളത്തിൽ നിന്ന് സൂര്യനിലേക്കുള്ള ഉയരക്കോണാണ് സോളാർ ആൾട്ടിറ്റ്യൂഡ് അഥവാ എലവേഷൻ. നേരെ മുകളിലുള്ള സെനിത്ത് രേഖയിൽ നിന്നുള്ള കോണാണ് സെനിത്ത് ആംഗിൾ."
+          },
+          {
+            id: "azimuth",
+            title: "സോളാർ അസിമുത്ത് ആംഗിൾ (γs)",
+            badge: "0° മുതൽ 360° വരെ • ദിശാ കോൺ",
+            color: "text-purple-400",
+            formula: "വടക്ക് (0°) നിന്ന് ഘടികാരദിശയിൽ: കിഴക്ക് 90°, തെക്ക് 180°, പടിഞ്ഞാറ് 270°",
+            desc: "തിരശ്ചീന തലത്തിൽ സൂര്യന്റെ ദിശ കാണിക്കുന്ന കോണാണ് സോളാർ അസിമുത്ത് (γs). ഇത് വടക്ക് ദിശയിൽ (0°) നിന്ന് ഘടികാരദിശയിൽ അളക്കുന്നു.",
+            narration: "തിരശ്ചീന തലത്തിൽ സൂര്യന്റെ ദിശ കാണിക്കുന്ന കോണാണ് സോളാർ അസിമുത്ത് ആംഗിൾ. ഇത് വടക്ക് ദിശയിൽ നിന്ന് ഘടികാരദിശയിൽ അളക്കുന്നു."
+          }
+        ]
+      }
+    };
+
+    /*************************************************************************
+     * 2. APPLICATION STATE
+     *************************************************************************/
+    const state = {
+      lang: "en",
+      theme: "dark",
+      fontScale: 1.0,
+      solarTime: 10.5,       // 6.2 to 17.8 hours
+      declination: 15.0,     // -23.5 to +23.5 deg
+      latitude: 23.5,        // Observer latitude (North)
+      cloudCover: 20,        // 0 to 95%
+      albedo: 0.25,          // 0.08 to 0.88
+      panelTilt: 30,         // 0 to 75 deg
+      autoSun: false,
+      activeNarrationText: "",
+      activeNarrationTopic: "",
+      layers: {
+        dni: true,
+        dhi: true,
+        albedo: true,
+        ghi: true,
+        altitude: true,
+        azimuth: true,
+        instruments: true,
+        shadowring: false,
+        labels: true
+      },
+      // Computed telemetry
+      altitudeDeg: 50,
+      zenithDeg: 40,
+      azimuthDeg: 130,
+      dniVal: 800,
+      dhiVal: 150,
+      ghiVal: 760,
+      albedoVal: 45,
+      poaVal: 910
+    };
+
+    /*************************************************************************
+     * 3. THREE.JS 3D SCENE SETUP
+     *************************************************************************/
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x060b19, 0.0085);
+
+    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 500);
+    camera.position.set(17, 13, 21);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI / 2 - 0.03;
+    controls.minDistance = 4.5;
+    controls.maxDistance = 65;
+    controls.target.set(0, 2.2, 1.5);
+
+    // Camera transition state
+    let camTransition = null;
+    const CAMERA_PRESETS = {
+      iso:       { pos: new THREE.Vector3(17, 13, 21), target: new THREE.Vector3(0, 2.2, 1.5) },
+      elevation: { pos: new THREE.Vector3(28, 5.5, 0.1), target: new THREE.Vector3(0, 4.5, 0) },
+      azimuth:   { pos: new THREE.Vector3(0.1, 34, 0.1), target: new THREE.Vector3(0, 0, 0) },
+      panel:     { pos: new THREE.Vector3(7.5, 5.2, 8.5), target: new THREE.Vector3(0, 2.2, 0) },
+      sensors:   { pos: new THREE.Vector3(-1.8, 4.6, 11.2), target: new THREE.Vector3(-1.4, 2.2, 3.6) }
+    };
+
+    // Lighting
+    const ambientLight = new THREE.HemisphereLight(0xdbeafe, 0x1e293b, 0.65);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.8);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.camera.near = 2;
+    sunLight.shadow.camera.far = 70;
+    const dShadow = 18;
+    sunLight.shadow.camera.left = -dShadow;
+    sunLight.shadow.camera.right = dShadow;
+    sunLight.shadow.camera.top = dShadow;
+    sunLight.shadow.camera.bottom = -dShadow;
+    scene.add(sunLight);
+
+    /*************************************************************************
+     * 4. GROUND COMPASS ROSE, SKY DOME & SOLAR COLLECTOR RIG
+     *************************************************************************/
+    const SKY_RADIUS = 20;
+
+    // Ground Plane with procedural compass & degree texture
+    function createCompassGroundTexture(albedoVal, themeMode) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext("2d");
+      const cx = 512, cy = 512;
+
+      // Ground color responds dynamically to Albedo (dark soil -> green grass -> bright snow)
+      let baseR, baseG, baseB;
+      if (albedoVal < 0.22) {
+        const t = (albedoVal - 0.08) / 0.14;
+        baseR = Math.round(38 + t * 20);
+        baseG = Math.round(41 + t * 45);
+        baseB = Math.round(46 + t * 18);
+      } else if (albedoVal < 0.55) {
+        const t = (albedoVal - 0.22) / 0.33;
+        baseR = Math.round(58 + t * 90);
+        baseG = Math.round(95 + t * 85);
+        baseB = Math.round(64 + t * 105);
+      } else {
+        const t = (albedoVal - 0.55) / 0.33;
+        baseR = Math.round(148 + t * 98);
+        baseG = Math.round(180 + t * 68);
+        baseB = Math.round(169 + t * 82);
+      }
+
+      if (themeMode === "projector") {
+        baseR = Math.round(baseR * 0.45);
+        baseG = Math.round(baseG * 0.45);
+        baseB = Math.round(baseB * 0.5);
+      }
+
+      const grad = ctx.createRadialGradient(cx, cy, 30, cx, cy, 500);
+      grad.addColorStop(0, `rgb(${baseR + 18}, ${baseG + 18}, ${baseB + 18})`);
+      grad.addColorStop(0.75, `rgb(${baseR}, ${baseG}, ${baseB})`);
+      grad.addColorStop(1, `rgb(${Math.max(10, baseR - 25)}, ${Math.max(10, baseG - 25)}, ${Math.max(15, baseB - 25)})`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Subtle concentric grid rings
+      const lineStroke = albedoVal > 0.6 ? "rgba(15,23,42,0.35)" : "rgba(255,255,255,0.28)";
+      ctx.strokeStyle = lineStroke;
+      ctx.lineWidth = 2;
+      [130, 260, 390, 460].forEach(r => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Azimuth Degree Ticks (Every 15° around r = 430)
+      // Convention: -Z is North (0°), +X is East (90°), +Z is South (180°), -X is West (270°)
+      ctx.font = "bold 20px Inter, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const textFill = albedoVal > 0.6 ? "#0f172a" : "#f8fafc";
+
+      for (let deg = 0; deg < 360; deg += 15) {
+        const rad = (deg * Math.PI) / 180;
+        const sinA = Math.sin(rad);
+        const cosA = -Math.cos(rad); // North = -Z (top of canvas)
+        const rInner = deg % 45 === 0 ? 405 : 418;
+        const rOuter = 435;
+
+        ctx.strokeStyle = deg === 0 ? "#ef4444" : lineStroke;
+        ctx.lineWidth = deg % 45 === 0 ? 3 : 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx + sinA * rInner, cy + cosA * rInner);
+        ctx.lineTo(cx + sinA * rOuter, cy + cosA * rOuter);
+        ctx.stroke();
+
+        if (deg % 30 === 0 && deg % 90 !== 0) {
+          ctx.fillStyle = textFill;
+          ctx.fillText(`${deg}°`, cx + sinA * 468, cy + cosA * 468);
+        }
+      }
+
+      // Cardinal Directions (N, E, S, W)
+      const cardinals = [
+        { label: "N (0°)", deg: 0, color: "#ef4444" },
+        { label: "E (90°)", deg: 90, color: textFill },
+        { label: "S (180°)", deg: 180, color: "#38bdf8" },
+        { label: "W (270°)", deg: 270, color: textFill }
+      ];
+      ctx.font = "900 30px Inter, sans-serif";
+      cardinals.forEach(c => {
+        const rad = (c.deg * Math.PI) / 180;
+        const x = cx + Math.sin(rad) * 472;
+        const y = cy - Math.cos(rad) * 472;
+        ctx.fillStyle = c.color;
+        ctx.fillText(c.label, x, y);
+      });
+
+      // North Pointer Arrow on ground
+      ctx.fillStyle = "rgba(239, 68, 68, 0.75)";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 395);
+      ctx.lineTo(cx - 14, cy - 355);
+      ctx.lineTo(cx + 14, cy - 355);
+      ctx.closePath();
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.anisotropy = 4;
+      return tex;
+    }
+
+    const groundGeo = new THREE.CircleGeometry(24, 64);
+    const groundMat = new THREE.MeshStandardMaterial({
+      map: createCompassGroundTexture(state.albedo, state.theme),
+      roughness: 0.85,
+      metalness: 0.05
+    });
+    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.receiveShadow = true;
+    scene.add(groundMesh);
+
+    // Translucent Sky Dome Wireframe + Hemisphere
+    const domeGeo = new THREE.SphereGeometry(SKY_RADIUS, 36, 20, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.09
+    });
+    const skyDome = new THREE.Mesh(domeGeo, domeMat);
+    scene.add(skyDome);
+
+    // Cloud Puff Ring for DHI Scattering Visualization
+    const cloudsGroup = new THREE.Group();
+    scene.add(cloudsGroup);
+    const cloudMat = new THREE.MeshLambertMaterial({
+      color: 0xe2e8f0,
+      transparent: true,
+      opacity: 0.55
+    });
+    for (let i = 0; i < 14; i++) {
+      const angle = (i / 14) * Math.PI * 2;
+      const r = 10 + (i % 3) * 3.5;
+      const h = 12 + (i % 4) * 1.6;
+      const cloudCluster = new THREE.Group();
+      for (let j = 0; j < 3; j++) {
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(1.3 + j * 0.35, 12, 12), cloudMat);
+        puff.position.set((j - 1) * 1.3, (j % 2) * 0.4, (j - 1) * 0.5);
+        cloudCluster.add(puff);
+      }
+      cloudCluster.position.set(Math.cos(angle) * r, h, Math.sin(angle) * r);
+      cloudsGroup.add(cloudCluster);
+    }
+
+    // Central Solar Collector (Tilted PV Panel) + Horizontal GHI Pyranometer Sensor
+    const stationGroup = new THREE.Group();
+    scene.add(stationGroup);
+
+    // Pedestal Stand
+    const standPole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.24, 2.2, 16),
+      new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7, roughness: 0.3 })
+    );
+    standPole.position.y = 1.1;
+    standPole.castShadow = true;
+    stationGroup.add(standPole);
+
+    // Tilted Solar Panel Pivot (Faces South +Z in Northern Hemisphere)
+    const panelPivot = new THREE.Group();
+    panelPivot.position.set(0, 2.2, 0);
+    stationGroup.add(panelPivot);
+
+    // Solar Panel Frame & Photovoltaic Cells Texture
+    function createPVTexture() {
+      const c = document.createElement("canvas");
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = "#1d4ed8";
+      const cols = 6, rows = 10;
+      const pad = 10;
+      const w = (512 - pad * (cols + 1)) / cols;
+      const h = (512 - pad * (rows + 1)) / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          ctx.fillStyle = (r + col) % 2 === 0 ? "#1e3a8a" : "#1d4ed8";
+          ctx.fillRect(pad + col * (w + pad), pad + r * (h + pad), w, h);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    const panelFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(3.8, 0.14, 2.6),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.25 })
+    );
+    panelFrame.castShadow = true;
+    panelFrame.receiveShadow = true;
+    panelPivot.add(panelFrame);
+
+    const panelFace = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.6, 2.4),
+      new THREE.MeshStandardMaterial({
+        map: createPVTexture(),
+        roughness: 0.2,
+        metalness: 0.5
+      })
+    );
+    panelFace.rotation.x = -Math.PI / 2;
+    panelFace.position.y = 0.08;
+    panelPivot.add(panelFace);
+
+    // Panel Normal Vector Arrow (perpendicular to panel)
+    const panelNormalArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0.1, 0),
+      2.6,
+      0x34d399,
+      0.45,
+      0.28
+    );
+    panelPivot.add(panelNormalArrow);
+
+    // =========================================================================
+    // SCIENTIFIC INSTRUMENT 1: LARGE FOREGROUND PYRANOMETER (Measures GHI / DHI)
+    // Positioned prominently in central foreground (-3.4, 0, 3.8) at ~1.65x scale
+    // =========================================================================
+    const pyranometerGroup = new THREE.Group();
+    pyranometerGroup.position.set(-3.4, 0, 3.8);
+    pyranometerGroup.scale.setScalar(1.65);
+    scene.add(pyranometerGroup);
+
+    // Heavy Circular Tripod Base Plate on Ground
+    const pyranoGroundFoot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.68, 0.78, 0.12, 24),
+      new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.35 })
+    );
+    pyranoGroundFoot.position.y = 0.06;
+    pyranoGroundFoot.receiveShadow = true;
+    pyranometerGroup.add(pyranoGroundFoot);
+
+    // 3 Sturdy Tripod Legs + Central Support Column
+    const tripodMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.22 });
+    const pyranoStand = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.11, 0.15, 1.38, 16),
+      tripodMat
+    );
+    pyranoStand.position.y = 0.69;
+    pyranoStand.castShadow = true;
+    pyranometerGroup.add(pyranoStand);
+
+    for (let i = 0; i < 3; i++) {
+      const ang = (i * 2 * Math.PI) / 3 + Math.PI / 6;
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 1.38, 12), tripodMat);
+      leg.position.set(Math.cos(ang) * 0.34, 0.65, Math.sin(ang) * 0.34);
+      leg.rotation.z = Math.cos(ang) * 0.36;
+      leg.rotation.x = -Math.sin(ang) * 0.36;
+      leg.castShadow = true;
+      pyranometerGroup.add(leg);
+    }
+
+    // Precision Anodized Leveling Base Plate + Green Spirit Bubble Level
+    const pyranoBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.64, 0.7, 0.14, 28),
+      new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.55, roughness: 0.25 })
+    );
+    pyranoBase.position.y = 1.40;
+    pyranoBase.castShadow = true;
+    pyranometerGroup.add(pyranoBase);
+
+    const bubbleLevel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.07, 0.07, 0.03, 16),
+      new THREE.MeshBasicMaterial({ color: 0x10b981 })
+    );
+    bubbleLevel.position.set(0.45, 1.48, 0.25);
+    pyranometerGroup.add(bubbleLevel);
+
+    // Bright White Sun-Shield Disk (Thermal Radiation Shield)
+    const radiationShield = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.12, 1.12, 0.07, 36),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, metalness: 0.05 })
+    );
+    radiationShield.position.y = 1.50;
+    radiationShield.castShadow = true;
+    pyranometerGroup.add(radiationShield);
+
+    // Metallic Sensor Collar Ring
+    const sensorCollar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.52, 0.56, 0.09, 28),
+      new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.85, roughness: 0.2 })
+    );
+    sensorCollar.position.y = 1.56;
+    pyranometerGroup.add(sensorCollar);
+
+    // Deep Black Broadband Thermopile Detector Disc (300–2800 nm)
+    const thermopileCore = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.32, 0.05, 28),
+      new THREE.MeshStandardMaterial({ color: 0x05070c, roughness: 0.95 })
+    );
+    thermopileCore.position.y = 1.60;
+    pyranometerGroup.add(thermopileCore);
+
+    // Inner & Outer Crystal-Clear Optical Glass Hemispherical Domes
+    const innerGlassDome = new THREE.Mesh(
+      new THREE.SphereGeometry(0.38, 28, 18, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xe0f2fe,
+        transparent: true,
+        opacity: 0.5,
+        roughness: 0.05,
+        metalness: 0.1
+      })
+    );
+    innerGlassDome.position.y = 1.60;
+    pyranometerGroup.add(innerGlassDome);
+
+    const outerGlassDome = new THREE.Mesh(
+      new THREE.SphereGeometry(0.49, 32, 20, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xbae6fd,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.22,
+        transparent: true,
+        opacity: 0.48,
+        roughness: 0.04,
+        metalness: 0.15
+      })
+    );
+    outerGlassDome.position.y = 1.60;
+    pyranometerGroup.add(outerGlassDome);
+
+    // Glowing 180-Degree Hemispherical Field-of-View (FOV) Acceptance Envelope
+    const pyranoFovHemisphere = new THREE.Mesh(
+      new THREE.SphereGeometry(2.15, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshBasicMaterial({
+        color: 0x34d399,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.34
+      })
+    );
+    pyranoFovHemisphere.position.y = 1.60;
+    pyranometerGroup.add(pyranoFovHemisphere);
+
+    const pyranoFovGlowShell = new THREE.Mesh(
+      new THREE.SphereGeometry(2.13, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshBasicMaterial({
+        color: 0x10b981,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.DoubleSide
+      })
+    );
+    pyranoFovGlowShell.position.y = 1.60;
+    pyranometerGroup.add(pyranoFovGlowShell);
+
+    // Interactive Shadow Ring / Shading Band Assembly (Blocks Direct Beam DNI -> Isolates DHI)
+    const shadowRingGroup = new THREE.Group();
+    shadowRingGroup.position.y = 1.60;
+    shadowRingGroup.visible = false;
+    pyranometerGroup.add(shadowRingGroup);
+
+    const shadowBandMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.18, 1.18, 0.26, 36, 1, true, Math.PI * 0.12, Math.PI * 0.76),
+      new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        emissive: 0x0ea5e9,
+        emissiveIntensity: 0.15,
+        side: THREE.DoubleSide,
+        roughness: 0.5
+      })
+    );
+    shadowBandMesh.rotation.z = Math.PI / 2;
+    shadowRingGroup.add(shadowBandMesh);
+
+    // Shading Disc Occulter directly along Sun vector inside Shadow Ring
+    const shadingOcculter = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.24, 0.04, 20),
+      new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.7 })
+    );
+    shadingOcculter.rotation.x = Math.PI / 2;
+    shadingOcculter.position.z = 0.88;
+    shadowRingGroup.add(shadingOcculter);
+
+    // =========================================================================
+    // SCIENTIFIC INSTRUMENT 2: LARGE PYRHELIOMETER ON 2-AXIS TRACKER (DNI)
+    // Positioned prominently in central foreground (3.4, 0, 3.8) at ~1.5x scale
+    // =========================================================================
+    const pyrheliometerGroup = new THREE.Group();
+    pyrheliometerGroup.position.set(3.4, 0, 3.8);
+    pyrheliometerGroup.scale.setScalar(1.5);
+    scene.add(pyrheliometerGroup);
+
+    // Heavy Tracker Pedestal & Base Plate
+    const trackerBaseFoot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.65, 0.75, 0.12, 24),
+      new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.35 })
+    );
+    trackerBaseFoot.position.y = 0.06;
+    pyrheliometerGroup.add(trackerBaseFoot);
+
+    const trackerPedestal = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.26, 1.28, 20),
+      new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.75, roughness: 0.25 })
+    );
+    trackerPedestal.position.y = 0.64;
+    trackerPedestal.castShadow = true;
+    pyrheliometerGroup.add(trackerPedestal);
+
+    // Azimuth Rotating Head (rotates around Y-axis to match Solar Azimuth)
+    const trackerAzimuthHead = new THREE.Group();
+    trackerAzimuthHead.position.y = 1.35;
+    pyrheliometerGroup.add(trackerAzimuthHead);
+
+    const azimuthDrum = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.36, 0.36, 0.26, 24),
+      new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.55, roughness: 0.3 })
+    );
+    trackerAzimuthHead.add(azimuthDrum);
+
+    // Tracker U-Yoke Arms
+    const yokeArmL = new THREE.Mesh(
+      new THREE.BoxGeometry(0.09, 0.58, 0.16),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.75 })
+    );
+    yokeArmL.position.set(-0.29, 0.34, 0);
+    trackerAzimuthHead.add(yokeArmL);
+
+    const yokeArmR = yokeArmL.clone();
+    yokeArmR.position.set(0.29, 0.34, 0);
+    trackerAzimuthHead.add(yokeArmR);
+
+    // Elevation Pivot (tilts up/down to point directly at the Sun)
+    const trackerElevationPivot = new THREE.Group();
+    trackerElevationPivot.position.set(0, 0.56, 0);
+    trackerAzimuthHead.add(trackerElevationPivot);
+
+    // Thick Collimated Pyrheliometer Tube (aligned along +Z locally so lookAt() points aperture at Sun)
+    const pyrhelioTube = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.17, 1.75, 24),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.3, roughness: 0.2 })
+    );
+    pyrhelioTube.rotation.x = Math.PI / 2;
+    pyrhelioTube.castShadow = true;
+    trackerElevationPivot.add(pyrhelioTube);
+
+    // Gold Alignment Diopter Sight & Front Quartz Window
+    const frontCap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.19, 0.19, 0.10, 24),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.85 })
+    );
+    frontCap.rotation.x = Math.PI / 2;
+    frontCap.position.z = 0.88;
+    trackerElevationPivot.add(frontCap);
+
+    const goldSightRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.14, 0.025, 12, 24),
+      new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 })
+    );
+    goldSightRing.position.z = 0.94;
+    trackerElevationPivot.add(goldSightRing);
+
+    // Narrow 5° Field-of-View Acceptance Cone projecting toward the Sun
+    const coneLength = 6.2;
+    const coneRadius = Math.tan((5 * Math.PI) / 180) * coneLength;
+    const fovConeGeo = new THREE.ConeGeometry(coneRadius, coneLength, 24, 1, true);
+    fovConeGeo.rotateX(Math.PI / 2);
+    fovConeGeo.translate(0, 0, 0.92 + coneLength / 2);
+    const pyrhelioFovCone = new THREE.Mesh(
+      fovConeGeo,
+      new THREE.MeshBasicMaterial({
+        color: 0xfacc15,
+        transparent: true,
+        opacity: 0.32,
+        side: THREE.DoubleSide
+      })
+    );
+    trackerElevationPivot.add(pyrhelioFovCone);
+
+    /*************************************************************************
+     * 5. SUN SPHERE, SOLAR PATH ARC, ANGLE ARCS & ANIMATED RADIATION RAYS
+     *************************************************************************/
+    // Glowing 3D Sun
+    const sunGroup = new THREE.Group();
+    scene.add(sunGroup);
+
+    const sunCore = new THREE.Mesh(
+      new THREE.SphereGeometry(1.15, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a })
+    );
+    sunGroup.add(sunCore);
+
+    const sunHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(1.75, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.35 })
+    );
+    sunGroup.add(sunHalo);
+
+    // Solar Path Arc Line across the sky for the chosen season
+    const solarPathLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.6, gapSize: 0.35, transparent: true, opacity: 0.75 })
+    );
+    scene.add(solarPathLine);
+
+    // Zenith Vertical Axis Line (straight up from origin)
+    const zenithLineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, SKY_RADIUS, 0)
+    ]);
+    const zenithLine = new THREE.Line(
+      zenithLineGeo,
+      new THREE.LineDashedMaterial({ color: 0xfb923c, dashSize: 0.45, gapSize: 0.3 })
+    );
+    zenithLine.computeLineDistances();
+    scene.add(zenithLine);
+
+    // Main Sun-to-Center Vector Line
+    const sunRayLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xfde047, linewidth: 2 })
+    );
+    scene.add(sunRayLine);
+
+    // Ground Projection Line (for Azimuth & Altitude right triangle)
+    const groundProjLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xc084fc })
+    );
+    scene.add(groundProjLine);
+
+    // Vertical Drop Line from Sun to Ground Projection
+    const verticalDropLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.4, gapSize: 0.3 })
+    );
+    scene.add(verticalDropLine);
+
+    // Dynamic Angle Arc Meshes: Altitude (α), Zenith (θz), Azimuth (γs)
+    const altitudeArcMesh = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: 0x84cc16, side: THREE.DoubleSide, transparent: true, opacity: 0.45 })
+    );
+    scene.add(altitudeArcMesh);
+
+    const zenithArcMesh = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: 0xf97316, side: THREE.DoubleSide, transparent: true, opacity: 0.35 })
+    );
+    scene.add(zenithArcMesh);
+
+    const azimuthArcMesh = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({ color: 0xa855f7, side: THREE.DoubleSide, transparent: true, opacity: 0.45 })
+    );
+    scene.add(azimuthArcMesh);
+
+    /*************************************************************************
+     * 6. ANIMATED RADIATION PARTICLES / BEAMS (DNI, DHI, ALBEDO)
+     *************************************************************************/
+    const raysGroup = new THREE.Group();
+    scene.add(raysGroup);
+
+    // Create reusable animated photon streaks
+    const dniPhotons = [];
+    const dhiPhotons = [];
+    const albedoPhotons = [];
+
+    const dniMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 }); // Golden Yellow
+    const dhiMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 }); // Sky Cyan
+    const albMat = new THREE.MeshBasicMaterial({ color: 0xf472b6 }); // Magenta/Pink
+
+    const photonGeo = new THREE.CylinderGeometry(0.065, 0.065, 1.35, 8);
+    photonGeo.rotateX(Math.PI / 2);
+
+    // 18 DNI / Beam parallel photon streaks
+    for (let i = 0; i < 18; i++) {
+      const m = new THREE.Mesh(photonGeo, dniMat);
+      raysGroup.add(m);
+      dniPhotons.push({
+        mesh: m,
+        offset: new THREE.Vector3(
+          ((i % 6) - 2.5) * 1.45,
+          0,
+          (Math.floor(i / 6) - 1) * 1.55
+        ),
+        phase: (i / 18)
+      });
+    }
+
+    // 20 DHI Diffuse scattered photon streaks from hemisphere
+    for (let i = 0; i < 20; i++) {
+      const m = new THREE.Mesh(photonGeo, dhiMat);
+      raysGroup.add(m);
+      const theta = ((i * 137.5) % 360) * (Math.PI / 180);
+      const phi = 0.25 + ((i % 5) / 5) * 1.05;
+      const startDir = new THREE.Vector3(
+        Math.sin(phi) * Math.sin(theta),
+        Math.cos(phi),
+        Math.sin(phi) * Math.cos(theta)
+      ).normalize();
+      const targetPt = new THREE.Vector3(
+        ((i % 5) - 2) * 1.4 - 1.2,
+        0.2,
+        (Math.floor(i / 5) - 2) * 1.3
+      );
+      dhiPhotons.push({
+        mesh: m,
+        start: startDir.clone().multiplyScalar(16.5),
+        end: targetPt,
+        phase: (i / 20)
+      });
+    }
+
+    // 12 Albedo Reflected photon streaks bouncing from ground up to tilted panel
+    for (let i = 0; i < 12; i++) {
+      const m = new THREE.Mesh(photonGeo, albMat);
+      raysGroup.add(m);
+      const groundOrigin = new THREE.Vector3(
+        ((i % 4) - 1.5) * 1.4,
+        0.05,
+        2.2 + Math.floor(i / 4) * 1.15
+      );
+      const panelTarget = new THREE.Vector3(
+        ((i % 4) - 1.5) * 0.9,
+        2.15,
+        0.25
+      );
+      albedoPhotons.push({
+        mesh: m,
+        start: groundOrigin,
+        end: panelTarget,
+        phase: (i / 12)
+      });
+    }
+
+    /*************************************************************************
+     * 7. FLOATING 3D SPATIAL LABELS
+     *************************************************************************/
+    const labelsContainer = document.getElementById("labels-container");
+    const spatialLabels = [
+      { id: "lbl-sun", text: "☀️ SUN (DNI Source)", bg: "bg-amber-500 text-slate-950", pos: new THREE.Vector3() },
+      { id: "lbl-pyrano", text: "🌐 PYRANOMETER (GHI / DHI - 180° FOV)", bg: "bg-emerald-400 text-slate-950 border-2 border-white", pos: new THREE.Vector3(-3.4, 4.3, 3.8) },
+      { id: "lbl-pyrhelio", text: "🔭 PYRHELIOMETER (DNI - 5° FOV)", bg: "bg-amber-400 text-slate-950 border-2 border-white", pos: new THREE.Vector3(3.4, 4.2, 3.8) },
+      { id: "lbl-panel", text: "🔋 Tilted Collector (POA)", bg: "bg-blue-600 text-white", pos: new THREE.Vector3(0, 3.8, 0) },
+      { id: "lbl-alt", text: "α Altitude", bg: "bg-lime-500 text-slate-950", pos: new THREE.Vector3() },
+      { id: "lbl-zen", text: "θz Zenith", bg: "bg-orange-500 text-slate-950", pos: new THREE.Vector3() },
+      { id: "lbl-azi", text: "γs Azimuth", bg: "bg-purple-500 text-white", pos: new THREE.Vector3() },
+      { id: "lbl-alb", text: "✨ Albedo Reflection", bg: "bg-pink-500 text-white", pos: new THREE.Vector3(0, 1.0, 3.2) }
+    ];
+
+    spatialLabels.forEach(item => {
+      const el = document.createElement("div");
+      el.id = item.id;
+      el.className = `label-3d ${item.bg}`;
+      el.textContent = item.text;
+      labelsContainer.appendChild(el);
+      item.el = el;
+    });
+
+    function updateSpatialLabels() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      spatialLabels.forEach(item => {
+        // Visibility sync with master labels toggle and layer checkboxes
+        let visible = state.layers.labels;
+        if (item.id === "lbl-pyrano" && !state.layers.ghi) visible = false;
+        if (item.id === "lbl-pyrhelio" && !state.layers.instruments) visible = false;
+        if ((item.id === "lbl-alt" || item.id === "lbl-zen") && !state.layers.altitude) visible = false;
+        if (item.id === "lbl-azi" && !state.layers.azimuth) visible = false;
+        if (item.id === "lbl-alb" && !state.layers.albedo) visible = false;
+
+        if (!visible) {
+          item.el.style.opacity = "0";
+          return;
+        }
+        const projected = item.pos.clone().project(camera);
+        if (projected.z > 1) {
+          item.el.style.opacity = "0";
+          return;
+        }
+        const x = (projected.x * 0.5 + 0.5) * w;
+        const y = (-projected.y * 0.5 + 0.5) * h;
+        item.el.style.left = `${x}px`;
+        item.el.style.top = `${y}px`;
+        item.el.style.opacity = "1";
+      });
+    }
+
+    /*************************************************************************
+     * 8. SOLAR POSITION, ANGLE ARCS & IRRADIANCE PHYSICS ENGINE
+     *************************************************************************/
+    function degToRad(deg) {
+      return (deg * Math.PI) / 180;
+    }
+
+    function computeSunCoordinates(solarTime, declinationDeg, latitudeDeg) {
+      const hourAngleDeg = (solarTime - 12.0) * 15.0;
+      const phi = degToRad(latitudeDeg);
+      const delta = degToRad(declinationDeg);
+      const omega = degToRad(hourAngleDeg);
+
+      const sinAlpha = Math.sin(phi) * Math.sin(delta) + Math.cos(phi) * Math.cos(delta) * Math.cos(omega);
+      const alphaRad = Math.max(0.035, Math.asin(Math.max(-1, Math.min(1, sinAlpha))));
+      const altitudeDeg = (alphaRad * 180) / Math.PI;
+      const zenithDeg = 90 - altitudeDeg;
+      const zenithRad = degToRad(zenithDeg);
+
+      const cosAzi = (Math.sin(alphaRad) * Math.sin(phi) - Math.sin(delta)) / (Math.cos(alphaRad) * Math.cos(phi));
+      let azimuthFromSouthRad = Math.acos(Math.max(-1, Math.min(1, cosAzi)));
+      if (hourAngleDeg < 0) azimuthFromSouthRad = -azimuthFromSouthRad;
+
+      const azimuthDeg = (180 + (azimuthFromSouthRad * 180) / Math.PI + 360) % 360;
+      const azimuthRad = degToRad(azimuthDeg);
+
+      const rHoriz = SKY_RADIUS * Math.cos(alphaRad);
+      const y = SKY_RADIUS * Math.sin(alphaRad);
+      const x = rHoriz * Math.sin(azimuthRad);
+      const z = -rHoriz * Math.cos(azimuthRad);
+
+      return {
+        pos: new THREE.Vector3(x, y, z),
+        altitudeDeg,
+        zenithDeg,
+        azimuthDeg,
+        alphaRad,
+        zenithRad,
+        azimuthRad
+      };
+    }
+
+    function buildSectorMesh(mesh, radius, segments, pointFn) {
+      const vertices = [0, 0, 0];
+      for (let i = 0; i <= segments; i++) {
+        const pt = pointFn(i / segments);
+        vertices.push(pt.x, pt.y, pt.z);
+      }
+      const indices = [];
+      for (let i = 1; i <= segments; i++) {
+        indices.push(0, i, i + 1);
+      }
+      mesh.geometry.dispose();
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+      geo.setIndex(indices);
+      mesh.geometry = geo;
+    }
+
+    function updateSimulation() {
+      const sunData = computeSunCoordinates(state.solarTime, state.declination, state.latitude);
+      state.altitudeDeg = sunData.altitudeDeg;
+      state.zenithDeg = sunData.zenithDeg;
+      state.azimuthDeg = sunData.azimuthDeg;
+
+      const sunPos = sunData.pos;
+      sunGroup.position.copy(sunPos);
+      sunLight.position.copy(sunPos);
+
+      panelPivot.rotation.x = degToRad(state.panelTilt);
+
+      trackerAzimuthHead.rotation.y = Math.PI - sunData.azimuthRad;
+      trackerElevationPivot.lookAt(sunPos);
+
+      const pathPoints = [];
+      for (let t = 6.0; t <= 18.0; t += 0.25) {
+        const pt = computeSunCoordinates(t, state.declination, state.latitude).pos;
+        if (pt.y > 0.3) pathPoints.push(pt);
+      }
+      solarPathLine.geometry.dispose();
+      solarPathLine.geometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
+      solarPathLine.computeLineDistances();
+
+      const groundProj = new THREE.Vector3(sunPos.x, 0.03, sunPos.z);
+      sunRayLine.geometry.dispose();
+      sunRayLine.geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.03, 0), sunPos]);
+
+      groundProjLine.geometry.dispose();
+      groundProjLine.geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.03, 0), groundProj]);
+
+      verticalDropLine.geometry.dispose();
+      verticalDropLine.geometry = new THREE.BufferGeometry().setFromPoints([sunPos, groundProj]);
+      verticalDropLine.computeLineDistances();
+
+      const horizDir = new THREE.Vector3(Math.sin(sunData.azimuthRad), 0, -Math.cos(sunData.azimuthRad));
+      altitudeArcMesh.visible = state.layers.altitude;
+      zenithArcMesh.visible = state.layers.altitude;
+      azimuthArcMesh.visible = state.layers.azimuth;
+
+      buildSectorMesh(altitudeArcMesh, 5.2, 24, (t) => {
+        const a = t * sunData.alphaRad;
+        return horizDir.clone().multiplyScalar(Math.cos(a) * 5.2).add(new THREE.Vector3(0, Math.sin(a) * 5.2, 0));
+      });
+
+      buildSectorMesh(zenithArcMesh, 4.2, 24, (t) => {
+        const zAng = t * sunData.zenithRad;
+        return horizDir.clone().multiplyScalar(Math.sin(zAng) * 4.2).add(new THREE.Vector3(0, Math.cos(zAng) * 4.2, 0));
+      });
+
+      buildSectorMesh(azimuthArcMesh, 5.8, 32, (t) => {
+        const az = t * sunData.azimuthRad;
+        return new THREE.Vector3(Math.sin(az) * 5.8, 0.05, -Math.cos(az) * 5.8);
+      });
+
+      // Update Pyranometer Shadow Ring & Label depending on GHI vs DHI mode
+      shadowRingGroup.visible = state.layers.shadowring;
+      if (state.layers.shadowring) {
+        shadowRingGroup.lookAt(sunPos);
+        spatialLabels[1].el.textContent = "🌗 PYRANOMETER + SHADOW RING (DHI - 180° FOV)";
+      } else {
+        spatialLabels[1].el.textContent = "🌐 PYRANOMETER (GHI / DHI - 180° FOV)";
+      }
+
+      // Update Spatial Label Positions
+      spatialLabels[0].pos.copy(sunPos).add(new THREE.Vector3(0, 1.8, 0));
+      const midAlt = sunData.alphaRad * 0.5;
+      spatialLabels[4].pos.copy(horizDir).multiplyScalar(Math.cos(midAlt) * 6.6).add(new THREE.Vector3(0, Math.sin(midAlt) * 6.6, 0));
+      const midZen = sunData.zenithRad * 0.5;
+      spatialLabels[5].pos.copy(horizDir).multiplyScalar(Math.sin(midZen) * 5.2).add(new THREE.Vector3(0, Math.cos(midZen) * 5.2, 0));
+      const midAzi = sunData.azimuthRad * 0.5;
+      spatialLabels[6].pos.set(Math.sin(midAzi) * 6.8, 0.35, -Math.cos(midAzi) * 6.8);
+
+      // Irradiance Physics Model (Clear-Sky + Cloud Attenuation)
+      const airMass = 1 / (Math.sin(sunData.alphaRad) + 0.15 * Math.pow(sunData.altitudeDeg + 3.885, -1.253));
+      const clearSkyDNI = 1361 * Math.pow(0.7, Math.pow(Math.max(1, airMass), 0.678));
+      const cloudFrac = state.cloudCover / 100;
+
+      // DNI drops sharply with cloud cover
+      state.dniVal = Math.max(0, Math.round(clearSkyDNI * Math.pow(1 - cloudFrac, 1.65)));
+
+      // DHI increases with moderate clouds (scattering) and decreases under heavy overcast
+      const clearDHI = 0.11 * clearSkyDNI * Math.sin(sunData.alphaRad);
+      const cloudScatterBoost = 340 * Math.sin(cloudFrac * Math.PI * 0.85) * Math.sin(sunData.alphaRad);
+      state.dhiVal = Math.max(15, Math.round(clearDHI + cloudScatterBoost));
+
+      // GHI = DNI * cos(Zenith) + DHI
+      state.ghiVal = Math.round(state.dniVal * Math.cos(sunData.zenithRad) + state.dhiVal);
+
+      // Ground Reflected Irradiance on Tilted Panel: GHI * albedo * (1 - cos(tilt))/2
+      const tiltRad = degToRad(state.panelTilt);
+      state.albedoVal = Math.round(state.ghiVal * state.albedo * ((1 - Math.cos(tiltRad)) / 2));
+
+      // Plane of Array (POA) Total Irradiance on Tilted Collector
+      const cosThetaPanel = Math.max(0,
+        Math.sin(sunData.alphaRad) * Math.cos(tiltRad) +
+        Math.cos(sunData.alphaRad) * Math.sin(tiltRad) * Math.cos(sunData.azimuthRad - Math.PI)
+      );
+      const poaBeam = state.dniVal * cosThetaPanel;
+      const poaDiffuse = state.dhiVal * ((1 + Math.cos(tiltRad)) / 2);
+      state.poaVal = Math.round(poaBeam + poaDiffuse + state.albedoVal);
+
+      // Adjust Clouds Opacity & Sun Brightness
+      cloudMat.opacity = 0.08 + cloudFrac * 0.72;
+      cloudsGroup.visible = state.cloudCover > 3;
+      sunLight.intensity = 0.4 + 1.6 * (1 - cloudFrac);
+      sunHalo.scale.setScalar(1 + cloudFrac * 0.4);
+
+      // Layer visibility
+      pyranometerGroup.visible = state.layers.ghi;
+      pyrheliometerGroup.visible = state.layers.instruments;
+      pyranoFovHemisphere.visible = state.layers.ghi && state.layers.instruments;
+      pyranoFovGlowShell.visible = state.layers.ghi && state.layers.instruments;
+      pyrhelioFovCone.visible = state.layers.instruments;
+
+      // Update UI Telemetry & Slider Badges
+      updateTelemetryUI();
+    }
+
+    function updateTelemetryUI() {
+      document.getElementById("tel-ghi").textContent = `${state.ghiVal} W/m²`;
+      document.getElementById("tel-dni").textContent = `${state.dniVal} W/m²`;
+      document.getElementById("tel-dhi").textContent = `${state.dhiVal} W/m²`;
+      document.getElementById("tel-albedo").textContent = `${state.albedoVal} W/m²`;
+      document.getElementById("tel-poa").textContent = `${state.poaVal} W/m²`;
+
+      document.getElementById("tel-alt").textContent = `${state.altitudeDeg.toFixed(1)}°`;
+      document.getElementById("tel-zen").textContent = `${state.zenithDeg.toFixed(1)}°`;
+      document.getElementById("tel-azi").textContent = `${state.azimuthDeg.toFixed(1)}°`;
+
+      // Format Solar Time HH:MM AM/PM
+      const hrs = Math.floor(state.solarTime);
+      const mins = Math.round((state.solarTime - hrs) * 60);
+      const ampm = hrs >= 12 ? "PM" : "AM";
+      const h12 = hrs > 12 ? hrs - 12 : hrs;
+      document.getElementById("val-time").textContent = `${h12}:${mins.toString().padStart(2, "0")} ${ampm}`;
+
+      // Season label
+      let seasonName = "Equinox";
+      if (state.declination > 15) seasonName = "Summer";
+      else if (state.declination < -15) seasonName = "Winter";
+      document.getElementById("val-season").textContent = `${state.declination > 0 ? "+" : ""}${state.declination.toFixed(1)}° (${seasonName})`;
+
+      document.getElementById("val-cloud").textContent = `${state.cloudCover}%`;
+
+      let surfName = "Grass";
+      if (state.albedo < 0.16) surfName = "Asphalt";
+      else if (state.albedo > 0.65) surfName = "Snow/White";
+      else if (state.albedo > 0.38) surfName = "Sand/Concrete";
+      document.getElementById("val-albedo").textContent = `${state.albedo.toFixed(2)} (${surfName})`;
+
+      document.getElementById("val-tilt").textContent = `${state.panelTilt}°`;
+    }
+
+    /*************************************************************************
+     * 9. ANIMATION LOOP (PHOTON RAYS + CAMERA SMOOTHING)
+     *************************************************************************/
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+
+      // Auto-advance Sun across sky if enabled
+      if (state.autoSun) {
+        state.solarTime += dt * 0.65;
+        if (state.solarTime > 17.8) state.solarTime = 6.2;
+        document.getElementById("slider-time").value = state.solarTime.toFixed(1);
+        updateSimulation();
+      }
+
+      // Smooth Camera Preset Transition
+      if (camTransition) {
+        camera.position.lerp(camTransition.pos, 0.08);
+        controls.target.lerp(camTransition.target, 0.08);
+        if (camera.position.distanceTo(camTransition.pos) < 0.12) {
+          camTransition = null;
+        }
+      }
+
+      // Animate DNI / Beam Parallel Rays
+      const sunDir = sunGroup.position.clone().normalize();
+      const rightAxis = new THREE.Vector3().crossVectors(sunDir, new THREE.Vector3(0, 1, 0)).normalize();
+      const upAxis = new THREE.Vector3().crossVectors(rightAxis, sunDir).normalize();
+      const dniSpeed = 0.55 + (state.dniVal / 1000) * 0.45;
+      const showDni = state.layers.dni && state.dniVal > 20;
+
+      dniPhotons.forEach(p => {
+        p.mesh.visible = showDni;
+        if (!showDni) return;
+        p.phase = (p.phase + dt * dniSpeed) % 1;
+        const spread = rightAxis.clone().multiplyScalar(p.offset.x).add(upAxis.clone().multiplyScalar(p.offset.z));
+        const startPt = sunGroup.position.clone().add(spread);
+        const endPt = spread.clone().add(new THREE.Vector3(0, 0.2, 0));
+        p.mesh.position.lerpVectors(startPt, endPt, p.phase);
+        p.mesh.lookAt(endPt);
+      });
+
+      // Animate DHI Diffuse Scattered Rays
+      const dhiSpeed = 0.35 + (state.dhiVal / 400) * 0.4;
+      const showDhi = state.layers.dhi;
+      dhiPhotons.forEach(p => {
+        p.mesh.visible = showDhi;
+        if (!showDhi) return;
+        p.phase = (p.phase + dt * dhiSpeed) % 1;
+        p.mesh.position.lerpVectors(p.start, p.end, p.phase);
+        p.mesh.lookAt(p.end);
+      });
+
+      // Animate Albedo Reflected Rays (Ground -> Tilted Collector)
+      const showAlb = state.layers.albedo && state.albedoVal > 2;
+      const albSpeed = 0.4 + state.albedo * 0.5;
+      albedoPhotons.forEach(p => {
+        p.mesh.visible = showAlb;
+        if (!showAlb) return;
+        p.phase = (p.phase + dt * albSpeed) % 1;
+        p.mesh.position.lerpVectors(p.start, p.end, p.phase);
+        p.mesh.lookAt(p.end);
+      });
+
+      controls.update();
+      updateSpatialLabels();
+      renderer.render(scene, camera);
+    }
+
+    /*************************************************************************
+     * 10. WEB SPEECH API VOICE NARRATION & TELEPROMPTER
+     *************************************************************************/
+    const teleprompterBox = document.getElementById("teleprompter-box");
+    const teleprompterTopic = document.getElementById("teleprompter-topic");
+    const teleprompterText = document.getElementById("teleprompter-text");
+
+    function speakText(topicTitle, text) {
+      if (!("speechSynthesis" in window)) {
+        teleprompterBox.classList.remove("hidden");
+        teleprompterTopic.textContent = topicTitle;
+        teleprompterText.textContent = text;
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      state.activeNarrationTopic = topicTitle;
+      state.activeNarrationText = text;
+
+      teleprompterBox.classList.remove("hidden");
+      teleprompterTopic.textContent = topicTitle;
+      teleprompterText.textContent = text;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      const targetLang = I18N[state.lang].speechLang;
+      utterance.lang = targetLang;
+      utterance.rate = 0.96;
+
+      // Attempt to pick a matching native voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(targetLang.slice(0, 2).toLowerCase()));
+      if (matchedVoice) utterance.voice = matchedVoice;
+
+      utterance.onend = () => {
+        setTimeout(() => {
+          if (!window.speechSynthesis.speaking) {
+            teleprompterBox.classList.add("hidden");
+          }
+        }, 2500);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    document.getElementById("tts-play").addEventListener("click", () => {
+      if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        return;
+      }
+      const dict = I18N[state.lang];
+      speakText(dict.appTitle, dict.overviewNarration);
+    });
+
+    document.getElementById("tts-pause").addEventListener("click", () => {
+      if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+      }
+    });
+
+    document.getElementById("tts-stop").addEventListener("click", () => {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      teleprompterBox.classList.add("hidden");
+    });
+
+    /*************************************************************************
+     * 11. DYNAMIC UI TRANSLATION & ACCORDIONS BUILDER
+     *************************************************************************/
+    function applyLanguage(langCode) {
+      state.lang = langCode;
+      const dict = I18N[langCode];
+
+      document.getElementById("app-title").textContent = dict.appTitle;
+      document.getElementById("app-subtitle").textContent = dict.appSubtitle;
+      document.getElementById("lbl-narrate").textContent = dict.narrateBtn;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      // Highlight active language button
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        const isSelected = btn.getAttribute("data-lang") === langCode;
+        btn.className = isSelected
+          ? "lang-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950"
+          : "lang-btn px-2.5 py-1 rounded-lg text-xs font-bold transition hover:bg-slate-500/20";
+      });
+
+      // Rebuild Educational Accordions
+      const accContainer = document.getElementById("accordions-container");
+      accContainer.innerHTML = "";
+      dict.topics.forEach((topic, idx) => {
+        const item = document.createElement("div");
+        item.className = `accordion-item glass-card rounded-xl overflow-hidden ${idx < 2 ? "open" : ""}`;
+        const usesHtml = topic.uses
+          ? `<div class="pt-1">
+               <div class="text-[11px] font-bold uppercase tracking-wider text-teal-300 mb-1">Key Uses &amp; Applications:</div>
+               <ul class="list-disc list-inside text-[11px] text-sec space-y-0.5">
+                 ${topic.uses.map(u => `<li>${u}</li>`).join("")}
+               </ul>
+             </div>`
+          : "";
+        item.innerHTML = `
+          <button class="accordion-header w-full p-3 text-left flex items-center justify-between gap-2 hover:bg-slate-500/10 transition">
+            <div>
+              <div class="font-bold text-xs sm:text-sm ${topic.color}">${topic.title}</div>
+              <div class="text-[10px] text-sec font-mono mt-0.5">${topic.badge}</div>
+            </div>
+            <span class="accordion-chevron text-xs transition-transform duration-200">▼</span>
+          </button>
+          <div class="accordion-content px-3">
+            <div class="pb-3 pt-1 border-t border-slate-500/20 space-y-2">
+              <div class="px-2.5 py-1.5 rounded-lg bg-slate-950/50 border border-slate-500/30 font-mono text-[11px] text-amber-300">
+                ${topic.formula}
+              </div>
+              <p class="text-xs leading-relaxed text-sec">${topic.desc}</p>
+              ${usesHtml}
+              <button class="speak-topic-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition flex items-center gap-1.5">
+                <span>🔊</span> <span>${dict.narrateBtn}</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        item.querySelector(".accordion-header").addEventListener("click", () => {
+          const wasOpen = item.classList.contains("open");
+          item.classList.toggle("open");
+          if (!wasOpen && (topic.id === "pyranometer" || topic.id === "pyrheliometer")) {
+            camTransition = {
+              pos: CAMERA_PRESETS.sensors.pos.clone(),
+              target: CAMERA_PRESETS.sensors.target.clone()
+            };
+          }
+        });
+
+        item.querySelector(".speak-topic-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          speakText(topic.title, topic.narration);
+        });
+
+        accContainer.appendChild(item);
+      });
+    }
+
+    /*************************************************************************
+     * 12. EVENT LISTENERS (CONTROLS, THEMES, CAMERAS, RESIZE)
+     *************************************************************************/
+    // Language Switcher
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        teleprompterBox.classList.add("hidden");
+        applyLanguage(btn.getAttribute("data-lang"));
+      });
+    });
+
+    // Theme Switcher (Dark, Light, High-Contrast Projector)
+    document.querySelectorAll(".theme-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const theme = btn.getAttribute("data-theme");
+        state.theme = theme;
+        document.body.className = `theme-${theme}`;
+
+        document.querySelectorAll(".theme-btn").forEach(b => {
+          b.className = b === btn
+            ? "theme-btn px-2 py-1 rounded-lg text-xs font-semibold transition bg-sky-500 text-white"
+            : "theme-btn px-2 py-1 rounded-lg text-xs font-semibold transition hover:bg-slate-500/20";
+        });
+
+        // Adjust 3D background & fog for theme
+        if (theme === "light") {
+          scene.background = new THREE.Color(0xdbeafe);
+          scene.fog.color.setHex(0xdbeafe);
+          domeMat.color.setHex(0x0284c7);
+          domeMat.opacity = 0.16;
+        } else if (theme === "projector") {
+          scene.background = new THREE.Color(0x000000);
+          scene.fog.color.setHex(0x000000);
+          domeMat.color.setHex(0x00ffcc);
+          domeMat.opacity = 0.22;
+        } else {
+          scene.background = new THREE.Color(0x060b19);
+          scene.fog.color.setHex(0x060b19);
+          domeMat.color.setHex(0x38bdf8);
+          domeMat.opacity = 0.09;
+        }
+        groundMat.map.dispose();
+        groundMat.map = createCompassGroundTexture(state.albedo, theme);
+        groundMat.needsUpdate = true;
+      });
+    });
+
+    // Font Scaling & Labels Toggle
+    document.getElementById("font-inc").addEventListener("click", () => {
+      state.fontScale = Math.min(1.25, +(state.fontScale + 0.05).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", state.fontScale);
+    });
+    document.getElementById("font-dec").addEventListener("click", () => {
+      state.fontScale = Math.max(0.85, +(state.fontScale - 0.05).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", state.fontScale);
+    });
+    const toggleLabelsBtn = document.getElementById("toggle-labels-btn");
+    toggleLabelsBtn.addEventListener("click", () => {
+      state.layers.labels = !state.layers.labels;
+      toggleLabelsBtn.className = state.layers.labels
+        ? "px-2 py-1 rounded-lg text-xs font-bold bg-sky-500/25 text-sky-300 border border-sky-400/40 hover:bg-sky-500/35 transition"
+        : "px-2 py-1 rounded-lg text-xs font-bold bg-slate-500/20 text-sec hover:bg-slate-500/30 transition";
+      updateSpatialLabels();
+    });
+
+    // Sidebar Toggle & Tabs
+    const sidebar = document.getElementById("sidebar");
+    let sidebarOpen = true;
+    document.getElementById("toggle-sidebar-btn").addEventListener("click", () => {
+      sidebarOpen = !sidebarOpen;
+      sidebar.style.transform = sidebarOpen ? "translateX(0)" : "translateX(-110%)";
+    });
+
+    const tabControls = document.getElementById("tab-controls");
+    const tabLearn = document.getElementById("tab-learn");
+    const panelControls = document.getElementById("panel-controls");
+    const panelLearn = document.getElementById("panel-learn");
+
+    tabControls.addEventListener("click", () => {
+      panelControls.classList.remove("hidden");
+      panelLearn.classList.add("hidden");
+      tabControls.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition";
+      tabLearn.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition";
+    });
+
+    tabLearn.addEventListener("click", () => {
+      panelLearn.classList.remove("hidden");
+      panelControls.classList.add("hidden");
+      tabLearn.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition";
+      tabControls.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition";
+    });
+
+    // Simulation Sliders
+    document.getElementById("slider-time").addEventListener("input", (e) => {
+      state.solarTime = parseFloat(e.target.value);
+      state.autoSun = false;
+      updateSimulation();
+    });
+
+    document.getElementById("slider-season").addEventListener("input", (e) => {
+      state.declination = parseFloat(e.target.value);
+      updateSimulation();
+    });
+
+    document.getElementById("slider-cloud").addEventListener("input", (e) => {
+      state.cloudCover = parseInt(e.target.value, 10);
+      updateSimulation();
+    });
+
+    document.getElementById("slider-albedo").addEventListener("input", (e) => {
+      state.albedo = parseFloat(e.target.value);
+      groundMat.map.dispose();
+      groundMat.map = createCompassGroundTexture(state.albedo, state.theme);
+      groundMat.needsUpdate = true;
+      updateSimulation();
+    });
+
+    document.getElementById("slider-tilt").addEventListener("input", (e) => {
+      state.panelTilt = parseInt(e.target.value, 10);
+      updateSimulation();
+    });
+
+    document.getElementById("btn-animate-sun").addEventListener("click", () => {
+      state.autoSun = !state.autoSun;
+    });
+
+    // Layer Visibility Checkboxes
+    ["dni", "dhi", "albedo", "ghi", "altitude", "azimuth", "instruments", "shadowring"].forEach(key => {
+      document.getElementById(`chk-${key}`).addEventListener("change", (e) => {
+        state.layers[key] = e.target.checked;
+        updateSimulation();
+      });
+    });
+
+    // Camera Presets
+    document.querySelectorAll(".cam-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const presetKey = btn.getAttribute("data-cam");
+        const preset = CAMERA_PRESETS[presetKey];
+        if (preset) {
+          camTransition = {
+            pos: preset.pos.clone(),
+            target: preset.target.clone()
+          };
+        }
+        document.querySelectorAll(".cam-btn").forEach(b => {
+          b.className = b === btn
+            ? "cam-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition"
+            : "cam-btn px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-500/20 transition";
+        });
+      });
+    });
+
+    // Cancel camera preset lerp if user drags manually
+    controls.addEventListener("start", () => {
+      camTransition = null;
+    });
+
+    // Responsive Window Resize
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Collapse sidebar automatically on very small screens initially so 3D canvas is clear
+    if (window.innerWidth < 640) {
+      sidebarOpen = false;
+      sidebar.style.transform = "translateX(-110%)";
+    }
+
+    // Initialize Application on Window Load
+    window.onload = function () {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.getVoices();
+      }
+      applyLanguage("en");
+      updateSimulation();
+      animate();
+    };
+  </script>
+</body>
+</html>
