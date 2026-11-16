@@ -1333,6 +1333,44 @@
     );
     trackerElevationPivot.add(pyrhelioFovCone);
 
+    // Perpendicular (Normal) Reference Receiving Plane mounted on the Pyrheliometer
+    // Visually proves that DNI is measured on a plane strictly 90° orthogonal to the Sun's rays
+    const normalPlaneGroup = new THREE.Group();
+    normalPlaneGroup.position.set(0, 0, 0.94);
+    trackerElevationPivot.add(normalPlaneGroup);
+
+    const normalDisc = new THREE.Mesh(
+      new THREE.CircleGeometry(0.95, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xfde047,
+        transparent: true,
+        opacity: 0.22,
+        side: THREE.DoubleSide
+      })
+    );
+    normalPlaneGroup.add(normalDisc);
+
+    const normalDiscRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.91, 0.97, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xfacc15,
+        side: THREE.DoubleSide
+      })
+    );
+    normalPlaneGroup.add(normalDiscRing);
+
+    // 90° Right-Angle Bracket between Normal Plane and Sunbeam Axis (+Z)
+    const rightAnglePts = [
+      new THREE.Vector3(0, 0.32, 0),
+      new THREE.Vector3(0, 0.32, 0.32),
+      new THREE.Vector3(0, 0, 0.32)
+    ];
+    const rightAngleMarker = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(rightAnglePts),
+      new THREE.LineBasicMaterial({ color: 0xffffff })
+    );
+    normalPlaneGroup.add(rightAngleMarker);
+
     /*************************************************************************
      * 5. SUN SPHERE, SOLAR PATH ARC, ANGLE ARCS & ANIMATED RADIATION RAYS
      *************************************************************************/
@@ -1497,7 +1535,7 @@
     const spatialLabels = [
       { id: "lbl-sun", text: "☀️ SUN (DNI Source)", bg: "bg-amber-500 text-slate-950", pos: new THREE.Vector3() },
       { id: "lbl-pyrano", text: "🌐 PYRANOMETER (GHI / DHI - 180° FOV)", bg: "bg-emerald-400 text-slate-950 border-2 border-white", pos: new THREE.Vector3(-3.4, 4.3, 3.8) },
-      { id: "lbl-pyrhelio", text: "🔭 PYRHELIOMETER (DNI - 5° FOV)", bg: "bg-amber-400 text-slate-950 border-2 border-white", pos: new THREE.Vector3(3.4, 4.2, 3.8) },
+      { id: "lbl-pyrhelio", text: "🔭 PYRHELIOMETER (DNI ⊥ 90° Normal Plane)", bg: "bg-amber-400 text-slate-950 border-2 border-white", pos: new THREE.Vector3(3.4, 4.2, 3.8) },
       { id: "lbl-panel", text: "🔋 Tilted Collector (POA)", bg: "bg-blue-600 text-white", pos: new THREE.Vector3(0, 3.8, 0) },
       { id: "lbl-alt", text: "α Altitude", bg: "bg-lime-500 text-slate-950", pos: new THREE.Vector3() },
       { id: "lbl-zen", text: "θz Zenith", bg: "bg-orange-500 text-slate-950", pos: new THREE.Vector3() },
@@ -1716,6 +1754,7 @@
       pyranoFovHemisphere.visible = state.layers.ghi && state.layers.instruments;
       pyranoFovGlowShell.visible = state.layers.ghi && state.layers.instruments;
       pyrhelioFovCone.visible = state.layers.instruments;
+      normalPlaneGroup.visible = state.layers.dni && state.layers.instruments;
 
       // Update UI Telemetry & Slider Badges
       updateTelemetryUI();
@@ -1781,8 +1820,7 @@
           camTransition = null;
         }
       }
-
-      // Animate DNI / Beam Parallel Rays
+      // Animate DNI / Beam Parallel Rays (strictly parallel to true sunDir & perpendicular to Normal Plane)
       const sunDir = sunGroup.position.clone().normalize();
       const rightAxis = new THREE.Vector3().crossVectors(sunDir, new THREE.Vector3(0, 1, 0)).normalize();
       const upAxis = new THREE.Vector3().crossVectors(rightAxis, sunDir).normalize();
@@ -1794,8 +1832,9 @@
         if (!showDni) return;
         p.phase = (p.phase + dt * dniSpeed) % 1;
         const spread = rightAxis.clone().multiplyScalar(p.offset.x).add(upAxis.clone().multiplyScalar(p.offset.z));
-        const startPt = sunGroup.position.clone().add(spread);
-        const endPt = spread.clone().add(new THREE.Vector3(0, 0.2, 0));
+        // End point lies on the normal plane passing through the station center so startPt -> endPt is 100% parallel to sunDir
+        const endPt = new THREE.Vector3(0, 1.8, 0).add(spread);
+        const startPt = endPt.clone().addScaledVector(sunDir, SKY_RADIUS);
         p.mesh.position.lerpVectors(startPt, endPt, p.phase);
         p.mesh.lookAt(endPt);
       });
